@@ -12,10 +12,10 @@ def ROBOT_MAIN_CLASS = "org.bitbuckets.bootstrap.Main"
 
 repositories {
     maven {
-        url 'https://repo.superyuuki.com/snapshots'
+        url "https://repo.superyuuki.com/snapshots"
     }
     maven {
-        url 'https://repo.superyuuki.com/releases'
+        url "https://repo.superyuuki.com/releases"
     }
 }
 
@@ -77,9 +77,9 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:4.11.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.0.0'
 
-    implementation 'xyz.auriium:mattlib2-auto:1.0.0-SNAPSHOT'
-    implementation 'xyz.auriium:mattlib2-log:1.0.0-SNAPSHOT'
-    implementation 'xyz.auriium:mattlib2-rev:1.0.0-SNAPSHOT'
+    implementation 'xyz.auriium:mattlib2-auto:1.0.7-SNAPSHOT'
+    implementation 'xyz.auriium:mattlib2-log:1.0.7-SNAPSHOT'
+    implementation 'xyz.auriium:mattlib2-rev:1.0.7-SNAPSHOT'
 }
 
 test {

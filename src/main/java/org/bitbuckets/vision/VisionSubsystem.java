@@ -9,7 +9,7 @@ import org.photonvision.PhotonPoseEstimator;
 
 import java.util.Optional;
 
-public class VisionSubsystem {
+public class VisionSubsystem  {
 
     final PhotonCamera camera_1;
     final PhotonCamera camera_2;
@@ -17,7 +17,7 @@ public class VisionSubsystem {
     final PhotonPoseEstimator estimator;
     final AprilTagDetector aprilTagDetector;
 
-    static final VisionComponent COMPONENT = Robot.LOG.loadWaiting(VisionComponent.class, "vision");
+    static final VisionComponent COMPONENT = Robot.LOG.load(VisionComponent.class, "vision");
 
     public VisionSubsystem(PhotonCamera camera_1, PhotonCamera camera_2, AprilTagFieldLayout layout, PhotonPoseEstimator estimator, AprilTagDetector aprilTagDetector) {
         this.camera_1 = camera_1;
