@@ -7,6 +7,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import org.bitbuckets.Robot;
 import org.bitbuckets.util.Util;
 import xyz.auriium.mattlib2.IPeriodicLooped;
 
@@ -30,6 +31,8 @@ public class DriveSubsystem implements Subsystem, IPeriodicLooped {
 
     @Override
     public void logPeriodic() {
+        Robot.SWERVE.logSwervePositions(currentPositions());
+        Robot.SWERVE.logSwerveStates(currentStates());
     }
 
     /**
@@ -81,6 +84,12 @@ public class DriveSubsystem implements Subsystem, IPeriodicLooped {
                 modules[2].getState(),
                 modules[3].getState()
         };
+    }
+
+    public void commandWheelsToZero() {
+        for (SwerveModule module : modules) {
+            module.stopAllMotors();
+        }
     }
 
 }

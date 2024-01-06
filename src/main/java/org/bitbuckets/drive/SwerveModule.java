@@ -26,17 +26,15 @@ public class SwerveModule implements IPeriodicLooped {
 
     int resetIteration = 0;
 
+    /**
+     * Resets the relative encoder using the absolute encoder if you are still for long enough
+     */
     @Override
     public void logicPeriodic() {
-        //if 10 (rots / second) >= 0.5 we are moving. Only reset when not moving.
         if (steerController.angularVelocity_mechanismRotationsPerSecond() * 10 >= 0.5) return;
         if (++resetIteration > 500) {
             resetIteration = 0;
-
-            //force the encoder to absolute
-            double absoluteAngularPosition_infiniteMechanismRotations
-                    = absoluteEncoder.angularPosition_normalizedMechanismRotations();
-
+            double absoluteAngularPosition_infiniteMechanismRotations = absoluteEncoder.angularPosition_normalizedMechanismRotations();
             steerController.forceRotationalOffset(absoluteAngularPosition_infiniteMechanismRotations);
         } else {
             resetIteration = 0; //stop counting unless it's remained stopped for 500 ticks

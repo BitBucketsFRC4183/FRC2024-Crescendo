@@ -25,9 +25,9 @@ public class Robot extends TimedRobot {
     public static final SwerveComponent SWERVE = LOG.load(SwerveComponent.class, "swerve");
     public static final VisionComponent VISION = LOG.load(VisionComponent.class, "vision");
 
-    public static final MotorComponent[] DRIVES = MotorComponent.ofRange(LOG.load(CommonMotorComponent.class, "swerve/drive"), LOG.loadRange(IndividualMotorComponent.class, "swerve/drive", 4, Util.RENAMER));
-    public static final MotorComponent[] STEERS = MotorComponent.ofRange(LOG.load(CommonMotorComponent.class, "swerve/steer"), LOG.loadRange(IndividualMotorComponent.class, "swerve/steer", 4, Util.RENAMER));
-    public static final PIDComponent[] PIDS = PIDComponent.ofRange(LOG.load(CommonPIDComponent.class, "swerve/pid"), LOG.loadRange(IndividualPIDComponent.class, "swerve/pid", 4, Util.RENAMER));
+    static final MotorComponent[] DRIVES = MotorComponent.ofRange(LOG.load(CommonMotorComponent.class, "swerve/drive"), LOG.loadRange(IndividualMotorComponent.class, "swerve/drive", 4, Util.RENAMER));
+    static final MotorComponent[] STEERS = MotorComponent.ofRange(LOG.load(CommonMotorComponent.class, "swerve/steer"), LOG.loadRange(IndividualMotorComponent.class, "swerve/steer", 4, Util.RENAMER));
+    static final PIDComponent[] PIDS = PIDComponent.ofRange(LOG.load(CommonPIDComponent.class, "swerve/pid"), LOG.loadRange(IndividualPIDComponent.class, "swerve/pid", 4, Util.RENAMER));
 
 
     DriveSubsystem driveSubsystem;
