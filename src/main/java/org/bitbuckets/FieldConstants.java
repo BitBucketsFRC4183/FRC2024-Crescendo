@@ -24,6 +24,10 @@ public class FieldConstants {
     static final double WING_NOTES_SEPERATION_METERS = 1.448;
     static final double CENTER_NOTES_SEPERATION_METERS = 1.676;
 
+    static final double TAPE_WIDTH_METERS = 0.051;
+    static final double SOURCE_LENGTH_METERS = 1.933 - TAPE_WIDTH_METERS * 2;
+    static final double SOURCE_WIDTH_METERS = 1.543 - 0.406; // TODO - ESTIMATE FROM EDGE OF CARPET TO OUTER TAPE
+
     static final Translation2d BOTTOM_LEFT = new Translation2d(0,0);
     static final Translation2d TOP_LEFT = new Translation2d(0, FIELD_Y_METERS);
 
@@ -58,4 +62,6 @@ public class FieldConstants {
     Translation2d CENTER_NOTE_MID_TOP = new Translation2d(FIELD_X_METERS / 2d, FIELD_Y_METERS / 2d + CENTER_NOTES_SEPERATION_METERS);
     Translation2d CENTER_NOTE_TOP = new Translation2d(FIELD_X_METERS / 2d, FIELD_Y_METERS / 2d + CENTER_NOTES_SEPERATION_METERS * 2);
 
+    Translation2d RED_SOURCE_CENTER = new Translation2d((SOURCE_LENGTH_METERS / 2d), (SOURCE_WIDTH_METERS / 2d));
+    Translation2d BLUE_SOURCE_CENTER = new Translation2d((FIELD_X_METERS - SOURCE_LENGTH_METERS / 2d), (SOURCE_WIDTH_METERS / 2d));
 }
