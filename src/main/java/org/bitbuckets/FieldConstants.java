@@ -8,8 +8,8 @@ import edu.wpi.first.math.geometry.Translation2d;
  */
 public class FieldConstants {
 
-    static final double X_FIELD_METERS = 16.54;
-    static final double Y_FIELD_METERS = 8.02;
+    static final double X_FIELD_METERS = 16.541;
+    static final double Y_FIELD_METERS = 8.211;
 
     static final double Y_MIDPOINT_TO_STEREO_METERS = 1.45;
     static final double X_WALL_TO_AMP_METERS = 1.93;
