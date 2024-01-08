@@ -17,6 +17,15 @@ public class OperatorInput implements IPeriodicLooped {
 
     final DriveSubsystem driveSubsystem;
 
+    final Trigger slowModeHold = driver.leftTrigger();
+    final Trigger turboModeHold = driver.rightTrigger();
+    final Trigger autoAlignHold = driver.a();
+    final Trigger xButtonToggle = driver.x();
+    final Trigger groundIntakeHold = driver.rightBumper();
+    final Trigger resetGyroToggle = driver.start();
+    double driverLeftStickX, driverLeftStickY, driverRightStickX, driverRightStickY;
+
+
     public OperatorInput(DriveSubsystem driveSubsystem) {
         this.driveSubsystem = driveSubsystem;
 
@@ -39,4 +48,45 @@ public class OperatorInput implements IPeriodicLooped {
 
         return Optional.empty();
     }
+
+    public boolean getSlowModeState() {
+        return slowModeHold.getAsBoolean();
+    }
+
+    public boolean getTurboModeState() {
+        return turboModeHold.getAsBoolean();
+    }
+
+    public boolean getAutoAlignState() {
+        return autoAlignHold.getAsBoolean();
+    }
+
+    public boolean getXButtonState() {
+        return xButtonToggle.getAsBoolean();
+    }
+
+    public boolean getGroundIntakeState() {
+        return groundIntakeHold.getAsBoolean();
+    }
+
+    public boolean getResetGyroState() {
+        return resetGyroToggle.getAsBoolean();
+    }
+
+    public double getDriverLeftStickX() {
+        return driverLeftStickX;
+    }
+
+    public double getDriverLeftStickY() {
+        return driverLeftStickY;
+    }
+
+    public double getDriverRightStickX() {
+        return driverRightStickX;
+    }
+
+    public double getDriverRightStickY() {
+        return driverRightStickY;
+    }
+
 }
