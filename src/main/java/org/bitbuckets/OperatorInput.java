@@ -1,5 +1,7 @@
 package org.bitbuckets;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -9,11 +11,22 @@ import xyz.auriium.mattlib2.IPeriodicLooped;
 import yuukonstants.exception.ExplainedException;
 
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 
 public class OperatorInput implements IPeriodicLooped {
 
+    final CommandXboxController operatorControl = new CommandXboxController(1);
+
     final CommandXboxController driver = new CommandXboxController(0);
     final Trigger isTeleop = null; //TODO fill this out
+
+    final Trigger shootByVision = operatorControl.a();
+    final Trigger sourceIntake_hold = operatorControl.leftBumper();
+    final Trigger ampSetpoint_hold = operatorControl.leftTrigger();
+    final Trigger speakerSetpoint_hold = operatorControl.rightTrigger();
+    final Trigger ampVisionPriority_toggle = operatorControl.povLeft();
+    final Trigger speakerVisionPriority_toggle = operatorControl.povRight();
+
 
     final DriveSubsystem driveSubsystem;
 
@@ -35,8 +48,29 @@ public class OperatorInput implements IPeriodicLooped {
 
         isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(defaultDriveCommand);
 
-
-
         return Optional.empty();
     }
+
+    /**
+     * @param input a value
+     * @return that value, deadbanded
+     */
+    static double deadband(double input) {
+        double value = input;
+
+        value = MathUtil.applyDeadband(value, 0.1);
+        value = Math.copySign(value * value, value);
+
+
+        return value;
+    }
+
+    public double getClimberInput()
+    {
+        return deadband(operatorControl.getRawAxis(XboxController.Axis.kRightY.value));
+    }
+
+
+
+
 }
