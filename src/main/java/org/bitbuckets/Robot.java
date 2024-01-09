@@ -1,47 +1,33 @@
 package org.bitbuckets;
 
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.bitbuckets.drive.DriveSubsystem;
-import org.bitbuckets.drive.SwerveComponent;
-import org.bitbuckets.drive.SwerveModule;
-import org.bitbuckets.util.ThriftyEncoder;
-import org.bitbuckets.util.Util;
-import org.bitbuckets.vision.VisionComponent;
-import xyz.auriium.mattlib2.MattLoopManager;
-import xyz.auriium.mattlib2.hardware.ILinearMotor;
-import xyz.auriium.mattlib2.hardware.IRotationEncoder;
-import xyz.auriium.mattlib2.hardware.IRotationalController;
-import xyz.auriium.mattlib2.hardware.config.*;
-import xyz.auriium.mattlib2.log.MattLog;
-import xyz.auriium.mattlib2.rev.HardwareREV;
+import xyz.auriium.mattlib2.Mattlib;
 
 public class Robot extends TimedRobot {
 
-    public static final MattLog LOG = new MattLog(null);
-    
-    public static final SwerveComponent SWERVE = LOG.load(SwerveComponent.class, "swerve");
-    public static final VisionComponent VISION = LOG.load(VisionComponent.class, "vision");
 
-    static final MotorComponent[] DRIVES = MotorComponent.ofRange(LOG.load(CommonMotorComponent.class, "swerve/drive"), LOG.loadRange(IndividualMotorComponent.class, "swerve/drive", 4, Util.RENAMER));
-    static final MotorComponent[] STEERS = MotorComponent.ofRange(LOG.load(CommonMotorComponent.class, "swerve/steer"), LOG.loadRange(IndividualMotorComponent.class, "swerve/steer", 4, Util.RENAMER));
-    static final PIDComponent[] PIDS = PIDComponent.ofRange(LOG.load(CommonPIDComponent.class, "swerve/pid"), LOG.loadRange(IndividualPIDComponent.class, "swerve/pid", 4, Util.RENAMER));
 
+    //our subsystems
 
     DriveSubsystem driveSubsystem;
+
+
     @Override
     public void robotInit() {
-        LOG.initializeComponentsAndGenerateLoops();
+        CommandScheduler.getInstance().enable();
+        Mattlib.LOOPER.runPreInit();
+        Mattlib.LOOPER.runPostInit();
 
-        //Set up Drive
+      /*  //Set up Drive
         SwerveModule[] modules = initSwerveModules();
         SwerveDriveKinematics kinematics = new SwerveDriveKinematics(SWERVE.translations());
         SimpleMotorFeedforward ff = new SimpleMotorFeedforward(SWERVE.ff_ks(), SWERVE.ff_kv(), SWERVE.ff_ka());
         this.driveSubsystem = new DriveSubsystem(modules,kinematics,ff);
-
+*/
     }
+/*
 
     public static SwerveModule[] initSwerveModules() {
         SwerveModule[] modules = new SwerveModule[4];
@@ -62,11 +48,13 @@ public class Robot extends TimedRobot {
         }
         return modules;
     }
+*/
 
     @Override
     public void robotPeriodic() {
+        Mattlib.LOOPER.runPeriodicLoop();
+
         CommandScheduler.getInstance().run();
-        MattLoopManager.INSTANCE.runLoggingPeriodic();
     }
     
     

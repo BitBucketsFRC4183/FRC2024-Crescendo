@@ -3,6 +3,7 @@ package org.bitbuckets.vision;
 import edu.wpi.first.apriltag.AprilTagDetector;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose3d;
+import org.bitbuckets.IO;
 import org.bitbuckets.Robot;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -17,8 +18,6 @@ public class VisionSubsystem  {
     final PhotonPoseEstimator estimator;
     final AprilTagDetector aprilTagDetector;
 
-    static final VisionComponent COMPONENT = Robot.LOG.load(VisionComponent.class, "vision");
-
     public VisionSubsystem(PhotonCamera camera_1, PhotonCamera camera_2, AprilTagFieldLayout layout, PhotonPoseEstimator estimator, AprilTagDetector aprilTagDetector) {
         this.camera_1 = camera_1;
         this.camera_2 = camera_2;
@@ -29,9 +28,9 @@ public class VisionSubsystem  {
 
     public void init() {
         //example logging DELETE
-        int id = COMPONENT.id();
+        int id = IO.VISION.id();
         int result = id*4;
-        COMPONENT.x_position(result);
+        IO.VISION.x_position(result);
         //frc using 36h11 fam this year
         aprilTagDetector.addFamily("36h11");
     }

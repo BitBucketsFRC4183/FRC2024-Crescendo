@@ -7,6 +7,7 @@ import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.mattlib2.hardware.ILinearMotor;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.hardware.IRotationalController;
+import xyz.auriium.mattlib2.utils.AngleUtil;
 
 public class SwerveModule implements IPeriodicLooped {
 
@@ -85,22 +86,9 @@ public class SwerveModule implements IPeriodicLooped {
             referenceAngle_normalizedMechanismRotations += 1.0;
         }
 
-        double currentAngle_rotationsUnbound = steerController.angularPosition_normalizedMechanismRotations();
-
-        double currentAngleRadiansMod = currentAngle_rotationsUnbound % (2.0 * Math.PI);
-        if (currentAngleRadiansMod < 0.0) {
-            currentAngleRadiansMod += 2.0 * Math.PI;
-        }
-
-        // The reference angle has the range [0, 2pi) but the Falcon's encoder can go above that
-        double adjustedReferenceAngleRadians = referenceAngle_normalizedMechanismRotations + currentAngle_rotationsUnbound - currentAngleRadiansMod;
-        if (referenceAngle_normalizedMechanismRotations - currentAngleRadiansMod > Math.PI) {
-            adjustedReferenceAngleRadians -= 2.0 * Math.PI;
-        } else if (referenceAngle_normalizedMechanismRotations - currentAngleRadiansMod < -Math.PI) {
-            adjustedReferenceAngleRadians += 2.0 * Math.PI;
-        }
-
-        //set drive
+        steerController.controlToNormalizedReference(
+                referenceAngle_normalizedMechanismRotations
+        );
 
         driveMotor.setToVoltage(driveVoltage);
     }

@@ -1,11 +1,10 @@
 package org.bitbuckets.commands.drive;
 
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import org.bitbuckets.OperatorInput;
 import org.bitbuckets.drive.DriveSubsystem;
 
-public class DefaultDriveCommand extends CommandBase {
+public class DefaultDriveCommand extends Command {
 
     final DriveSubsystem driveSubsystem;
     final OperatorInput operatorInput;
