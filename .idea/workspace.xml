@@ -4,11 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8e100fc4-c86b-439b-a980-28fd7b17dd71" name="Changes" comment="fix x and y nonsense">
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/bitbuckets/Hub.java" afterDir="false" />
+    <list default="true" id="8e100fc4-c86b-439b-a980-28fd7b17dd71" name="Changes" comment="fix gradle, update wpilib to 2024">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/deploy/config.toml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/deploy/config.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/bitbuckets/IO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/bitbuckets/OperatorInput.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/bitbuckets/OperatorInput.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/bitbuckets/Robot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/bitbuckets/Robot.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/bitbuckets/vision/VisionComponent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/bitbuckets/vision/VisionComponent.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/bitbuckets/drive/DriveSubsystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/bitbuckets/drive/DriveSubsystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/bitbuckets/drive/OdometrySubsystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/bitbuckets/drive/OdometrySubsystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/bitbuckets/drive/SwerveModule.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/bitbuckets/drive/SwerveModule.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/bitbuckets/vision/VisionSubsystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/bitbuckets/vision/VisionSubsystem.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,7 +37,35 @@
             <expand>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="FRC2024-Crescendo" type="f1a62948:ProjectNode" />
+                <item name="BitBuckets-ProjectTemplate00" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="BitBuckets-ProjectTemplate00" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="BitBuckets-ProjectTemplate00" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="build" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="BitBuckets-ProjectTemplate00" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="gradlerio" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="BitBuckets-ProjectTemplate00" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="other" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="BitBuckets-ProjectTemplate00" type="f1a62948:ProjectNode" />
+                <item name="Run Configurations" type="7b0102dc:RunConfigurationsNode" />
               </path>
             </expand>
             <select />
@@ -56,9 +90,6 @@
   <component name="MacroExpansionManager">
     <option name="directoryName" value="z21gi377" />
   </component>
-  <component name="MarkdownSettingsMigration">
-    <option name="stateVersion" value="1" />
-  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 6
 }</component>
@@ -81,7 +112,7 @@
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   }
 }</component>
-  <component name="RunManager" selected="Gradle.Build Robot">
+  <component name="RunManager" selected="Gradle.Build &amp; Run Simulate Java">
     <configuration name="FRC2024-Crescendo [buildDependents]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -147,7 +178,14 @@
       <option name="project" value="LOCAL" />
       <updated>1704675378862</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="fix gradle, update wpilib to 2024">
+      <created>1704795986063</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1704795986063</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -163,9 +201,10 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Operator controls added, still needs commands (will add later after mechanisms are done)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Operator controls added, still needs commands (will add later after mechanisms are done)" />
+    <MESSAGE value="fix gradle, update wpilib to 2024" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix gradle, update wpilib to 2024" />
   </component>
   <component name="WpiLibVersionService">
-    <option name="lastChecked" value="20240109211037" />
+    <option name="lastChecked" value="20240109170823" />
   </component>
 </project>

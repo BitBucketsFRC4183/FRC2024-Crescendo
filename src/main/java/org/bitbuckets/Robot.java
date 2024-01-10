@@ -3,9 +3,21 @@ package org.bitbuckets;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.bitbuckets.drive.DriveSubsystem;
+import org.bitbuckets.drive.DrivebaseComponent;
+import org.bitbuckets.util.Util;
+import org.bitbuckets.vision.VisionComponent;
 import xyz.auriium.mattlib2.Mattlib;
+import xyz.auriium.mattlib2.MattlibSettings;
+import xyz.auriium.mattlib2.hardware.config.*;
+import xyz.auriium.mattlib2.log.INetworkedComponent;
+
+import java.lang.reflect.Array;
+import java.util.function.BiFunction;
+
+import static xyz.auriium.mattlib2.Mattlib.LOG;
 
 public class Robot extends TimedRobot {
+
 
 
 
@@ -16,9 +28,16 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotInit() {
+
         CommandScheduler.getInstance().enable();
         Mattlib.LOOPER.runPreInit();
         Mattlib.LOOPER.runPostInit();
+
+        MattlibSettings.USE_LOGGING = true;
+
+        VISION.x_position(2);
+
+
 
       /*  //Set up Drive
         SwerveModule[] modules = initSwerveModules();
@@ -56,6 +75,30 @@ public class Robot extends TimedRobot {
 
         CommandScheduler.getInstance().run();
     }
-    
-    
+
+
+
+    //Components
+
+
+
+
+    //Components MUST be created in the Robot class (because of how static bs works)
+    public static final VisionComponent VISION = LOG.load(VisionComponent.class, "vision");
+
+    public static final DrivebaseComponent DRIVE = LOG.load(DrivebaseComponent.class, "swerve");
+    public static final MotorComponent[] DRIVES = MotorComponent.ofRange(
+            LOG.load(CommonMotorComponent.class, "swerve/drive"),
+            LOG.loadRange(IndividualMotorComponent.class, "swerve/drive", 4, Util.RENAMER)
+    );
+    public static final MotorComponent[] STEERS = MotorComponent.ofRange(
+            LOG.load(CommonMotorComponent.class, "swerve/steer"),
+            LOG.loadRange(IndividualMotorComponent.class, "swerve/steer", 4, Util.RENAMER)
+    );
+    public static final PIDComponent[] PIDS = PIDComponent.ofRange(
+            LOG.load(CommonPIDComponent.class, "swerve/pid"),
+            LOG.loadRange(IndividualPIDComponent.class, "swerve/pid", 4, Util.RENAMER)
+    );
+
+
 }

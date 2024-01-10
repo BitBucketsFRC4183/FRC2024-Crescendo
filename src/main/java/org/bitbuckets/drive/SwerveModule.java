@@ -7,7 +7,6 @@ import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.mattlib2.hardware.ILinearMotor;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.hardware.IRotationalController;
-import xyz.auriium.mattlib2.utils.AngleUtil;
 
 public class SwerveModule implements IPeriodicLooped {
 
