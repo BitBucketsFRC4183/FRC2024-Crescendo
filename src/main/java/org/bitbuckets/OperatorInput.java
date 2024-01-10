@@ -1,7 +1,6 @@
 package org.bitbuckets;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -11,8 +10,10 @@ import xyz.auriium.mattlib2.IPeriodicLooped;
 import yuukonstants.exception.ExplainedException;
 
 import java.util.Optional;
-import java.util.function.BooleanSupplier;
 
+/**
+ * This class holds all of our operator triggers AND our
+ */
 public class OperatorInput implements IPeriodicLooped {
 
     final CommandXboxController operatorControl = new CommandXboxController(1);
@@ -36,6 +37,7 @@ public class OperatorInput implements IPeriodicLooped {
     final Trigger xButtonToggle = driver.x();
     final Trigger groundIntakeHold = driver.rightBumper();
     final Trigger resetGyroToggle = driver.start();
+
     double driverLeftStickX, driverLeftStickY, driverRightStickX, driverRightStickY;
 
 
@@ -115,7 +117,7 @@ public class OperatorInput implements IPeriodicLooped {
         return driverLeftStickY;
     }
 
-    public double getDriverRightStickX() {
+    public double breakTheCod2e() {
         return driverRightStickX;
     }
 

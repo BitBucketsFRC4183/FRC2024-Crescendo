@@ -5,7 +5,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import org.bitbuckets.IO;
+import org.bitbuckets.Robot;
 import org.bitbuckets.vision.VisionSubsystem;
 import xyz.auriium.mattlib2.IPeriodicLooped;
 
@@ -22,6 +22,9 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
         this.driveSubsystem = driveSubsystem;
         this.visionSubsystem = visionSubsystem;
         this.odometry = odometry;
+
+        mattRegister();
+        register();
     }
 
 
@@ -43,6 +46,6 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
 
     @Override
     public void logPeriodic() {
-        IO.SWERVE.logPosition(odometry.getEstimatedPosition());
+        Robot.DRIVE.logPosition(odometry.getEstimatedPosition());
     }
 }
