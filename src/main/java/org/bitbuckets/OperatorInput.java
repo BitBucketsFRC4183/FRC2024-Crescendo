@@ -117,7 +117,7 @@ public class OperatorInput implements IPeriodicLooped {
         return driverLeftStickY;
     }
 
-    public double getDriverRightStickX() {
+    public double breakTheCode() {
         return driverRightStickX;
     }
 
