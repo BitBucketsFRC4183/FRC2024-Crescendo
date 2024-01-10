@@ -6,23 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="8e100fc4-c86b-439b-a980-28fd7b17dd71" name="Changes" comment="fix x and y nonsense">
       <change afterPath="$PROJECT_DIR$/src/main/java/org/bitbuckets/Hub.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/bitbuckets/drive/OdometrySubsystem.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vendordeps/REVLib-2024.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradlew" beforeDir="false" afterPath="$PROJECT_DIR$/gradlew" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradlew.bat" beforeDir="false" afterPath="$PROJECT_DIR$/gradlew.bat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/bitbuckets/FieldConstants.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/bitbuckets/Field.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/bitbuckets/Robot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/bitbuckets/Robot.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/bitbuckets/commands/drive/DefaultDriveCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/bitbuckets/commands/drive/DefaultDriveCommand.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/bitbuckets/drive/SwerveComponent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/bitbuckets/drive/DrivebaseComponent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/bitbuckets/drive/SwerveModule.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/bitbuckets/drive/SwerveModule.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/bitbuckets/vision/VisionComponent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/bitbuckets/vision/VisionComponent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendordeps/PhotonLib-json-1.0-3.json" beforeDir="false" afterPath="$PROJECT_DIR$/vendordeps/photonlib-json-1.0.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendordeps/REVLib.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendordeps/WPILibNewCommands.json" beforeDir="false" afterPath="$PROJECT_DIR$/vendordeps/WPILibNewCommands.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,23 +31,7 @@
             <expand>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="BitBuckets-ProjectTemplate00" type="f1a62948:ProjectNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="BitBuckets-ProjectTemplate00" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="BitBuckets-ProjectTemplate00" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="BitBuckets-ProjectTemplate00" type="f1a62948:ProjectNode" />
-                <item name="Run Configurations" type="7b0102dc:RunConfigurationsNode" />
+                <item name="FRC2024-Crescendo" type="f1a62948:ProjectNode" />
               </path>
             </expand>
             <select />
@@ -85,6 +55,9 @@
   </component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="z21gi377" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 6
@@ -193,6 +166,6 @@
     <option name="LAST_COMMIT_MESSAGE" value="Operator controls added, still needs commands (will add later after mechanisms are done)" />
   </component>
   <component name="WpiLibVersionService">
-    <option name="lastChecked" value="20240107160751" />
+    <option name="lastChecked" value="20240109211037" />
   </component>
 </project>
