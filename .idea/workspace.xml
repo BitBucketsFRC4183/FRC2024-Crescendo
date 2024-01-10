@@ -4,17 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8e100fc4-c86b-439b-a980-28fd7b17dd71" name="Changes" comment="fix gradle, update wpilib to 2024">
+    <list default="true" id="8e100fc4-c86b-439b-a980-28fd7b17dd71" name="Changes" comment="commit so arjun can record his video">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/deploy/config.toml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/deploy/config.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/bitbuckets/IO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/bitbuckets/OperatorInput.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/bitbuckets/OperatorInput.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/bitbuckets/Robot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/bitbuckets/Robot.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/bitbuckets/drive/DriveSubsystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/bitbuckets/drive/DriveSubsystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/bitbuckets/drive/OdometrySubsystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/bitbuckets/drive/OdometrySubsystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/bitbuckets/drive/SwerveModule.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/bitbuckets/drive/SwerveModule.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/bitbuckets/vision/VisionSubsystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/bitbuckets/vision/VisionSubsystem.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,6 +74,7 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/src/main/java/org/bitbuckets/OperatorInput.java" root0="FORCE_HIGHLIGHTING" />
@@ -185,7 +177,21 @@
       <option name="project" value="LOCAL" />
       <updated>1704795986063</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="more changes">
+      <created>1704861631326</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1704861631326</updated>
+    </task>
+    <task id="LOCAL-00004" summary="commit so arjun can record his video">
+      <created>1704861683803</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1704861683803</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -202,7 +208,9 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Operator controls added, still needs commands (will add later after mechanisms are done)" />
     <MESSAGE value="fix gradle, update wpilib to 2024" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix gradle, update wpilib to 2024" />
+    <MESSAGE value="more changes" />
+    <MESSAGE value="commit so arjun can record his video" />
+    <option name="LAST_COMMIT_MESSAGE" value="commit so arjun can record his video" />
   </component>
   <component name="WpiLibVersionService">
     <option name="lastChecked" value="20240109170823" />
