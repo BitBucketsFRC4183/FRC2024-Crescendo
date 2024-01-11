@@ -4,11 +4,14 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.DrivebaseComponent;
+import org.bitbuckets.shooter.ShooterSubsystem;
 import org.bitbuckets.util.Util;
 import org.bitbuckets.vision.VisionComponent;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
+import xyz.auriium.mattlib2.hardware.IRotationalMotor;
 import xyz.auriium.mattlib2.hardware.config.*;
+import xyz.auriium.mattlib2.rev.HardwareREV;
 
 import static xyz.auriium.mattlib2.Mattlib.LOG;
 
@@ -34,6 +37,17 @@ public class Robot extends TimedRobot {
         VISION.x_position(2);
 
 
+
+
+
+
+        if (Robot.isSimulation()) {
+            IRotationalMotor normalNotor = HardwareREV.rotationalSpark_externalPID(null);
+            ShooterSubsystem shooterSubsystem = new ShooterSubsystem(normalNotor);
+        } else {
+            IRotationalMotor normalNotor = HardwareREV.rotationalSpark_noPID(null);
+            ShooterSubsystem shooterSubsystem = new ShooterSubsystem(normalNotor);
+        }
 
       /*  //Set up Drive
         SwerveModule[] modules = initSwerveModules();
