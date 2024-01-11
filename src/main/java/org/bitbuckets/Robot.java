@@ -9,10 +9,6 @@ import org.bitbuckets.vision.VisionComponent;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
 import xyz.auriium.mattlib2.hardware.config.*;
-import xyz.auriium.mattlib2.log.INetworkedComponent;
-
-import java.lang.reflect.Array;
-import java.util.function.BiFunction;
 
 import static xyz.auriium.mattlib2.Mattlib.LOG;
 

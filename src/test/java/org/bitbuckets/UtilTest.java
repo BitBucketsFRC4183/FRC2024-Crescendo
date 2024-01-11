@@ -3,7 +3,6 @@ package org.bitbuckets;
 import org.bitbuckets.util.Util;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import xyz.auriium.mattlib2.log.ProcessPath;
 
 public class UtilTest {
 
