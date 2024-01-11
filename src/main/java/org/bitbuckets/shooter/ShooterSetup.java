@@ -1,5 +1,4 @@
 package org.bitbuckets.shooter;
 
-public class ShooterSubsystem {
-
+public class ShooterSetup {
 }
