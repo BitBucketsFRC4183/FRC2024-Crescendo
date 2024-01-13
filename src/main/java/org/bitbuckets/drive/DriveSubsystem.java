@@ -9,6 +9,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.Robot;
+import org.bitbuckets.RobotContainer;
 import org.bitbuckets.util.Util;
 import org.bitbuckets.vision.VisionSubsystem;
 import xyz.auriium.mattlib2.IPeriodicLooped;
@@ -18,13 +19,11 @@ public class DriveSubsystem implements Subsystem, IPeriodicLooped {
     final SwerveModule[] modules;
     final SwerveDriveKinematics kinematics;
     final SimpleMotorFeedforward ff;
-    final VisionSubsystem visionSubsystem;
 
-    public DriveSubsystem(SwerveModule[] modules, SwerveDriveKinematics kinematics, SimpleMotorFeedforward ff, VisionSubsystem visionSubsystem) {
+    public DriveSubsystem(SwerveModule[] modules, SwerveDriveKinematics kinematics, SimpleMotorFeedforward ff) {
         this.modules = modules;
         this.kinematics = kinematics;
         this.ff = ff;
-        this.visionSubsystem = visionSubsystem;
 
         register();
         mattRegister();
@@ -37,8 +36,8 @@ public class DriveSubsystem implements Subsystem, IPeriodicLooped {
     public void logPeriodic() {
 
 
-        Robot.DRIVE.logSwervePositions(currentPositions());
-        Robot.DRIVE.logSwerveStates(currentStates());
+        RobotContainer.DRIVE.logSwervePositions(currentPositions());
+        RobotContainer.DRIVE.logSwerveStates(currentStates());
     }
 
     /**
@@ -99,11 +98,5 @@ public class DriveSubsystem implements Subsystem, IPeriodicLooped {
         }
     }
 
-    public void moveToAlign() {
-        var tagPose_1 = visionSubsystem.estimateBestVisionTarget_1();
-        if (tagPose_1.isPresent()) {
-            //do drive things
-        }
-    }
 
 }

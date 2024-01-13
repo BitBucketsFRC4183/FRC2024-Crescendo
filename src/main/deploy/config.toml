@@ -13,7 +13,7 @@ id = 0
 
 [swerve.steer_common]
 sensor2mechanism_coef = 0.0
-type = "BRUSHED"
+type = "BRUSHLESS"
 
 [swerve.steer_br]
 id = 3

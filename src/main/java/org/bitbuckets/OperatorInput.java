@@ -18,9 +18,9 @@ import yuukonstants.exception.ExplainedException;
 import java.util.Optional;
 
 /**
- * This class holds all of our operator triggers AND our
+ * This class holds all of our operator triggers
  */
-public class OperatorInput implements IPeriodicLooped {
+public class OperatorInput {
 
     final CommandXboxController operatorControl = new CommandXboxController(1);
     final CommandXboxController driver = new CommandXboxController(0);
@@ -34,10 +34,6 @@ public class OperatorInput implements IPeriodicLooped {
     final Trigger speakerVisionPriority_toggle = operatorControl.povRight();
 
 
-
-    final DriveSubsystem driveSubsystem;
-
-
     final Trigger slowModeHold = driver.leftTrigger();
     final Trigger turboModeHold = driver.rightTrigger();
     final Trigger autoAlignHold = driver.a();
@@ -45,37 +41,7 @@ public class OperatorInput implements IPeriodicLooped {
     final Trigger groundIntakeHold = driver.rightBumper();
     final Trigger resetGyroToggle = driver.start();
 
-    final ShooterSubsystem shooterSubsystem;
-
     double driverLeftStickX, driverLeftStickY, driverRightStickX, driverRightStickY;
-
-
-    public OperatorInput(DriveSubsystem driveSubsystem, ShooterSubsystem shooterSubsystem) {
-        this.driveSubsystem = driveSubsystem;
-        this.shooterSubsystem = shooterSubsystem;
-
-        mattRegister();
-    }
-
-    @Override
-    public Optional<ExplainedException> verifyInit() {
-
-        DefaultDriveCommand defaultDriveCommand = new DefaultDriveCommand(driveSubsystem, this);
-
-        //When driver
-        Trigger xGreaterThan = driver.axisGreaterThan(XboxController.Axis.kLeftX.value, 0.1);
-        Trigger yGreaterThan = driver.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.1);
-        Trigger rotGreaterThan = driver.axisGreaterThan(XboxController.Axis.kRightX.value, 0.1);
-
-        isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(defaultDriveCommand);
-
-        driveSubsystem.setDefaultCommand(new DefaultDriveCommand(driveSubsystem, this));
-        ampSetpoint_hold.whileTrue(new SetAmpShootingAngleCommand(shooterSubsystem));
-        speakerSetpoint_hold.whileTrue(new SetSpeakerShootingAngleCommand(shooterSubsystem));
-        sourceIntake_hold.whileTrue(new IntakeCommand(shooterSubsystem));
-
-        return Optional.empty();
-    }
 
     /**
      * @param input a value
@@ -95,10 +61,6 @@ public class OperatorInput implements IPeriodicLooped {
     {
         return deadband(operatorControl.getRawAxis(XboxController.Axis.kRightY.value));
     }
-
-
-
-
 
     public boolean getSlowModeState() {
         return slowModeHold.getAsBoolean();
