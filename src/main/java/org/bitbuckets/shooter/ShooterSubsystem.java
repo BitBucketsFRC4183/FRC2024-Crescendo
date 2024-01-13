@@ -12,6 +12,7 @@ public class ShooterSubsystem implements Subsystem {
     final IRotationalMotor rightMotor1Wheel;
     final IRotationalMotor leftMotor2Wheel;
     final IRotationalMotor rightMotor2Wheel;
+    final IRotationalMotor angleMotor;
 
     public ShooterSubsystem(IRotationalMotor leftMotor1Wheel, IRotationalMotor rightMotor1Wheel, IRotationalMotor leftMotor2Wheel, IRotationalMotor rightMotor2Wheel) {
         this.leftMotor1Wheel = leftMotor1Wheel;
@@ -23,7 +24,6 @@ public class ShooterSubsystem implements Subsystem {
     }
 
     public void setMotorSpeeds(double leftMotorSpeed1Wheel, double rightMotorSpeed1Wheel, double leftMotorSpeed2Wheel, double rightMotorSpeed2Wheel) {
-
         double leftVoltage1Wheel = feedforward.calculate(leftMotorSpeed1Wheel);
         double rightVoltage1Wheel = feedforward.calculate(rightMotorSpeed1Wheel);
         double leftVoltage2Wheel = feedforward.calculate(leftMotorSpeed2Wheel);
@@ -43,6 +43,9 @@ public class ShooterSubsystem implements Subsystem {
         rightMotor2Wheel.setToVoltage(voltage);
     }
 
+    public void moveToAngle(){
+
+    }
 
     @Override
     public void periodic() {
