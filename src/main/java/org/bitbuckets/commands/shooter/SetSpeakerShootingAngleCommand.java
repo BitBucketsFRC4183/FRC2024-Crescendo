@@ -19,15 +19,16 @@ public class SetSpeakerShootingAngleCommand extends Command {
 
         }
 
+        // this angle needs to be tuned for speaker (60 is only a placeholder)
         @Override
         public void execute() {
-            shooterSubsystem.moveToAngle(0); //TODO set correct angle
+            shooterSubsystem.moveToAngle(60);
         }
 
         @Override
         public void end(boolean interrupted) {
             shooterSubsystem.moveToAngle(0);
         }
+    }
 
 
-}

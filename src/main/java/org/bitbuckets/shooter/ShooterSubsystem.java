@@ -47,9 +47,9 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     }
 
 
-    public void setMotorRotationalSpeeds(double leftMotorSpeed1Wheel_rotationsPerSecond, double rightMotorSpeed1Wheel_rotationsPerSecond) {
-        double leftVoltage = feedforward.calculate(leftMotorSpeed1Wheel_rotationsPerSecond);
-        double rightVoltage = feedforward.calculate(rightMotorSpeed1Wheel_rotationsPerSecond);
+    public void setMotorRotationalSpeeds(double leftMotorSpeed_rotationsPerSecond, double rightMotorSpeed_rotationsPerSecond) {
+        double leftVoltage = feedforward.calculate(leftMotorSpeed_rotationsPerSecond);
+        double rightVoltage = feedforward.calculate(rightMotorSpeed_rotationsPerSecond);
 
         leftMotor.setToVoltage(leftVoltage);
         rightMotor.setToVoltage(rightVoltage);
@@ -85,6 +85,13 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
         moveToAngle(45);
         // rotate wheels in the other direction
         setMotorRotationalSpeeds(0,0);
+    }
+
+    // needs velocity pid in mattlib to be added first to work; wip
+    public void maintainSpeed(double leftWheel_rotationsPerSecond, double rightWheel_rotationsPerSecond)
+    {
+        setMotorRotationalSpeeds(leftWheel_rotationsPerSecond, rightWheel_rotationsPerSecond);
+
     }
 
     @Override
