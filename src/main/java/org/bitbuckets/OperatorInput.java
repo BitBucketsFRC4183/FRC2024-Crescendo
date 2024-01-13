@@ -23,10 +23,9 @@ import java.util.Optional;
 public class OperatorInput implements IPeriodicLooped {
 
     final CommandXboxController operatorControl = new CommandXboxController(1);
-
     final CommandXboxController driver = new CommandXboxController(0);
-    final Trigger isTeleop = null; //TODO fill this out
 
+    final Trigger isTeleop = null; //TODO fill this out
     final Trigger shootByVision = operatorControl.a();
     final Trigger sourceIntake_hold = operatorControl.leftBumper();
     final Trigger ampSetpoint_hold = operatorControl.leftTrigger();
@@ -70,8 +69,7 @@ public class OperatorInput implements IPeriodicLooped {
 
         isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(defaultDriveCommand);
 
-        CommandScheduler.getInstance().setDefaultCommand(shooterSubsystem, new DefaultShooterCommand(shooterSubsystem));
-
+        driveSubsystem.setDefaultCommand(new DefaultDriveCommand(driveSubsystem, this));
         ampSetpoint_hold.whileTrue(new SetAmpShootingAngleCommand(shooterSubsystem));
         speakerSetpoint_hold.whileTrue(new SetSpeakerShootingAngleCommand(shooterSubsystem));
         sourceIntake_hold.whileTrue(new IntakeCommand(shooterSubsystem));
