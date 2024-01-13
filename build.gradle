@@ -11,7 +11,9 @@ targetCompatibility = JavaVersion.VERSION_17
 def ROBOT_MAIN_CLASS = "org.bitbuckets.bootstrap.Main"
 
 repositories {
-    mavenLocal()
+    maven {
+        url "https://repo.superyuuki.com/snapshots"
+    }
     maven {
         url "https://repo.superyuuki.com/releases"
     }
