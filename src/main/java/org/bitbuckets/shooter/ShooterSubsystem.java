@@ -20,16 +20,25 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     final IRotationalMotor rightMotor;
     final IRotationalController angleMotor;
     final IRotationEncoder absoluteEncoder;
+    final ShooterComponent shooterComponent;
 
-    public ShooterSubsystem(IRotationalMotor leftMotor, IRotationalMotor rightMotor, IRotationalController angleMotor, IRotationEncoder absoluteEncoder) {
+    public ShooterSubsystem(IRotationalMotor leftMotor, IRotationalMotor rightMotor, IRotationalController angleMotor, IRotationEncoder absoluteEncoder, ShooterComponent shooterComponent) {
         this.leftMotor = leftMotor;
         this.rightMotor = rightMotor;
         this.angleMotor = angleMotor;
         this.absoluteEncoder = absoluteEncoder;
+        this.shooterComponent = shooterComponent;
+
+        mattRegister();
+        register();
     }
 
     @Override
     public Optional<ExplainedException> verifyInit() {
+        absoluteEncoder.forceRotationalOffset(
+                shooterComponent.absEncoderOffset()
+        );
+
         angleMotor.forceRotationalOffset(
                 absoluteEncoder.angularPosition_normalizedMechanismRotations()
         );
@@ -68,6 +77,8 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     public void setZeroAngle()
     {
 
+        double offset = absoluteEncoder.angularPosition_normalizedMechanismRotations();
+        angleMotor.forceRotationalOffset(offset);
     }
 
     @Override
