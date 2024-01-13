@@ -36,6 +36,14 @@ public class ShooterSubsystem implements Subsystem {
         rightMotor2Wheel.setToVoltage(rightVoltage2Wheel);
     }
 
+    public void setAllMotorsToVoltage(double voltage)
+    {
+        leftMotor1Wheel.setToVoltage(voltage);
+        rightMotor1Wheel.setToVoltage(voltage);
+        leftMotor2Wheel.setToVoltage(voltage);
+        rightMotor2Wheel.setToVoltage(voltage);
+    }
+
 
     @Override
     public void periodic() {
