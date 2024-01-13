@@ -7,11 +7,12 @@ import org.bitbuckets.drive.DrivebaseComponent;
 import org.bitbuckets.vision.VisionComponent;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
+import xyz.auriium.mattlib2.hardware.config.MotorComponent;
+import xyz.auriium.mattlib2.rev.HardwareREV;
 
 import static xyz.auriium.mattlib2.Mattlib.LOG;
 
 public class Robot extends TimedRobot {
-
 
 
 
@@ -30,7 +31,6 @@ public class Robot extends TimedRobot {
         MattlibSettings.USE_LOGGING = true;
 
         VISION.x_position(2);
-
 
 
       /*  //Set up Drive

@@ -8,3 +8,6 @@ kv = 0.0
 
 [swerve.fr.drive]
 id = 2
+
+[motor]
+sensor2mechanism_coef = 1.54
