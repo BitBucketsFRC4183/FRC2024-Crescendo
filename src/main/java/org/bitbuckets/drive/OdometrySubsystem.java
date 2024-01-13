@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.Robot;
+import org.bitbuckets.RobotContainer;
 import org.bitbuckets.vision.VisionSubsystem;
 import xyz.auriium.mattlib2.IPeriodicLooped;
 
@@ -46,6 +47,6 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
 
     @Override
     public void logPeriodic() {
-        Robot.DRIVE.logPosition(odometry.getEstimatedPosition());
+        RobotContainer.DRIVE.logPosition(odometry.getEstimatedPosition());
     }
 }
