@@ -81,6 +81,12 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
         angleMotor.forceRotationalOffset(offset);
     }
 
+    public void intake() {
+        moveToAngle(45);
+        // rotate wheels in the other direction
+        setMotorRotationalSpeeds(0,0);
+    }
+
     @Override
     public void periodic() {
 
