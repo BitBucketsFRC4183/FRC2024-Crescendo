@@ -1,4 +1,10 @@
 package org.bitbuckets.shooter;
 
-public interface ShooterComponent {
+import xyz.auriium.mattlib2.log.INetworkedComponent;
+
+public interface ShooterComponent extends INetworkedComponent {
+
+
+
+
 }

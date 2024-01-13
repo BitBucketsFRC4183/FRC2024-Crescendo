@@ -1,3 +1,5 @@
 # Project exclude paths
 /.gradle/
 /.idea/
+/trajectory-offload/trajectory-offload.iml
+/.run/
