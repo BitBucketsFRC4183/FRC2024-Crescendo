@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.commands.drive.DefaultDriveCommand;
 import org.bitbuckets.commands.shooter.DefaultShooterCommand;
+import org.bitbuckets.commands.shooter.IntakeCommand;
 import org.bitbuckets.commands.shooter.SetAmpShootingAngleCommand;
 import org.bitbuckets.commands.shooter.SetSpeakerShootingAngleCommand;
 import org.bitbuckets.drive.DriveSubsystem;
@@ -73,6 +74,7 @@ public class OperatorInput implements IPeriodicLooped {
 
         ampSetpoint_hold.whileTrue(new SetAmpShootingAngleCommand(shooterSubsystem));
         speakerSetpoint_hold.whileTrue(new SetSpeakerShootingAngleCommand(shooterSubsystem));
+        sourceIntake_hold.whileTrue(new IntakeCommand(shooterSubsystem));
 
         return Optional.empty();
     }
