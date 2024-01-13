@@ -32,6 +32,7 @@ public class OperatorInput implements IPeriodicLooped {
     final Trigger speakerSetpoint_hold = operatorControl.rightTrigger();
     final Trigger ampVisionPriority_toggle = operatorControl.povLeft();
     final Trigger speakerVisionPriority_toggle = operatorControl.povRight();
+    final Trigger moveShooterToAngle = operatorControl.leftStick();
 
 
     final DriveSubsystem driveSubsystem;
@@ -137,5 +138,7 @@ public class OperatorInput implements IPeriodicLooped {
     public double getDriverRightStickY() {
         return driverRightStickY;
     }
+
+    public double getOperatorLeftStickY(){return driverLeftStickY;}
 
 }
