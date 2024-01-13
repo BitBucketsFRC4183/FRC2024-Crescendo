@@ -2,10 +2,15 @@ package org.bitbuckets;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.commands.drive.DefaultDriveCommand;
+import org.bitbuckets.commands.shooter.DefaultShooterCommand;
+import org.bitbuckets.commands.shooter.SetAmpShootingAngleCommand;
+import org.bitbuckets.commands.shooter.SetSpeakerShootingAngleCommand;
 import org.bitbuckets.drive.DriveSubsystem;
+import org.bitbuckets.shooter.ShooterSubsystem;
 import xyz.auriium.mattlib2.IPeriodicLooped;
 import yuukonstants.exception.ExplainedException;
 
@@ -38,11 +43,14 @@ public class OperatorInput implements IPeriodicLooped {
     final Trigger groundIntakeHold = driver.rightBumper();
     final Trigger resetGyroToggle = driver.start();
 
+    final ShooterSubsystem shooterSubsystem;
+
     double driverLeftStickX, driverLeftStickY, driverRightStickX, driverRightStickY;
 
 
-    public OperatorInput(DriveSubsystem driveSubsystem) {
+    public OperatorInput(DriveSubsystem driveSubsystem, ShooterSubsystem shooterSubsystem) {
         this.driveSubsystem = driveSubsystem;
+        this.shooterSubsystem = shooterSubsystem;
 
         mattRegister();
     }
@@ -58,6 +66,11 @@ public class OperatorInput implements IPeriodicLooped {
         Trigger rotGreaterThan = driver.axisGreaterThan(XboxController.Axis.kRightX.value, 0.1);
 
         isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(defaultDriveCommand);
+
+        CommandScheduler.getInstance().setDefaultCommand(shooterSubsystem, new DefaultShooterCommand(shooterSubsystem));
+
+        ampSetpoint_hold.whileTrue(new SetAmpShootingAngleCommand(shooterSubsystem));
+        speakerSetpoint_hold.whileTrue(new SetSpeakerShootingAngleCommand(shooterSubsystem));
 
         return Optional.empty();
     }
