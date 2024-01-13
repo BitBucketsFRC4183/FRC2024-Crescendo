@@ -37,6 +37,7 @@ public class OperatorInput implements IPeriodicLooped {
 
     final DriveSubsystem driveSubsystem;
 
+
     final Trigger slowModeHold = driver.leftTrigger();
     final Trigger turboModeHold = driver.rightTrigger();
     final Trigger autoAlignHold = driver.a();

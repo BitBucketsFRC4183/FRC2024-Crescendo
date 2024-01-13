@@ -7,7 +7,7 @@ import org.bitbuckets.shooter.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.bitbuckets.shooter.ShooterSubsystem;
 
-    public class SetSpeakerShootingAngleCommand extends Command {
+public class SetSpeakerShootingAngleCommand extends Command {
         private final ShooterSubsystem shooterSubsystem;
 
         public SetSpeakerShootingAngleCommand(ShooterSubsystem shooterSubsystem) {
@@ -21,13 +21,13 @@ import org.bitbuckets.shooter.ShooterSubsystem;
 
         @Override
         public void execute() {
-            shooterSubsystem.moveToAngle();
+            shooterSubsystem.moveToAngle(0); //TODO set correct angle
         }
 
         @Override
         public void end(boolean interrupted) {
             shooterSubsystem.moveToAngle(0);
         }
-    }
+
 
 }
