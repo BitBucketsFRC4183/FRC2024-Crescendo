@@ -22,8 +22,7 @@ public class ShooterSubsystem implements Subsystem {
         register();
     }
 
-    public void setMotorSpeeds(double leftMotorSpeed1Wheel, double rightMotorSpeed1Wheel, double leftMotorSpeed2Wheel, double rightMotorSpeed2Wheel)
-    {
+    public void setMotorSpeeds(double leftMotorSpeed1Wheel, double rightMotorSpeed1Wheel, double leftMotorSpeed2Wheel, double rightMotorSpeed2Wheel) {
 
         double leftVoltage1Wheel = feedforward.calculate(leftMotorSpeed1Wheel);
         double rightVoltage1Wheel = feedforward.calculate(rightMotorSpeed1Wheel);

@@ -22,11 +22,11 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotInit() {
-
         CommandScheduler.getInstance().enable();
+
+        //mattlib stuff
         Mattlib.LOOPER.runPreInit();
         Mattlib.LOOPER.runPostInit();
-
         MattlibSettings.USE_LOGGING = true;
 
         VISION.x_position(2);
@@ -79,7 +79,6 @@ public class Robot extends TimedRobot {
 
     //Components MUST be created in the Robot class (because of how static bs works)
     public static final VisionComponent VISION = LOG.load(VisionComponent.class, "vision");
-
     public static final DrivebaseComponent DRIVE = LOG.load(DrivebaseComponent.class, "swerve");
     /*public static final MotorComponent[] DRIVES = MotorComponent.ofRange(
             LOG.load(CommonMotorComponent.class, "swerve/drive"),
