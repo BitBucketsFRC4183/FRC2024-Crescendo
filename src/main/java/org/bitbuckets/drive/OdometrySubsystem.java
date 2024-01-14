@@ -45,6 +45,9 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
 
     }
 
+    public Pose2d getCurrentPose2d() {
+        return odometry.getEstimatedPosition();
+    }
     @Override
     public void logPeriodic() {
         RobotContainer.DRIVE.logPosition(odometry.getEstimatedPosition());
