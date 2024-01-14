@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.commands.drive.DefaultDriveCommand;
+import org.bitbuckets.commands.drive.FollowTrajectoryCommand;
 import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.shooter.*;
 import org.bitbuckets.drive.DriveSubsystem;
@@ -89,16 +90,14 @@ public class RobotContainer {
     }
 
     void loadCommands() {
-        DefaultDriveCommand defaultDriveCommand = new DefaultDriveCommand(driveSubsystem, operatorInput);
 
         //When driver
         Trigger xGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftX.value, 0.1);
         Trigger yGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.1);
         Trigger rotGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kRightX.value, 0.1);
 
-        operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(defaultDriveCommand);
+        operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(new DefaultDriveCommand(driveSubsystem, odometrySubsystem, operatorInput));
 
-        driveSubsystem.setDefaultCommand(new DefaultDriveCommand(driveSubsystem, operatorInput));
         operatorInput.ampSetpoint_hold.whileTrue(new SetAmpShootingAngleCommand(shooterSubsystem));
         operatorInput.speakerSetpoint_hold.whileTrue(new SetSpeakerShootingAngleCommand(shooterSubsystem));
         // .andThen(new ShootNoteCommand(shooterSubsystem))

@@ -1,6 +1,7 @@
 package org.bitbuckets;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -25,7 +26,7 @@ public class OperatorInput {
     final CommandXboxController operatorControl = new CommandXboxController(1);
     final CommandXboxController driver = new CommandXboxController(0);
 
-    final Trigger isTeleop = null; //TODO fill this out
+    final Trigger isTeleop = new Trigger(DriverStation::isTeleop); //TODO fill this out
 
     final Trigger shootByVision = operatorControl.a();
 

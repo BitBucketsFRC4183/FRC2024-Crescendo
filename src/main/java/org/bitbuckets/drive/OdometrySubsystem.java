@@ -60,4 +60,8 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
    public Rotation2d getGyroAngle() {
         return pigeon2.getRotation2d();
    }
+
+   public Pose2d getCurrentPosition() {
+        return odometry.getEstimatedPosition();
+   }
 }
