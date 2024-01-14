@@ -14,6 +14,7 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class VisionSubsystem  {
 
@@ -42,18 +43,24 @@ public class VisionSubsystem  {
     //BASIC INFORMATION GATHERING FROM CAMERAS
     public Optional<Pose3d> estimateBestVisionTarget_1() {
 
-        return Optional.ofNullable(
+
+        Optional<Pose3d> vt  = Optional.ofNullable(
                 camera_1.getLatestResult().getBestTarget()
         ).flatMap(tgt -> layout.getTagPose(tgt.getFiducialId()));
 
+        vt.ifPresent(RobotContainer.VISION::log_vision_target_1);
+
+        return vt;
     }
 
     public Optional<Pose3d> estimateBestVisionTarget_2() {
 
-        return Optional.ofNullable(
+        Optional<Pose3d> vt = Optional.ofNullable(
                 camera_2.getLatestResult().getBestTarget()
         ).flatMap(tgt -> layout.getTagPose(tgt.getFiducialId()));
 
+        vt.ifPresent(RobotContainer.VISION::log_vision_target_2);
+        return vt;
     }
 
     public Optional<Pose3d> estimateVisionRobotPose_1() {
