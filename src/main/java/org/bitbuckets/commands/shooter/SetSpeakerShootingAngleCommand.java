@@ -28,6 +28,11 @@ public class SetSpeakerShootingAngleCommand extends Command {
         }
 
         @Override
+        public boolean isFinished() {
+            return shooterSubsystem.hasReachedAngle(1/6);
+        }
+
+        @Override
         public void end(boolean interrupted) {
             shooterSubsystem.moveToRotation(0);
         }

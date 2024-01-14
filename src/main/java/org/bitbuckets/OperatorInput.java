@@ -28,11 +28,15 @@ public class OperatorInput {
     final Trigger isTeleop = null; //TODO fill this out
 
     final Trigger shootByVision = operatorControl.a();
+
+    final Trigger shootManually = operatorControl.x();
     final Trigger sourceIntake_hold = operatorControl.leftBumper();
     final Trigger ampSetpoint_hold = operatorControl.leftTrigger();
     final Trigger speakerSetpoint_hold = operatorControl.rightTrigger();
     final Trigger ampVisionPriority_toggle = operatorControl.povLeft();
     final Trigger speakerVisionPriority_toggle = operatorControl.povRight();
+
+    final Trigger setShooterAngleManually = operatorControl.leftStick();
 
 
     final DriveSubsystem driveSubsystem;
@@ -44,7 +48,6 @@ public class OperatorInput {
     final Trigger groundIntakeHold = driver.rightBumper();
     final Trigger resetGyroToggle = driver.start();
 
-    double driverLeftStickX, driverLeftStickY, driverRightStickX, driverRightStickY;
 
 
     public OperatorInput(DriveSubsystem driveSubsystem) {
@@ -103,7 +106,12 @@ public class OperatorInput {
         return autoAlignHold.getAsBoolean();
     }
 
-    public boolean getXButtonState() {
+    public boolean getOperatorXButtonState() {
+        return shootManually.getAsBoolean();
+    }
+
+
+    public boolean getDriverXButtonState() {
         return xButtonToggle.getAsBoolean();
     }
 
@@ -116,21 +124,9 @@ public class OperatorInput {
     }
 
     public double getDriverLeftStickX() {
-        return driverLeftStickX;
+        return operatorControl.getLeftX();
     }
 
-    public double getDriverLeftStickY() {
-        return driverLeftStickY;
-    }
-
-    public double getDriverRightStickX() {
-        return driverRightStickX;
-    }
-
-    public double getDriverRightStickY() {
-        return driverRightStickY;
-    }
-
-    public double getOperatorLeftStickY(){return driverLeftStickY;}
+    public double getOperatorLeftStickY(){return deadband(operatorControl.getRawAxis(XboxController.Axis.kLeftY.value));}
 
 }

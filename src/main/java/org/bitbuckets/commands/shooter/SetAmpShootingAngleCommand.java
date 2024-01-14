@@ -23,11 +23,11 @@ public class SetAmpShootingAngleCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        shooterSubsystem.moveToRotation(0);
+
     }
 
     @Override
     public boolean isFinished() {
-        return false;
+        return shooterSubsystem.hasReachedAngle(0.125);
     }
 }

@@ -3,6 +3,7 @@ package org.bitbuckets.shooter;
 import com.revrobotics.AbsoluteEncoder;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import org.bitbuckets.util.EncoderComponent;
 import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.hardware.IRotationalController;
@@ -21,13 +22,15 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     final IRotationalController angleMotor;
     final IRotationEncoder absoluteEncoder;
     final ShooterComponent shooterComponent;
+    final EncoderComponent encoderComponent;
 
-    public ShooterSubsystem(IRotationalMotor leftMotor, IRotationalMotor rightMotor, IRotationalController angleMotor, IRotationEncoder absoluteEncoder, ShooterComponent shooterComponent) {
+    public ShooterSubsystem(IRotationalMotor leftMotor, IRotationalMotor rightMotor, IRotationalController angleMotor, IRotationEncoder absoluteEncoder, ShooterComponent shooterComponent, EncoderComponent encoderComponent) {
         this.leftMotor = leftMotor;
         this.rightMotor = rightMotor;
         this.angleMotor = angleMotor;
         this.absoluteEncoder = absoluteEncoder;
         this.shooterComponent = shooterComponent;
+        this.encoderComponent = encoderComponent;
 
         mattRegister();
         register();
@@ -36,7 +39,7 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     @Override
     public Optional<ExplainedException> verifyInit() {
         absoluteEncoder.forceRotationalOffset(
-                shooterComponent.absEncoderOffset()
+                encoderComponent.getAbsoluteEncoderOffset()
         );
 
         angleMotor.forceRotationalOffset(
@@ -78,6 +81,10 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
 
     }
 
+    public void setPivotMotorToVoltage(double voltage) {
+        angleMotor.setToVoltage(voltage);
+    }
+
     public void moveToMechanismPosition(double mechanism_positions)
     {
         angleMotor.controlToNormalizedReference(mechanism_positions);
@@ -93,7 +100,7 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     public void intake() {
         moveToRotation(0.125);
         // rotate wheels in the other direction
-        setMotorRotationalSpeeds(0,0);
+        setMotorRotationalSpeeds(-4000,-4000);
     }
 
     // needs velocity pid in mattlib to be added first to work; wip
@@ -109,7 +116,43 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     }
 
     public boolean hasReachedSpeeds(double speed1, double speed2) {
-        return false;
+
+        if (leftMotor.angularVelocity_mechanismRotationsPerSecond() >= speed1) {
+            return true;
+        } else {
+            return false;
+        }
     }
+
+    public boolean hasReachedAngle(double angle_mechanismRotations) {
+        if (angleMotor.angularPosition_normalizedMechanismRotations() == angle_mechanismRotations) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public double getPivotAnglePosition_normalizedMechanismRotations() {
+        return angleMotor.angularPosition_normalizedMechanismRotations();
+    }
+
+    double h_r = 0.7366; //height of robot
+    double l_r = 0.6858; //length of robot
+    double s_x = l_r / 2; // distance from bumper to base of shooter
+    double h_1 = 1.98; //ground to low top
+    double h_2 = 2.11; //ground to high top
+    double y = 0.459994; // distance from point at end of imaginary line going down from h_1 to point at end of imaginary line going down from h_2 hitting the ground
+    double x = 0.472186; // distance from point at end of imaginary line going down from h_1 to robot
+    double l_s = 0.3556; //length of shooter
+    // EVERYTHING IS IN SI UNITS (M)
+    public double calculateMinimalAngleForSpeaker()
+    {
+        //theta = arctan((h_1 - h_r - l_s * sin(theta))/(x + y + s_x - l_s * cos(theta))
+        return 0;
+    }
+    public double calculateMaximalAngleForSpeaker(){
+        //theta = arctan((h_2 - R_h - l_s * sin(theta))/(x + s_x - l_s * cos(theta))
+    }
+
 
 }

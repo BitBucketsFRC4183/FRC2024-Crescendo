@@ -1,5 +1,8 @@
 [vision]
 id = 9
+[absolute]
+absolute_offset = 0.0
+coefficient = 0.0
 [swerve]
 ks = 0.0
 kv = 0.0
@@ -21,6 +24,15 @@ id = 3
 [swerve.drive_bl]
 id = 7
 
+[shooter.wheel_common]
+sensor2mechanism_coef = 2
+
+[shooter.wheel_1]
+id = 3
+
+[shooter.wheel_2]
+id = 5
+
 [swerve.drive_common]
 sensor2mechanism_coef = 0.0
 type = "BRUSHLESS"
@@ -31,8 +43,18 @@ id = 0
 [swerve.drive_fl]
 id = 0
 
+[swerve.t_holonomic_pid]
+p = 0
+d = 0
+i = 0
+
 [swerve.drive_br]
 id = 0
+
+[swerve.y_holonomic_pid]
+p = 0
+d = 0
+i = 0
 
 [swerve.drive_fr]
 id = 0
@@ -41,3 +63,10 @@ id = 0
 p = 0
 d = 0
 i = 0
+
+[swerve.x_holonomic_pid]
+p = 0
+d = 0
+i = 0
+[shooter]
+channel = 0
