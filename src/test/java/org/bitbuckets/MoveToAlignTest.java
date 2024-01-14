@@ -39,7 +39,7 @@ public class MoveToAlignTest {
     @Test
     void calculateMoveToAlignForwards() {
         // our pose is 0,0 rotated 0º (facing forwards, away from alliance wall)
-        when(odometrySubsystem.odometry.getEstimatedPosition()).thenReturn(new Pose2d());
+        when(odometrySubsystem.getCurrentPosition()).thenReturn(new Pose2d());
 
         // get chassis speeds for a target that is at 1, 0
         // we should get chassisSpeeds telling our robot to move forwards, away from the alliance wall
@@ -52,7 +52,7 @@ public class MoveToAlignTest {
     @Test
     void calculateMoveToAlignBackwards() {
         // our pose is 0,0 rotated 180º (facing the alliance wall)
-        when(odometrySubsystem.odometry.getEstimatedPosition()).thenReturn(new Pose2d(0, 0, Rotation2d.fromDegrees(180)));
+        when(odometrySubsystem.getCurrentPosition()).thenReturn(new Pose2d(0, 0, Rotation2d.fromDegrees(180)));
 
         // get chassis speeds for a target that is at 1, 0
         // we should get chassisSpeeds telling our robot to move backwards, away from the alliance wall
