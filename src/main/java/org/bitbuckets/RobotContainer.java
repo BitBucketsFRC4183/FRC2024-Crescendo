@@ -7,16 +7,19 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.commands.drive.DefaultDriveCommand;
+import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.shooter.IntakeCommand;
 import org.bitbuckets.commands.shooter.SetAmpShootingAngleCommand;
 import org.bitbuckets.commands.shooter.SetSpeakerShootingAngleCommand;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.DrivebaseComponent;
+import org.bitbuckets.drive.OdometrySubsystem;
 import org.bitbuckets.drive.SwerveModule;
 import org.bitbuckets.shooter.ShooterSubsystem;
 import org.bitbuckets.util.ThriftyEncoder;
 import org.bitbuckets.util.Util;
 import org.bitbuckets.vision.VisionComponent;
+import org.bitbuckets.vision.VisionSubsystem;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
 import xyz.auriium.mattlib2.hardware.ILinearMotor;
@@ -48,6 +51,8 @@ public class RobotContainer {
     public final DriveSubsystem driveSubsystem;
     public final OperatorInput operatorInput;
     public final ShooterSubsystem shooterSubsystem;
+    public final OdometrySubsystem odometrySubsystem;
+    public final VisionSubsystem visionSubsystem;
 
     public RobotContainer() {
         CommandScheduler.getInstance().enable();
@@ -60,6 +65,8 @@ public class RobotContainer {
         this.operatorInput = new OperatorInput();
         this.driveSubsystem = loadDriveSubsystem();
         this.shooterSubsystem = loadShooterSubsystem();
+        this.odometrySubsystem = loadOdometrySubsystem();
+        this.visionSubsystem = loadVisionSubsystem();
 
         loadCommands();
     }
@@ -78,6 +85,7 @@ public class RobotContainer {
         operatorInput.ampSetpoint_hold.whileTrue(new SetAmpShootingAngleCommand(shooterSubsystem));
         operatorInput.speakerSetpoint_hold.whileTrue(new SetSpeakerShootingAngleCommand(shooterSubsystem));
         operatorInput.sourceIntake_hold.whileTrue(new IntakeCommand(shooterSubsystem));
+        operatorInput.autoAlignHold.whileTrue(new MoveToAlignCommand(driveSubsystem, visionSubsystem, odometrySubsystem, null)); //TODO
 
     }
 
@@ -109,6 +117,12 @@ public class RobotContainer {
     }
 
     ShooterSubsystem loadShooterSubsystem() {
+        return null; //TODO
+    }
+    OdometrySubsystem loadOdometrySubsystem() {
+        return null; //TODO
+    }
+    VisionSubsystem loadVisionSubsystem() {
         return null; //TODO
     }
 }
