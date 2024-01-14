@@ -5,7 +5,7 @@ import xyz.auriium.mattlib2.log.annote.Conf;
 
 public interface ShooterComponent extends INetworkedComponent {
 
-   @Conf("absolute_encoder_offset") double absEncoderOffset();
+   @Conf("channel") int channel();
 
 
 }

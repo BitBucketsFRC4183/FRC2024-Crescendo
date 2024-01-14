@@ -7,6 +7,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -17,7 +18,9 @@ import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.DrivebaseComponent;
 import org.bitbuckets.drive.OdometrySubsystem;
 import org.bitbuckets.drive.SwerveModule;
+import org.bitbuckets.shooter.ShooterComponent;
 import org.bitbuckets.shooter.ShooterSubsystem;
+import org.bitbuckets.util.EncoderComponent;
 import org.bitbuckets.util.ThriftyEncoder;
 import org.bitbuckets.util.Util;
 import org.bitbuckets.vision.VisionComponent;
@@ -39,6 +42,7 @@ public class RobotContainer {
     public static final VisionComponent VISION = LOG.load(VisionComponent.class, "vision");
     public static final DrivebaseComponent DRIVE = LOG.load(DrivebaseComponent.class, "swerve");
 
+    public static final ShooterComponent SHOOTER = LOG.load(ShooterComponent.class, "shooter");
     public static final CommonMotorComponent DRIVE_COMMON = LOG.load(CommonMotorComponent.class, "swerve/drive_common");
     public static final CommonMotorComponent STEER_COMMON = LOG.load(CommonMotorComponent.class, "swerve/steer_common");
     public static final CommonPIDComponent PID_COMMON = LOG.load(CommonPIDComponent.class, "swerve/steer_pid_common");
@@ -51,6 +55,7 @@ public class RobotContainer {
     public static final PIDComponent DRIVE_Y_PID = LOG.load(PIDComponent.class, "swerve/y_holonomic_pid");
     public static final PIDComponent DRIVE_T_PID = LOG.load(PIDComponent.class, "swerve/t_holonomic_pid");
 
+    public static final EncoderComponent ABSOLUTE = LOG.load(EncoderComponent.class, "absolute");
 
     public final DriveSubsystem driveSubsystem;
     public final OperatorInput operatorInput;
@@ -126,7 +131,7 @@ public class RobotContainer {
             } else {
                 driveMotor = HardwareREV.linearSpark_noPID(DRIVES[i]);
                 steerController = HardwareREV.rotationalSpark_builtInPID(STEERS[i], PIDS[i]);
-                absoluteEncoder = new ThriftyEncoder();
+                absoluteEncoder = new ThriftyEncoder(null, null);
             }
             modules[i] = new SwerveModule(driveMotor, steerController, absoluteEncoder);
         }
@@ -134,7 +139,16 @@ public class RobotContainer {
     }
 
     ShooterSubsystem loadShooterSubsystem() {
-        return null; //TODO
+       return new ShooterSubsystem(null,null,null,
+                new ThriftyEncoder(
+                        new AnalogInput(SHOOTER.channel()),
+                            ABSOLUTE
+                        ),
+               SHOOTER,
+               ABSOLUTE
+
+       );
+
     }
     OdometrySubsystem loadOdometrySubsystem() {
         return null; //TODO
