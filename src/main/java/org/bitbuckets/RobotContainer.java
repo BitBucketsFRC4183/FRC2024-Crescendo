@@ -33,8 +33,6 @@ import xyz.auriium.mattlib2.hardware.IRotationalController;
 import xyz.auriium.mattlib2.hardware.config.*;
 import xyz.auriium.mattlib2.rev.HardwareREV;
 
-import java.util.Optional;
-
 import static xyz.auriium.mattlib2.Mattlib.LOG;
 
 public class RobotContainer {
@@ -91,9 +89,12 @@ public class RobotContainer {
         operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(defaultDriveCommand);
 
         driveSubsystem.setDefaultCommand(new DefaultDriveCommand(driveSubsystem, operatorInput));
-        operatorInput.ampSetpoint_hold.whileTrue(new SetAmpShootingAngleCommand(shooterSubsystem).andThen(new ShootNoteCommand(shooterSubsystem)));
-        operatorInput.speakerSetpoint_hold.whileTrue(new SetSpeakerShootingAngleCommand(shooterSubsystem).andThen(new ShootNoteCommand(shooterSubsystem)));
+        operatorInput.ampSetpoint_hold.whileTrue(new SetAmpShootingAngleCommand(shooterSubsystem));
+        operatorInput.speakerSetpoint_hold.whileTrue(new SetSpeakerShootingAngleCommand(shooterSubsystem));
+        // .andThen(new ShootNoteCommand(shooterSubsystem))
+        operatorInput.shootManually.onTrue(new ShootNoteCommand(shooterSubsystem));
         operatorInput.sourceIntake_hold.whileTrue(new IntakeCommand(shooterSubsystem));
+        operatorInput.setShooterAngleManually.onTrue(new SetShootingAngleManuallyCommand(operatorInput, shooterSubsystem));
 
         HolonomicDriveController holonomicDriveController = new HolonomicDriveController(
                 new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant()),
