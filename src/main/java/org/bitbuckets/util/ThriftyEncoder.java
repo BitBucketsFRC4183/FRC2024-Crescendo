@@ -34,7 +34,8 @@ public class ThriftyEncoder implements IRotationEncoder {
     }
 
     @Override
-    public double angularvelocity_encoderRotationsPerSecond() {
+    public double angularVelocity_encoderRotationsPerSecond() {
         return 0;
     }
+
 }

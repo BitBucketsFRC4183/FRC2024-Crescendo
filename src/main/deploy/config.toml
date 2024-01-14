@@ -1,2 +1,43 @@
 [vision]
+id = 9
+[swerve]
+ks = 0.0
+kv = 0.0
+ka = 0.0
+
+[swerve.steer_bl]
+id = 0
+
+[swerve.steer_fr]
+id = 0
+
+[swerve.steer_common]
+sensor2mechanism_coef = 0.0
+type = "BRUSHLESS"
+
+[swerve.steer_br]
 id = 3
+
+[swerve.drive_bl]
+id = 7
+
+[swerve.drive_common]
+sensor2mechanism_coef = 0.0
+type = "BRUSHLESS"
+
+[swerve.steer_fl]
+id = 0
+
+[swerve.drive_fl]
+id = 0
+
+[swerve.drive_br]
+id = 0
+
+[swerve.drive_fr]
+id = 0
+
+[swerve.steer_pid_common]
+p = 0
+d = 0
+i = 0

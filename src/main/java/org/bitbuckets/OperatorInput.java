@@ -2,23 +2,29 @@ package org.bitbuckets;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.commands.drive.DefaultDriveCommand;
+import org.bitbuckets.commands.shooter.DefaultShooterCommand;
+import org.bitbuckets.commands.shooter.IntakeCommand;
+import org.bitbuckets.commands.shooter.SetAmpShootingAngleCommand;
+import org.bitbuckets.commands.shooter.SetSpeakerShootingAngleCommand;
 import org.bitbuckets.drive.DriveSubsystem;
+import org.bitbuckets.shooter.ShooterSubsystem;
 import xyz.auriium.mattlib2.IPeriodicLooped;
 import yuukonstants.exception.ExplainedException;
 
 import java.util.Optional;
 
 /**
- * This class holds all of our operator triggers AND our
+ * This class holds all of our operator triggers
  */
-public class OperatorInput implements IPeriodicLooped {
+public class OperatorInput {
 
     final CommandXboxController operatorControl = new CommandXboxController(1);
-
     final CommandXboxController driver = new CommandXboxController(0);
+
     final Trigger isTeleop = null; //TODO fill this out
 
     final Trigger shootByVision = operatorControl.a();
@@ -117,12 +123,14 @@ public class OperatorInput implements IPeriodicLooped {
         return driverLeftStickY;
     }
 
-    public double breakTheCod2e() {
+    public double getDriverRightStickX() {
         return driverRightStickX;
     }
 
     public double getDriverRightStickY() {
         return driverRightStickY;
     }
+
+    public double getOperatorLeftStickY(){return driverLeftStickY;}
 
 }
