@@ -18,22 +18,23 @@ public class ThriftyEncoderMathTest {
     @Test
     public void checkThriftyAngularPosition_encoderRotations()
     {
-        ThriftyEncoder encoder = new ThriftyEncoder(Mockito.mock(AnalogInput.class), Mockito.mock(EncoderComponent.class))
+        ThriftyEncoder thriftyEncoder = new ThriftyEncoder(Mockito.mock(AnalogInput.class), Mockito.mock(EncoderComponent.class));
 
-        assertEquals(0, encoder.angularPosition_encoderRotations(), 0.1);
+        assertEquals(0, thriftyEncoder.angularPosition_encoderRotations(), 0.1);
     }
     
     
     @Test
     public void checkThriftyAngularPosition_normalizedEncoderRotations()
     {
-        assertEquals(0, thriftyEncoder.angularPosition_normalizedEncoderRotations(), 0.1);
+        ThriftyEncoder thriftyEncoder = new ThriftyEncoder(Mockito.mock(AnalogInput.class), Mockito.mock(EncoderComponent.class));        assertEquals(0, thriftyEncoder.angularPosition_normalizedEncoderRotations(), 0.1);
     }
 
     
     @Test
     public void checkThriftyAngularPosition_mechanismRotations()
     {
+        ThriftyEncoder thriftyEncoder = new ThriftyEncoder(Mockito.mock(AnalogInput.class), Mockito.mock(EncoderComponent.class));
         assertEquals(0, thriftyEncoder.angularPosition_mechanismRotations(), 0.1);
     }
 
@@ -41,6 +42,7 @@ public class ThriftyEncoderMathTest {
     @Test
     public void checkThriftyAngularPosition_NormalizedMechanismRotations()
     {
+        ThriftyEncoder thriftyEncoder = new ThriftyEncoder(Mockito.mock(AnalogInput.class), Mockito.mock(EncoderComponent.class));
         assertEquals(0, thriftyEncoder.angularPosition_normalizedMechanismRotations(), 0.1);
     }
     
