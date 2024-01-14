@@ -1,5 +1,7 @@
 package org.bitbuckets;
 
+import com.choreo.lib.Choreo;
+import com.choreo.lib.ChoreoTrajectory;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -11,10 +13,12 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.climber.ClimberSubsystem;
 import org.bitbuckets.commands.climber.LiftClimberCommand;
 import org.bitbuckets.commands.drive.DefaultDriveCommand;
+import org.bitbuckets.commands.drive.FollowTrajectoryCommand;
 import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.shooter.*;
 import org.bitbuckets.drive.DriveSubsystem;
@@ -72,6 +76,8 @@ public class RobotContainer {
     public final OdometrySubsystem odometrySubsystem;
     public final VisionSubsystem visionSubsystem;
 
+
+
     public RobotContainer() {
 
         CommandScheduler.getInstance().enable();
@@ -90,9 +96,27 @@ public class RobotContainer {
         loadCommands();
     }
 
+    public void autonomousInit() {
+
+        ChoreoTrajectory trajectory = Choreo.getTrajectory("myTrajectory");
+        HolonomicDriveController holonomicDriveController = new HolonomicDriveController(
+                new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant()),
+                new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant()),
+                new ProfiledPIDController(DRIVE_T_PID.pConstant(), DRIVE_T_PID.iConstant(), DRIVE_T_PID.dConstant(),
+                        new TrapezoidProfile.Constraints(1,2)) //TODO
+        );
+
+        new SequentialCommandGroup(
+                new SetShootingAngleManuallyCommand(operatorInput, shooterSubsystem),
+                new ShootNoteCommand(shooterSubsystem),
+                new FollowTrajectoryCommand(trajectory, driveSubsystem, odometrySubsystem, holonomicDriveController)
+        ).schedule();
+
+    }
+
     void loadCommands() {
 
-        DefaultDriveCommand defaultDriveCommand = new DefaultDriveCommand(driveSubsystem, operatorInput);
+        DefaultDriveCommand defaultDriveCommand = new DefaultDriveCommand(driveSubsystem, odometrySubsystem, operatorInput);
 
         //When driver
         Trigger xGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftX.value, 0.1);
@@ -145,6 +169,7 @@ public class RobotContainer {
             }
             modules[i] = new SwerveModule(driveMotor, steerController, absoluteEncoder);
         }
+
         return modules;
     }
 
