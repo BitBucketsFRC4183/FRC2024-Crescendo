@@ -14,7 +14,9 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         container = new RobotContainer();
-
+        if (isSimulation()) {
+            System.out.println("we in the matrix baby");
+        }
     }
 
     @Override
@@ -22,6 +24,12 @@ public class Robot extends TimedRobot {
         Mattlib.LOOPER.runPeriodicLoop();
 
         CommandScheduler.getInstance().run();
+    }
+
+    @Override
+    public void simulationPeriodic() {
+            return;
+        }
     }
 
 }

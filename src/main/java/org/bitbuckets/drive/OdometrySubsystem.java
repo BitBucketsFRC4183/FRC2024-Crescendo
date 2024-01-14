@@ -16,7 +16,7 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
 
     final DriveSubsystem driveSubsystem;
     final VisionSubsystem visionSubsystem;
-    final SwerveDrivePoseEstimator odometry;
+    public final SwerveDrivePoseEstimator odometry;
 
 
     public OdometrySubsystem(DriveSubsystem driveSubsystem, VisionSubsystem visionSubsystem, SwerveDrivePoseEstimator odometry) {
