@@ -8,15 +8,18 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.Robot;
 import org.bitbuckets.RobotContainer;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import xyz.auriium.mattlib2.IPeriodicLooped;
+import yuukonstants.exception.ExplainedException;
 
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public class VisionSubsystem  {
+public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
 
     final PhotonCamera camera_1;
     final PhotonCamera camera_2;
@@ -32,13 +35,23 @@ public class VisionSubsystem  {
         this.estimator1 = estimator1;
         this.estimator2 = estimator2;
         this.aprilTagDetector = aprilTagDetector;
+
+        register();
+        mattRegister();
     }
 
-    public void init() {
+    @Override
+    public Optional<ExplainedException> verifyInit() {
         //frc using 36h11 fam this year
         aprilTagDetector.addFamily("36h11");
+
+        return Optional.empty();
     }
 
+    @Override
+    public void simulationPeriodic() {
+
+    }
 
     //BASIC INFORMATION GATHERING FROM CAMERAS
     public Optional<Pose3d> estimateBestVisionTarget_1() {
@@ -61,6 +74,27 @@ public class VisionSubsystem  {
 
         vt.ifPresent(RobotContainer.VISION::log_vision_target_2);
         return vt;
+    }
+
+
+    public Optional<Pose3d> estimateRobotPose_1() {
+
+        Optional<Pose3d> p = Optional.ofNullable(
+                camera_1.getLatestResult().getBestTarget()
+        ).flatMap(tgt -> layout.getTagPose(tgt.getFiducialId()));
+
+        p.ifPresent(RobotContainer.VISION::log_vision_robot_pose_1);
+        return p;
+    }
+
+    public Optional<Pose3d> estimateRobotPose_2() {
+
+        Optional<Pose3d> p = Optional.ofNullable(
+                camera_2.getLatestResult().getBestTarget()
+        ).flatMap(tgt -> layout.getTagPose(tgt.getFiducialId()));
+
+        p.ifPresent(RobotContainer.VISION::log_vision_robot_pose_2);
+        return p;
     }
 
     public Optional<Pose3d> estimateVisionRobotPose_1() {
