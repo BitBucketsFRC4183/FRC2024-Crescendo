@@ -26,10 +26,5 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
     }
 
-    @Override
-    public void simulationPeriodic() {
-            return;
-        }
-    }
 
 }
