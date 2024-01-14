@@ -3,6 +3,7 @@ package org.bitbuckets.shooter;
 import com.revrobotics.AbsoluteEncoder;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import org.bitbuckets.util.EncoderComponent;
 import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.hardware.IRotationalController;
@@ -21,13 +22,15 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     final IRotationalController angleMotor;
     final IRotationEncoder absoluteEncoder;
     final ShooterComponent shooterComponent;
+    final EncoderComponent encoderComponent;
 
-    public ShooterSubsystem(IRotationalMotor leftMotor, IRotationalMotor rightMotor, IRotationalController angleMotor, IRotationEncoder absoluteEncoder, ShooterComponent shooterComponent) {
+    public ShooterSubsystem(IRotationalMotor leftMotor, IRotationalMotor rightMotor, IRotationalController angleMotor, IRotationEncoder absoluteEncoder, ShooterComponent shooterComponent, EncoderComponent encoderComponent) {
         this.leftMotor = leftMotor;
         this.rightMotor = rightMotor;
         this.angleMotor = angleMotor;
         this.absoluteEncoder = absoluteEncoder;
         this.shooterComponent = shooterComponent;
+        this.encoderComponent = encoderComponent;
 
         mattRegister();
         register();
@@ -36,7 +39,7 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     @Override
     public Optional<ExplainedException> verifyInit() {
         absoluteEncoder.forceRotationalOffset(
-                shooterComponent.absEncoderOffset()
+                encoderComponent.getAbsoluteEncoderOffset()
         );
 
         angleMotor.forceRotationalOffset(
