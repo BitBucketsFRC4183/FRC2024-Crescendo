@@ -105,7 +105,7 @@ public class RobotContainer {
                         new TrapezoidProfile.Constraints(1,2)) //TODO
         );
 
-        operatorInput.autoAlignHold.whileTrue(new MoveToAlignCommand(driveSubsystem, visionSubsystem, odometrySubsystem, holonomicDriveController));
+        operatorInput.autoAlignHold.whileTrue(new MoveToAlignCommand(driveSubsystem, visionSubsystem, holonomicDriveController, odometrySubsystem, operatorInput));
 
 
 
