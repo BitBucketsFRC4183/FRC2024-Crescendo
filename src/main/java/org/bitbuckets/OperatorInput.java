@@ -39,7 +39,6 @@ public class OperatorInput {
     final Trigger setShooterAngleManually = operatorControl.leftStick();
 
 
-    final DriveSubsystem driveSubsystem;
 
     final Trigger slowModeHold = driver.leftTrigger();
     final Trigger turboModeHold = driver.rightTrigger();
@@ -48,28 +47,6 @@ public class OperatorInput {
     final Trigger groundIntakeHold = driver.rightBumper();
     final Trigger resetGyroToggle = driver.start();
 
-
-
-    public OperatorInput(DriveSubsystem driveSubsystem) {
-        this.driveSubsystem = driveSubsystem;
-
-        mattRegister();
-    }
-
-    @Override
-    public Optional<ExplainedException> verifyInit() {
-
-        DefaultDriveCommand defaultDriveCommand = new DefaultDriveCommand(driveSubsystem, odometrySubsystem, this);
-
-        //When driver
-        Trigger xGreaterThan = driver.axisGreaterThan(XboxController.Axis.kLeftX.value, 0.1);
-        Trigger yGreaterThan = driver.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.1);
-        Trigger rotGreaterThan = driver.axisGreaterThan(XboxController.Axis.kRightX.value, 0.1);
-
-        isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(defaultDriveCommand);
-
-        return Optional.empty();
-    }
 
     /**
      * @param input a value
@@ -127,6 +104,13 @@ public class OperatorInput {
         return operatorControl.getLeftX();
     }
 
+    public double getDriverLeftStickY() {
+        return operatorControl.getLeftY();
+    }
+
+    public double getDriverRightStickX() {
+        return operatorControl.getRightX();
+    }
     public double getOperatorLeftStickY(){return deadband(operatorControl.getRawAxis(XboxController.Axis.kLeftY.value));}
 
 }

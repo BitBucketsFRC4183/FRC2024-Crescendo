@@ -9,7 +9,7 @@ import org.bitbuckets.drive.OdometrySubsystem;
 
 import java.util.Set;
 
-public class DefaultDriveCommand implements Command {
+public class DefaultDriveCommand extends Command {
 
     final DriveSubsystem driveSubsystem;
     final OdometrySubsystem odometrySubsystem;
@@ -31,7 +31,7 @@ public class DefaultDriveCommand implements Command {
         ChassisSpeeds fieldRelativeSpeeds = new ChassisSpeeds(
                 3*operatorInput.getDriverLeftStickX(),
                 3*operatorInput.getDriverLeftStickY(),
-                operatorInput.getDriverRightStickY()
+                operatorInput.getDriverRightStickX()
         );
 
         ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
