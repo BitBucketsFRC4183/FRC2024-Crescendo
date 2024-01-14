@@ -34,10 +34,6 @@ public class VisionSubsystem  {
     }
 
     public void init() {
-        //example logging DELETE
-        int id = RobotContainer.VISION.id();
-        int result = id*4;
-        RobotContainer.VISION.x_position(result);
         //frc using 36h11 fam this year
         aprilTagDetector.addFamily("36h11");
     }

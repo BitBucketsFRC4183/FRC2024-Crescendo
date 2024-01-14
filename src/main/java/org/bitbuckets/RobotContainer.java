@@ -13,10 +13,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.commands.drive.DefaultDriveCommand;
 import org.bitbuckets.commands.drive.MoveToAlignCommand;
-import org.bitbuckets.commands.shooter.IntakeCommand;
-import org.bitbuckets.commands.shooter.SetAmpShootingAngleCommand;
-import org.bitbuckets.commands.shooter.SetSpeakerShootingAngleCommand;
-import org.bitbuckets.commands.shooter.ShootNoteCommand;
+import org.bitbuckets.commands.shooter.*;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.DrivebaseComponent;
 import org.bitbuckets.drive.OdometrySubsystem;
@@ -94,9 +91,12 @@ public class RobotContainer {
         operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(defaultDriveCommand);
 
         driveSubsystem.setDefaultCommand(new DefaultDriveCommand(driveSubsystem, operatorInput));
-        operatorInput.ampSetpoint_hold.whileTrue(new SetAmpShootingAngleCommand(shooterSubsystem).andThen(new ShootNoteCommand(shooterSubsystem)));
-        operatorInput.speakerSetpoint_hold.whileTrue(new SetSpeakerShootingAngleCommand(shooterSubsystem).andThen(new ShootNoteCommand(shooterSubsystem)));
+        operatorInput.ampSetpoint_hold.whileTrue(new SetAmpShootingAngleCommand(shooterSubsystem));
+        operatorInput.speakerSetpoint_hold.whileTrue(new SetSpeakerShootingAngleCommand(shooterSubsystem));
+        // .andThen(new ShootNoteCommand(shooterSubsystem))
+        operatorInput.shootManually.onTrue(new ShootNoteCommand(shooterSubsystem));
         operatorInput.sourceIntake_hold.whileTrue(new IntakeCommand(shooterSubsystem));
+        operatorInput.setShooterAngleManually.onTrue(new SetShootingAngleManuallyCommand(operatorInput, shooterSubsystem));
 
         HolonomicDriveController holonomicDriveController = new HolonomicDriveController(
                 new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant()),

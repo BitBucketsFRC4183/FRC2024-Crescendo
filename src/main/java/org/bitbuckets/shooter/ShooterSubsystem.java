@@ -81,6 +81,10 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
 
     }
 
+    public void setPivotMotorToVoltage(double voltage) {
+        angleMotor.setToVoltage(voltage);
+    }
+
     public void moveToMechanismPosition(double mechanism_positions)
     {
         angleMotor.controlToNormalizedReference(mechanism_positions);
@@ -126,6 +130,10 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
         } else {
             return false;
         }
+    }
+
+    public double getPivotAnglePosition_normalizedMechanismRotations() {
+        return angleMotor.angularPosition_normalizedMechanismRotations();
     }
 
 }

@@ -35,6 +35,8 @@ public class OperatorInput {
     final Trigger ampVisionPriority_toggle = operatorControl.povLeft();
     final Trigger speakerVisionPriority_toggle = operatorControl.povRight();
 
+    final Trigger setShooterAngleManually = operatorControl.leftStick();
+
 
     final Trigger slowModeHold = driver.leftTrigger();
     final Trigger turboModeHold = driver.rightTrigger();
@@ -43,7 +45,6 @@ public class OperatorInput {
     final Trigger groundIntakeHold = driver.rightBumper();
     final Trigger resetGyroToggle = driver.start();
 
-    double driverLeftStickX, driverLeftStickY, driverRightStickX, driverRightStickY;
 
     /**
      * @param input a value
@@ -79,6 +80,8 @@ public class OperatorInput {
     public boolean getOperatorXButtonState() {
         return shootManually.getAsBoolean();
     }
+
+
     public boolean getDriverXButtonState() {
         return xButtonToggle.getAsBoolean();
     }
@@ -92,21 +95,9 @@ public class OperatorInput {
     }
 
     public double getDriverLeftStickX() {
-        return driverLeftStickX;
+        return operatorControl.getLeftX();
     }
 
-    public double getDriverLeftStickY() {
-        return driverLeftStickY;
-    }
-
-    public double getDriverRightStickX() {
-        return driverRightStickX;
-    }
-
-    public double getDriverRightStickY() {
-        return driverRightStickY;
-    }
-
-    public double getOperatorLeftStickY(){return driverLeftStickY;}
+    public double getOperatorLeftStickY(){return operatorControl.getLeftY();}
 
 }
