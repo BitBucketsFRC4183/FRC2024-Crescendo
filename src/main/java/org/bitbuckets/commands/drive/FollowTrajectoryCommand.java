@@ -11,10 +11,8 @@ import org.bitbuckets.drive.OdometrySubsystem;
 
 public class FollowTrajectoryCommand extends Command {
     double curTime_seconds = 0;
-
-
-
-
+    final double TIME_MARGIN = 3; //margin of max time above estimated trajectory time
+    final double TIMEOUT; //max time to execute trajectory before exiting
 
 
     final ChoreoTrajectory trajectory;
@@ -27,7 +25,8 @@ public class FollowTrajectoryCommand extends Command {
         this.trajectory = trajectory;
         this.driveSubsystem = driveSubsystem;
         this.odometrySubsystem = odometrySubsystem;
-        this.holonomicDriveController = holonomicDriveController;
+        this.holoController = holoController;
+        this.TIMEOUT = trajectory.getTotalTime() + TIME_MARGIN;
 
     }
 

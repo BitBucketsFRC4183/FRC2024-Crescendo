@@ -3,3 +3,4 @@
 /.idea/
 /trajectory-offload/trajectory-offload.iml
 /.run/
+build/
