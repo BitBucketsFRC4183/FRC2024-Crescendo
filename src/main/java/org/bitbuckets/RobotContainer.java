@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import org.bitbuckets.climber.ClimberSubsystem;
+import org.bitbuckets.commands.climber.LiftClimberCommand;
 import org.bitbuckets.commands.drive.DefaultDriveCommand;
 import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.shooter.*;
@@ -70,6 +72,7 @@ public class RobotContainer {
     public final OdometrySubsystem odometrySubsystem;
     public final VisionSubsystem visionSubsystem;
 
+
     public RobotContainer() {
 
         CommandScheduler.getInstance().enable();
@@ -89,6 +92,7 @@ public class RobotContainer {
     }
 
     void loadCommands() {
+
         DefaultDriveCommand defaultDriveCommand = new DefaultDriveCommand(driveSubsystem, operatorInput);
 
         //When driver
@@ -114,7 +118,6 @@ public class RobotContainer {
         );
 
         operatorInput.autoAlignHold.whileTrue(new MoveToAlignCommand(driveSubsystem, visionSubsystem, holonomicDriveController, odometrySubsystem, operatorInput));
-
 
 
     }
@@ -145,6 +148,8 @@ public class RobotContainer {
         }
         return modules;
     }
+
+
 
     ShooterSubsystem loadShooterSubsystem() {
        return new ShooterSubsystem(
