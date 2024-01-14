@@ -19,7 +19,7 @@ public class DefaultShooterCommand extends Command {
     @Override
     public void execute() {
         shooterSubsystem.setMotorRotationalSpeeds(0, 0);
-        shooterSubsystem.moveToAngle(45);
+        shooterSubsystem.moveToRotation(0.125);
     }
 
     @Override
