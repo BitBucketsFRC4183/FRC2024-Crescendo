@@ -36,7 +36,7 @@ public class MoveToAlignCommand extends Command {
     public void execute() {
         moveToAlign();
     }
-    public ChassisSpeeds calculatePose2D(Pose2d target, Rotation2d holonomicRotation, double desiredVelocity) {
+    public ChassisSpeeds calculateTagSpeeds(Pose2d target, Rotation2d holonomicRotation, double desiredVelocity) {
 
 
         var speed = holoController.calculate(
@@ -50,7 +50,7 @@ public class MoveToAlignCommand extends Command {
         double Y_error = holoController.getYController().getPositionError();
         double theta_error = holoController.getThetaController().getPositionError();
 
-        if ((X_error < 0.4 && X_error > -0.4) && (Y_error < 0.2 && Y_error > -0.2) && (theta_error < 5 && theta_error > -5)) {
+        if ((X_error < 0.1 && X_error > -0.1) && (Y_error < 0.1 && Y_error > -0.1) && (theta_error < 5 && theta_error > -5)) {
             return new ChassisSpeeds(0, 0, 0);
         }
 
@@ -61,7 +61,7 @@ public class MoveToAlignCommand extends Command {
     public void moveToAlign() {
         var tagPose_1 = visionSubsystem.estimateBestVisionTarget_1();
         if (tagPose_1.isPresent()) {
-            ChassisSpeeds speeds = calculatePose2D(tagPose_1.get().toPose2d(), tagPose_1.get().toPose2d().getRotation().plus(Rotation2d.fromDegrees(180)), 1);
+            ChassisSpeeds speeds = calculateTagSpeeds(tagPose_1.get().toPose2d(), tagPose_1.get().toPose2d().getRotation().plus(Rotation2d.fromDegrees(180)), 1);
 
             driveSubsystem.driveUsingChassisSpeed(speeds);
         }
