@@ -107,7 +107,7 @@ public class RobotContainer {
         );
 
         new SequentialCommandGroup(
-                new SetShootingAngleManuallyCommand(operatorInput, shooterSubsystem),
+                new SetSpeakerShootingAngleCommand(shooterSubsystem),
                 new ShootNoteCommand(shooterSubsystem),
                 new FollowTrajectoryCommand(trajectory, driveSubsystem, odometrySubsystem, holonomicDriveController)
         ).schedule();
