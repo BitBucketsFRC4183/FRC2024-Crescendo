@@ -23,6 +23,7 @@ public class IntakeCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        shooterSubsystem.moveToAngle(0);
+        shooterSubsystem.moveToRotation(0);
     }
 }
+
