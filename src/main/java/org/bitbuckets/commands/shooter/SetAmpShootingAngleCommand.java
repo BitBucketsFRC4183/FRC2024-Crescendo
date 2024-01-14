@@ -25,4 +25,9 @@ public class SetAmpShootingAngleCommand extends Command {
     public void end(boolean interrupted) {
         shooterSubsystem.moveToRotation(0);
     }
+
+    @Override
+    public boolean isFinished() {
+        return false;
+    }
 }

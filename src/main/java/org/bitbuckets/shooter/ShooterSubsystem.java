@@ -108,4 +108,8 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
 
     }
 
+    public boolean hasReachedSpeeds(double speed1, double speed2) {
+        return false;
+    }
+
 }
