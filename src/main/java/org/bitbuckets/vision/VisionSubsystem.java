@@ -70,7 +70,7 @@ public class VisionSubsystem  {
                 camera_1.getLatestResult().getBestTarget()
         ).flatMap(tgt -> layout.getTagPose(tgt.getFiducialId()));
 
-        p.ifPresent(RobotContainer.VISION::log_robot_pose_1);
+        p.ifPresent(RobotContainer.VISION::log_vision_robot_pose_1);
         return p;
     }
 
@@ -80,7 +80,7 @@ public class VisionSubsystem  {
                 camera_2.getLatestResult().getBestTarget()
         ).flatMap(tgt -> layout.getTagPose(tgt.getFiducialId()));
 
-        p.ifPresent(RobotContainer.VISION::log_robot_pose_2);
+        p.ifPresent(RobotContainer.VISION::log_vision_robot_pose_2);
         return p;
     }
 
