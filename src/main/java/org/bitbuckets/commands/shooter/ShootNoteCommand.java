@@ -3,11 +3,12 @@ package org.bitbuckets.commands.shooter;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.bitbuckets.shooter.ShooterSubsystem;
 
-public class DefaultShooterCommand extends Command {
+public class ShootNoteCommand extends Command {
 
     private final ShooterSubsystem shooterSubsystem;
 
-    public DefaultShooterCommand(ShooterSubsystem shooterSubsystem) {
+
+    public ShootNoteCommand(ShooterSubsystem shooterSubsystem) {
         this.shooterSubsystem = shooterSubsystem;
     }
 
@@ -18,17 +19,17 @@ public class DefaultShooterCommand extends Command {
 
     @Override
     public void execute() {
-        shooterSubsystem.setMotorRotationalSpeeds(0, 0);
-        shooterSubsystem.moveToRotation(0.125);
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-
+        shooterSubsystem.setMotorRotationalSpeeds(5000, 5000);
     }
 
     @Override
     public boolean isFinished() {
-        return false;
+        return shooterSubsystem.hasReachedSpeeds(5000, 5000);
     }
+
+    @Override
+    public void end(boolean isinteruppted) {
+        shooterSubsystem.setAllMotorsToVoltage(0);
+    }
+
 }

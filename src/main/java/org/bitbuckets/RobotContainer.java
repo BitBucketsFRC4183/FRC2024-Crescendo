@@ -11,6 +11,7 @@ import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.shooter.IntakeCommand;
 import org.bitbuckets.commands.shooter.SetAmpShootingAngleCommand;
 import org.bitbuckets.commands.shooter.SetSpeakerShootingAngleCommand;
+import org.bitbuckets.commands.shooter.ShootNoteCommand;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.DrivebaseComponent;
 import org.bitbuckets.drive.OdometrySubsystem;
@@ -82,10 +83,12 @@ public class RobotContainer {
         operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(defaultDriveCommand);
 
         driveSubsystem.setDefaultCommand(new DefaultDriveCommand(driveSubsystem, operatorInput));
-        operatorInput.ampSetpoint_hold.whileTrue(new SetAmpShootingAngleCommand(shooterSubsystem));
-        operatorInput.speakerSetpoint_hold.whileTrue(new SetSpeakerShootingAngleCommand(shooterSubsystem));
+        operatorInput.ampSetpoint_hold.whileTrue(new SetAmpShootingAngleCommand(shooterSubsystem).andThen(new ShootNoteCommand(shooterSubsystem)));
+        operatorInput.speakerSetpoint_hold.whileTrue(new SetSpeakerShootingAngleCommand(shooterSubsystem).andThen(new ShootNoteCommand(shooterSubsystem)));
         operatorInput.sourceIntake_hold.whileTrue(new IntakeCommand(shooterSubsystem));
         operatorInput.autoAlignHold.whileTrue(new MoveToAlignCommand(driveSubsystem, visionSubsystem, odometrySubsystem, null)); //TODO
+
+
 
     }
 
