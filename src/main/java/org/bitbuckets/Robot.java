@@ -2,8 +2,10 @@ package org.bitbuckets;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import org.bitbuckets.commands.drive.DefaultDriveCommand;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.DrivebaseComponent;
+import org.bitbuckets.drive.OdometrySubsystem;
 import org.bitbuckets.util.Util;
 import org.bitbuckets.vision.VisionComponent;
 import xyz.auriium.mattlib2.Mattlib;
@@ -20,6 +22,8 @@ public class Robot extends TimedRobot {
     //our subsystems
 
     DriveSubsystem driveSubsystem;
+    OdometrySubsystem odometrySubsystem;
+    OperatorInput operatorInput;
 
 
     @Override
@@ -34,6 +38,12 @@ public class Robot extends TimedRobot {
         VISION.x_position(2);
 
 
+        driveSubsystem = null;
+        operatorInput = new OperatorInput(driveSubsystem);
+        odometrySubsystem = new OdometrySubsystem(null )
+
+
+        driveSubsystem.setDefaultCommand(new DefaultDriveCommand(driveSubsystem, odometrySubsystem, operatorInput));
 
       /*  //Set up Drive
         SwerveModule[] modules = initSwerveModules();

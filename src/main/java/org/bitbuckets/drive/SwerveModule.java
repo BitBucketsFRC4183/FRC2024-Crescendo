@@ -36,8 +36,6 @@ public class SwerveModule implements IPeriodicLooped {
             resetIteration = 0;
             double absoluteAngularPosition_infiniteMechanismRotations = absoluteEncoder.angularPosition_normalizedMechanismRotations();
             steerController.forceRotationalOffset(absoluteAngularPosition_infiniteMechanismRotations);
-        } else {
-            resetIteration = 0; //stop counting unless it's remained stopped for 500 ticks
         }
     }
 

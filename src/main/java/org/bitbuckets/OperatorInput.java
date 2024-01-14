@@ -50,7 +50,7 @@ public class OperatorInput implements IPeriodicLooped {
     @Override
     public Optional<ExplainedException> verifyInit() {
 
-        DefaultDriveCommand defaultDriveCommand = new DefaultDriveCommand(driveSubsystem, this);
+        DefaultDriveCommand defaultDriveCommand = new DefaultDriveCommand(driveSubsystem, odometrySubsystem, this);
 
         //When driver
         Trigger xGreaterThan = driver.axisGreaterThan(XboxController.Axis.kLeftX.value, 0.1);
