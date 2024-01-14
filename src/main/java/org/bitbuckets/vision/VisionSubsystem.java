@@ -63,6 +63,27 @@ public class VisionSubsystem  {
         return vt;
     }
 
+
+    public Optional<Pose3d> estimateRobotPose_1() {
+
+        Optional<Pose3d> p = Optional.ofNullable(
+                camera_1.getLatestResult().getBestTarget()
+        ).flatMap(tgt -> layout.getTagPose(tgt.getFiducialId()));
+
+        p.ifPresent(RobotContainer.VISION::log_robot_pose_1);
+        return p;
+    }
+
+    public Optional<Pose3d> estimateRobotPose_2() {
+
+        Optional<Pose3d> p = Optional.ofNullable(
+                camera_2.getLatestResult().getBestTarget()
+        ).flatMap(tgt -> layout.getTagPose(tgt.getFiducialId()));
+
+        p.ifPresent(RobotContainer.VISION::log_robot_pose_2);
+        return p;
+    }
+
     public Optional<Pose3d> estimateVisionRobotPose_1() {
         return estimator1.update(camera_1.getLatestResult()).map(poseDat -> poseDat.estimatedPose);
     }
