@@ -98,6 +98,6 @@ public class OperatorInput {
         return operatorControl.getLeftX();
     }
 
-    public double getOperatorLeftStickY(){return operatorControl.getLeftY();}
+    public double getOperatorLeftStickY(){return deadband(operatorControl.getRawAxis(XboxController.Axis.kLeftY.value));}
 
 }

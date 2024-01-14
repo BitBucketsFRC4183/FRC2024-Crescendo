@@ -100,7 +100,7 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     public void intake() {
         moveToRotation(0.125);
         // rotate wheels in the other direction
-        setMotorRotationalSpeeds(0,0);
+        setMotorRotationalSpeeds(-4000,-4000);
     }
 
     // needs velocity pid in mattlib to be added first to work; wip
