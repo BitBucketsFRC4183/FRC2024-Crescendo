@@ -64,9 +64,18 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
         rightMotor.setToVoltage(voltage);
     }
 
+    /*
     public void moveToAngle(double angle_degrees) {
         double mechanism_rotations = angle_degrees/360d;
+        moveToRotation(mechanism_rotations);
+    }
+
+     */
+
+    public void moveToRotation(double mechanism_rotations)
+    {
         angleMotor.controlToNormalizedReference(mechanism_rotations);
+
     }
 
     public void moveToMechanismPosition(double mechanism_positions)
@@ -82,7 +91,7 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     }
 
     public void intake() {
-        moveToAngle(45);
+        moveToRotation(0.125);
         // rotate wheels in the other direction
         setMotorRotationalSpeeds(0,0);
     }

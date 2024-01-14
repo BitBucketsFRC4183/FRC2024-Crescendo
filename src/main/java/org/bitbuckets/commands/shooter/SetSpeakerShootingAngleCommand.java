@@ -22,12 +22,14 @@ public class SetSpeakerShootingAngleCommand extends Command {
         // this angle needs to be tuned for speaker (60 is only a placeholder)
         @Override
         public void execute() {
-            shooterSubsystem.moveToAngle(60);
+
+            double mechanism_rotations = 1/6;
+            shooterSubsystem.moveToRotation(mechanism_rotations);
         }
 
         @Override
         public void end(boolean interrupted) {
-            shooterSubsystem.moveToAngle(0);
+            shooterSubsystem.moveToRotation(0);
         }
     }
 
