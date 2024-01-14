@@ -26,3 +26,4 @@ public class IntakeCommand extends Command {
         shooterSubsystem.moveToRotation(0);
     }
 }
+
