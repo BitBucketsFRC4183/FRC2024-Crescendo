@@ -4,6 +4,7 @@ import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -42,6 +43,12 @@ public class RobotContainer {
     public static final VisionComponent VISION = LOG.load(VisionComponent.class, "vision");
     public static final DrivebaseComponent DRIVE = LOG.load(DrivebaseComponent.class, "swerve");
 
+    public static final CommonMotorComponent SHOOTER_COMMON = LOG.load(MotorComponent.class, "shooter/common");
+
+    public static final MotorComponent SHOOTER_WHEEL_1 = MotorComponent.ofSpecific(SHOOTER_COMMON, LOG.load(IndividualMotorComponent.class, "shooter/wheel_1"));
+    public static final MotorComponent SHOOTER_WHEEL_2 = MotorComponent.ofSpecific(SHOOTER_COMMON, LOG.load(IndividualMotorComponent.class, "shooter/wheel_2"));
+    public static final MotorComponent ANGLE_SHOOTER_MOTOR = LOG.load(MotorComponent.class, "shooter/angle");
+    public static final PIDComponent ANGLE_PID = LOG.load(PIDComponent.class, "shooter/angle/pid");
     public static final ShooterComponent SHOOTER = LOG.load(ShooterComponent.class, "shooter");
     public static final CommonMotorComponent DRIVE_COMMON = LOG.load(CommonMotorComponent.class, "swerve/drive_common");
     public static final CommonMotorComponent STEER_COMMON = LOG.load(CommonMotorComponent.class, "swerve/steer_common");
@@ -64,6 +71,7 @@ public class RobotContainer {
     public final VisionSubsystem visionSubsystem;
 
     public RobotContainer() {
+
         CommandScheduler.getInstance().enable();
 
         //mattlib stuff
@@ -139,7 +147,10 @@ public class RobotContainer {
     }
 
     ShooterSubsystem loadShooterSubsystem() {
-       return new ShooterSubsystem(null,null,null,
+       return new ShooterSubsystem(
+               HardwareREV.rotationalSpark_noPID(SHOOTER_WHEEL_1),
+               HardwareREV.rotationalSpark_noPID(SHOOTER_WHEEL_2),
+               HardwareREV.rotationalSpark_builtInPID(ANGLE_SHOOTER_MOTOR, ANGLE_PID),
                 new ThriftyEncoder(
                         new AnalogInput(SHOOTER.channel()),
                             ABSOLUTE

@@ -100,7 +100,7 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     public void intake() {
         moveToRotation(0.125);
         // rotate wheels in the other direction
-        setMotorRotationalSpeeds(0,0);
+        setMotorRotationalSpeeds(-4000,-4000);
     }
 
     // needs velocity pid in mattlib to be added first to work; wip
@@ -135,5 +135,24 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     public double getPivotAnglePosition_normalizedMechanismRotations() {
         return angleMotor.angularPosition_normalizedMechanismRotations();
     }
+
+    double h_r = 0.7366; //height of robot
+    double l_r = 0.6858; //length of robot
+    double s_x = l_r / 2; // distance from bumper to base of shooter
+    double h_1 = 1.98; //ground to low top
+    double h_2 = 2.11; //ground to high top
+    double y = 0.459994; // distance from point at end of imaginary line going down from h_1 to point at end of imaginary line going down from h_2 hitting the ground
+    double x = 0.472186; // distance from point at end of imaginary line going down from h_1 to robot
+    double l_s = 0.3556; //length of shooter
+    // EVERYTHING IS IN SI UNITS (M)
+    public double calculateMinimalAngleForSpeaker()
+    {
+        //theta = arctan((h_1 - h_r - l_s * sin(theta))/(x + y + s_x - l_s * cos(theta))
+        return 0;
+    }
+    public double calculateMaximalAngleForSpeaker(){
+        //theta = arctan((h_2 - R_h - l_s * sin(theta))/(x + s_x - l_s * cos(theta))
+    }
+
 
 }
