@@ -1,13 +1,14 @@
 package org.bitbuckets.vision;
 
 
+import edu.wpi.first.math.geometry.Pose3d;
 import xyz.auriium.mattlib2.log.annote.Conf;
 import xyz.auriium.mattlib2.log.INetworkedComponent;
 import xyz.auriium.mattlib2.log.annote.Log;
 
-public interface VisionComponent extends INetworkedComponent {
+import java.util.Optional;
 
-    @Log("x_pos") void x_position(double data);
-    @Conf("id") int id();
+public interface VisionComponent extends INetworkedComponent {
+    @Log("vision_target_1") void log_vision_target_1(Pose3d pose3d);
 
 }
