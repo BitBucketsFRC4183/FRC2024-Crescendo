@@ -19,12 +19,12 @@ public class ShootNoteCommand extends Command {
 
     @Override
     public void execute() {
-        shooterSubsystem.setMotorRotationalSpeeds(1200, 1200);
+        shooterSubsystem.setMotorRotationalSpeeds(5000, 5000);
     }
 
     @Override
     public boolean isFinished() {
-        return shooterSubsystem.hasReachedSpeeds(1200, 1200);
+        return shooterSubsystem.hasReachedSpeeds(5000, 5000);
     }
 
     @Override

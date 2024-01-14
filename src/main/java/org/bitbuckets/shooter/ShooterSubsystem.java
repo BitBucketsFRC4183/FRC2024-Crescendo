@@ -109,7 +109,20 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     }
 
     public boolean hasReachedSpeeds(double speed1, double speed2) {
-        return false;
+
+        if (leftMotor.angularVelocity_mechanismRotationsPerSecond() >= speed1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean hasReachedAngle(double angle_mechanismRotations) {
+        if (angleMotor.angularPosition_normalizedMechanismRotations() == angle_mechanismRotations) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

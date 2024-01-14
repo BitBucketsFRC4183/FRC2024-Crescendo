@@ -27,6 +27,8 @@ public class OperatorInput {
 
     final Trigger isTeleop = null; //TODO fill this out
     final Trigger shootByVision = operatorControl.a();
+
+    final Trigger shootManually = operatorControl.x();
     final Trigger sourceIntake_hold = operatorControl.leftBumper();
     final Trigger ampSetpoint_hold = operatorControl.leftTrigger();
     final Trigger speakerSetpoint_hold = operatorControl.rightTrigger();
@@ -74,7 +76,10 @@ public class OperatorInput {
         return autoAlignHold.getAsBoolean();
     }
 
-    public boolean getXButtonState() {
+    public boolean getOperatorXButtonState() {
+        return shootManually.getAsBoolean();
+    }
+    public boolean getDriverXButtonState() {
         return xButtonToggle.getAsBoolean();
     }
 
