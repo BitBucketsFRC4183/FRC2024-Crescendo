@@ -1,4 +1,6 @@
 package org.bitbuckets.climber;
 
-public class ClimberComponent {
+import xyz.auriium.mattlib2.log.INetworkedComponent;
+
+public interface ClimberComponent extends INetworkedComponent {
 }

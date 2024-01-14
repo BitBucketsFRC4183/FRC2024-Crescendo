@@ -72,7 +72,6 @@ public class RobotContainer {
     public final OdometrySubsystem odometrySubsystem;
     public final VisionSubsystem visionSubsystem;
 
-
     public RobotContainer() {
 
         CommandScheduler.getInstance().enable();
@@ -100,9 +99,8 @@ public class RobotContainer {
         Trigger yGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.1);
         Trigger rotGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kRightX.value, 0.1);
 
-        operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(defaultDriveCommand);
+        operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(new DefaultDriveCommand(driveSubsystem, odometrySubsystem, operatorInput));
 
-        driveSubsystem.setDefaultCommand(new DefaultDriveCommand(driveSubsystem, operatorInput));
         operatorInput.ampSetpoint_hold.whileTrue(new SetAmpShootingAngleCommand(shooterSubsystem));
         operatorInput.speakerSetpoint_hold.whileTrue(new SetSpeakerShootingAngleCommand(shooterSubsystem));
         // .andThen(new ShootNoteCommand(shooterSubsystem))
@@ -118,6 +116,7 @@ public class RobotContainer {
         );
 
         operatorInput.autoAlignHold.whileTrue(new MoveToAlignCommand(driveSubsystem, visionSubsystem, holonomicDriveController, odometrySubsystem, operatorInput));
+
 
 
     }
@@ -148,8 +147,6 @@ public class RobotContainer {
         }
         return modules;
     }
-
-
 
     ShooterSubsystem loadShooterSubsystem() {
        return new ShooterSubsystem(

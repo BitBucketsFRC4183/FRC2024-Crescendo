@@ -1,6 +1,7 @@
 package org.bitbuckets;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -25,7 +26,8 @@ public class OperatorInput {
     final CommandXboxController operatorControl = new CommandXboxController(1);
     final CommandXboxController driver = new CommandXboxController(0);
 
-    final Trigger isTeleop = null; //TODO fill this out
+    final Trigger isTeleop = new Trigger(DriverStation::isTeleop); //TODO fill this out
+
     final Trigger shootByVision = operatorControl.a();
 
     final Trigger shootManually = operatorControl.x();
@@ -36,6 +38,7 @@ public class OperatorInput {
     final Trigger speakerVisionPriority_toggle = operatorControl.povRight();
 
     final Trigger setShooterAngleManually = operatorControl.leftStick();
+
 
 
     final Trigger slowModeHold = driver.leftTrigger();
@@ -64,6 +67,10 @@ public class OperatorInput {
     {
         return deadband(operatorControl.getRawAxis(XboxController.Axis.kRightY.value));
     }
+
+
+
+
 
     public boolean getSlowModeState() {
         return slowModeHold.getAsBoolean();
@@ -98,6 +105,13 @@ public class OperatorInput {
         return operatorControl.getLeftX();
     }
 
+    public double getDriverLeftStickY() {
+        return operatorControl.getLeftY();
+    }
+
+    public double getDriverRightStickX() {
+        return operatorControl.getRightX();
+    }
     public double getOperatorLeftStickY(){return deadband(operatorControl.getRawAxis(XboxController.Axis.kLeftY.value));}
 
 }

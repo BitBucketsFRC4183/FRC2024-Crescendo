@@ -151,8 +151,8 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
         return 0;
     }
     public double calculateMaximalAngleForSpeaker(){
-        return 0;
-        //theta = arctan((h_2 - R_h - l_s * sin(theta))/(x + s_x - l_s * cos(theta))
+        //theta = arctan((h_2 - h_r - l_s * sin(theta))/(x + s_x - l_s * cos(theta))
+        return 0.16472536666;
     }
 
 
