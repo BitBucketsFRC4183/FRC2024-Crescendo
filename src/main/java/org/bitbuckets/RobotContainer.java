@@ -12,8 +12,9 @@ import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import org.bitbuckets.climber.ClimberSubsystem;
+import org.bitbuckets.commands.climber.LiftClimberCommand;
 import org.bitbuckets.commands.drive.DefaultDriveCommand;
-import org.bitbuckets.commands.drive.FollowTrajectoryCommand;
 import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.shooter.*;
 import org.bitbuckets.drive.DriveSubsystem;
@@ -90,6 +91,8 @@ public class RobotContainer {
     }
 
     void loadCommands() {
+
+        DefaultDriveCommand defaultDriveCommand = new DefaultDriveCommand(driveSubsystem, operatorInput);
 
         //When driver
         Trigger xGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftX.value, 0.1);
