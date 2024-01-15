@@ -8,7 +8,7 @@ public class DefaultGroundIntakeCommand extends Command {
     private final GroundIntakeSubsystem groundIntakeSubsystem;
 
     public DefaultGroundIntakeCommand(GroundIntakeSubsystem groundIntakeSubsystem) {
-        this.groundIntakeSubsystem = climberSubsystem;
+        this.groundIntakeSubsystem = groundIntakeSubsystem;
     }
 
     @Override
