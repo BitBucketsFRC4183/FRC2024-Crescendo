@@ -27,6 +27,7 @@ import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.DrivebaseComponent;
 import org.bitbuckets.drive.OdometrySubsystem;
 import org.bitbuckets.drive.SwerveModule;
+import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
 import org.bitbuckets.shooter.ShooterComponent;
 import org.bitbuckets.shooter.ShooterSubsystem;
 import org.bitbuckets.util.EncoderComponent;
@@ -56,6 +57,8 @@ public class RobotContainer {
 
     public static final CommonMotorComponent CLIMBER_COMMON = LOG.load(MotorComponent.class, "climber/common");
 
+    public static final CommonMotorComponent GROUNDINTAKE_COMMON = LOG.load(MotorComponent.class, "groundintake/common");
+
     public static final MotorComponent SHOOTER_WHEEL_1 = MotorComponent.ofSpecific(SHOOTER_COMMON, LOG.load(IndividualMotorComponent.class, "shooter/wheel_1"));
     public static final MotorComponent SHOOTER_WHEEL_2 = MotorComponent.ofSpecific(SHOOTER_COMMON, LOG.load(IndividualMotorComponent.class, "shooter/wheel_2"));
     public static final MotorComponent ANGLE_SHOOTER_MOTOR = LOG.load(MotorComponent.class, "shooter/angle");
@@ -69,6 +72,9 @@ public class RobotContainer {
 
     public static final MotorComponent LEFT_CLIMBER = MotorComponent.ofSpecific(CLIMBER_COMMON, LOG.load(IndividualMotorComponent.class, "climber/left"));
     public static final MotorComponent RIGHT_CLIMBER = MotorComponent.ofSpecific(CLIMBER_COMMON, LOG.load(IndividualMotorComponent.class, "climber/right"));
+
+    public static final MotorComponent TOP_GROUNDINTAKE = MotorComponent.ofSpecific(GROUNDINTAKE_COMMON, LOG.load(IndividualMotorComponent.class, "groundintake/top"));
+    public static final MotorComponent BOTTOM_GROUNDINTAKE = MotorComponent.ofSpecific(GROUNDINTAKE_COMMON, LOG.load(IndividualMotorComponent.class, "groundintake/bottom"));
 
     public static final MotorComponent[] DRIVES = MotorComponent.ofRange(DRIVE_COMMON, LOG.loadRange(IndividualMotorComponent.class, "swerve/drive", 4, Util.RENAMER));
     public static final MotorComponent[] STEERS = MotorComponent.ofRange(STEER_COMMON, LOG.loadRange(IndividualMotorComponent.class, "swerve/steer", 4, Util.RENAMER));
@@ -86,7 +92,7 @@ public class RobotContainer {
     public final OdometrySubsystem odometrySubsystem;
     public final VisionSubsystem visionSubsystem;
     public final ClimberSubsystem climberSubsystem;
-
+    public final GroundIntakeSubsystem groundIntakeSubsystem;
 
 
     public RobotContainer() {
@@ -104,6 +110,7 @@ public class RobotContainer {
         this.odometrySubsystem = loadOdometrySubsystem();
         this.visionSubsystem = loadVisionSubsystem();
         this.climberSubsystem = loadClimberSubsystem();
+        this.groundIntakeSubsystem = loadGroundIntakeSubsystem();
 
         loadCommands();
     }
@@ -218,5 +225,12 @@ public class RobotContainer {
                 HardwareREV.linearSpark_builtInPID(RIGHT_CLIMBER, PID_CLIMBER),
                 new SimpleMotorFeedforward(CLIMBER.ff_ks(), CLIMBER.ff_kv(), CLIMBER.ff_ka())
         ); // TODO
+    }
+
+    GroundIntakeSubsystem loadGroundIntakeSubsystem() {
+        return new GroundIntakeSubsystem(
+                HardwareREV.linearSpark_noPID(TOP_GROUNDINTAKE),
+                HardwareREV.linearSpark_noPID(BOTTOM_GROUNDINTAKE)
+        );
     }
 }
