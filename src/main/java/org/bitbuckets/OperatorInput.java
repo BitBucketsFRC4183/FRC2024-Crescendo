@@ -46,6 +46,8 @@ public class OperatorInput {
     final Trigger autoAlignHold = driver.a();
     final Trigger xButtonToggle = driver.x();
     final Trigger groundIntakeHold = driver.rightBumper();
+
+    final Trigger groundOuttakeHold = driver.leftBumper();
     final Trigger resetGyroToggle = driver.start();
 
 
