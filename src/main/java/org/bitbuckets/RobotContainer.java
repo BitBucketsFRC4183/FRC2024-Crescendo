@@ -49,8 +49,11 @@ public class RobotContainer {
     //Components MUST be created in the Robot class (because of how static bs works)
     public static final VisionComponent VISION = LOG.load(VisionComponent.class, "vision");
     public static final DrivebaseComponent DRIVE = LOG.load(DrivebaseComponent.class, "swerve");
+    public static final ClimberComponent CLIMBER = LOG.load(ClimberComponent.class, "climber");
 
     public static final CommonMotorComponent SHOOTER_COMMON = LOG.load(MotorComponent.class, "shooter/common");
+
+    public static final CommonMotorComponent CLIMBER_COMMON = LOG.load(MotorComponent.class, "climber/common");
 
     public static final MotorComponent SHOOTER_WHEEL_1 = MotorComponent.ofSpecific(SHOOTER_COMMON, LOG.load(IndividualMotorComponent.class, "shooter/wheel_1"));
     public static final MotorComponent SHOOTER_WHEEL_2 = MotorComponent.ofSpecific(SHOOTER_COMMON, LOG.load(IndividualMotorComponent.class, "shooter/wheel_2"));
@@ -60,6 +63,11 @@ public class RobotContainer {
     public static final CommonMotorComponent DRIVE_COMMON = LOG.load(CommonMotorComponent.class, "swerve/drive_common");
     public static final CommonMotorComponent STEER_COMMON = LOG.load(CommonMotorComponent.class, "swerve/steer_common");
     public static final CommonPIDComponent PID_COMMON = LOG.load(CommonPIDComponent.class, "swerve/steer_pid_common");
+
+    public static final PIDComponent PID_CLIMBER = LOG.load(PIDComponent.class, "climber/climber_pid");
+
+    public static final MotorComponent LEFT_CLIMBER = MotorComponent.ofSpecific(CLIMBER_COMMON, LOG.load(IndividualMotorComponent.class, "climber/left"));
+    public static final MotorComponent RIGHT_CLIMBER = MotorComponent.ofSpecific(CLIMBER_COMMON, LOG.load(IndividualMotorComponent.class, "climber/right"));
 
     public static final MotorComponent[] DRIVES = MotorComponent.ofRange(DRIVE_COMMON, LOG.loadRange(IndividualMotorComponent.class, "swerve/drive", 4, Util.RENAMER));
     public static final MotorComponent[] STEERS = MotorComponent.ofRange(STEER_COMMON, LOG.loadRange(IndividualMotorComponent.class, "swerve/steer", 4, Util.RENAMER));
@@ -124,6 +132,7 @@ public class RobotContainer {
         Trigger xGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftX.value, 0.1);
         Trigger yGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.1);
         Trigger rotGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kRightX.value, 0.1);
+        Trigger climberThreshold = operatorInput.operatorControl.axisGreaterThan(XboxController.Axis.kRightY.value, 0.1);
 
         operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(new DefaultDriveCommand(driveSubsystem, odometrySubsystem, operatorInput));
 
@@ -197,5 +206,12 @@ public class RobotContainer {
     }
     VisionSubsystem loadVisionSubsystem() {
         return null; //TODO
+    }
+    ClimberSubsystem loadClimberSubsystem() {
+        return new ClimberSubsystem(
+                HardwareREV.linearSpark_builtInPID(LEFT_CLIMBER, PID_CLIMBER),
+                HardwareREV.linearSpark_builtInPID(RIGHT_CLIMBER, PID_CLIMBER),
+                new SimpleMotorFeedforward(CLIMBER.ff_ks(), CLIMBER.ff_kv(), CLIMBER.ff_ka())
+        ); // TODO
     }
 }
