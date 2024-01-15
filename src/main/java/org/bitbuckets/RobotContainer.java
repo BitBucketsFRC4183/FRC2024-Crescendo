@@ -84,6 +84,7 @@ public class RobotContainer {
     public final ShooterSubsystem shooterSubsystem;
     public final OdometrySubsystem odometrySubsystem;
     public final VisionSubsystem visionSubsystem;
+    public final ClimberSubsystem climberSubsystem;
 
 
 
