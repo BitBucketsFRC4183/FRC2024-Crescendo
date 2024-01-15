@@ -15,7 +15,8 @@ public class GroundIntakeSubsystem {
     }
 
     public void setToVoltage(double voltage) {
-
+        topMotor.setToVoltage(voltage);
+        bottomMotor.setToVoltage(voltage); // TODO add inversion to bottom in conf
     }
 
 
