@@ -15,8 +15,9 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
-import org.bitbuckets.commands.climber.LiftClimberCommand;
+import org.bitbuckets.commands.climber.MoveClimberCommand;
 import org.bitbuckets.commands.drive.DefaultDriveCommand;
 import org.bitbuckets.commands.drive.FollowTrajectoryCommand;
 import org.bitbuckets.commands.drive.MoveToAlignCommand;
@@ -92,6 +93,7 @@ public class RobotContainer {
         this.shooterSubsystem = loadShooterSubsystem();
         this.odometrySubsystem = loadOdometrySubsystem();
         this.visionSubsystem = loadVisionSubsystem();
+        this.climberSubsystem = loadClimberSubsystem();
 
         loadCommands();
     }
@@ -141,9 +143,11 @@ public class RobotContainer {
 
         operatorInput.autoAlignHold.whileTrue(new MoveToAlignCommand(driveSubsystem, visionSubsystem, holonomicDriveController, odometrySubsystem, operatorInput));
 
-
-
+        operatorInput.isTeleop.and(climberThreshold).whileTrue(new MoveClimberCommand(climberSubsystem, operatorInput));
     }
+
+
+
 
     DriveSubsystem loadDriveSubsystem() {
         SwerveModule[] modules = loadSwerveModules();

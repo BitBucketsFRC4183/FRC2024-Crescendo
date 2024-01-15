@@ -2,19 +2,17 @@ package org.bitbuckets.climber;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import xyz.auriium.mattlib2.hardware.ILinearController;
-import xyz.auriium.mattlib2.hardware.ILinearMotor;
+import xyz.auriium.mattlib2.hardware.ILinearController;
 
 public class ClimberSubsystem {
 
-    final ILinearMotor leftMotor;
-    final ILinearMotor rightMotor;
-    final ILinearController motorController;
+    final ILinearController leftMotor;
+    final ILinearController rightMotor;
     final SimpleMotorFeedforward feedforward;
 
-    public ClimberSubsystem(ILinearMotor leftMotor, ILinearMotor rightMotor, ILinearController motorController, SimpleMotorFeedforward feedforward) {
+    public ClimberSubsystem(ILinearController leftMotor, ILinearController rightMotor, SimpleMotorFeedforward feedforward) {
         this.leftMotor = leftMotor;
         this.rightMotor = rightMotor;
-        this.motorController = motorController;
         this.feedforward = feedforward;
     }
 
@@ -29,16 +27,20 @@ public class ClimberSubsystem {
         rightMotor.linearVelocity_mechanismMetersPerSecond();
     }
 
+
+
     public void setToVoltage(double voltage)
     {
         leftMotor.setToVoltage(voltage);
         rightMotor.setToVoltage(voltage);
     }
 
-
-    public void moveToPosition(double setpointMechanism_meters) {
-        motorController.controlToLinearReference(setpointMechanism_meters);
+    public void setMotorsZero() {
+        leftMotor.setToVoltage(0);
+        rightMotor.setToVoltage(0);
     }
+
+
 
 
 

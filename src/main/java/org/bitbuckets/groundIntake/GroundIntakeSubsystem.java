@@ -7,13 +7,15 @@ public class GroundIntakeSubsystem {
 
     final ILinearMotor topMotor;
     final ILinearMotor bottomMotor;
-    final SimpleMotorFeedforward feedforward;
 
 
-    public GroundIntakeSubsystem(ILinearMotor topMotor, ILinearMotor bottomMotor, SimpleMotorFeedforward feedforward) {
+    public GroundIntakeSubsystem(ILinearMotor topMotor, ILinearMotor bottomMotor) {
         this.topMotor = topMotor;
         this.bottomMotor = bottomMotor;
-        this.feedforward = feedforward;
+    }
+
+    public void setToVoltage(double voltage) {
+
     }
 
 
