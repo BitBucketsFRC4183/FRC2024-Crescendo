@@ -1,10 +1,8 @@
-[vision]
-id = 9
 [absolute]
 absolute_offset = 0.0
 coefficient = 0.0
 [swerve]
-ks = 0.0
+ks = 3
 kv = 0.0
 ka = 0.0
 
@@ -19,19 +17,10 @@ sensor2mechanism_coef = 0.0
 type = "BRUSHLESS"
 
 [swerve.steer_br]
-id = 3
+id = 0
 
 [swerve.drive_bl]
-id = 7
-
-[shooter.wheel_common]
-sensor2mechanism_coef = 2
-
-[shooter.wheel_1]
-id = 3
-
-[shooter.wheel_2]
-id = 5
+id = 0
 
 [swerve.drive_common]
 sensor2mechanism_coef = 0.0
@@ -70,3 +59,40 @@ d = 0
 i = 0
 [shooter]
 channel = 0
+
+[shooter.wheel_1]
+id = 0
+
+[shooter.wheel_2]
+id = 0
+
+[shooter.common]
+sensor2mechanism_coef = 0.0
+id = 0
+type = "BRUSHLESS"
+
+[shooter.angle.pid]
+p = 0
+d = 0
+i = 0
+
+[climber]
+dampner = 0.0
+ka = 0.0
+ks = 0.0
+kv = 0.0
+
+[climber.climber_pid]
+p = 0
+d = 0
+i = 0
+
+[climber.common]
+sensor2mechanism_coef = 0.0
+type = "BRUSHLESS"
+
+[climber.left]
+id = 0
+
+[climber.right]
+id = 0
