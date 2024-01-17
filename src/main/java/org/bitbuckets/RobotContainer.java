@@ -6,7 +6,6 @@ import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -50,40 +49,37 @@ public class RobotContainer {
 
 
     //Components MUST be created in the Robot class (because of how static bs works)
+    //config shit
     public static final VisionComponent VISION = LOG.load(VisionComponent.class, "vision");
-    public static final DrivebaseComponent DRIVE = LOG.load(DrivebaseComponent.class, "swerve");
+
     public static final ClimberComponent CLIMBER = LOG.load(ClimberComponent.class, "climber");
-
-    public static final CommonMotorComponent SHOOTER_COMMON = LOG.load(MotorComponent.class, "shooter/common");
-
-    public static final CommonMotorComponent CLIMBER_COMMON = LOG.load(MotorComponent.class, "climber/common");
-
-    public static final CommonMotorComponent GROUNDINTAKE_COMMON = LOG.load(MotorComponent.class, "groundintake/common");
-
-    public static final MotorComponent SHOOTER_WHEEL_1 = MotorComponent.ofSpecific(SHOOTER_COMMON, LOG.load(IndividualMotorComponent.class, "shooter/wheel_1"));
-    public static final MotorComponent SHOOTER_WHEEL_2 = MotorComponent.ofSpecific(SHOOTER_COMMON, LOG.load(IndividualMotorComponent.class, "shooter/wheel_2"));
-    public static final MotorComponent ANGLE_SHOOTER_MOTOR = LOG.load(MotorComponent.class, "shooter/angle");
-    public static final PIDComponent ANGLE_PID = LOG.load(PIDComponent.class, "shooter/angle/pid");
-    public static final ShooterComponent SHOOTER = LOG.load(ShooterComponent.class, "shooter");
-    public static final CommonMotorComponent DRIVE_COMMON = LOG.load(CommonMotorComponent.class, "swerve/drive_common");
-    public static final CommonMotorComponent STEER_COMMON = LOG.load(CommonMotorComponent.class, "swerve/steer_common");
-    public static final CommonPIDComponent PID_COMMON = LOG.load(CommonPIDComponent.class, "swerve/steer_pid_common");
-
-    public static final PIDComponent PID_CLIMBER = LOG.load(PIDComponent.class, "climber/climber_pid");
-
+    public static final PIDComponent CLIMBER_PID = PIDComponent.workaround("climber/climber_pid");
+    public static final CommonMotorComponent CLIMBER_COMMON = LOG.load(CommonMotorComponent.class, "climber/common");
     public static final MotorComponent LEFT_CLIMBER = MotorComponent.ofSpecific(CLIMBER_COMMON, LOG.load(IndividualMotorComponent.class, "climber/left"));
     public static final MotorComponent RIGHT_CLIMBER = MotorComponent.ofSpecific(CLIMBER_COMMON, LOG.load(IndividualMotorComponent.class, "climber/right"));
 
+    public static final CommonMotorComponent GROUNDINTAKE_COMMON = LOG.load(MotorComponent.class, "groundintake/common");
     public static final MotorComponent TOP_GROUNDINTAKE = MotorComponent.ofSpecific(GROUNDINTAKE_COMMON, LOG.load(IndividualMotorComponent.class, "groundintake/top"));
     public static final MotorComponent BOTTOM_GROUNDINTAKE = MotorComponent.ofSpecific(GROUNDINTAKE_COMMON, LOG.load(IndividualMotorComponent.class, "groundintake/bottom"));
 
+
+    public static final ShooterComponent SHOOTER = LOG.load(ShooterComponent.class, "shooter");
+    public static final CommonMotorComponent SHOOTER_COMMON = LOG.load(CommonMotorComponent.class, "shooter/common");
+    public static final MotorComponent SHOOTER_WHEEL_1 = MotorComponent.ofSpecific(SHOOTER_COMMON, LOG.load(IndividualMotorComponent.class, "shooter/wheel_1"));
+    public static final MotorComponent SHOOTER_WHEEL_2 = MotorComponent.ofSpecific(SHOOTER_COMMON, LOG.load(IndividualMotorComponent.class, "shooter/wheel_2"));
+    public static final MotorComponent ANGLE_SHOOTER_MOTOR = MotorComponent.workaround("shooter/common");
+    public static final PIDComponent ANGLE_PID = PIDComponent.workaround("shooter/angle/pid");
+
+    public static final DrivebaseComponent DRIVE = LOG.load(DrivebaseComponent.class, "swerve");
+    public static final CommonMotorComponent DRIVE_COMMON = LOG.load(CommonMotorComponent.class, "swerve/drive_common");
+    public static final CommonMotorComponent STEER_COMMON = LOG.load(CommonMotorComponent.class, "swerve/steer_common");
+    public static final CommonPIDComponent PID_COMMON = LOG.load(CommonPIDComponent.class, "swerve/steer_pid_common");
     public static final MotorComponent[] DRIVES = MotorComponent.ofRange(DRIVE_COMMON, LOG.loadRange(IndividualMotorComponent.class, "swerve/drive", 4, Util.RENAMER));
     public static final MotorComponent[] STEERS = MotorComponent.ofRange(STEER_COMMON, LOG.loadRange(IndividualMotorComponent.class, "swerve/steer", 4, Util.RENAMER));
     public static final PIDComponent[] PIDS = PIDComponent.ofRange(PID_COMMON, LOG.loadRange(IndividualPIDComponent.class, "swerve/pid", 4, Util.RENAMER));
-
-    public static final PIDComponent DRIVE_X_PID = LOG.load(PIDComponent.class, "swerve/x_holonomic_pid");
-    public static final PIDComponent DRIVE_Y_PID = LOG.load(PIDComponent.class, "swerve/y_holonomic_pid");
-    public static final PIDComponent DRIVE_T_PID = LOG.load(PIDComponent.class, "swerve/t_holonomic_pid");
+    public static final PIDComponent DRIVE_X_PID = PIDComponent.workaround("swerve/x_holonomic_pid");
+    public static final PIDComponent DRIVE_Y_PID = PIDComponent.workaround("swerve/y_holonomic_pid");
+    public static final PIDComponent DRIVE_T_PID = PIDComponent.workaround("swerve/t_holonomic_pid");
 
     public static final EncoderComponent ABSOLUTE = LOG.load(EncoderComponent.class, "absolute");
 
@@ -223,8 +219,8 @@ public class RobotContainer {
     }
     ClimberSubsystem loadClimberSubsystem() {
         return new ClimberSubsystem(
-                HardwareREV.linearSpark_builtInPID(LEFT_CLIMBER, PID_CLIMBER),
-                HardwareREV.linearSpark_builtInPID(RIGHT_CLIMBER, PID_CLIMBER),
+                HardwareREV.linearSpark_builtInPID(LEFT_CLIMBER, CLIMBER_PID),
+                HardwareREV.linearSpark_builtInPID(RIGHT_CLIMBER, CLIMBER_PID),
                 new SimpleMotorFeedforward(CLIMBER.ff_ks(), CLIMBER.ff_kv(), CLIMBER.ff_ka())
         ); // TODO
     }
