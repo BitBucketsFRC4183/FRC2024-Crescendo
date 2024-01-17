@@ -18,12 +18,12 @@ public class DefaultClimberCommand extends Command {
 
     @Override
     public void execute() {
-        climberSubsystem.setMotorsZero();
+
     }
 
     @Override
     public void end(boolean interrupted) {
-
+        climberSubsystem.setMotorsZero();
     }
 
     @Override

@@ -32,6 +32,7 @@ public class SetShootingAngleManuallyCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
+        shooterSubsystem.setPivotMotorToVoltage(0);
 
     }
 
