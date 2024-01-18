@@ -48,16 +48,6 @@ public class MoveToAlignCommand extends Command {
                 desiredVelocity,
                 holonomicRotation
         );
-
-        double X_error = holoController.getXController().getPositionError();
-        double Y_error = holoController.getYController().getPositionError();
-        double theta_error = holoController.getThetaController().getPositionError();
-
-        if ((X_error < 0.1 && X_error > -0.1) && (Y_error < 0.1 && Y_error > -0.1) && (theta_error < 5 && theta_error > -5)) {
-            return new ChassisSpeeds(0, 0, 0);
-        }
-
-
         return speed;
     }
 

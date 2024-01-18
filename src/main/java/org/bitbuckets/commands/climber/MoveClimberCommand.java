@@ -27,7 +27,7 @@ public class MoveClimberCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-
+        climberSubsystem.setToVoltage(0);
     }
 
     @Override
