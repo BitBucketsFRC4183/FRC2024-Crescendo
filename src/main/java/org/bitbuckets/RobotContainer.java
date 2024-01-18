@@ -3,14 +3,15 @@ package org.bitbuckets;
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
 import com.ctre.phoenix6.hardware.Pigeon2;
+import edu.wpi.first.apriltag.AprilTagDetector;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -39,8 +40,11 @@ import org.bitbuckets.shooter.ShooterSubsystem;
 import org.bitbuckets.util.EncoderComponent;
 import org.bitbuckets.util.ThriftyEncoder;
 import org.bitbuckets.util.Util;
+import org.bitbuckets.vision.CamerasComponent;
 import org.bitbuckets.vision.VisionComponent;
 import org.bitbuckets.vision.VisionSubsystem;
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
 import xyz.auriium.mattlib2.hardware.ILinearMotor;
@@ -48,6 +52,8 @@ import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.hardware.IRotationalController;
 import xyz.auriium.mattlib2.hardware.config.*;
 import xyz.auriium.mattlib2.rev.HardwareREV;
+
+import java.io.IOException;
 
 import static xyz.auriium.mattlib2.Mattlib.LOG;
 
@@ -87,6 +93,7 @@ public class RobotContainer {
     public static final PIDComponent DRIVE_T_PID = PIDComponent.workaround("swerve/t_holonomic_pid");
 
     public static final EncoderComponent ABSOLUTE = LOG.load(EncoderComponent.class, "absolute");
+    public static final CamerasComponent CAMERAS = LOG.load(CamerasComponent.class, "cameras");
 
     public final DriveSubsystem driveSubsystem;
     public final OperatorInput operatorInput;
@@ -99,6 +106,7 @@ public class RobotContainer {
 
 
     public RobotContainer() {
+
 
         CommandScheduler.getInstance().enable();
 
@@ -241,14 +249,45 @@ public class RobotContainer {
         ); //TODO
     }
     VisionSubsystem loadVisionSubsystem() {
+
+        PhotonCamera camera1 = new PhotonCamera(CAMERAS.camera1Name());
+        PhotonCamera camera2 = new PhotonCamera(CAMERAS.camera2Name());
+        AprilTagFieldLayout aprilTagFieldLayout;
+
+        // better error catching later ig
+        try {
+            aprilTagFieldLayout = new AprilTagFieldLayout(AprilTagFields.k2024Crescendo.m_resourceFile);
+        } catch (IOException e) {
+            throw new IllegalStateException("something awful happened");
+        }
+
+
+        // USE MATTLIB FOR CONSTANTS HERE IM JUST LAZY TODO
+        Transform3d robotToCam1 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0,0,0));
+        // using multi tag localization
+        PhotonPoseEstimator photonPoseEstimator1 = new PhotonPoseEstimator(
+                aprilTagFieldLayout,
+                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                camera1,
+                robotToCam1
+                );
+
+        Transform3d robotToCam2 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0,0,0));
+        PhotonPoseEstimator photonPoseEstimator2 = new PhotonPoseEstimator(
+                aprilTagFieldLayout,
+                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                camera2,
+                robotToCam2
+        );
+
         return new VisionSubsystem(
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        ); //TODO
+                camera1,
+                camera2,
+                aprilTagFieldLayout,
+                photonPoseEstimator1,
+                photonPoseEstimator2,
+                new AprilTagDetector()
+        );
     }
     ClimberSubsystem loadClimberSubsystem() {
         return new ClimberSubsystem(
