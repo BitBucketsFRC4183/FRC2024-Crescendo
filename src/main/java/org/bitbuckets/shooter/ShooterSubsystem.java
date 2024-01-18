@@ -108,21 +108,26 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
 
     }
 
-    public boolean hasReachedSpeeds(double speed1, double speed2) {
+    public boolean hasReachedSpeeds(double leftSpeeds, double rightSpeeds) {
 
-        if (leftMotor.angularVelocity_mechanismRotationsPerSecond() >= speed1) {
-            return true;
-        } else {
-            return false;
-        }
+        boolean leftAtSpeed = leftMotor.angularVelocity_mechanismRotationsPerSecond() >= leftSpeeds;
+        boolean rightAtSpeed = rightMotor.angularVelocity_mechanismRotationsPerSecond() >= rightSpeeds;
+
+        return leftAtSpeed && rightAtSpeed;
+
+    }
+
+    public static boolean isWithinDeadband(double deadband, double target, double actual) {
+        return actual >= target - deadband || actual <= target + deadband;
     }
 
     public boolean hasReachedAngle(double angle_mechanismRotations) {
-        if (angleMotor.angularPosition_normalizedMechanismRotations() == angle_mechanismRotations) {
-            return true;
-        } else {
-            return false;
-        }
+        double currentPos_mechRot = angleMotor.angularPosition_normalizedMechanismRotations();
+
+
+        return isWithinDeadband(shooterComponent.deadband_mechanismRotations(), angle_mechanismRotations, currentPos_mechRot);
+
+
     }
 
     public double getPivotAnglePosition_normalizedMechanismRotations() {
