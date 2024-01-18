@@ -2,12 +2,18 @@ package org.bitbuckets;
 
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.XboxController;
@@ -62,7 +68,6 @@ public class RobotContainer {
     public static final MotorComponent TOP_GROUNDINTAKE = MotorComponent.ofSpecific(GROUNDINTAKE_COMMON, LOG.load(IndividualMotorComponent.class, "groundintake/top"));
     public static final MotorComponent BOTTOM_GROUNDINTAKE = MotorComponent.ofSpecific(GROUNDINTAKE_COMMON, LOG.load(IndividualMotorComponent.class, "groundintake/bottom"));
 
-
     public static final ShooterComponent SHOOTER = LOG.load(ShooterComponent.class, "shooter");
     public static final CommonMotorComponent SHOOTER_COMMON = LOG.load(CommonMotorComponent.class, "shooter/common");
     public static final MotorComponent SHOOTER_WHEEL_1 = MotorComponent.ofSpecific(SHOOTER_COMMON, LOG.load(IndividualMotorComponent.class, "shooter/wheel_1"));
@@ -90,6 +95,7 @@ public class RobotContainer {
     public final VisionSubsystem visionSubsystem;
     public final ClimberSubsystem climberSubsystem;
     public final GroundIntakeSubsystem groundIntakeSubsystem;
+    public final SwerveDriveKinematics kinematics;
 
 
     public RobotContainer() {
@@ -101,11 +107,14 @@ public class RobotContainer {
         Mattlib.LOOPER.runPostInit();
         MattlibSettings.USE_LOGGING = true;
 
+        System.out.println(DRIVE.ff_kv());
+
         this.operatorInput = new OperatorInput();
+        this.kinematics = loadKinematics();
         this.driveSubsystem = loadDriveSubsystem();
         this.shooterSubsystem = loadShooterSubsystem();
-        this.odometrySubsystem = loadOdometrySubsystem();
         this.visionSubsystem = loadVisionSubsystem();
+        this.odometrySubsystem = loadOdometrySubsystem();
         this.climberSubsystem = loadClimberSubsystem();
         this.groundIntakeSubsystem = loadGroundIntakeSubsystem();
 
@@ -132,7 +141,6 @@ public class RobotContainer {
 
     void loadCommands() {
 
-        DefaultDriveCommand defaultDriveCommand = new DefaultDriveCommand(driveSubsystem, odometrySubsystem, operatorInput);
 
         //When driver
         Trigger xGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftX.value, 0.1);
@@ -166,12 +174,18 @@ public class RobotContainer {
     }
 
 
-
+    SwerveDriveKinematics loadKinematics() {
+        return new SwerveDriveKinematics(
+                new Translation2d(DRIVE.halfWidth_meters(), DRIVE.halfBase_meters()), // FL
+                new Translation2d(DRIVE.halfWidth_meters(), -DRIVE.halfBase_meters()), // FR
+                new Translation2d(-DRIVE.halfWidth_meters(), DRIVE.halfBase_meters()), // BL
+                new Translation2d(-DRIVE.halfWidth_meters(), -DRIVE.halfBase_meters()) // BR
+        );
+    }
 
     DriveSubsystem loadDriveSubsystem() {
         SwerveModule[] modules = loadSwerveModules();
-        SwerveDriveKinematics kinematics = new SwerveDriveKinematics(new Translation2d[4]);
-        SimpleMotorFeedforward ff = new SimpleMotorFeedforward(DRIVE.ff_ks(), DRIVE.ff_kv(), DRIVE.ff_ka());
+        SimpleMotorFeedforward ff = new SimpleMotorFeedforward(DRIVE.ff_ks(), DRIVE.ff_kv());
         return new DriveSubsystem(modules,kinematics,ff);
     }
 
@@ -212,16 +226,35 @@ public class RobotContainer {
 
     }
     OdometrySubsystem loadOdometrySubsystem() {
-        return null; //TODO
+        return new OdometrySubsystem(
+                driveSubsystem,
+                visionSubsystem,
+                new SwerveDrivePoseEstimator( //The auto path will reset all of this data anyways
+                        kinematics,
+                        new Rotation2d(),
+                        driveSubsystem.currentPositions(),
+                        new Pose2d()
+                ),
+                new Pigeon2(
+                        DRIVE.pidgeonCanId()
+                )
+        ); //TODO
     }
     VisionSubsystem loadVisionSubsystem() {
-        return null; //TODO
+        return new VisionSubsystem(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        ); //TODO
     }
     ClimberSubsystem loadClimberSubsystem() {
         return new ClimberSubsystem(
                 HardwareREV.linearSpark_builtInPID(LEFT_CLIMBER, CLIMBER_PID),
                 HardwareREV.linearSpark_builtInPID(RIGHT_CLIMBER, CLIMBER_PID),
-                new SimpleMotorFeedforward(CLIMBER.ff_ks(), CLIMBER.ff_kv(), CLIMBER.ff_ka())
+                new SimpleMotorFeedforward(CLIMBER.ff_ks(), CLIMBER.ff_kv())
         ); // TODO
     }
 

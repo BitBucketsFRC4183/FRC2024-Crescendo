@@ -11,7 +11,7 @@ public class Util {
 
     public static final double MAX_VOLTAGE = 12.0;
     public static final BiFunction<String, Integer, String> RENAMER = (original,number) -> { //to make things look nice
-        String[] asArray = ProcessPath.parse(original).asArray();
+        String[] asArray = ProcessPath.of(original).asArray();
         String originalContent = asArray[1];
         String addContent = switch (number) {
             case 0 -> "fl";
@@ -22,7 +22,7 @@ public class Util {
         };
         asArray[1] = originalContent + "_" + addContent;
 
-        return ProcessPath.of(asArray).getAsTablePath();
+        return new ProcessPath(asArray).tablePath();
     };
     /*public static final BiFunction<String, Integer, String> RENAMER = (original,number) -> { //to make things look nice
         String[] asArray = ProcessPath.parse(original).asArray();

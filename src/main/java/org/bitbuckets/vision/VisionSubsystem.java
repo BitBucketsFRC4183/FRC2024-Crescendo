@@ -14,7 +14,7 @@ import org.bitbuckets.RobotContainer;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import xyz.auriium.mattlib2.IPeriodicLooped;
-import yuukonstants.exception.ExplainedException;
+import xyz.auriium.yuukonstants.exception.ExplainedException;
 
 import java.util.Optional;
 import java.util.function.Consumer;

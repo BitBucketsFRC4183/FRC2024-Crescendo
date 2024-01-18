@@ -1,6 +1,6 @@
 package org.bitbuckets.shooter;
 
-import com.revrobotics.AbsoluteEncoder;
+
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.util.EncoderComponent;
@@ -8,8 +8,7 @@ import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.hardware.IRotationalController;
 import xyz.auriium.mattlib2.hardware.IRotationalMotor;
-import xyz.auriium.mattlib2.hardware.IRotationalPositionControl;
-import yuukonstants.exception.ExplainedException;
+import xyz.auriium.yuukonstants.exception.ExplainedException;
 
 import java.util.Optional;
 
@@ -61,8 +60,7 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
         rightMotor.angularVelocity_mechanismRotationsPerSecond();
     }
 
-    public void setAllMotorsToVoltage(double voltage)
-    {
+    public void setAllMotorsToVoltage(double voltage) {
         leftMotor.setToVoltage(voltage);
         rightMotor.setToVoltage(voltage);
     }
@@ -75,8 +73,7 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
 
      */
 
-    public void moveToRotation(double mechanism_rotations)
-    {
+    public void moveToRotation(double mechanism_rotations) {
         angleMotor.controlToNormalizedReference(mechanism_rotations);
 
     }
@@ -85,13 +82,11 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
         angleMotor.setToVoltage(voltage);
     }
 
-    public void moveToMechanismPosition(double mechanism_positions)
-    {
+    public void moveToMechanismPosition(double mechanism_positions) {
         angleMotor.controlToNormalizedReference(mechanism_positions);
     }
 
-    public void setZeroAngle()
-    {
+    public void setZeroAngle() {
 
         double offset = absoluteEncoder.angularPosition_normalizedMechanismRotations();
         angleMotor.forceRotationalOffset(offset);
@@ -104,10 +99,8 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     }
 
     // needs velocity pid in mattlib to be added first to work; wip
-    public void maintainSpeed(double leftWheel_rotationsPerSecond, double rightWheel_rotationsPerSecond)
-    {
+    public void maintainSpeed(double leftWheel_rotationsPerSecond, double rightWheel_rotationsPerSecond) {
         setMotorRotationalSpeeds(leftWheel_rotationsPerSecond, rightWheel_rotationsPerSecond);
-
     }
 
     @Override

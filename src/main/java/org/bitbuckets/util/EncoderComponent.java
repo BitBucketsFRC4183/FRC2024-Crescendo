@@ -6,7 +6,7 @@ import xyz.auriium.mattlib2.log.annote.Conf;
 public interface EncoderComponent extends INetworkedComponent {
 
 
-    @Conf("absolute_offset") double getAbsoluteEncoderOffset();
+    @Conf("absoluteOffset") double getAbsoluteEncoderOffset();
     @Conf("coefficient") double getEncoderToMechanismCoefficient();
 
 }

@@ -2,8 +2,7 @@ package org.bitbuckets.bootstrap;
 
 import edu.wpi.first.wpilibj.RuntimeType;
 import edu.wpi.first.wpilibj.TimedRobot;
-import org.bitbuckets.Robot;
-import yuukonstants.exception.ExceptionUtil;
+import xyz.auriium.yuukonstants.exception.ExceptionUtil;
 
 import java.util.Optional;
 

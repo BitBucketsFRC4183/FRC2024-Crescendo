@@ -6,15 +6,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import org.bitbuckets.commands.drive.DefaultDriveCommand;
-import org.bitbuckets.commands.shooter.DefaultShooterCommand;
-import org.bitbuckets.commands.shooter.IntakeCommand;
-import org.bitbuckets.commands.shooter.SetAmpShootingAngleCommand;
-import org.bitbuckets.commands.shooter.SetSpeakerShootingAngleCommand;
-import org.bitbuckets.drive.DriveSubsystem;
-import org.bitbuckets.shooter.ShooterSubsystem;
-import xyz.auriium.mattlib2.IPeriodicLooped;
-import yuukonstants.exception.ExplainedException;
 
 import java.util.Optional;
 

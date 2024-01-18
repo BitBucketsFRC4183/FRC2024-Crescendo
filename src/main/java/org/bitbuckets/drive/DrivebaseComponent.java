@@ -9,9 +9,11 @@ import xyz.auriium.mattlib2.log.annote.Log;
 
 public interface DrivebaseComponent extends INetworkedComponent {
 
+    @Conf("pidgeonId") int pidgeonCanId();
     @Conf("ks") double ff_ks();
     @Conf("kv") double ff_kv();
-    @Conf("ka") double ff_ka();
+    @Conf("halfWidth") double halfWidth_meters();
+    @Conf("halfBase") double halfBase_meters();
 
     @Log("positions") void logSwervePositions(SwerveModulePosition[] positions);
     @Log("states") void logSwerveStates(SwerveModuleState[] states);

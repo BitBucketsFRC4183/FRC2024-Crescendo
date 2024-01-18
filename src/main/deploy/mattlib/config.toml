@@ -1,10 +1,23 @@
+[groundintake.common]
+encoderToMechanism = 0.0
+sensor2mechanism_coef = 0.0
+id = 0
+type = "BRUSHLESS"
+[groundintake.top]
+id = 0
+[groundintake.bottom]
+id = 0
+
 [absolute]
-absolute_offset = 0.0
 coefficient = 0.0
+absoluteOffset = 0.0
+
 [swerve]
-ks = 3
-kv = 0.0
-ka = 0.0
+pidgeonId = 0
+ks = 0
+kv = 0
+halfWidth = 0.0
+halfBase = 0.0
 
 [swerve.steer_bl]
 id = 0
@@ -13,6 +26,7 @@ id = 0
 id = 0
 
 [swerve.steer_common]
+encoderToMechanism = 0.0
 sensor2mechanism_coef = 0.0
 type = "BRUSHLESS"
 
@@ -23,6 +37,7 @@ id = 0
 id = 0
 
 [swerve.drive_common]
+encoderToMechanism = 0.0
 sensor2mechanism_coef = 0.0
 type = "BRUSHLESS"
 
@@ -67,6 +82,7 @@ id = 0
 id = 0
 
 [shooter.common]
+encoderToMechanism = 0.0
 sensor2mechanism_coef = 0.0
 id = 0
 type = "BRUSHLESS"
@@ -75,11 +91,9 @@ type = "BRUSHLESS"
 p = 0
 d = 0
 i = 0
-
 [climber]
-dampner = 0.0
-ka = 0.0
 ks = 0.0
+dampener = 0.0
 kv = 0.0
 
 [climber.climber_pid]
@@ -88,6 +102,7 @@ d = 0
 i = 0
 
 [climber.common]
+encoderToMechanism = 0.0
 sensor2mechanism_coef = 0.0
 type = "BRUSHLESS"
 
