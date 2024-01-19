@@ -38,7 +38,7 @@ public class OperatorInput {
     final Trigger xButtonToggle = driver.x();
     final Trigger groundIntakeHold = driver.rightBumper();
 
-    final Trigger groundOuttakeHold = driver.leftBumper();
+    final Trigger groundOuttakeHold = driver.leftBumper(); //TODO Assign ground outtake to another button besides left bumper (left bumper already used for ground intake)
     final Trigger resetGyroToggle = driver.start();
 
 
