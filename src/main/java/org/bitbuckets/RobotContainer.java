@@ -74,7 +74,6 @@ public class RobotContainer {
     public final GroundIntakeSubsystem groundIntakeSubsystem;
     public final SwerveDriveKinematics kinematics;
 
-    public final MockCamera mockCamera;
 
     public RobotContainer() {
 
@@ -95,7 +94,6 @@ public class RobotContainer {
         this.odometrySubsystem = loadOdometrySubsystem();
         this.climberSubsystem = loadClimberSubsystem();
         this.groundIntakeSubsystem = loadGroundIntakeSubsystem();
-        this.mockCamera = loadMockCamera();
 
         loadCommands();
     }
@@ -290,6 +288,7 @@ public class RobotContainer {
                 PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                 camera2,
                 robotToCam2
+
         );
 
         return new VisionSubsystem(
