@@ -108,43 +108,36 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
 
     }
 
-    public boolean hasReachedSpeeds(double speed1, double speed2) {
+    public boolean hasReachedSpeeds(double leftSpeeds, double rightSpeeds) {
 
-        if (leftMotor.angularVelocity_mechanismRotationsPerSecond() >= speed1) {
-            return true;
-        } else {
-            return false;
-        }
+        boolean leftAtSpeed = leftMotor.angularVelocity_mechanismRotationsPerSecond() >= leftSpeeds;
+        boolean rightAtSpeed = rightMotor.angularVelocity_mechanismRotationsPerSecond() >= rightSpeeds;
+
+        return leftAtSpeed && rightAtSpeed;
+
+    }
+
+    public static boolean isWithinDeadband(double deadband, double target, double actual) {
+        return actual >= target - deadband || actual <= target + deadband;
     }
 
     public boolean hasReachedAngle(double angle_mechanismRotations) {
-        if (angleMotor.angularPosition_normalizedMechanismRotations() == angle_mechanismRotations) {
-            return true;
-        } else {
-            return false;
-        }
+        double currentPos_mechRot = angleMotor.angularPosition_normalizedMechanismRotations();
+
+
+        return isWithinDeadband(shooterComponent.deadband_mechanismRotations(), angle_mechanismRotations, currentPos_mechRot);
+
+
     }
 
     public double getPivotAnglePosition_normalizedMechanismRotations() {
         return angleMotor.angularPosition_normalizedMechanismRotations();
     }
 
-    double h_r = 0.7366; //height of robot
-    double l_r = 0.6858; //length of robot
-    double s_x = l_r / 2; // distance from bumper to base of shooter
-    double h_1 = 1.98; //ground to low top
-    double h_2 = 2.11; //ground to high top
-    double y = 0.459994; // distance from point at end of imaginary line going down from h_1 to point at end of imaginary line going down from h_2 hitting the ground
-    double x = 0.472186; // distance from point at end of imaginary line going down from h_1 to robot
-    double l_s = 0.3556; //length of shooter
-    // EVERYTHING IS IN SI UNITS (M)
-    public double calculateMinimalAngleForSpeaker()
-    {
-        //theta = arctan((h_1 - h_r - l_s * sin(theta))/(x + y + s_x - l_s * cos(theta))
+    public double calculateMinimalAngleForSpeaker() {
         return 0;
     }
-    public double calculateMaximalAngleForSpeaker(){
-        //theta = arctan((h_2 - h_r - l_s * sin(theta))/(x + s_x - l_s * cos(theta))
+    public double calculateMaximalAngleForSpeaker() {
         return 0.16472536666;
     }
 

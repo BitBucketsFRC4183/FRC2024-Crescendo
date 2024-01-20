@@ -3,6 +3,9 @@ package org.bitbuckets;
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
 import com.ctre.phoenix6.hardware.Pigeon2;
+import edu.wpi.first.apriltag.AprilTagDetector;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -38,6 +41,7 @@ import org.bitbuckets.shooter.ShooterSubsystem;
 import org.bitbuckets.util.EncoderComponent;
 import org.bitbuckets.util.ThriftyAbsoluteEncoder;
 import org.bitbuckets.util.Util;
+import org.bitbuckets.vision.CamerasComponent;
 import org.bitbuckets.vision.VisionComponent;
 import org.bitbuckets.vision.VisionSubsystem;
 import xyz.auriium.mattlib2.CTowerCommands;
@@ -52,6 +56,8 @@ import xyz.auriium.mattlib2.hardware.config.*;
 import xyz.auriium.mattlib2.rev.HardwareREV;
 import xyz.auriium.mattlib2.sim.HardwareSIM;
 import xyz.auriium.mattlib2.sim.SimComponent;
+
+import java.io.IOException;
 
 import static xyz.auriium.mattlib2.Mattlib.LOG;
 
@@ -123,6 +129,7 @@ public class RobotContainer {
 
         operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(new DefaultDriveCommand(driveSubsystem, odometrySubsystem, operatorInput));
 
+        // Trigger things
         operatorInput.ampSetpoint_hold.whileTrue(new SetAmpShootingAngleCommand(shooterSubsystem));
         operatorInput.speakerSetpoint_hold.whileTrue(new SetSpeakerShootingAngleCommand(shooterSubsystem));
         // .andThen(new ShootNoteCommand(shooterSubsystem))
@@ -213,14 +220,45 @@ public class RobotContainer {
         ); //TODO
     }
     VisionSubsystem loadVisionSubsystem() {
+
+        PhotonCamera camera1 = new PhotonCamera(CAMERAS.camera1Name());
+        PhotonCamera camera2 = new PhotonCamera(CAMERAS.camera2Name());
+        AprilTagFieldLayout aprilTagFieldLayout;
+
+        // better error catching later ig
+        try {
+            aprilTagFieldLayout = new AprilTagFieldLayout(AprilTagFields.k2024Crescendo.m_resourceFile);
+        } catch (IOException e) {
+            throw new IllegalStateException("something awful happened");
+        }
+
+
+        // USE MATTLIB FOR CONSTANTS HERE IM JUST LAZY TODO
+        Transform3d robotToCam1 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0,0,0));
+        // using multi tag localization
+        PhotonPoseEstimator photonPoseEstimator1 = new PhotonPoseEstimator(
+                aprilTagFieldLayout,
+                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                camera1,
+                robotToCam1
+                );
+
+        Transform3d robotToCam2 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0,0,0));
+        PhotonPoseEstimator photonPoseEstimator2 = new PhotonPoseEstimator(
+                aprilTagFieldLayout,
+                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                camera2,
+                robotToCam2
+        );
+
         return new VisionSubsystem(
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        ); //TODO
+                camera1,
+                camera2,
+                aprilTagFieldLayout,
+                photonPoseEstimator1,
+                photonPoseEstimator2,
+                new AprilTagDetector()
+        );
     }
     ClimberSubsystem loadClimberSubsystem() {
         return new ClimberSubsystem(
