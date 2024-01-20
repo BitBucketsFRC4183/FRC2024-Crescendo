@@ -1,10 +1,13 @@
-[groundintake]
-top.id = 0
-bottom.id = 0
-
 [groundintake.common]
 encoderToMechanism = 0.0
 type = "BRUSHLESS"
+
+[groundintake.top]
+id = 0
+
+[groundintake.bottom]
+id = 0
+
 
 [absolute]
 analogChannel = 0
@@ -13,8 +16,12 @@ absoluteOffset = 0.0
 
 [shooter]
 channel = 0
-wheel_1.id = 0
-wheel_2.id = 0
+
+[shooter.wheel_1]
+id = 0
+
+[shooter.wheel_2]
+id = 0
 
 [shooter.common]
 encoderToMechanism = 0.0
