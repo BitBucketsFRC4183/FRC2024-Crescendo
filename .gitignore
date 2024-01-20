@@ -4,3 +4,7 @@
 /trajectory-offload/trajectory-offload.iml
 /.run/
 build/
+/simgui.json/
+/simgui-ds.json/
+/simgui-window.json/
+/networktables.json/

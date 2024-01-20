@@ -25,8 +25,6 @@ public class ClimberSubsystem {
 
         leftMotor.linearVelocity_mechanismMetersPerSecond();
         rightMotor.linearVelocity_mechanismMetersPerSecond();
-
-
     }
 
 

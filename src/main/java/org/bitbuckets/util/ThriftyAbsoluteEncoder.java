@@ -4,22 +4,21 @@ import edu.wpi.first.wpilibj.AnalogInput;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.utils.AngleUtil;
 
-public class ThriftyEncoder implements IRotationEncoder {
+public class ThriftyAbsoluteEncoder implements IRotationEncoder {
 
     // double check read voltage max
     private static final double READ_VOLTAGE_MAX = 4.8;
+
     final AnalogInput input;
     final EncoderComponent encoderComponent;
 
     double currentOffset;
-    public ThriftyEncoder(AnalogInput input, EncoderComponent encoderComponent) {
+    public ThriftyAbsoluteEncoder(AnalogInput input, EncoderComponent encoderComponent) {
         this.input = input;
         this.encoderComponent = encoderComponent;
 
         currentOffset = encoderComponent.getAbsoluteEncoderOffset();
     }
-
-
 
     @Override
     public void forceRotationalOffset(double offset_mechanismRotations) {
