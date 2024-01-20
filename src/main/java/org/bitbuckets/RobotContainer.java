@@ -37,6 +37,7 @@ import org.bitbuckets.groundIntake.GroundIntakeComponent;
 import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
 import org.bitbuckets.shooter.ShooterComponent;
 import org.bitbuckets.shooter.ShooterSubsystem;
+import org.bitbuckets.util.DisablerComponent;
 import org.bitbuckets.util.EncoderComponent;
 import org.bitbuckets.util.ThriftyAbsoluteEncoder;
 import org.bitbuckets.util.Util;
@@ -50,14 +51,13 @@ import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
 import xyz.auriium.mattlib2.auto.controls.ff.FFGenComponent;
 import xyz.auriium.mattlib2.auto.controls.ff.LinearFFGenRoutine;
-import xyz.auriium.mattlib2.hardware.ILinearMotor;
-import xyz.auriium.mattlib2.hardware.IRotationEncoder;
-import xyz.auriium.mattlib2.hardware.IRotationalController;
+import xyz.auriium.mattlib2.hardware.*;
 import xyz.auriium.mattlib2.hardware.config.*;
 import xyz.auriium.mattlib2.rev.HardwareREV;
 import xyz.auriium.mattlib2.sim.HardwareSIM;
 import xyz.auriium.mattlib2.sim.SimComponent;
 
+import javax.swing.*;
 import java.io.IOException;
 
 import static xyz.auriium.mattlib2.Mattlib.LOG;
@@ -180,7 +180,11 @@ public class RobotContainer {
             ILinearMotor driveMotor;
             IRotationalController steerController;
             IRotationEncoder absoluteEncoder;
-            if (Robot.isSimulation()) {
+
+            if (DISABLER.drive_disabled()) {
+                //TODO;
+            }
+            else if (Robot.isSimulation()) {
                 driveMotor = HardwareSIM.linearSIM_noPID(DRIVES[i], DRIVE_SIM, DCMotor.getNEO(1));
                 steerController = HardwareSIM.rotationalSIM_pid(STEERS[i], STEER_SIM, PIDS[i], DCMotor.getNEO(1));
                 absoluteEncoder = steerController; //TODO silly hack
@@ -196,21 +200,37 @@ public class RobotContainer {
     }
 
     ShooterSubsystem loadShooterSubsystem() {
+        IRotationalMotor leftMotor;
+        IRotationalMotor rightMotor;
+        IRotationalController angleMotor;
+        IRotationEncoder rotationEncoder;
+
+        if (DISABLER.shooter_disabled()) {
+            //TODO
+        } else {
+            leftMotor = HardwareREV.rotationalSpark_noPID(SHOOTER_WHEEL_1);
+            rightMotor = HardwareREV.rotationalSpark_noPID(SHOOTER_WHEEL_2);
+            angleMotor = HardwareREV.rotationalSpark_builtInPID(ANGLE_SHOOTER_MOTOR, ANGLE_PID);
+            absoluteEncoder = new ThriftyAbsoluteEncoder(new AnalogInput(SHOOTER.channel()), ABSOLUTE);
+        }
+
        return new ShooterSubsystem(
-               HardwareREV.rotationalSpark_noPID(SHOOTER_WHEEL_1),
-               HardwareREV.rotationalSpark_noPID(SHOOTER_WHEEL_2),
-               HardwareREV.rotationalSpark_builtInPID(ANGLE_SHOOTER_MOTOR, ANGLE_PID),
-                new ThriftyAbsoluteEncoder(
-                        new AnalogInput(SHOOTER.channel()),
-                            ABSOLUTE
-                        ),
+               leftMotor,
+               rightMotor,
+               angleMotor,
+               absoluteEncoder,
                SHOOTER,
                ABSOLUTE
-
        );
 
     }
     OdometrySubsystem loadOdometrySubsystem() {
+        Pigeon2 pigeon2;
+
+        if (DISABLER.odometry_disabled()) {
+            //TODO
+        } else {pigeon2 = new Pigeon2(DRIVE.pidgeonCanId());}
+
         return new OdometrySubsystem(
                 driveSubsystem,
                 visionSubsystem,
@@ -220,9 +240,7 @@ public class RobotContainer {
                         driveSubsystem.currentPositions(),
                         new Pose2d()
                 ),
-                new Pigeon2(
-                        DRIVE.pidgeonCanId()
-                )
+                pigeon2
         ); //TODO
     }
     VisionSubsystem loadVisionSubsystem() {
@@ -267,18 +285,39 @@ public class RobotContainer {
         );
     }
     ClimberSubsystem loadClimberSubsystem() {
+        ILinearController leftClimber;
+        ILinearController rightClimber;
+        SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(CLIMBER.ff_ks(), CLIMBER.ff_kv());
+        if (DISABLER.climber_disabled()) {
+            // TODO
+        } else {
+            leftClimber = HardwareREV.linearSpark_builtInPID(LEFT_CLIMBER, CLIMBER_PID);
+            rightClimber = HardwareREV.linearSpark_builtInPID(RIGHT_CLIMBER, CLIMBER_PID);
+        }
+
         return new ClimberSubsystem(
-                HardwareREV.linearSpark_builtInPID(LEFT_CLIMBER, CLIMBER_PID),
-                HardwareREV.linearSpark_builtInPID(RIGHT_CLIMBER, CLIMBER_PID),
-                new SimpleMotorFeedforward(CLIMBER.ff_ks(), CLIMBER.ff_kv())
+                leftClimber,
+                rightClimber,
+                feedForward
         ); // TODO
     }
 
     GroundIntakeSubsystem loadGroundIntakeSubsystem() {
-        return new GroundIntakeSubsystem(
-                HardwareREV.linearSpark_builtInPID(TOP_GROUNDINTAKE, TOP_GROUND_PID),
-                HardwareREV.linearSpark_builtInPID(BOTTOM_GROUNDINTAKE, BOTTOM_GROUND_PID),
-                new SimpleMotorFeedforward(GROUNDINTAKE.ff_ks(), GROUNDINTAKE.ff_kv())
+        ILinearController leftGroundIntake;
+        ILinearController rightGroundIntake;
+        SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(GROUNDINTAKE.ff_ks(), GROUNDINTAKE.ff_kv());
+
+        if (DISABLER.groundIntake_disabled()) {
+            // TODO
+        } else {
+            leftGroundIntake = HardwareREV.linearSpark_builtInPID(TOP_GROUNDINTAKE, TOP_GROUND_PID);
+            rightGroundIntake = HardwareREV.linearSpark_builtInPID(BOTTOM_GROUNDINTAKE, BOTTOM_GROUND_PID);
+        }
+
+        return new ClimberSubsystem(
+                leftGroundIntake,
+                rightGroundIntake,
+                feedForward
         );
     }
 
@@ -327,6 +366,8 @@ public class RobotContainer {
 
     public static final EncoderComponent ABSOLUTE = LOG.load(EncoderComponent.class, "absolute");
     public static final CamerasComponent CAMERAS = LOG.load(CamerasComponent.class, "cameras");
+
+    public static final DisablerComponent DISABLER = LOG.load(DisablerComponent.class, "disabler");
 
 
 }
