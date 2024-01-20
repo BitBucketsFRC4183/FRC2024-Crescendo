@@ -23,8 +23,6 @@ public class ClimberSubsystem {
         leftMotor.setToVoltage(leftVoltage);
         rightMotor.setToVoltage(rightVoltage);
 
-        leftMotor.linearVelocity_mechanismMetersPerSecond();
-        rightMotor.linearVelocity_mechanismMetersPerSecond();
     }
 
 
