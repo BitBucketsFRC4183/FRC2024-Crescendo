@@ -1,0 +1,121 @@
+[groundintake]
+top.id = 0
+bottom.id = 0
+
+[groundintake.common]
+encoderToMechanism = 0.0
+type = "BRUSHLESS"
+
+[absolute]
+analogChannel = 0
+coefficient = 0.0
+absoluteOffset = 0.0
+
+[shooter]
+channel = 0
+wheel_1.id = 0
+wheel_2.id = 0
+
+[shooter.common]
+encoderToMechanism = 0.0
+type = "BRUSHLESS"
+
+[shooter.angle.pid]
+p = 0
+d = 0
+i = 0
+
+[shooter.angle_motor]
+encoderToMechanism = 0.0
+id = 0
+type = "BRUSHLESS"
+
+[swerve]
+pidgeonId = 0
+ks = 0.0
+kv = 0.0
+halfWidth = 0.0
+halfBase = 0.0
+
+[swerve.steer_bl]
+id = 0
+
+[swerve.steer_sim]
+stdv_pos = 0.0
+rotational_inertia = 0.0
+stdv_vel = 0.0
+
+[swerve.steer_fr]
+id = 0
+
+[swerve.steer_common]
+encoderToMechanism = 0.0
+type = "BRUSHLESS"
+
+[swerve.drive_sim]
+stdv_pos = 0.0
+rotational_inertia = 0.0
+stdv_vel = 0.0
+
+[swerve.steer_br]
+id = 0
+
+[swerve.drive_bl]
+id = 0
+
+[swerve.drive_common]
+encoderToMechanism = 0.0
+type = "BRUSHLESS"
+
+[swerve.steer_fl]
+id = 0
+
+[swerve.drive_fl]
+id = 0
+
+[swerve.t_holonomic_pid]
+p = 0
+d = 0
+i = 0
+
+[swerve.drive_br]
+id = 0
+
+[swerve.y_holonomic_pid]
+p = 0
+d = 0
+i = 0
+
+[swerve.drive_fr]
+id = 0
+
+[swerve.steer_pid_common]
+p = 0
+d = 0
+i = 0
+
+[swerve.x_holonomic_pid]
+p = 0
+d = 0
+i = 0
+
+[climber]
+ks = 0.0
+dampener = 0.0
+kv = 0.0
+
+[climber.common]
+encoderToMechanism = 0.0
+type = "BRUSHLESS"
+
+
+[climber.climber_pid]
+p = 0
+d = 0
+i = 0
+
+[climber.left]
+id = 0
+
+[climber.right]
+id = 0
