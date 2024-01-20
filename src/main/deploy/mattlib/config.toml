@@ -111,3 +111,9 @@ id = 0
 
 [climber.right]
 id = 0
+
+[cameras]
+camera1Name = "arducam1"
+camera2Name = "arducam2"
+
+[camerasa2s]
