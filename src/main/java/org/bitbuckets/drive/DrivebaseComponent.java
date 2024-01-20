@@ -9,7 +9,7 @@ import xyz.auriium.mattlib2.log.annote.Log;
 
 public interface DrivebaseComponent extends INetworkedComponent {
 
-    @Conf("pidgeonId") int pidgeonCanId();
+    @Conf("pigeonId") int pigeonCanId();
     @Conf("ks") double ff_ks();
     @Conf("kv") double ff_kv();
     @Conf("halfWidth") double halfWidth_meters();

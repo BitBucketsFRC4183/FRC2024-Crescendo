@@ -63,7 +63,7 @@ id = 0
 type = "BRUSHLESS"
 
 [swerve]
-pidgeonId = 0
+pigeonId = 0
 ks = 0.0
 kv = 0.0
 halfWidth = 0.0

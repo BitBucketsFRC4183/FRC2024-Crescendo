@@ -209,7 +209,7 @@ public class RobotContainer {
         IRotationalMotor leftMotor;
         IRotationalMotor rightMotor;
         IRotationalController angleMotor;
-        IRotationEncoder rotationEncoder;
+        IRotationEncoder absoluteEncoder;
 
         if (DISABLER.shooter_disabled()) {
             //TODO
@@ -233,9 +233,8 @@ public class RobotContainer {
     OdometrySubsystem loadOdometrySubsystem() {
         Pigeon2 pigeon2;
 
-        if (DISABLER.odometry_disabled()) {
-            //TODO
-        } else {pigeon2 = new Pigeon2(DRIVE.pidgeonCanId());}
+        pigeon2 = new Pigeon2(DRIVE.pigeonCanId());
+        // TODO implement swappable version per condition (sim, disable, enable)
 
         return new OdometrySubsystem(
                 driveSubsystem,
@@ -251,8 +250,10 @@ public class RobotContainer {
     }
     VisionSubsystem loadVisionSubsystem() {
 
+        //TODO SWAPPABLE VERSION
         PhotonCamera camera1 = new PhotonCamera(CAMERAS.camera1Name());
         PhotonCamera camera2 = new PhotonCamera(CAMERAS.camera2Name());
+
         AprilTagFieldLayout aprilTagFieldLayout;
 
         // better error catching later ig
