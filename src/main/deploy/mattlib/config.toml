@@ -8,6 +8,31 @@ id = 0
 [groundintake.bottom]
 id = 0
 
+[groundintake.ffgen_top]
+startDelay_ms = 50
+endVoltage = 0
+rampRate_vPerMs = 0
+
+[groundintake.ffgen_bottom]
+startDelay_ms = 50
+endVoltage = 0
+rampRate_vPerMs = 0
+
+[groundintake.top_pid]
+p = 0
+i = 0
+d = 0
+
+[groundintake.bottom_pid]
+p = 0
+i = 0
+d = 0
+
+[groundintake]
+top_gear_ratio = 0
+bottom_gear_ratio = 0
+ff_ks = 0
+ff_kv = 0
 
 [absolute]
 analogChannel = 0
@@ -132,3 +157,8 @@ camera1Name = "arducam1"
 camera2Name = "arducam2"
 
 [camerasa2s]
+
+[ffgen]
+startDelay_ms = 500
+endVoltage = 12
+rampRate_vPerMs = 0.0001
