@@ -39,7 +39,6 @@ import org.bitbuckets.shooter.ShooterComponent;
 import org.bitbuckets.shooter.ShooterSubsystem;
 import org.bitbuckets.util.DisablerComponent;
 import org.bitbuckets.util.EncoderComponent;
-import org.bitbuckets.util.HardwareDisabled;
 import org.bitbuckets.util.ThriftyAbsoluteEncoder;
 import org.bitbuckets.util.Util;
 import org.bitbuckets.vision.CamerasComponent;
@@ -57,8 +56,8 @@ import xyz.auriium.mattlib2.hardware.config.*;
 import xyz.auriium.mattlib2.rev.HardwareREV;
 import xyz.auriium.mattlib2.sim.HardwareSIM;
 import xyz.auriium.mattlib2.sim.SimComponent;
+import xyz.auriium.mattlib2.utils.MockingUtil;
 
-import javax.swing.*;
 import java.io.IOException;
 
 import static xyz.auriium.mattlib2.Mattlib.LOG;
@@ -74,6 +73,8 @@ public class RobotContainer {
     public final ClimberSubsystem climberSubsystem;
     public final GroundIntakeSubsystem groundIntakeSubsystem;
     public final SwerveDriveKinematics kinematics;
+
+    public final MockCamera mockCamera;
 
     public RobotContainer() {
 
@@ -94,9 +95,12 @@ public class RobotContainer {
         this.odometrySubsystem = loadOdometrySubsystem();
         this.climberSubsystem = loadClimberSubsystem();
         this.groundIntakeSubsystem = loadGroundIntakeSubsystem();
+        this.mockCamera = loadMockCamera();
 
         loadCommands();
     }
+
+
 
     public void autonomousInit() {
 
@@ -252,7 +256,13 @@ public class RobotContainer {
 
         //TODO SWAPPABLE VERSION
         PhotonCamera camera1 = new PhotonCamera(CAMERAS.camera1Name());
+        if(DISABLER.vision_disabled()) {
+            camera1 = MockingUtil.buddy(PhotonCamera.class);
+        }
         PhotonCamera camera2 = new PhotonCamera(CAMERAS.camera2Name());
+        if(DISABLER.vision_disabled()){
+            camera2 = MockingUtil.buddy(PhotonCamera.class);
+        }
 
         AprilTagFieldLayout aprilTagFieldLayout;
 
@@ -291,6 +301,7 @@ public class RobotContainer {
                 new AprilTagDetector()
         );
     }
+
     ClimberSubsystem loadClimberSubsystem() {
         ILinearController leftClimber;
         ILinearController rightClimber;
@@ -307,7 +318,9 @@ public class RobotContainer {
                 rightClimber,
                 feedForward
         ); // TODO
+
     }
+
 
     GroundIntakeSubsystem loadGroundIntakeSubsystem() {
         ILinearController leftGroundIntake;
