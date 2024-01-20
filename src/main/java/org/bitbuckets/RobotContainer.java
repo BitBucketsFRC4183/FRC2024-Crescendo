@@ -49,6 +49,7 @@ import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
 import xyz.auriium.mattlib2.auto.controls.ff.FFGenComponent;
 import xyz.auriium.mattlib2.auto.controls.ff.LinearFFGenRoutine;
+import xyz.auriium.mattlib2.hardware.IActuator;
 import xyz.auriium.mattlib2.hardware.ILinearMotor;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.hardware.IRotationalController;
@@ -115,6 +116,11 @@ public class RobotContainer {
     }
 
     public void testInit() {
+
+        LinearFFGenRoutine groundTopFFRoutine = new LinearFFGenRoutine(TOP_GROUND_FF, groundIntakeSubsystem.topMotor, groundIntakeSubsystem.topMotor);
+        LinearFFGenRoutine groundBottomFFRoutine = new LinearFFGenRoutine(BOTTOM_GROUND_FF, groundIntakeSubsystem.bottomMotor, groundIntakeSubsystem.bottomMotor);
+        CTowerCommands.wrapRoutine(groundTopFFRoutine).schedule();
+        //CTowerCommands.wrapRoutine(groundBottomFFRoutine).schedule();
 
     }
 
@@ -270,8 +276,8 @@ public class RobotContainer {
 
     GroundIntakeSubsystem loadGroundIntakeSubsystem() {
         return new GroundIntakeSubsystem(
-                HardwareREV.linearSpark_noPID(TOP_GROUNDINTAKE),
-                HardwareREV.linearSpark_noPID(BOTTOM_GROUNDINTAKE)
+                HardwareREV.linearSpark_builtInPID(TOP_GROUNDINTAKE, TOP_GROUND_PID),
+                HardwareREV.linearSpark_builtInPID(BOTTOM_GROUNDINTAKE, BOTTOM_GROUND_PID)
         );
     }
 
@@ -279,6 +285,8 @@ public class RobotContainer {
 
     //Components MUST be created in the Robot class (because of how static bs works)
     //config shit
+    public static final FFGenComponent TOP_GROUND_FF = LOG.load(FFGenComponent.class, "groundintake/ff_top");
+    public static final FFGenComponent BOTTOM_GROUND_FF = LOG.load(FFGenComponent.class, "groundintake/ff_bottom");
     public static final VisionComponent VISION = LOG.load(VisionComponent.class, "vision");
 
     public static final ClimberComponent CLIMBER = LOG.load(ClimberComponent.class, "climber");
@@ -290,6 +298,8 @@ public class RobotContainer {
     public static final CommonMotorComponent GROUNDINTAKE_COMMON = LOG.load(CommonMotorComponent.class, "groundintake/common");
     public static final MotorComponent TOP_GROUNDINTAKE = MotorComponent.ofSpecific(GROUNDINTAKE_COMMON, LOG.load(IndividualMotorComponent.class, "groundintake/top"));
     public static final MotorComponent BOTTOM_GROUNDINTAKE = MotorComponent.ofSpecific(GROUNDINTAKE_COMMON, LOG.load(IndividualMotorComponent.class, "groundintake/bottom"));
+    public static final PIDComponent TOP_GROUND_PID = LOG.load(PIDComponent.class, "groundintake/top_pid");
+    public static final PIDComponent BOTTOM_GROUND_PID = LOG.load(PIDComponent.class, "groundintake/bottom_pid");
 
     public static final ShooterComponent SHOOTER = LOG.load(ShooterComponent.class, "shooter");
     public static final CommonMotorComponent SHOOTER_COMMON = LOG.load(CommonMotorComponent.class, "shooter/common");
@@ -315,4 +325,6 @@ public class RobotContainer {
 
     public static final EncoderComponent ABSOLUTE = LOG.load(EncoderComponent.class, "absolute");
     public static final CamerasComponent CAMERAS = LOG.load(CamerasComponent.class, "cameras");
+
+
 }

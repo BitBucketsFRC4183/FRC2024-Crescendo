@@ -3,15 +3,16 @@ package org.bitbuckets.groundIntake;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import xyz.auriium.mattlib2.IPeriodicLooped;
+import xyz.auriium.mattlib2.hardware.ILinearController;
 import xyz.auriium.mattlib2.hardware.ILinearMotor;
 
 public class GroundIntakeSubsystem implements Subsystem, IPeriodicLooped {
 
-    final ILinearMotor topMotor;
-    final ILinearMotor bottomMotor;
+    public final ILinearController topMotor;
+    public final ILinearController bottomMotor;
 
 
-    public GroundIntakeSubsystem(ILinearMotor topMotor, ILinearMotor bottomMotor) {
+    public GroundIntakeSubsystem(ILinearController topMotor, ILinearController bottomMotor) {
         this.topMotor = topMotor;
         this.bottomMotor = bottomMotor;
 

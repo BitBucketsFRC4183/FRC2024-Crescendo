@@ -8,6 +8,25 @@ id = 0
 [groundintake.bottom]
 id = 0
 
+[groundintake.ff_top]
+startDelay_ms = 50
+endVoltage = 0
+rampRate_vPerMs = 0
+
+[groundintake.ff_bottom]
+startDelay_ms = 50
+endVoltage = 0
+rampRate_vPerMs = 0
+
+[groundintake.top_pid]
+p = 0
+i = 0
+d = 0
+
+[groundintake.bottom_pid]
+p = 0
+i = 0
+d = 0
 
 [absolute]
 analogChannel = 0
