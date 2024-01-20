@@ -33,6 +33,7 @@ public class ThriftyEncoderMathTest {
         AnalogInput fake = Mockito.mock(AnalogInput.class);
         Mockito.when(fake.getVoltage()).thenReturn(-4.8);
 
+
         ThriftyEncoder thriftyEncoder = new ThriftyEncoder(fake, Mockito.mock(EncoderComponent.class));
         assertEquals(0, thriftyEncoder.angularPosition_normalizedEncoderRotations(), 0);
     }
