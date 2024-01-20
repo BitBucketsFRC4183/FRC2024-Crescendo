@@ -39,6 +39,7 @@ import org.bitbuckets.shooter.ShooterComponent;
 import org.bitbuckets.shooter.ShooterSubsystem;
 import org.bitbuckets.util.DisablerComponent;
 import org.bitbuckets.util.EncoderComponent;
+import org.bitbuckets.util.HardwareDisabled;
 import org.bitbuckets.util.ThriftyAbsoluteEncoder;
 import org.bitbuckets.util.Util;
 import org.bitbuckets.vision.CamerasComponent;
@@ -193,6 +194,11 @@ public class RobotContainer {
                 steerController = HardwareREV.rotationalSpark_builtInPID(STEERS[i], PIDS[i]);
                 absoluteEncoder = new ThriftyAbsoluteEncoder(null, null);
             }
+            /*
+            if (disabled) {
+                driveMotor = HardwareDisabled.linearMotor_disabled();
+            }
+*/
             modules[i] = new SwerveModule(driveMotor, steerController, absoluteEncoder);
         }
 
