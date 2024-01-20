@@ -115,7 +115,7 @@ public class RobotContainer {
     }
 
     public void testInit() {
-
+       CTowerCommands.wrapRoutine( new LinearFFGenRoutine(GEN_COMPONENT, shooterSubsystem.leftMotor, ThroughBoreEncoder) ).schedule();
     }
 
     void loadCommands() {
@@ -315,4 +315,6 @@ public class RobotContainer {
 
     public static final EncoderComponent ABSOLUTE = LOG.load(EncoderComponent.class, "absolute");
     public static final CamerasComponent CAMERAS = LOG.load(CamerasComponent.class, "cameras");
+
+    public static final FFGenComponent GEN_COMPONENT = LOG.load(FFGenComponent.class, "ffgen");
 }
