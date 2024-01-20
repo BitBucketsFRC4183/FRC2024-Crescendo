@@ -4,10 +4,10 @@ import xyz.auriium.mattlib2.log.INetworkedComponent;
 import xyz.auriium.mattlib2.log.annote.Conf;
 
 public interface DisablerComponent extends INetworkedComponent {
-    @Conf("vision_disabled") Boolean vision_disabled();
-    @Conf("drive_disabled") Boolean drive_disabled();
-    @Conf("shooter_disabled") Boolean shooter_disabled();
-    @Conf("odometry_disabled") Boolean odometry_disabled();
-    @Conf("climber_disabled") Boolean climber_disabled();
-    @Conf("groundIntake_disabled") Boolean groundIntake_disabled();
+    @Conf("vision_disabled") boolean vision_disabled();
+    @Conf("drive_disabled") boolean drive_disabled();
+    @Conf("shooter_disabled") boolean shooter_disabled();
+    @Conf("odometry_disabled") boolean odometry_disabled();
+    @Conf("climber_disabled") boolean climber_disabled();
+    @Conf("groundIntake_disabled") boolean groundIntake_disabled();
 }
