@@ -1,5 +1,5 @@
 package org.bitbuckets.util;
-
+/**
 public class ShooterCalculator {
 
     public record ReturnType(double angle_rotations, double velocity_metersPerSecond);
@@ -27,3 +27,5 @@ public class ShooterCalculator {
 
 
 }
+
+ **/
