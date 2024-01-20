@@ -13,6 +13,11 @@ startDelay_ms = 50
 endVoltage = 0
 rampRate_vPerMs = 0
 
+[ffgen]
+startDelay_ms = 500
+endVoltage = 12
+rampRate_vPerMs = 0.0001
+
 [groundintake.ffgen_bottom]
 startDelay_ms = 50
 endVoltage = 0
@@ -156,9 +161,11 @@ id = 0
 camera1Name = "arducam1"
 camera2Name = "arducam2"
 
-[camerasa2s]
+[disabler]
+vision_disabled = false
+drive_disabled = false
+shooter_disabled = false
+odometry_disabled = false
+climber_disabled = false
+groundIntake_disabled = false
 
-[ffgen]
-startDelay_ms = 500
-endVoltage = 12
-rampRate_vPerMs = 0.0001
