@@ -151,3 +151,8 @@ camera1Name = "arducam1"
 camera2Name = "arducam2"
 
 [camerasa2s]
+
+[ffgen]
+startDelay_ms = 500
+endVoltage = 12
+rampRate_vPerMs = 0.0001
