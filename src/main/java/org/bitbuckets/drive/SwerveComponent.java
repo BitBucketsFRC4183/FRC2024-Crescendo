@@ -17,8 +17,9 @@ public interface SwerveComponent extends INetworkedComponent {
     @Conf("halfWidth") double halfWidth_meters();
     @Conf("halfBase") double halfBase_meters();
 
-    @Log("positions") void logSwervePositions(SwerveModulePosition[] positions);
+    //@Log("positions") void logSwervePositions(SwerveModulePosition[] positions);
     @Log("states") void logSwerveStates(SwerveModuleState[] states);
+    @Log("desiredStates") void logDesiredStates(SwerveModuleState[] desiredStates);
     @Log("pose2") void logPosition(Pose2d pose2d);
 
 }

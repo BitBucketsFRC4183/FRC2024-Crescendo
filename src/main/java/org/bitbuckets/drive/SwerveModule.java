@@ -3,6 +3,7 @@ package org.bitbuckets.drive;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import org.bitbuckets.Robot;
 import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.mattlib2.hardware.ILinearMotor;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
@@ -31,6 +32,8 @@ public class SwerveModule implements IPeriodicLooped {
      */
     @Override
     public void logicPeriodic() {
+        if (Robot.isSimulation()) return; //STOP IT
+
         if (steerController.angularVelocity_mechanismRotationsPerSecond() * 10 >= 0.5) return;
         if (++resetIteration > 500) {
             resetIteration = 0;

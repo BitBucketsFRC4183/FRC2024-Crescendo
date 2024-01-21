@@ -31,9 +31,9 @@ public class DriveSubsystem implements Subsystem, IPeriodicLooped {
 
     @Override
     public void logPeriodic() {
-
-
-        RobotContainer.SWERVE.logSwervePositions(currentPositions());
+        if (desiredStates != null) {
+            RobotContainer.SWERVE.logDesiredStates(desiredStates);
+        }
         RobotContainer.SWERVE.logSwerveStates(currentStates());
     }
 
@@ -52,6 +52,8 @@ public class DriveSubsystem implements Subsystem, IPeriodicLooped {
      * @param states states indexed by the IDs at the top of this class
      */
     public void driveUsingSwerveStates(SwerveModuleState[] states) {
+        desiredStates = states;
+
         for (int i = 0; i < modules.length; i++) {
             double feedforwardVoltage = ff.calculate(states[i].speedMetersPerSecond);
             feedforwardVoltage = MathUtil.clamp(feedforwardVoltage, -Util.MAX_VOLTAGE, Util.MAX_VOLTAGE);
@@ -60,6 +62,8 @@ public class DriveSubsystem implements Subsystem, IPeriodicLooped {
             modules[i].setToMoveAt(feedforwardVoltage, referenceAngle);
         }
     }
+
+    SwerveModuleState[] desiredStates;
 
 
     /**

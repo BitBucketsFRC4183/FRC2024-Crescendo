@@ -13,7 +13,7 @@ rotationalInertia = 0.025 #ngl i forgot
 
 [swerve.steer_common]
 metersPerRotation = 0.31519599093 # diameter of mk4i L2s * pi
-mechPerEncoderRotation = 0.14823529411 # (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) mk4i reduction
+mechPerEncoderRotation = 0.04666666666 # (14.0 / 50.0) * (10.0 / 60.0) mk4i reduction
 rotationalInertia = 0.002 #ngl i forgot
 
 [swerve.steer_pid_common]
