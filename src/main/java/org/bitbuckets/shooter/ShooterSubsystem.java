@@ -2,6 +2,8 @@ package org.bitbuckets.shooter;
 
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.simulation.DIOSim;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.util.EncoderComponent;
 import xyz.auriium.mattlib2.IPeriodicLooped;
@@ -22,6 +24,7 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     final IRotationEncoder absoluteEncoder;
     final ShooterComponent shooterComponent;
     final EncoderComponent encoderComponent;
+    final DigitalInput noteSensor;
 
     public ShooterSubsystem(IRotationalMotor leftMotor, IRotationalMotor rightMotor, IRotationalController angleMotor, IRotationEncoder absoluteEncoder, ShooterComponent shooterComponent, EncoderComponent encoderComponent) {
         this.leftMotor = leftMotor;
@@ -30,6 +33,7 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
         this.absoluteEncoder = absoluteEncoder;
         this.shooterComponent = shooterComponent;
         this.encoderComponent = encoderComponent;
+        this.noteSensor = new DigitalInput(shooterComponent.dio());
 
         mattRegister();
         register();
@@ -139,6 +143,11 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     }
     public double calculateMaximalAngleForSpeaker() {
         return 0.16472536666;
+    }
+
+    //returns true if note is in the sensor
+    public boolean getNoteState(){
+        return !noteSensor.get(); // get() returns true if circuit open
     }
 
 

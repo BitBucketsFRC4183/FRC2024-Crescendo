@@ -16,6 +16,9 @@ on:
 permissions:
   contents: read
 
+env:
+    CI: funee monkee
+    
 jobs:
   build:
 
@@ -30,9 +33,9 @@ jobs:
           distribution: 'temurin'
           
       - name: Build with Gradle
-        uses: gradle/gradle-build-action@2.11.1
+        uses: gradle/gradle-build-action@v2.11.1
           
       - name: Test with Simulator
-        uses: gradle/gradle-build-action@2.11.1
+        uses: gradle/gradle-build-action@v2.11.1
         with:
           arguments: simulateJava

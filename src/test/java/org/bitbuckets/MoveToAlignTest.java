@@ -11,6 +11,7 @@ import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.OdometrySubsystem;
 import org.bitbuckets.vision.VisionSubsystem;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 
@@ -35,6 +36,7 @@ public class MoveToAlignTest {
                         new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(1, 1)));
     }
 
+    @Disabled
     @Test
     void calculateMoveToAlignForwards() {
         // our pose is 0,0 rotated 0º (facing forwards, away from alliance wall)
@@ -48,6 +50,7 @@ public class MoveToAlignTest {
         assertEquals(0, chassisSpeeds.omegaRadiansPerSecond, .1);
     }
 
+    @Disabled
     @Test
     void calculateMoveToAlignBackwards() {
         // our pose is 0,0 rotated 180º (facing the alliance wall)

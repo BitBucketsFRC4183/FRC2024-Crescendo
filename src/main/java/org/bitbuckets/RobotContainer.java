@@ -16,6 +16,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -29,10 +30,7 @@ import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.groundIntake.GroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
 import org.bitbuckets.commands.shooter.*;
-import org.bitbuckets.disabled.DisabledIRotationEncoder;
-import org.bitbuckets.disabled.DisabledIRotationalController;
-import org.bitbuckets.disabled.DisabledIRotationalMotor;
-import org.bitbuckets.disabled.DisabledILinearMotor;
+import org.bitbuckets.disabled.DisablerComponent;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.DrivebaseComponent;
 import org.bitbuckets.drive.OdometrySubsystem;
@@ -131,6 +129,7 @@ public class RobotContainer {
     void loadCommands() {
 
 
+        System.out.println("commands are loaded");
         //When driver
         Trigger xGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftX.value, 0.1);
         Trigger yGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.1);
@@ -186,7 +185,9 @@ public class RobotContainer {
             IRotationEncoder absoluteEncoder;
 
             if (DISABLER.drive_disabled()) {
-                //TODO;
+                driveMotor = HardwareDisabled.linearMotor_disabled();
+                steerController = HardwareDisabled.rotationalController_disabled();
+                absoluteEncoder = HardwareDisabled.rotationEncoder_disabled();
             }
             else if (Robot.isSimulation()) {
                 driveMotor = HardwareSIM.linearSIM_noPID(DRIVES[i], DRIVE_SIM, DCMotor.getNEO(1));
@@ -215,12 +216,11 @@ public class RobotContainer {
         IRotationEncoder absoluteEncoder;
 
         if (DISABLER.shooter_disabled()) {
-
-
-
+            leftMotor = HardwareDisabled.rotationalMotor_disabled();
+            rightMotor = HardwareDisabled.rotationalMotor_disabled();
+            angleMotor = HardwareDisabled.rotationalController_disabled();
+            absoluteEncoder = HardwareDisabled.rotationEncoder_disabled();
         } else {
-
-
             leftMotor = HardwareREV.rotationalSpark_noPID(SHOOTER_WHEEL_1);
             rightMotor = HardwareREV.rotationalSpark_noPID(SHOOTER_WHEEL_2);
             angleMotor = HardwareREV.rotationalSpark_builtInPID(ANGLE_SHOOTER_MOTOR, ANGLE_PID);
@@ -238,9 +238,12 @@ public class RobotContainer {
 
     }
     OdometrySubsystem loadOdometrySubsystem() {
-        Pigeon2 pigeon2;
 
-        pigeon2 = new Pigeon2(DRIVE.pigeonCanId());
+        if (DISABLER.odometry_disabled()) {
+            return MockingUtil.buddy(OdometrySubsystem.class);
+        }
+        Pigeon2 pigeon2 = new Pigeon2(DRIVE.pigeonCanId());
+
         // TODO implement swappable version per condition (sim, disable, enable)
 
         return new OdometrySubsystem(
@@ -257,60 +260,59 @@ public class RobotContainer {
     }
     VisionSubsystem loadVisionSubsystem() {
 
-        //TODO SWAPPABLE VERSION
-        PhotonCamera camera1 = new PhotonCamera(CAMERAS.camera1Name());
-        if(DISABLER.vision_disabled()) {
-            camera1 = MockingUtil.buddy(PhotonCamera.class);
-        }
-        PhotonCamera camera2 = new PhotonCamera(CAMERAS.camera2Name());
+
         if(DISABLER.vision_disabled()){
-            camera2 = MockingUtil.buddy(PhotonCamera.class);
+              return MockingUtil.buddy(VisionSubsystem.class);
+        } else {
+            PhotonCamera camera1;
+            PhotonCamera camera2;
+            camera1 = new PhotonCamera(CAMERAS.camera1Name());
+            camera2 = new PhotonCamera(CAMERAS.camera2Name());
+
+            AprilTagFieldLayout aprilTagFieldLayout;
+
+            // better error catching later ig
+            try {
+                aprilTagFieldLayout = new AprilTagFieldLayout(AprilTagFields.k2024Crescendo.m_resourceFile);
+            } catch (IOException e) {
+                throw new IllegalStateException(e.getMessage() + " here is why");
+            }
+
+            // USE MATTLIB FOR CONSTANTS HERE IM JUST LAZY TODO
+            Transform3d robotToCam1 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0,0,0));
+            // using multi tag localization
+            PhotonPoseEstimator photonPoseEstimator1 = new PhotonPoseEstimator(
+                    aprilTagFieldLayout,
+                    PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    camera1,
+                    robotToCam1
+            );
+
+            Transform3d robotToCam2 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0,0,0));
+            PhotonPoseEstimator photonPoseEstimator2 = new PhotonPoseEstimator(
+                    aprilTagFieldLayout,
+                    PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    camera2,
+                    robotToCam2
+
+            );
+
+            return new VisionSubsystem(
+                    camera1,
+                    camera2,
+                    aprilTagFieldLayout,
+                    photonPoseEstimator1,
+                    photonPoseEstimator2,
+                    new AprilTagDetector()
+            );
         }
 
-        AprilTagFieldLayout aprilTagFieldLayout;
-
-        // better error catching later ig
-        try {
-            aprilTagFieldLayout = new AprilTagFieldLayout(AprilTagFields.k2024Crescendo.m_resourceFile);
-        } catch (IOException e) {
-            throw new IllegalStateException("something awful happened");
-        }
-
-
-        // USE MATTLIB FOR CONSTANTS HERE IM JUST LAZY TODO
-        Transform3d robotToCam1 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0,0,0));
-        // using multi tag localization
-        PhotonPoseEstimator photonPoseEstimator1 = new PhotonPoseEstimator(
-                aprilTagFieldLayout,
-                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-                camera1,
-                robotToCam1
-                );
-
-        Transform3d robotToCam2 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0,0,0));
-        PhotonPoseEstimator photonPoseEstimator2 = new PhotonPoseEstimator(
-                aprilTagFieldLayout,
-                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-                camera2,
-                robotToCam2
-
-        );
-
-        return new VisionSubsystem(
-                camera1,
-                camera2,
-                aprilTagFieldLayout,
-                photonPoseEstimator1,
-                photonPoseEstimator2,
-                new AprilTagDetector()
-        );
     }
 
     ClimberSubsystem loadClimberSubsystem() {
         ILinearController leftClimber;
         ILinearController rightClimber;
         SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(CLIMBER.ff_ks(), CLIMBER.ff_kv());
-
         if (DISABLER.climber_disabled()) {
             leftClimber = HardwareDisabled.linearController_disabled();
             rightClimber = HardwareDisabled.linearController_disabled();
@@ -329,21 +331,23 @@ public class RobotContainer {
 
 
     GroundIntakeSubsystem loadGroundIntakeSubsystem() {
-        ILinearController leftGroundIntake;
-        ILinearController rightGroundIntake;
+        ILinearController topGroundIntake;
+        ILinearController bottomGroundIntake;
         SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(GROUNDINTAKE.ff_ks(), GROUNDINTAKE.ff_kv());
 
         if (DISABLER.groundIntake_disabled()) {
-            leftGroundIntake = HardwareDisabled.linearController_disabled();
-            rightGroundIntake = HardwareDisabled.linearController_disabled();
+            System.out.println("DISABLED LOL");
+            topGroundIntake = HardwareDisabled.linearController_disabled();
+            bottomGroundIntake = HardwareDisabled.linearController_disabled();
         } else {
-            leftGroundIntake = HardwareREV.linearSpark_builtInPID(TOP_GROUNDINTAKE, TOP_GROUND_PID);
-            rightGroundIntake = HardwareREV.linearSpark_builtInPID(BOTTOM_GROUNDINTAKE, BOTTOM_GROUND_PID);
+            topGroundIntake = HardwareREV.linearSpark_builtInPID(TOP_GROUNDINTAKE, TOP_GROUND_PID);
+            bottomGroundIntake = HardwareREV.linearSpark_builtInPID(BOTTOM_GROUNDINTAKE, BOTTOM_GROUND_PID);
         }
 
+        System.out.println("GROUNDTAKE WORKING");
         return new GroundIntakeSubsystem(
-                leftGroundIntake,
-                rightGroundIntake,
+                topGroundIntake,
+                bottomGroundIntake,
                 feedForward
         );
     }
@@ -361,13 +365,12 @@ public class RobotContainer {
     public static final MotorComponent LEFT_CLIMBER = MotorComponent.ofSpecific(CLIMBER_COMMON, LOG.load(IndividualMotorComponent.class, "climber/left"));
     public static final MotorComponent RIGHT_CLIMBER = MotorComponent.ofSpecific(CLIMBER_COMMON, LOG.load(IndividualMotorComponent.class, "climber/right"));
 
-    public static final CommonMotorComponent GROUNDINTAKE_COMMON = LOG.load(CommonMotorComponent.class, "groundintake/common");
-    public static final MotorComponent TOP_GROUNDINTAKE = MotorComponent.ofSpecific(GROUNDINTAKE_COMMON, LOG.load(IndividualMotorComponent.class, "groundintake/top"));
-    public static final MotorComponent BOTTOM_GROUNDINTAKE = MotorComponent.ofSpecific(GROUNDINTAKE_COMMON, LOG.load(IndividualMotorComponent.class, "groundintake/bottom"));
+    public static final MotorComponent TOP_GROUNDINTAKE = LOG.load(MotorComponent.class,"groundintake/top");
+    public static final MotorComponent BOTTOM_GROUNDINTAKE = LOG.load(MotorComponent.class, "groundintake/bottom");
     public static final PIDComponent TOP_GROUND_PID = LOG.load(PIDComponent.class, "groundintake/top_pid");
     public static final PIDComponent BOTTOM_GROUND_PID = LOG.load(PIDComponent.class, "groundintake/bottom_pid");
     public static final FFGenComponent TOP_GROUND_FFGEN = LOG.load(FFGenComponent.class, "groundintake/ff_top");
-    public static final FFGenComponent BOTTOM_GROUND_FFGEN = LOG.load(FFGenComponent.class, "groundintake/ffgen_bottom");
+    // public static final FFGenComponent BOTTOM_GROUND_FFGEN = LOG.load(FFGenComponent.class, "groundintake/ffgen_bottom");
     public static final GroundIntakeComponent GROUNDINTAKE = LOG.load(GroundIntakeComponent.class, "groundintake");
     public static final ShooterComponent SHOOTER = LOG.load(ShooterComponent.class, "shooter");
     public static final CommonMotorComponent SHOOTER_COMMON = LOG.load(CommonMotorComponent.class, "shooter/common");
