@@ -24,7 +24,7 @@ public class DefaultShooterCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-
+        shooterSubsystem.setAllMotorsToVoltage(0);
     }
 
     @Override

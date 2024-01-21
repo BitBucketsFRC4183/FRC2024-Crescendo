@@ -23,7 +23,7 @@ public class DefaultGroundIntakeCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-
+        groundIntakeSubsystem.setMotorsZero();
     }
 
     @Override
