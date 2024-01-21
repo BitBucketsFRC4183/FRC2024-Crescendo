@@ -23,7 +23,6 @@ startDelay_ms = 50
 endVoltage = 0
 rampRate_vPerMs = 0
 
-
 [ground_intake]
 ff_ks = 0
 ff_kv = 0
@@ -114,8 +113,8 @@ i = 0
 
 [climber]
 climber_pid = {p = 0, i = 0, d = 0}
-kv = 0.0
-ks = 0.0
+ff_kv = 0.0
+ff_ks = 0.0
 
 [climber.left]
 id = 0
