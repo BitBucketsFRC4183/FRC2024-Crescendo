@@ -163,5 +163,5 @@ drive_disabled = false
 shooter_disabled = true
 odometry_disabled = true
 climber_disabled = true
-ground_Intake_disabled = true
+groundIntake_disabled = true
 
