@@ -9,6 +9,7 @@ public class Robot extends TimedRobot {
 
 
     RobotContainer container;
+    double simKillerCounter;
 
     @Override
     public void robotInit() {
@@ -37,7 +38,12 @@ public class Robot extends TimedRobot {
 
     @Override
     public void simulationPeriodic() {
-            return;
+        if (System.getenv().containsKey("CI")) {
+            if (++simKillerCounter >= 600) {
+                System.exit(0);
+            }
+        }
+        
         }
 
 
