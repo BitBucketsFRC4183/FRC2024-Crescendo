@@ -216,18 +216,13 @@ public class RobotContainer {
         IRotationalController angleMotor;
         IRotationEncoder absoluteEncoder;
 
-        if (DISABLER.shooter_disabled()) {
-            //TODO
-            leftMotor = new DisabledIRotationalMotor();
-            rightMotor = new DisabledIRotationalMotor();
-            angleMotor = new DisabledIRotationalController();
-            absoluteEncoder = new DisabledIRotationEncoder();
-        } else {
+
+
             leftMotor = HardwareREV.rotationalSpark_noPID(SHOOTER_WHEEL_1);
             rightMotor = HardwareREV.rotationalSpark_noPID(SHOOTER_WHEEL_2);
             angleMotor = HardwareREV.rotationalSpark_builtInPID(ANGLE_SHOOTER_MOTOR, ANGLE_PID);
             absoluteEncoder = new ThriftyAbsoluteEncoder(new AnalogInput(SHOOTER.channel()), ABSOLUTE);
-        }
+
 
        return new ShooterSubsystem(
                leftMotor,
