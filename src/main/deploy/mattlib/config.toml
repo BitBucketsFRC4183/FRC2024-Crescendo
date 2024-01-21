@@ -4,10 +4,10 @@ encoderToMechanism = 1
 type = "BRUSHLESS"
 
 [groundintake.top]
-id = 0
+id = 17
 
 [groundintake.bottom]
-id = 0
+id = 9
 
 [groundintake.ffgen_top]
 startDelay_ms = 50
@@ -50,10 +50,10 @@ channel = 0
 dio = 0
 
 [shooter.wheel_1]
-id = 0
+id = 9
 
 [shooter.wheel_2]
-id = 0
+id = 17
 
 [shooter.common]
 encoderToMechanism = 0.0
@@ -166,8 +166,8 @@ camera2Name = "arducam2"
 [disabler]
 vision_disabled = true
 drive_disabled = true
-shooter_disabled = true
+shooter_disabled = false
 odometry_disabled = true
 climber_disabled = true
-groundIntake_disabled = false
+groundIntake_disabled = true
 
