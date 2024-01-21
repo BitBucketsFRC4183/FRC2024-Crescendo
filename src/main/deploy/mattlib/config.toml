@@ -1,20 +1,20 @@
 [groundintake.top]
-id = 17
+id = 15
 rotationsToMeters = 1
 encoderToMechanism = 1
 type = "BRUSHLESS"
 
 [groundintake.bottom]
-id = 9
+id = 13
 rotationsToMeters = 1
 encoderToMechanism = 1
 type = "BRUSHLESS"
 inverted = true
 
 [groundintake.ff_top]
-startDelay_ms = 50
-endVoltage = 0
-rampRate_vPerMs = 0
+startDelay_ms = 500
+endVoltage = 12
+rampRate_vPerMs = 0.001
 
 #[ffgen]
 #startDelay_ms = 500
@@ -22,9 +22,9 @@ rampRate_vPerMs = 0
 #rampRate_vPerMs = 0.0001
 
 [groundintake.ffgen_bottom]
-startDelay_ms = 50
-endVoltage = 0
-rampRate_vPerMs = 0
+startDelay_ms = 500
+endVoltage = 12
+rampRate_vPerMs = 0.001
 
 [groundintake.top_pid]
 p = 0
