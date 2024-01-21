@@ -17,6 +17,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -130,6 +131,7 @@ public class RobotContainer {
     void loadCommands() {
 
 
+        System.out.println("commands are loaded");
         //When driver
         Trigger xGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftX.value, 0.1);
         Trigger yGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.1);
@@ -238,9 +240,12 @@ public class RobotContainer {
 
     }
     OdometrySubsystem loadOdometrySubsystem() {
-        Pigeon2 pigeon2;
 
-        pigeon2 = new Pigeon2(DRIVE.pigeonCanId());
+        if (DISABLER.odometry_disabled()) {
+            return MockingUtil.buddy(OdometrySubsystem.class);
+        }
+        Pigeon2 pigeon2 = new Pigeon2(DRIVE.pigeonCanId());
+
         // TODO implement swappable version per condition (sim, disable, enable)
 
         return new OdometrySubsystem(
@@ -329,6 +334,7 @@ public class RobotContainer {
         SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(GROUNDINTAKE.ff_ks(), GROUNDINTAKE.ff_kv());
 
         if (DISABLER.groundIntake_disabled()) {
+            System.out.println("DISABLED LOL");
             topGroundIntake = HardwareDisabled.linearController_disabled();
             bottomGroundIntake = HardwareDisabled.linearController_disabled();
         } else {
@@ -336,6 +342,7 @@ public class RobotContainer {
             bottomGroundIntake = HardwareREV.linearSpark_builtInPID(BOTTOM_GROUNDINTAKE, BOTTOM_GROUND_PID);
         }
 
+        System.out.println("GROUNDTAKE WORKING");
         return new GroundIntakeSubsystem(
                 topGroundIntake,
                 bottomGroundIntake,
@@ -356,9 +363,8 @@ public class RobotContainer {
     public static final MotorComponent LEFT_CLIMBER = MotorComponent.ofSpecific(CLIMBER_COMMON, LOG.load(IndividualMotorComponent.class, "climber/left"));
     public static final MotorComponent RIGHT_CLIMBER = MotorComponent.ofSpecific(CLIMBER_COMMON, LOG.load(IndividualMotorComponent.class, "climber/right"));
 
-    public static final CommonMotorComponent GROUNDINTAKE_COMMON = LOG.load(CommonMotorComponent.class, "groundintake/common");
-    public static final MotorComponent TOP_GROUNDINTAKE = MotorComponent.ofSpecific(GROUNDINTAKE_COMMON, LOG.load(IndividualMotorComponent.class, "groundintake/top"));
-    public static final MotorComponent BOTTOM_GROUNDINTAKE = MotorComponent.ofSpecific(GROUNDINTAKE_COMMON, LOG.load(IndividualMotorComponent.class, "groundintake/bottom"));
+    public static final MotorComponent TOP_GROUNDINTAKE = LOG.load(MotorComponent.class,"groundintake/top");
+    public static final MotorComponent BOTTOM_GROUNDINTAKE = LOG.load(MotorComponent.class, "groundintake/bottom");
     public static final PIDComponent TOP_GROUND_PID = LOG.load(PIDComponent.class, "groundintake/top_pid");
     public static final PIDComponent BOTTOM_GROUND_PID = LOG.load(PIDComponent.class, "groundintake/bottom_pid");
     public static final FFGenComponent TOP_GROUND_FFGEN = LOG.load(FFGenComponent.class, "groundintake/ff_top");
