@@ -255,7 +255,6 @@ public class RobotContainer {
     }
     VisionSubsystem loadVisionSubsystem() {
 
-
         if(DISABLER.vision_disabled()){
               return MockingUtil.buddy(VisionSubsystem.class);
         } else {
