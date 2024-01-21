@@ -7,11 +7,13 @@ import xyz.auriium.mattlib2.log.annote.Conf;
 import xyz.auriium.mattlib2.log.INetworkedComponent;
 import xyz.auriium.mattlib2.log.annote.Log;
 
-public interface DrivebaseComponent extends INetworkedComponent {
+public interface SwerveComponent extends INetworkedComponent {
 
     @Conf("pigeonId") int pigeonCanId();
-    @Conf("ks") double ff_ks();
-    @Conf("kv") double ff_kv();
+    @Conf("ff_ks") double ff_ks();
+    @Conf("ff_kv") double ff_kv();
+    @Conf("ff_ka") double ff_ka();
+
     @Conf("halfWidth") double halfWidth_meters();
     @Conf("halfBase") double halfBase_meters();
 

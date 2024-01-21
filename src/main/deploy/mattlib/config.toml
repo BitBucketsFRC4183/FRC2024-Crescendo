@@ -18,11 +18,6 @@ startDelay_ms = 0
 endVoltage = 12
 rampRate_vPerMs = 0.001
 
-[ground_intake.ffgen_bottom]
-startDelay_ms = 50
-endVoltage = 0
-rampRate_vPerMs = 0
-
 [ground_intake]
 ff_ks = 0
 ff_kv = 0
@@ -65,8 +60,9 @@ x_holonomic_pid = {p = 0, i = 0, d = 0}
 y_holonomic_pid = {p = 0, i = 0, d = 0}
 t_holonomic_pid = {p = 0, i = 0, d = 0}
 pigeonId = 5
-ks = 0.0
-kv = 0.0
+ff_ks = 0.0
+ff_kv = 0.0
+ff_ka = 0.0
 halfWidth = 0.0
 halfBase = 0.0
 
@@ -99,11 +95,11 @@ mechPerEncoderRotation = 0.0
 type = "BRUSHLESS"
 rotationalInertia = 0.025
 
-
 [swerve.steer_pid_common]
 p = 0
-d = 0
 i = 0
+d = 0
+
 
 # CLIMBER STUFF GOES HERE
 
@@ -134,7 +130,7 @@ camera2Name = "arducam2"
 vision_disabled = true
 drive_disabled = false
 shooter_disabled = true
-odometry_disabled = true
+odometry_disabled = false
 climber_disabled = true
 groundIntake_disabled = true
 

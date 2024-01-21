@@ -5,7 +5,6 @@ import com.choreo.lib.ChoreoTrajectory;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.apriltag.AprilTagDetector;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -17,7 +16,6 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -31,11 +29,9 @@ import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.groundIntake.GroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
 import org.bitbuckets.commands.shooter.*;
+import org.bitbuckets.disabled.DisabledGyro;
 import org.bitbuckets.disabled.DisablerComponent;
-import org.bitbuckets.drive.DriveSubsystem;
-import org.bitbuckets.drive.DrivebaseComponent;
-import org.bitbuckets.drive.OdometrySubsystem;
-import org.bitbuckets.drive.SwerveModule;
+import org.bitbuckets.drive.*;
 import org.bitbuckets.groundIntake.GroundIntakeComponent;
 import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
 import org.bitbuckets.shooter.ShooterComponent;
@@ -46,7 +42,6 @@ import org.bitbuckets.vision.VisionComponent;
 import org.bitbuckets.vision.VisionSubsystem;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.simulation.VisionSystemSim;
 import xyz.auriium.mattlib2.CTowerCommands;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
@@ -59,8 +54,6 @@ import xyz.auriium.mattlib2.sim.HardwareSIM;
 import xyz.auriium.mattlib2.utils.MockingUtil;
 
 import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.util.Optional;
 
 import static xyz.auriium.mattlib2.Mattlib.LOG;
 
@@ -82,8 +75,6 @@ public class RobotContainer {
         Mattlib.LOOPER.runPreInit();
         MattlibSettings.USE_LOGGING = true;
         CommandScheduler.getInstance().enable();
-
-        System.out.println(SWERVE.ff_kv());
 
         this.operatorInput = new OperatorInput();
         this.kinematics = loadKinematics();
@@ -192,7 +183,6 @@ public class RobotContainer {
                 absoluteEncoder = HardwareDisabled.rotationEncoder_disabled();
             }
             else if (Robot.isSimulation()) {
-                System.out.println(DRIVES[i].massMomentInertia().orElse(-1d));
                 driveMotor = HardwareSIM.linearSIM_noPID(DRIVES[i], DCMotor.getNEO(1));
                 steerController = HardwareSIM.rotationalSIM_pid(STEERS[i], PIDS[i], DCMotor.getNEO(1));
                 absoluteEncoder = steerController; //TODO silly hack
@@ -245,8 +235,16 @@ public class RobotContainer {
         if (DISABLER.odometry_disabled()) {
             return MockingUtil.buddy(OdometrySubsystem.class);
         }
-        Pigeon2 pigeon2 = new Pigeon2(SWERVE.pigeonCanId());
 
+        IGyro gyro;
+
+        if (Robot.isSimulation()) {
+            gyro = new DisabledGyro();
+        } else {
+            Pigeon2 pigeon2 = new Pigeon2(SWERVE.pigeonCanId());
+
+            gyro = new Pigeon2Gyro(pigeon2);
+        }
 
         // TODO implement swappable version per condition (sim, disable, enable)
 
@@ -259,7 +257,8 @@ public class RobotContainer {
                         driveSubsystem.currentPositions(),
                         new Pose2d()
                 ),
-                pigeon2
+                gyro,
+                Robot.isSimulation()
         ); //TODO
     }
     VisionSubsystem loadVisionSubsystem() {
@@ -380,7 +379,7 @@ public class RobotContainer {
     public static final MotorComponent ANGLE_SHOOTER_MOTOR = LOG.load(MotorComponent.class,"shooter/angle_motor");
     public static final PIDComponent ANGLE_PID = LOG.load(PIDComponent.class,"shooter/angle/pid");
 
-    public static final DrivebaseComponent SWERVE = LOG.load(DrivebaseComponent.class, "swerve");
+    public static final SwerveComponent SWERVE = LOG.load(SwerveComponent.class, "swerve");
     public static final CommonMotorComponent DRIVE_COMMON = LOG.load(CommonMotorComponent.class, "swerve/drive_common");
     public static final CommonMotorComponent STEER_COMMON = LOG.load(CommonMotorComponent.class, "swerve/steer_common");
     public static final CommonPIDComponent PID_COMMON = LOG.load(CommonPIDComponent.class, "swerve/steer_pid_common");

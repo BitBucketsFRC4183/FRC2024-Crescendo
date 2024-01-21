@@ -83,6 +83,7 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
 
     @Override
     public Optional<ExplainedException> verifyInit() {
+        if (RobotContainer.DISABLER.vision_disabled()) return Optional.empty();
         //frc using 36h11 fam this year
         aprilTagDetector.addFamily("36h11");
 

@@ -39,6 +39,8 @@ public class DefaultDriveCommand extends Command {
                 odometrySubsystem.getGyroAngle()
         );
 
+
+        System.out.println(operatorInput.getDriverLeftStickX());
         driveSubsystem.driveUsingChassisSpeed(robotRelativeSpeeds);
     }
 

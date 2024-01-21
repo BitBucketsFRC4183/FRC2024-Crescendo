@@ -1,6 +1,5 @@
 package org.bitbuckets.drive;
 
-import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.MathSharedStore;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -18,15 +17,16 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
     final DriveSubsystem driveSubsystem;
     final VisionSubsystem visionSubsystem;
     final SwerveDrivePoseEstimator odometry;
-    final Pigeon2 pigeon2;
+    final IGyro gyro;
+    final boolean isSim;
 
 
-
-    public OdometrySubsystem(DriveSubsystem driveSubsystem, VisionSubsystem visionSubsystem, SwerveDrivePoseEstimator odometry, Pigeon2 pigeon2) {
+    public OdometrySubsystem(DriveSubsystem driveSubsystem, VisionSubsystem visionSubsystem, SwerveDrivePoseEstimator odometry, IGyro gyro, boolean isSim) {
         this.driveSubsystem = driveSubsystem;
         this.visionSubsystem = visionSubsystem;
         this.odometry = odometry;
-        this.pigeon2 = pigeon2;
+        this.gyro = gyro;
+        this.isSim = isSim;
 
         mattRegister();
         register();
@@ -36,7 +36,7 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
 
     @Override
     public void periodic() {
-        odometry.update(pigeon2.getRotation2d(),driveSubsystem.currentPositions());
+        odometry.update(gyro.currentRotation(),driveSubsystem.currentPositions());
 
         //VISION
         Optional<Pose3d> visionThinks = visionSubsystem.estimateVisionRobotPose_1();
@@ -57,10 +57,18 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
 
 
    public Rotation2d getGyroAngle() {
-        return pigeon2.getRotation2d();
+        if (isSim) {
+            return odometry.getEstimatedPosition().getRotation();
+        } else {
+            return gyro.currentRotation();
+        }
    }
 
    public Pose2d getCurrentPosition() {
         return odometry.getEstimatedPosition();
+   }
+
+   public void forceOdometryToThinkWeAreAt(Pose3d position) {
+        odometry.resetPosition(gyro.currentRotation(), driveSubsystem.currentPositions(), position.toPose2d());
    }
 }
