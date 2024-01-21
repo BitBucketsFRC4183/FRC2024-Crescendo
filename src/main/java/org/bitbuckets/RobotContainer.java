@@ -46,6 +46,7 @@ import org.bitbuckets.vision.VisionComponent;
 import org.bitbuckets.vision.VisionSubsystem;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.simulation.VisionSystemSim;
 import xyz.auriium.mattlib2.CTowerCommands;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
@@ -60,6 +61,7 @@ import xyz.auriium.mattlib2.utils.MockingUtil;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
+import java.util.Optional;
 
 import static xyz.auriium.mattlib2.Mattlib.LOG;
 
@@ -269,7 +271,7 @@ public class RobotContainer {
 
         AprilTagFieldLayout aprilTagFieldLayout;
         String filepath = Filesystem.getDeployDirectory().getPath() + "/2024-crescendo.json";
-        
+
         // better error catching later ig
         try {
             aprilTagFieldLayout = new AprilTagFieldLayout(filepath);
@@ -287,6 +289,7 @@ public class RobotContainer {
                 robotToCam1
         );
 
+
         Transform3d robotToCam2 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0,0,0));
         PhotonPoseEstimator photonPoseEstimator2 = new PhotonPoseEstimator(
                 aprilTagFieldLayout,
@@ -296,7 +299,12 @@ public class RobotContainer {
 
         );
 
+        photonPoseEstimator1.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
+        photonPoseEstimator2.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
+
+
         return new VisionSubsystem(
+                odometrySubsystem,
                 camera1,
                 camera2,
                 aprilTagFieldLayout,
