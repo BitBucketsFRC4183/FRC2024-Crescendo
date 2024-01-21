@@ -1,4 +1,4 @@
-package org.bitbuckets.util;
+package org.bitbuckets.disabled;
 
 import xyz.auriium.mattlib2.log.INetworkedComponent;
 import xyz.auriium.mattlib2.log.annote.Conf;
