@@ -34,11 +34,12 @@ public class GroundIntakeSubsystem implements Subsystem, IPeriodicLooped {
         bottomMotor.linearVelocity_mechanismMetersPerSecond();
     }
     public void setToVoltage(double voltage) {
+        System.out.println("getting voltage " + voltage);
         topMotor.setToVoltage(voltage);
-        bottomMotor.setToVoltage(voltage); // TODO add inversion to bottom in conf
+        bottomMotor.setToVoltage(-voltage); // TODO add inversion to bottom in conf
     }
 
-    public void setMotorsZero(){
+    public void setMotorsZero() {
         topMotor.setToVoltage(0);
         bottomMotor.setToVoltage(0);
     }

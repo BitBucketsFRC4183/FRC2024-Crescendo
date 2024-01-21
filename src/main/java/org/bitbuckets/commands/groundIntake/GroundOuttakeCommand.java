@@ -23,12 +23,12 @@ public class GroundOuttakeCommand extends Command {
 
     @Override
     public void execute() {
-        groundIntakeSubsystem.setToVoltage(-12); //TODO tune voltage for intake
+        groundIntakeSubsystem.setToVoltage(-6); //TODO tune voltage for intake
     }
 
     @Override
     public void end(boolean interrupted) {
-        super.end(interrupted);
+        groundIntakeSubsystem.setToVoltage(0);
     }
 
     @Override
