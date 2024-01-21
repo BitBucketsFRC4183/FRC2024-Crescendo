@@ -27,12 +27,7 @@ rampRate_vPerMs = 0
 [ground_intake]
 ff_ks = 0
 ff_kv = 0
-
-[ground_intake.pid]
-p = 0
-i = 0
-d = 0
-
+pid = {p = 0, i = 0, d = 0}
 
 [absolute]
 analogChannel = 0
@@ -64,13 +59,17 @@ mechPerEncoderRotation = 0.0
 id = 0
 type = "BRUSHLESS"
 
+# DRIVE STUFF GOES HERE
+
 [swerve]
+x_holonomic_pid = {p = 0, i = 0, d = 0}
+y_holonomic_pid = {p = 0, i = 0, d = 0}
+t_holonomic_pid = {p = 0, i = 0, d = 0}
 pigeonId = 5
 ks = 0.0
 kv = 0.0
 halfWidth = 0.0
 halfBase = 0.0
-
 
 [swerve.steer_fr]
 id = 0
@@ -105,35 +104,18 @@ positionStdv = 0.0
 rotationalInertia = 0.0
 velocityStdv = 0.0
 
-[swerve.t_holonomic_pid]
-p = 0
-d = 0
-i = 0
-
-[swerve.y_holonomic_pid]
-p = 0
-d = 0
-i = 0
 
 [swerve.steer_pid_common]
 p = 0
 d = 0
 i = 0
 
-[swerve.x_holonomic_pid]
-p = 0
-d = 0
-i = 0
+# CLIMBER STUFF GOES HERE
 
 [climber]
-ks = 0.0
-dampener = 0.0
+climber_pid = {p = 0, i = 0, d = 0}
 kv = 0.0
-
-[climber.climber_pid]
-p = 0
-d = 0
-i = 0
+ks = 0.0
 
 [climber.left]
 id = 0
