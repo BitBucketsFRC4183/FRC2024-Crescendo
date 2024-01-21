@@ -192,6 +192,7 @@ public class RobotContainer {
                 absoluteEncoder = HardwareDisabled.rotationEncoder_disabled();
             }
             else if (Robot.isSimulation()) {
+                System.out.println(DRIVES[i].massMomentInertia().orElse(-1d));
                 driveMotor = HardwareSIM.linearSIM_noPID(DRIVES[i], DCMotor.getNEO(1));
                 steerController = HardwareSIM.rotationalSIM_pid(STEERS[i], PIDS[i], DCMotor.getNEO(1));
                 absoluteEncoder = steerController; //TODO silly hack

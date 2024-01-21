@@ -91,17 +91,13 @@ id = 0
 metersPerRotation = 0
 mechPerEncoderRotation = 0
 type = "BRUSHLESS"
-positionStdv = 0.0
 rotationalInertia = 0.0
-velocityStdv = 0.0
 
 [swerve.drive_common]
 metersPerRotation = 0
 mechPerEncoderRotation = 0.0
 type = "BRUSHLESS"
-positionStdv = 0.0
-rotationalInertia = 0.0
-velocityStdv = 0.0
+rotationalInertia = 0.025
 
 
 [swerve.steer_pid_common]
@@ -120,17 +116,13 @@ ff_ks = 0.0
 id = 0
 mechPerEncoderRotation = 0.0
 type = "BRUSHLESS"
-positionStdv = 0.0
 rotationalInertia = 0.0
-velocityStdv = 0.0
 
 [climber.right]
 id = 0
 mechPerEncoderRotation = 0.0
 type = "BRUSHLESS"
-positionStdv = 0.0
 rotationalInertia = 0.0
-velocityStdv = 0.0
 
 [cameras]
 camera1Name = "arducam1"
