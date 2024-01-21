@@ -29,7 +29,7 @@ import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.groundIntake.GroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
 import org.bitbuckets.commands.shooter.*;
-import org.bitbuckets.disabled.DisabledILinearController;
+import org.bitbuckets.disabled.DisabledILinearMotor;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.DrivebaseComponent;
 import org.bitbuckets.drive.OdometrySubsystem;
@@ -212,7 +212,9 @@ public class RobotContainer {
         IRotationEncoder absoluteEncoder;
 
         if (DISABLER.shooter_disabled()) {
-            //TODO
+
+
+
         } else {
             leftMotor = HardwareREV.rotationalSpark_noPID(SHOOTER_WHEEL_1);
             rightMotor = HardwareREV.rotationalSpark_noPID(SHOOTER_WHEEL_2);
@@ -303,8 +305,8 @@ public class RobotContainer {
         ILinearController leftClimber;
         ILinearController rightClimber;
         SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(CLIMBER.ff_ks(), CLIMBER.ff_kv());
+
         if (DISABLER.climber_disabled()) {
-            // TODO
         } else {
             leftClimber = HardwareREV.linearSpark_builtInPID(LEFT_CLIMBER, CLIMBER_PID);
             rightClimber = HardwareREV.linearSpark_builtInPID(RIGHT_CLIMBER, CLIMBER_PID);
