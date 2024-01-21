@@ -307,6 +307,8 @@ public class RobotContainer {
         SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(CLIMBER.ff_ks(), CLIMBER.ff_kv());
 
         if (DISABLER.climber_disabled()) {
+            leftClimber = HardwareDisabled.linearController_disabled();
+            rightClimber = HardwareDisabled.linearController_disabled();
         } else {
             leftClimber = HardwareREV.linearSpark_builtInPID(LEFT_CLIMBER, CLIMBER_PID);
             rightClimber = HardwareREV.linearSpark_builtInPID(RIGHT_CLIMBER, CLIMBER_PID);
