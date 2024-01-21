@@ -1,23 +1,25 @@
-[groundintake.common]
+[groundintake.top]
+id = 17
 rotationsToMeters = 1
 encoderToMechanism = 1
 type = "BRUSHLESS"
 
-[groundintake.top]
-id = 0
-
 [groundintake.bottom]
-id = 0
+id = 9
+rotationsToMeters = 1
+encoderToMechanism = 1
+type = "BRUSHLESS"
+inverted = true
 
-[groundintake.ffgen_top]
+[groundintake.ff_top]
 startDelay_ms = 50
 endVoltage = 0
 rampRate_vPerMs = 0
 
-[ffgen]
-startDelay_ms = 500
-endVoltage = 12
-rampRate_vPerMs = 0.0001
+#[ffgen]
+#startDelay_ms = 500
+#endVoltage = 12
+#rampRate_vPerMs = 0.0001
 
 [groundintake.ffgen_bottom]
 startDelay_ms = 50
@@ -46,8 +48,9 @@ coefficient = 0.0
 absoluteOffset = 0.0
 
 [shooter]
+dio_channel = 0
+deadband = 0.0
 channel = 0
-dio = 0
 
 [shooter.wheel_1]
 id = 0
@@ -70,7 +73,7 @@ id = 0
 type = "BRUSHLESS"
 
 [swerve]
-pigeonId = 0
+pigeonId = 5
 ks = 0.0
 kv = 0.0
 halfWidth = 0.0
