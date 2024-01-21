@@ -1,3 +1,4 @@
+/*
 package org.bitbuckets.util;
 
 import com.revrobotics.RelativeEncoder;
@@ -11,16 +12,13 @@ import xyz.auriium.mattlib2.utils.AngleUtil;
 
 public class ThroughBoreEncoder implements IRotationEncoder {
 
-    RelativeEncoder sparkRelativeEncoder;
     DigitalInput digitalInput;
     EncoderComponent encoderComponent;
 
 
-
-    public ThroughBoreEncoder(RelativeEncoder sparkRelativeEncoder, EncoderComponent encoderComponent) {
-       this.sparkRelativeEncoder = sparkRelativeEncoder;
-       this.encoderComponent = encoderComponent;
-
+    public ThroughBoreEncoder(DigitalInput digitalInput, EncoderComponent encoderComponent) {
+        this.digitalInput = digitalInput;
+        this.encoderComponent = encoderComponent;
     }
 
     @Override
@@ -34,7 +32,7 @@ public class ThroughBoreEncoder implements IRotationEncoder {
 
     @Override
     public double angularPosition_mechanismRotations() {
-        return sparkRelativeEncoder.getPosition();
+        return digitalInput
     }
 
     @Override
@@ -57,3 +55,6 @@ public class ThroughBoreEncoder implements IRotationEncoder {
         throw new UnsupportedOperationException("This encoder is mounted directly on the axis, hence will only read Mechanism rotations and not Encoder Rotations. Please use angularVelocity_mechanismRotationsPerSecond() instead!");
     }
 }
+
+
+ */

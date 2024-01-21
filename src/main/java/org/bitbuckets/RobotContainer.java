@@ -254,54 +254,54 @@ public class RobotContainer {
         ); //TODO
     }
     VisionSubsystem loadVisionSubsystem() {
-        PhotonCamera camera1;
-        PhotonCamera camera2;
+
 
         if(DISABLER.vision_disabled()){
-            camera1 = MockingUtil.buddy(PhotonCamera.class);
-            camera2 = MockingUtil.buddy(PhotonCamera.class);
+              return MockingUtil.buddy(VisionSubsystem.class);
         } else {
+            PhotonCamera camera1;
+            PhotonCamera camera2;
             camera1 = new PhotonCamera(CAMERAS.camera1Name());
             camera2 = new PhotonCamera(CAMERAS.camera2Name());
+
+            AprilTagFieldLayout aprilTagFieldLayout;
+
+            // better error catching later ig
+            try {
+                aprilTagFieldLayout = new AprilTagFieldLayout(AprilTagFields.k2024Crescendo.m_resourceFile);
+            } catch (IOException e) {
+                throw new IllegalStateException(e.getMessage() + " here is why");
+            }
+
+            // USE MATTLIB FOR CONSTANTS HERE IM JUST LAZY TODO
+            Transform3d robotToCam1 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0,0,0));
+            // using multi tag localization
+            PhotonPoseEstimator photonPoseEstimator1 = new PhotonPoseEstimator(
+                    aprilTagFieldLayout,
+                    PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    camera1,
+                    robotToCam1
+            );
+
+            Transform3d robotToCam2 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0,0,0));
+            PhotonPoseEstimator photonPoseEstimator2 = new PhotonPoseEstimator(
+                    aprilTagFieldLayout,
+                    PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    camera2,
+                    robotToCam2
+
+            );
+
+            return new VisionSubsystem(
+                    camera1,
+                    camera2,
+                    aprilTagFieldLayout,
+                    photonPoseEstimator1,
+                    photonPoseEstimator2,
+                    new AprilTagDetector()
+            );
         }
 
-        AprilTagFieldLayout aprilTagFieldLayout;
-
-        // better error catching later ig
-        try {
-            aprilTagFieldLayout = new AprilTagFieldLayout(AprilTagFields.k2024Crescendo.m_resourceFile);
-        } catch (IOException e) {
-            throw new IllegalStateException("something awful happened");
-        }
-
-
-        // USE MATTLIB FOR CONSTANTS HERE IM JUST LAZY TODO
-        Transform3d robotToCam1 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0,0,0));
-        // using multi tag localization
-        PhotonPoseEstimator photonPoseEstimator1 = new PhotonPoseEstimator(
-                aprilTagFieldLayout,
-                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-                camera1,
-                robotToCam1
-                );
-
-        Transform3d robotToCam2 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0,0,0));
-        PhotonPoseEstimator photonPoseEstimator2 = new PhotonPoseEstimator(
-                aprilTagFieldLayout,
-                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-                camera2,
-                robotToCam2
-
-        );
-
-        return new VisionSubsystem(
-                camera1,
-                camera2,
-                aprilTagFieldLayout,
-                photonPoseEstimator1,
-                photonPoseEstimator2,
-                new AprilTagDetector()
-        );
     }
 
     ClimberSubsystem loadClimberSubsystem() {

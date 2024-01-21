@@ -1,5 +1,6 @@
 [groundintake.common]
-encoderToMechanism = 0.0
+rotationsToMeters = 1
+encoderToMechanism = 1
 type = "BRUSHLESS"
 
 [groundintake.top]
@@ -162,10 +163,10 @@ camera1Name = "arducam1"
 camera2Name = "arducam2"
 
 [disabler]
-vision_disabled = false
-drive_disabled = false
-shooter_disabled = false
-odometry_disabled = false
-climber_disabled = false
+vision_disabled = true
+drive_disabled = true
+shooter_disabled = true
+odometry_disabled = true
+climber_disabled = true
 groundIntake_disabled = false
 

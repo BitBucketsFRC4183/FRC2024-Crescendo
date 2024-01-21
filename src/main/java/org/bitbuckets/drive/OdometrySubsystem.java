@@ -37,7 +37,7 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
 
     @Override
     public void periodic() {
-        odometry.update(null,driveSubsystem.currentPositions());
+        odometry.update(pigeon2.getRotation2d(),driveSubsystem.currentPositions());
 
         //VISION
         Optional<Pose3d> visionThinks = visionSubsystem.estimateVisionRobotPose_1();
