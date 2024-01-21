@@ -50,14 +50,14 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
 
 
 
-        // make separate vision sim interface because this shit is confusing
+        // make separate vision sim interface because this shit is confusing if i have time
 
         if (Robot.isSimulation()) {
             this.visionSystemSim = new VisionSystemSim("main");
             visionSystemSim.addAprilTags(layout);
 
             SimCameraProperties cameraProp = new SimCameraProperties();
-            cameraProp.setCalibration(640, 480, new Rotation2d(100));
+            cameraProp.setCalibration(1280, 800, new Rotation2d(100));
             // Approximate detection noise with average and standard deviation error in pixels.
             cameraProp.setCalibError(0.25, 0.08);
             // Set the camera image capture frame rate (Note: this is limited by robot loop rate).
@@ -66,12 +66,19 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
             cameraProp.setAvgLatencyMs(35);
             cameraProp.setLatencyStdDevMs(5);
 
-            PhotonCameraSim cameraSim = new PhotonCameraSim(camera_1, cameraProp);
-            visionSystemSim.addCamera(cameraSim,new Transform3d(0, 0, 0,
+            PhotonCameraSim camera1Sim = new PhotonCameraSim(camera_1, cameraProp);
+            PhotonCameraSim camera2Sim = new PhotonCameraSim(camera_2, cameraProp);
+
+            visionSystemSim.addCamera(camera1Sim,new Transform3d(0, 0, 0,
                                                 new Rotation3d(0, 0, 0)));
 
-            cameraSim.enableDrawWireframe(true);
-            cameraSim.enableProcessedStream(true);
+            visionSystemSim.addCamera(camera2Sim,new Transform3d(0, 0, 0,
+                    new Rotation3d(0, 0, 0)));
+
+            camera1Sim.enableDrawWireframe(true);
+            camera1Sim.enableProcessedStream(true);
+            camera2Sim.enableDrawWireframe(true);
+            camera2Sim.enableProcessedStream(true);
 
 
         } else this.visionSystemSim = null;

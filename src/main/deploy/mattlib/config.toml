@@ -14,9 +14,9 @@ type = "BRUSHLESS"
 inverted = true
 
 [ground_intake.ff_top]
-startDelay_ms = 0
+startDelay_ms = 1000
 endVoltage = 12
-rampRate_vPerMs = 0.001
+rampRate_vPerMs = 0.0008
 
 [ground_intake]
 ff_ks = 0
@@ -94,6 +94,7 @@ metersPerRotation = 0
 mechPerEncoderRotation = 0.0
 type = "BRUSHLESS"
 rotationalInertia = 0.025
+inverted = true
 
 [swerve.steer_pid_common]
 p = 0
