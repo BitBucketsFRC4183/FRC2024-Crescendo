@@ -185,8 +185,8 @@ public class RobotContainer {
 
             if (DISABLER.drive_disabled()) {
                 driveMotor = HardwareDisabled.linearMotor_disabled();
-                steerController = HardwareDisabled.();
-                absoluteEncoder = new DisabledIRotationEncoder();
+                steerController = HardwareDisabled.rotationalController_disabled();
+                absoluteEncoder = HardwareDisabled.rotationEncoder_disabled();
             }
             else if (Robot.isSimulation()) {
                 driveMotor = HardwareSIM.linearSIM_noPID(DRIVES[i], DRIVE_SIM, DCMotor.getNEO(1));
