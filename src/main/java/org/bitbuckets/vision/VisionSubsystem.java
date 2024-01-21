@@ -29,18 +29,15 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
 
     final PhotonCamera camera_1;
     final PhotonCamera camera_2;
-    final AprilTagFieldLayout layout;
+    public final AprilTagFieldLayout layout;
     final PhotonPoseEstimator estimator1;
     final PhotonPoseEstimator estimator2;
     final AprilTagDetector aprilTagDetector;
 
-    final VisionSystemSim visionSystemSim;
-    final OdometrySubsystem odometrySubsystem;
-    public VisionSubsystem(OdometrySubsystem odometrySubsystem, PhotonCamera camera_1, PhotonCamera camera_2, AprilTagFieldLayout layout,
+    public VisionSubsystem(PhotonCamera camera_1, PhotonCamera camera_2, AprilTagFieldLayout layout,
                            PhotonPoseEstimator estimator1, PhotonPoseEstimator estimator2,
                            AprilTagDetector aprilTagDetector) {
 
-        this.odometrySubsystem = odometrySubsystem;
         this.camera_1 = camera_1;
         this.camera_2 = camera_2;
         this.layout = layout;
@@ -48,77 +45,19 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         this.estimator2 = estimator2;
         this.aprilTagDetector = aprilTagDetector;
 
-
-
-        // make separate vision sim interface because this shit is confusing if i have time
-
-        if (Robot.isSimulation()) {
-            this.visionSystemSim = new VisionSystemSim("main");
-            visionSystemSim.addAprilTags(layout);
-
-            SimCameraProperties cameraProp = new SimCameraProperties();
-            cameraProp.setCalibration(1280, 800, new Rotation2d(100));
-            // Approximate detection noise with average and standard deviation error in pixels.
-            cameraProp.setCalibError(0.25, 0.08);
-            // Set the camera image capture frame rate (Note: this is limited by robot loop rate).
-            cameraProp.setFPS(20);
-            // The average and standard deviation in milliseconds of image data latency.
-            cameraProp.setAvgLatencyMs(35);
-            cameraProp.setLatencyStdDevMs(5);
-
-            PhotonCameraSim camera1Sim = new PhotonCameraSim(camera_1, cameraProp);
-            PhotonCameraSim camera2Sim = new PhotonCameraSim(camera_2, cameraProp);
-
-            visionSystemSim.addCamera(camera1Sim,new Transform3d(0, 0, 0,
-                                                new Rotation3d(0, 0, 0)));
-
-            visionSystemSim.addCamera(camera2Sim,new Transform3d(0, 0, 0,
-                    new Rotation3d(0, 0, 0)));
-
-            camera1Sim.enableDrawWireframe(true);
-            camera1Sim.enableProcessedStream(true);
-            camera2Sim.enableDrawWireframe(true);
-            camera2Sim.enableProcessedStream(true);
-
-
-        } else this.visionSystemSim = null;
-
-
         register();
         mattRegister();
     }
 
     @Override
     public Optional<ExplainedException> verifyInit() {
-        if (RobotContainer.DISABLER.vision_disabled()) return Optional.empty();
+        // if (RobotContainer.DISABLER.vision_disabled()) return Optional.empty();
         //frc using 36h11 fam this year
-        aprilTagDetector.addFamily("36h11");
+        // aprilTagDetector.addFamily("36h11");
 
         return Optional.empty();
     }
 
-    @Override
-    public void simulationPeriodic() {
-        // visionSystemSim.update(odometrySubsystem.getCurrentPosition());
-        visionSystemSim.update(new Pose2d(0, 0, new Rotation2d(0)));
-        Field2d debugField = visionSystemSim.getDebugField();
-        // debugField.getObject("EstimatedRobot").setPose(odometrySubsystem.getCurrentPosition());
-        debugField.getObject("EstimatedRobot").setPose(new Pose2d(0, 0, new Rotation2d(0)));
-
-//        Pose2d[] modulePoses = new Pose2d[swerveMods.length];
-//        Pose2d swervePose = odometrySubsystem.getCurrentPosition();
-//        for (int i = 0; i < swerveMods.length; i++) {
-//            SwerveModule module = swerveMods[i];
-//            SwerveModulePosition modPosition = module.getPosition();
-//            modulePoses[i] = swervePose.transformBy(new Transform2d(
-//                                            modPosition.distanceMeters, modPosition.angle));
-//        }
-//        return modulePoses;
-
-        // debugField.getObject("EstimatedRobotModules").setPoses();
-
-
-    }
 
     //BASIC INFORMATION GATHERING FROM CAMERAS
     public Optional<Pose3d> estimateBestVisionTarget_1() {
@@ -195,6 +134,14 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         Pose3d result = new Pose3d(translation, rotation);
 
         return Optional.of(result);
+    }
+
+    public PhotonCamera[] getCameras() {
+        PhotonCamera[] cameras = new PhotonCamera[2];
+        cameras[0] = camera_1;
+        cameras[1] = camera_2;
+
+        return cameras;
     }
 
 }

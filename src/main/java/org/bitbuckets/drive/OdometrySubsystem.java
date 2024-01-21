@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import org.bitbuckets.Robot;
 import org.bitbuckets.RobotContainer;
 import org.bitbuckets.vision.VisionSubsystem;
 import xyz.auriium.mattlib2.IPeriodicLooped;
@@ -18,15 +19,13 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
     final VisionSubsystem visionSubsystem;
     final SwerveDrivePoseEstimator odometry;
     final IGyro gyro;
-    final boolean isSim;
 
 
-    public OdometrySubsystem(DriveSubsystem driveSubsystem, VisionSubsystem visionSubsystem, SwerveDrivePoseEstimator odometry, IGyro gyro, boolean isSim) {
+    public OdometrySubsystem(DriveSubsystem driveSubsystem, VisionSubsystem visionSubsystem, SwerveDrivePoseEstimator odometry, IGyro gyro) {
         this.driveSubsystem = driveSubsystem;
         this.visionSubsystem = visionSubsystem;
         this.odometry = odometry;
         this.gyro = gyro;
-        this.isSim = isSim;
 
         mattRegister();
         register();
@@ -36,14 +35,17 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
 
     @Override
     public void periodic() {
+
         odometry.update(gyro.currentRotation(),driveSubsystem.currentPositions());
 
-        //VISION
-        Optional<Pose3d> visionThinks = visionSubsystem.estimateVisionRobotPose_1();
-        if (visionThinks.isPresent()) {
-            Pose2d maybeAPose = visionThinks.get().toPose2d();
+        if (Robot.isReal()) {
+            //VISION
+            Optional<Pose3d> visionThinks = visionSubsystem.estimateVisionRobotPose_1();
+            if (visionThinks.isPresent()) {
+                Pose2d maybeAPose = visionThinks.get().toPose2d();
 
-            odometry.addVisionMeasurement(maybeAPose, MathSharedStore.getTimestamp());
+                odometry.addVisionMeasurement(maybeAPose, MathSharedStore.getTimestamp());
+            }
         }
 
 
@@ -57,7 +59,7 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
 
 
    public Rotation2d getGyroAngle() {
-        if (isSim) {
+        if (Robot.isSimulation()) {
             return odometry.getEstimatedPosition().getRotation();
         } else {
             return gyro.currentRotation();
