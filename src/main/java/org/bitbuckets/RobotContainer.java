@@ -29,6 +29,7 @@ import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.groundIntake.GroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
 import org.bitbuckets.commands.shooter.*;
+import org.bitbuckets.disabled.DisabledILinearController;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.DrivebaseComponent;
 import org.bitbuckets.drive.OdometrySubsystem;
@@ -37,10 +38,7 @@ import org.bitbuckets.groundIntake.GroundIntakeComponent;
 import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
 import org.bitbuckets.shooter.ShooterComponent;
 import org.bitbuckets.shooter.ShooterSubsystem;
-import org.bitbuckets.util.DisablerComponent;
-import org.bitbuckets.util.EncoderComponent;
-import org.bitbuckets.util.ThriftyAbsoluteEncoder;
-import org.bitbuckets.util.Util;
+import org.bitbuckets.util.*;
 import org.bitbuckets.vision.CamerasComponent;
 import org.bitbuckets.vision.VisionComponent;
 import org.bitbuckets.vision.VisionSubsystem;
@@ -327,13 +325,14 @@ public class RobotContainer {
         SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(GROUNDINTAKE.ff_ks(), GROUNDINTAKE.ff_kv());
 
         if (DISABLER.groundIntake_disabled()) {
-            // TODO
+            leftGroundIntake = HardwareDisabled.linearController_disabled();
+            rightGroundIntake = HardwareDisabled.linearController_disabled();
         } else {
             leftGroundIntake = HardwareREV.linearSpark_builtInPID(TOP_GROUNDINTAKE, TOP_GROUND_PID);
             rightGroundIntake = HardwareREV.linearSpark_builtInPID(BOTTOM_GROUNDINTAKE, BOTTOM_GROUND_PID);
         }
 
-        return new ClimberSubsystem(
+        return new GroundIntakeSubsystem(
                 leftGroundIntake,
                 rightGroundIntake,
                 feedForward
