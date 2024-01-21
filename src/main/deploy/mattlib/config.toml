@@ -1,46 +1,38 @@
-[groundintake.top]
+# Base Robot Stuff
+
+[ground_intake.top]
 id = 17
-rotationsToMeters = 1
-encoderToMechanism = 1
+metersPerRotation = 1
+mechPerEncoderRotation = 1
 type = "BRUSHLESS"
 
-[groundintake.bottom]
+[ground_intake.bottom]
 id = 9
-rotationsToMeters = 1
-encoderToMechanism = 1
+metersPerRotation = 1
+mechPerEncoderRotation = 1
 type = "BRUSHLESS"
 inverted = true
 
-[groundintake.ff_top]
+[ground_intake.ff_top]
+startDelay_ms = 0
+endVoltage = 12
+rampRate_vPerMs = 0.001
+
+[ground_intake.ffgen_bottom]
 startDelay_ms = 50
 endVoltage = 0
 rampRate_vPerMs = 0
 
-#[ffgen]
-#startDelay_ms = 500
-#endVoltage = 12
-#rampRate_vPerMs = 0.0001
 
-[groundintake.ffgen_bottom]
-startDelay_ms = 50
-endVoltage = 0
-rampRate_vPerMs = 0
-
-[groundintake.top_pid]
-p = 0
-i = 0
-d = 0
-
-[groundintake.bottom_pid]
-p = 0
-i = 0
-d = 0
-
-[groundintake]
-top_gear_ratio = 0
-bottom_gear_ratio = 0
+[ground_intake]
 ff_ks = 0
 ff_kv = 0
+
+[ground_intake.pid]
+p = 0
+i = 0
+d = 0
+
 
 [absolute]
 analogChannel = 0
@@ -59,7 +51,7 @@ id = 0
 id = 0
 
 [shooter.common]
-encoderToMechanism = 0.0
+mechPerEncoderRotation = 0.0
 type = "BRUSHLESS"
 
 [shooter.angle.pid]
@@ -68,7 +60,7 @@ d = 0
 i = 0
 
 [shooter.angle_motor]
-encoderToMechanism = 0.0
+mechPerEncoderRotation = 0.0
 id = 0
 type = "BRUSHLESS"
 
@@ -79,57 +71,49 @@ kv = 0.0
 halfWidth = 0.0
 halfBase = 0.0
 
-[swerve.steer_bl]
-id = 0
-
-[swerve.steer_sim]
-stdv_pos = 0.0
-rotational_inertia = 0.0
-stdv_vel = 0.0
 
 [swerve.steer_fr]
 id = 0
-
-[swerve.steer_common]
-encoderToMechanism = 0.0
-type = "BRUSHLESS"
-
-[swerve.drive_sim]
-stdv_pos = 0.0
-rotational_inertia = 0.0
-stdv_vel = 0.0
-
+[swerve.steer_fl]
+id = 0
 [swerve.steer_br]
 id = 0
-
+[swerve.steer_bl]
+id = 0
+[swerve.drive_fr]
+id = 0
+[swerve.drive_fl]
+id = 0
+[swerve.drive_br]
+id = 0
 [swerve.drive_bl]
 id = 0
 
-[swerve.drive_common]
-encoderToMechanism = 0.0
+[swerve.steer_common]
+metersPerRotation = 0
+mechPerEncoderRotation = 0
 type = "BRUSHLESS"
+positionStdv = 0.0
+rotationalInertia = 0.0
+velocityStdv = 0.0
 
-[swerve.steer_fl]
-id = 0
-
-[swerve.drive_fl]
-id = 0
+[swerve.drive_common]
+metersPerRotation = 0
+mechPerEncoderRotation = 0.0
+type = "BRUSHLESS"
+positionStdv = 0.0
+rotationalInertia = 0.0
+velocityStdv = 0.0
 
 [swerve.t_holonomic_pid]
 p = 0
 d = 0
 i = 0
 
-[swerve.drive_br]
-id = 0
-
 [swerve.y_holonomic_pid]
 p = 0
 d = 0
 i = 0
-
-[swerve.drive_fr]
-id = 0
 
 [swerve.steer_pid_common]
 p = 0
@@ -146,11 +130,6 @@ ks = 0.0
 dampener = 0.0
 kv = 0.0
 
-[climber.common]
-encoderToMechanism = 0.0
-type = "BRUSHLESS"
-
-
 [climber.climber_pid]
 p = 0
 d = 0
@@ -158,19 +137,31 @@ i = 0
 
 [climber.left]
 id = 0
+mechPerEncoderRotation = 0.0
+type = "BRUSHLESS"
+positionStdv = 0.0
+rotationalInertia = 0.0
+velocityStdv = 0.0
 
 [climber.right]
 id = 0
+mechPerEncoderRotation = 0.0
+type = "BRUSHLESS"
+positionStdv = 0.0
+rotationalInertia = 0.0
+velocityStdv = 0.0
 
 [cameras]
 camera1Name = "arducam1"
 camera2Name = "arducam2"
 
+# Disabler
+
 [disabler]
 vision_disabled = true
-drive_disabled = true
+drive_disabled = false
 shooter_disabled = true
 odometry_disabled = true
 climber_disabled = true
-groundIntake_disabled = false
+ground_Intake_disabled = true
 

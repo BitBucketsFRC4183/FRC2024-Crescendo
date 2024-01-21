@@ -1,3 +1,7 @@
 [swerve]
 ks = 0.65292
 kv = 2.3053
+
+[swerve.drive_common]
+metersPerRotation = 0.31519599093 # diameter of mk4i L2s * pi
+mechPerEncoderRotation = 0.14823529411 #

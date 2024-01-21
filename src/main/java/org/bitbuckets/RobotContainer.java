@@ -16,7 +16,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -54,7 +53,6 @@ import xyz.auriium.mattlib2.hardware.*;
 import xyz.auriium.mattlib2.hardware.config.*;
 import xyz.auriium.mattlib2.rev.HardwareREV;
 import xyz.auriium.mattlib2.sim.HardwareSIM;
-import xyz.auriium.mattlib2.sim.SimComponent;
 import xyz.auriium.mattlib2.utils.MockingUtil;
 
 import java.io.IOException;
@@ -75,15 +73,12 @@ public class RobotContainer {
 
 
     public RobotContainer() {
-
+        //THIS HAS TO RUN FIRST
+        Mattlib.LOOPER.runPreInit();
+        MattlibSettings.USE_LOGGING = true;
         CommandScheduler.getInstance().enable();
 
-        //mattlib stuff
-        Mattlib.LOOPER.runPreInit();
-        Mattlib.LOOPER.runPostInit();
-        MattlibSettings.USE_LOGGING = true;
-
-        System.out.println(DRIVE.ff_kv());
+        System.out.println(SWERVE.ff_kv());
 
         this.operatorInput = new OperatorInput();
         this.kinematics = loadKinematics();
@@ -95,6 +90,9 @@ public class RobotContainer {
         this.groundIntakeSubsystem = loadGroundIntakeSubsystem();
 
         loadCommands();
+
+        //THIS HAS TO RUN AT THE END
+        Mattlib.LOOPER.runPostInit();
     }
 
 
@@ -129,7 +127,6 @@ public class RobotContainer {
     void loadCommands() {
 
 
-        System.out.println("commands are loaded");
         //When driver
         Trigger xGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftX.value, 0.1);
         Trigger yGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.1);
@@ -164,16 +161,16 @@ public class RobotContainer {
 
     SwerveDriveKinematics loadKinematics() {
         return new SwerveDriveKinematics(
-                new Translation2d(DRIVE.halfWidth_meters(), DRIVE.halfBase_meters()), // FL
-                new Translation2d(DRIVE.halfWidth_meters(), -DRIVE.halfBase_meters()), // FR
-                new Translation2d(-DRIVE.halfWidth_meters(), DRIVE.halfBase_meters()), // BL
-                new Translation2d(-DRIVE.halfWidth_meters(), -DRIVE.halfBase_meters()) // BR
+                new Translation2d(SWERVE.halfWidth_meters(), SWERVE.halfBase_meters()), // FL
+                new Translation2d(SWERVE.halfWidth_meters(), -SWERVE.halfBase_meters()), // FR
+                new Translation2d(-SWERVE.halfWidth_meters(), SWERVE.halfBase_meters()), // BL
+                new Translation2d(-SWERVE.halfWidth_meters(), -SWERVE.halfBase_meters()) // BR
         );
     }
 
     DriveSubsystem loadDriveSubsystem() {
         SwerveModule[] modules = loadSwerveModules();
-        SimpleMotorFeedforward ff = new SimpleMotorFeedforward(DRIVE.ff_ks(), DRIVE.ff_kv());
+        SimpleMotorFeedforward ff = new SimpleMotorFeedforward(SWERVE.ff_ks(), SWERVE.ff_kv());
         return new DriveSubsystem(modules,kinematics,ff);
     }
 
@@ -190,8 +187,8 @@ public class RobotContainer {
                 absoluteEncoder = HardwareDisabled.rotationEncoder_disabled();
             }
             else if (Robot.isSimulation()) {
-                driveMotor = HardwareSIM.linearSIM_noPID(DRIVES[i], DRIVE_SIM, DCMotor.getNEO(1));
-                steerController = HardwareSIM.rotationalSIM_pid(STEERS[i], STEER_SIM, PIDS[i], DCMotor.getNEO(1));
+                driveMotor = HardwareSIM.linearSIM_noPID(DRIVES[i], DCMotor.getNEO(1));
+                steerController = HardwareSIM.rotationalSIM_pid(STEERS[i], PIDS[i], DCMotor.getNEO(1));
                 absoluteEncoder = steerController; //TODO silly hack
             } else {
                 driveMotor = HardwareREV.linearSpark_noPID(DRIVES[i]);
@@ -242,7 +239,8 @@ public class RobotContainer {
         if (DISABLER.odometry_disabled()) {
             return MockingUtil.buddy(OdometrySubsystem.class);
         }
-        Pigeon2 pigeon2 = new Pigeon2(DRIVE.pigeonCanId());
+        Pigeon2 pigeon2 = new Pigeon2(SWERVE.pigeonCanId());
+
 
         // TODO implement swappable version per condition (sim, disable, enable)
 
@@ -333,18 +331,16 @@ public class RobotContainer {
     GroundIntakeSubsystem loadGroundIntakeSubsystem() {
         ILinearController topGroundIntake;
         ILinearController bottomGroundIntake;
-        SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(GROUNDINTAKE.ff_ks(), GROUNDINTAKE.ff_kv());
+        SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(GROUND_INTAKE.ff_ks(), GROUND_INTAKE.ff_kv());
 
         if (DISABLER.groundIntake_disabled()) {
-            System.out.println("DISABLED LOL");
             topGroundIntake = HardwareDisabled.linearController_disabled();
             bottomGroundIntake = HardwareDisabled.linearController_disabled();
         } else {
-            topGroundIntake = HardwareREV.linearSpark_builtInPID(TOP_GROUNDINTAKE, TOP_GROUND_PID);
-            bottomGroundIntake = HardwareREV.linearSpark_builtInPID(BOTTOM_GROUNDINTAKE, BOTTOM_GROUND_PID);
+            topGroundIntake = HardwareREV.linearSpark_builtInPID(GROUND_INTAKE_TOP, GROUND_INTAKE_PID);
+            bottomGroundIntake = HardwareREV.linearSpark_builtInPID(GROUND_INTAKE_BOTTOM, GROUND_INTAKE_PID);
         }
 
-        System.out.println("GROUNDTAKE WORKING");
         return new GroundIntakeSubsystem(
                 topGroundIntake,
                 bottomGroundIntake,
@@ -361,34 +357,28 @@ public class RobotContainer {
 
     public static final ClimberComponent CLIMBER = LOG.load(ClimberComponent.class, "climber");
     public static final PIDComponent CLIMBER_PID = LOG.load(PIDComponent.class, "climber/climber_pid");
-    public static final CommonMotorComponent CLIMBER_COMMON = LOG.load(CommonMotorComponent.class, "climber/common");
-    public static final MotorComponent LEFT_CLIMBER = MotorComponent.ofSpecific(CLIMBER_COMMON, LOG.load(IndividualMotorComponent.class, "climber/left"));
-    public static final MotorComponent RIGHT_CLIMBER = MotorComponent.ofSpecific(CLIMBER_COMMON, LOG.load(IndividualMotorComponent.class, "climber/right"));
+    public static final MotorComponent LEFT_CLIMBER = LOG.load(MotorComponent.class, "climber/left");
+    public static final MotorComponent RIGHT_CLIMBER = LOG.load(MotorComponent.class, "climber/right");
 
-    public static final MotorComponent TOP_GROUNDINTAKE = LOG.load(MotorComponent.class,"groundintake/top");
-    public static final MotorComponent BOTTOM_GROUNDINTAKE = LOG.load(MotorComponent.class, "groundintake/bottom");
-    public static final PIDComponent TOP_GROUND_PID = LOG.load(PIDComponent.class, "groundintake/top_pid");
-    public static final PIDComponent BOTTOM_GROUND_PID = LOG.load(PIDComponent.class, "groundintake/bottom_pid");
-    public static final FFGenComponent TOP_GROUND_FFGEN = LOG.load(FFGenComponent.class, "groundintake/ff_top");
-    // public static final FFGenComponent BOTTOM_GROUND_FFGEN = LOG.load(FFGenComponent.class, "groundintake/ffgen_bottom");
-    public static final GroundIntakeComponent GROUNDINTAKE = LOG.load(GroundIntakeComponent.class, "groundintake");
+    public static final GroundIntakeComponent GROUND_INTAKE = LOG.load(GroundIntakeComponent.class, "ground_intake");
+    public static final MotorComponent GROUND_INTAKE_TOP = LOG.load(MotorComponent.class,"ground_intake/top");
+    public static final MotorComponent GROUND_INTAKE_BOTTOM = LOG.load(MotorComponent.class, "ground_intake/bottom");
+    public static final PIDComponent GROUND_INTAKE_PID = LOG.load(PIDComponent.class, "ground_intake/pid");
+    public static final FFGenComponent TOP_GROUND_FFGEN = LOG.load(FFGenComponent.class, "ground_intake/ff_top");
+
     public static final ShooterComponent SHOOTER = LOG.load(ShooterComponent.class, "shooter");
-    public static final CommonMotorComponent SHOOTER_COMMON = LOG.load(CommonMotorComponent.class, "shooter/common");
-    public static final MotorComponent SHOOTER_WHEEL_1 = MotorComponent.ofSpecific(SHOOTER_COMMON, LOG.load(IndividualMotorComponent.class, "shooter/wheel_1"));
-    public static final MotorComponent SHOOTER_WHEEL_2 = MotorComponent.ofSpecific(SHOOTER_COMMON, LOG.load(IndividualMotorComponent.class, "shooter/wheel_2"));
+    public static final MotorComponent SHOOTER_WHEEL_1 = LOG.load(MotorComponent.class, "shooter/wheel_1");
+    public static final MotorComponent SHOOTER_WHEEL_2 = LOG.load(MotorComponent.class, "shooter/wheel_2");
     public static final MotorComponent ANGLE_SHOOTER_MOTOR = LOG.load(MotorComponent.class,"shooter/angle_motor");
     public static final PIDComponent ANGLE_PID = LOG.load(PIDComponent.class,"shooter/angle/pid");
 
-    public static final DrivebaseComponent DRIVE = LOG.load(DrivebaseComponent.class, "swerve");
+    public static final DrivebaseComponent SWERVE = LOG.load(DrivebaseComponent.class, "swerve");
     public static final CommonMotorComponent DRIVE_COMMON = LOG.load(CommonMotorComponent.class, "swerve/drive_common");
     public static final CommonMotorComponent STEER_COMMON = LOG.load(CommonMotorComponent.class, "swerve/steer_common");
     public static final CommonPIDComponent PID_COMMON = LOG.load(CommonPIDComponent.class, "swerve/steer_pid_common");
     public static final MotorComponent[] DRIVES = MotorComponent.ofRange(DRIVE_COMMON, LOG.loadRange(IndividualMotorComponent.class, "swerve/drive", 4, Util.RENAMER));
     public static final MotorComponent[] STEERS = MotorComponent.ofRange(STEER_COMMON, LOG.loadRange(IndividualMotorComponent.class, "swerve/steer", 4, Util.RENAMER));
     public static final PIDComponent[] PIDS = PIDComponent.ofRange(PID_COMMON, LOG.loadRange(IndividualPIDComponent.class, "swerve/pid", 4, Util.RENAMER));
-
-    public static final SimComponent DRIVE_SIM = LOG.load(SimComponent.class, "swerve/drive_sim");
-    public static final SimComponent STEER_SIM = LOG.load(SimComponent.class, "swerve/steer_sim");
 
     public static final PIDComponent DRIVE_X_PID = LOG.load(PIDComponent.class, "swerve/x_holonomic_pid");
     public static final PIDComponent DRIVE_Y_PID = LOG.load(PIDComponent.class, "swerve/y_holonomic_pid");

@@ -29,8 +29,8 @@ public class DefaultDriveCommand extends Command {
     @Override
     public void execute() {
         ChassisSpeeds fieldRelativeSpeeds = new ChassisSpeeds(
-                3*operatorInput.getDriverLeftStickX(),
-                3*operatorInput.getDriverLeftStickY(),
+                3d*operatorInput.getDriverLeftStickX(),
+                3d*operatorInput.getDriverLeftStickY(),
                 operatorInput.getDriverRightStickX()
         );
 
