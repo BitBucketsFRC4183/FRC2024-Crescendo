@@ -29,7 +29,8 @@ import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.groundIntake.GroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
 import org.bitbuckets.commands.shooter.*;
-import org.bitbuckets.disabled.DisabledILinearController;
+import org.bitbuckets.disabled.DisabledIRotationEncoder;
+import org.bitbuckets.disabled.DisabledILinearMotor;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.DrivebaseComponent;
 import org.bitbuckets.drive.OdometrySubsystem;
@@ -183,7 +184,9 @@ public class RobotContainer {
             IRotationEncoder absoluteEncoder;
 
             if (DISABLER.drive_disabled()) {
-                //TODO;
+                driveMotor = HardwareDisabled.linearMotor_disabled();
+                steerController = HardwareDisabled.rotationalController_disabled();
+                absoluteEncoder = HardwareDisabled.rotationEncoder_disabled();
             }
             else if (Robot.isSimulation()) {
                 driveMotor = HardwareSIM.linearSIM_noPID(DRIVES[i], DRIVE_SIM, DCMotor.getNEO(1));
