@@ -30,6 +30,7 @@ import org.bitbuckets.commands.groundIntake.GroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
 import org.bitbuckets.commands.shooter.*;
 import org.bitbuckets.disabled.DisabledIRotationEncoder;
+import org.bitbuckets.disabled.DisabledILinearMotor;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.DrivebaseComponent;
 import org.bitbuckets.drive.OdometrySubsystem;
@@ -306,7 +307,8 @@ public class RobotContainer {
         ILinearController rightClimber;
         SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(CLIMBER.ff_ks(), CLIMBER.ff_kv());
         if (DISABLER.climber_disabled()) {
-            // TODO
+            leftClimber = HardwareDisabled.linearController_disabled();
+            rightClimber = HardwareDisabled.linearController_disabled();
         } else {
             leftClimber = HardwareREV.linearSpark_builtInPID(LEFT_CLIMBER, CLIMBER_PID);
             rightClimber = HardwareREV.linearSpark_builtInPID(RIGHT_CLIMBER, CLIMBER_PID);
@@ -327,13 +329,14 @@ public class RobotContainer {
         SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(GROUNDINTAKE.ff_ks(), GROUNDINTAKE.ff_kv());
 
         if (DISABLER.groundIntake_disabled()) {
-            // TODO
+            leftGroundIntake = HardwareDisabled.linearController_disabled();
+            rightGroundIntake = HardwareDisabled.linearController_disabled();
         } else {
             leftGroundIntake = HardwareREV.linearSpark_builtInPID(TOP_GROUNDINTAKE, TOP_GROUND_PID);
             rightGroundIntake = HardwareREV.linearSpark_builtInPID(BOTTOM_GROUNDINTAKE, BOTTOM_GROUND_PID);
         }
 
-        return new ClimberSubsystem(
+        return new GroundIntakeSubsystem(
                 leftGroundIntake,
                 rightGroundIntake,
                 feedForward
