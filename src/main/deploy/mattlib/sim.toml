@@ -20,3 +20,32 @@ rotationalInertia = 0.002 #ngl i forgot
 p = 30
 i = 0
 d = 0.1
+[absolute]
+analogChannel = 0
+coefficient = 0.0
+absoluteOffset = 0.0
+
+[shooter]
+dio_channel = 0
+deadband = 0.0
+channel = 0
+
+[shooter.wheel_1]
+id = 0
+
+[shooter.wheel_2]
+id = 0
+
+[shooter.common]
+mechPerEncoderRotation = 0.0
+
+[shooter.angle.pid]
+p = 0
+d = 0
+i = 0
+
+[shooter.angle_motor]
+mechPerEncoderRotation = 0.0
+id = 0
+
+

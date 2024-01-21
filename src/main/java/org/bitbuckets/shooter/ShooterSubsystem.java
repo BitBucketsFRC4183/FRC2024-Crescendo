@@ -3,7 +3,6 @@ package org.bitbuckets.shooter;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.simulation.DIOSim;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.util.EncoderComponent;
 import xyz.auriium.mattlib2.IPeriodicLooped;
