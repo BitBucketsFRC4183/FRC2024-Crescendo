@@ -47,6 +47,7 @@ absoluteOffset = 0.0
 
 [shooter]
 channel = 0
+dio = 0
 
 [shooter.wheel_1]
 id = 0
