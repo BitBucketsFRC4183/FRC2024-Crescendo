@@ -7,6 +7,7 @@ public interface ShooterComponent extends INetworkedComponent {
 
    @Conf("channel") int channel();
    @Conf("deadband") double deadband_mechanismRotations();
+   @Conf("dio_channel") int dio();
 
 
 }
