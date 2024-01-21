@@ -1,13 +1,7 @@
 package org.bitbuckets.util;
 
-import org.bitbuckets.disabled.DisabledILinearController;
-import org.bitbuckets.disabled.DisabledILinearMotor;
-import org.bitbuckets.disabled.DisabledIRotationEncoder;
-import org.bitbuckets.disabled.DisabledIRotationalMotor;
-import xyz.auriium.mattlib2.hardware.ILinearController;
-import xyz.auriium.mattlib2.hardware.ILinearMotor;
-import xyz.auriium.mattlib2.hardware.IRotationEncoder;
-import xyz.auriium.mattlib2.hardware.IRotationalMotor;
+import org.bitbuckets.disabled.*;
+import xyz.auriium.mattlib2.hardware.*;
 
 public class HardwareDisabled {
 
@@ -25,6 +19,9 @@ public class HardwareDisabled {
 
     public static ILinearController linearController_disabled() {
         return new DisabledILinearController();
+    }
+
+    public static IRotationalController rotationalController_disabled() {return new DisabledIRotationalController();
     }
 
 }
