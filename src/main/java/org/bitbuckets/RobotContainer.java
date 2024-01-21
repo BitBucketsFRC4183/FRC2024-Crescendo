@@ -43,6 +43,7 @@ import org.bitbuckets.util.ThriftyAbsoluteEncoder;
 import org.bitbuckets.util.Util;
 import org.bitbuckets.vision.CamerasComponent;
 import org.bitbuckets.vision.VisionComponent;
+import org.bitbuckets.vision.VisionSimContainer;
 import org.bitbuckets.vision.VisionSubsystem;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -69,6 +70,7 @@ public class RobotContainer {
     public final ShooterSubsystem shooterSubsystem;
     public final OdometrySubsystem odometrySubsystem;
     public final VisionSubsystem visionSubsystem;
+    public final VisionSimContainer visionSimContainer;
     public final ClimberSubsystem climberSubsystem;
     public final GroundIntakeSubsystem groundIntakeSubsystem;
     public final SwerveDriveKinematics kinematics;
@@ -80,14 +82,21 @@ public class RobotContainer {
         MattlibSettings.USE_LOGGING = true;
         CommandScheduler.getInstance().enable();
 
+        // load order matters!!!!!
         this.operatorInput = new OperatorInput();
         this.kinematics = loadKinematics();
         this.driveSubsystem = loadDriveSubsystem();
-        this.shooterSubsystem = loadShooterSubsystem();
         this.visionSubsystem = loadVisionSubsystem();
         this.odometrySubsystem = loadOdometrySubsystem();
+        this.shooterSubsystem = loadShooterSubsystem();
         this.climberSubsystem = loadClimberSubsystem();
         this.groundIntakeSubsystem = loadGroundIntakeSubsystem();
+
+        if (!DISABLER.vision_disabled() && Robot.isSimulation()) {
+            PhotonCamera[] cameras = visionSubsystem.getCameras();
+            this.visionSimContainer = new VisionSimContainer(visionSubsystem, odometrySubsystem,
+                                                            cameras[0], cameras[1], visionSubsystem.layout);
+        } else this.visionSimContainer = null;
 
         loadCommands();
 
@@ -95,6 +104,9 @@ public class RobotContainer {
         Mattlib.LOOPER.runPostInit();
     }
 
+    public void simulationPeriodic() {
+        this.visionSimContainer.simulationPeriodic();
+    }
 
 
     public void autonomousInit() {
@@ -245,13 +257,9 @@ public class RobotContainer {
     }
     OdometrySubsystem loadOdometrySubsystem() {
 
-        if (DISABLER.odometry_disabled()) {
-            return MockingUtil.buddy(OdometrySubsystem.class);
-        }
-
         IGyro gyro;
 
-        if (Robot.isSimulation()) {
+        if (Robot.isSimulation() || DISABLER.odometry_disabled()) {
             gyro = new DisabledGyro();
         } else {
             Pigeon2 pigeon2 = new Pigeon2(SWERVE.pigeonCanId());
@@ -270,8 +278,7 @@ public class RobotContainer {
                         driveSubsystem.currentPositions(),
                         new Pose2d()
                 ),
-                gyro,
-                Robot.isSimulation()
+                gyro
         ); //TODO
     }
     VisionSubsystem loadVisionSubsystem() {
@@ -316,7 +323,6 @@ public class RobotContainer {
 
 
         return new VisionSubsystem(
-                odometrySubsystem,
                 camera1,
                 camera2,
                 aprilTagFieldLayout,

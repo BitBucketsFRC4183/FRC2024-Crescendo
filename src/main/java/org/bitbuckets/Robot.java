@@ -46,7 +46,9 @@ public class Robot extends TimedRobot {
                 System.exit(0);
             }
         }
-        }
+        container.simulationPeriodic();
+
+    }
 
 
 }
