@@ -29,8 +29,6 @@ import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.groundIntake.GroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
 import org.bitbuckets.commands.shooter.*;
-import org.bitbuckets.disabled.DisabledIRotationEncoder;
-import org.bitbuckets.disabled.DisabledILinearMotor;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.DrivebaseComponent;
 import org.bitbuckets.drive.OdometrySubsystem;
@@ -255,15 +253,15 @@ public class RobotContainer {
         ); //TODO
     }
     VisionSubsystem loadVisionSubsystem() {
+        PhotonCamera camera1;
+        PhotonCamera camera2;
 
-        //TODO SWAPPABLE VERSION
-        PhotonCamera camera1 = new PhotonCamera(CAMERAS.camera1Name());
-        if(DISABLER.vision_disabled()) {
-            camera1 = MockingUtil.buddy(PhotonCamera.class);
-        }
-        PhotonCamera camera2 = new PhotonCamera(CAMERAS.camera2Name());
         if(DISABLER.vision_disabled()){
+            camera1 = MockingUtil.buddy(PhotonCamera.class);
             camera2 = MockingUtil.buddy(PhotonCamera.class);
+        } else {
+            camera1 = new PhotonCamera(CAMERAS.camera1Name());
+            camera2 = new PhotonCamera(CAMERAS.camera2Name());
         }
 
         AprilTagFieldLayout aprilTagFieldLayout;
@@ -327,21 +325,21 @@ public class RobotContainer {
 
 
     GroundIntakeSubsystem loadGroundIntakeSubsystem() {
-        ILinearController leftGroundIntake;
-        ILinearController rightGroundIntake;
+        ILinearController topGroundIntake;
+        ILinearController bottomGroundIntake;
         SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(GROUNDINTAKE.ff_ks(), GROUNDINTAKE.ff_kv());
 
         if (DISABLER.groundIntake_disabled()) {
-            leftGroundIntake = HardwareDisabled.linearController_disabled();
-            rightGroundIntake = HardwareDisabled.linearController_disabled();
+            topGroundIntake = HardwareDisabled.linearController_disabled();
+            bottomGroundIntake = HardwareDisabled.linearController_disabled();
         } else {
-            leftGroundIntake = HardwareREV.linearSpark_builtInPID(TOP_GROUNDINTAKE, TOP_GROUND_PID);
-            rightGroundIntake = HardwareREV.linearSpark_builtInPID(BOTTOM_GROUNDINTAKE, BOTTOM_GROUND_PID);
+            topGroundIntake = HardwareREV.linearSpark_builtInPID(TOP_GROUNDINTAKE, TOP_GROUND_PID);
+            bottomGroundIntake = HardwareREV.linearSpark_builtInPID(BOTTOM_GROUNDINTAKE, BOTTOM_GROUND_PID);
         }
 
         return new GroundIntakeSubsystem(
-                leftGroundIntake,
-                rightGroundIntake,
+                topGroundIntake,
+                bottomGroundIntake,
                 feedForward
         );
     }
@@ -365,7 +363,7 @@ public class RobotContainer {
     public static final PIDComponent TOP_GROUND_PID = LOG.load(PIDComponent.class, "groundintake/top_pid");
     public static final PIDComponent BOTTOM_GROUND_PID = LOG.load(PIDComponent.class, "groundintake/bottom_pid");
     public static final FFGenComponent TOP_GROUND_FFGEN = LOG.load(FFGenComponent.class, "groundintake/ff_top");
-    public static final FFGenComponent BOTTOM_GROUND_FFGEN = LOG.load(FFGenComponent.class, "groundintake/ffgen_bottom");
+    // public static final FFGenComponent BOTTOM_GROUND_FFGEN = LOG.load(FFGenComponent.class, "groundintake/ffgen_bottom");
     public static final GroundIntakeComponent GROUNDINTAKE = LOG.load(GroundIntakeComponent.class, "groundintake");
     public static final ShooterComponent SHOOTER = LOG.load(ShooterComponent.class, "shooter");
     public static final CommonMotorComponent SHOOTER_COMMON = LOG.load(CommonMotorComponent.class, "shooter/common");
