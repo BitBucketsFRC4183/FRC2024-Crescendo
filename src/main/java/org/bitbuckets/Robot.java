@@ -42,11 +42,10 @@ public class Robot extends TimedRobot {
     @Override
     public void simulationPeriodic() {
         if (System.getenv().containsKey("CI")) {
-            if (++simKillerCounter >= 600) {
+            if (++simKillerCounter >= 300) {
                 System.exit(0);
             }
         }
-        
         }
 
 

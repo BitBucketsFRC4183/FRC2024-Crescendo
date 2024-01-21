@@ -4,15 +4,21 @@ import edu.wpi.first.apriltag.AprilTagDetector;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.Robot;
 import org.bitbuckets.RobotContainer;
+import org.bitbuckets.drive.DriveSubsystem;
+import org.bitbuckets.drive.OdometrySubsystem;
+import org.bitbuckets.drive.SwerveModule;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.simulation.PhotonCameraSim;
+import org.photonvision.simulation.SimCameraProperties;
+import org.photonvision.simulation.VisionSystemSim;
 import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.yuukonstants.exception.ExplainedException;
 
@@ -28,13 +34,48 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
     final PhotonPoseEstimator estimator2;
     final AprilTagDetector aprilTagDetector;
 
-    public VisionSubsystem(PhotonCamera camera_1, PhotonCamera camera_2, AprilTagFieldLayout layout, PhotonPoseEstimator estimator1, PhotonPoseEstimator estimator2, AprilTagDetector aprilTagDetector) {
+    final VisionSystemSim visionSystemSim;
+    final OdometrySubsystem odometrySubsystem;
+    public VisionSubsystem(OdometrySubsystem odometrySubsystem, PhotonCamera camera_1, PhotonCamera camera_2, AprilTagFieldLayout layout,
+                           PhotonPoseEstimator estimator1, PhotonPoseEstimator estimator2,
+                           AprilTagDetector aprilTagDetector) {
+
+        this.odometrySubsystem = odometrySubsystem;
         this.camera_1 = camera_1;
         this.camera_2 = camera_2;
         this.layout = layout;
         this.estimator1 = estimator1;
         this.estimator2 = estimator2;
         this.aprilTagDetector = aprilTagDetector;
+
+
+
+        // make separate vision sim interface because this shit is confusing
+
+        if (Robot.isSimulation()) {
+            this.visionSystemSim = new VisionSystemSim("main");
+            visionSystemSim.addAprilTags(layout);
+
+            SimCameraProperties cameraProp = new SimCameraProperties();
+            cameraProp.setCalibration(640, 480, new Rotation2d(100));
+            // Approximate detection noise with average and standard deviation error in pixels.
+            cameraProp.setCalibError(0.25, 0.08);
+            // Set the camera image capture frame rate (Note: this is limited by robot loop rate).
+            cameraProp.setFPS(20);
+            // The average and standard deviation in milliseconds of image data latency.
+            cameraProp.setAvgLatencyMs(35);
+            cameraProp.setLatencyStdDevMs(5);
+
+            PhotonCameraSim cameraSim = new PhotonCameraSim(camera_1, cameraProp);
+            visionSystemSim.addCamera(cameraSim,new Transform3d(0, 0, 0,
+                                                new Rotation3d(0, 0, 0)));
+
+            cameraSim.enableDrawWireframe(true);
+            cameraSim.enableProcessedStream(true);
+
+
+        } else this.visionSystemSim = null;
+
 
         register();
         mattRegister();
@@ -50,6 +91,24 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
 
     @Override
     public void simulationPeriodic() {
+        // visionSystemSim.update(odometrySubsystem.getCurrentPosition());
+        visionSystemSim.update(new Pose2d(0, 0, new Rotation2d(0)));
+        Field2d debugField = visionSystemSim.getDebugField();
+        // debugField.getObject("EstimatedRobot").setPose(odometrySubsystem.getCurrentPosition());
+        debugField.getObject("EstimatedRobot").setPose(new Pose2d(0, 0, new Rotation2d(0)));
+
+//        Pose2d[] modulePoses = new Pose2d[swerveMods.length];
+//        Pose2d swervePose = odometrySubsystem.getCurrentPosition();
+//        for (int i = 0; i < swerveMods.length; i++) {
+//            SwerveModule module = swerveMods[i];
+//            SwerveModulePosition modPosition = module.getPosition();
+//            modulePoses[i] = swervePose.transformBy(new Transform2d(
+//                                            modPosition.distanceMeters, modPosition.angle));
+//        }
+//        return modulePoses;
+
+        // debugField.getObject("EstimatedRobotModules").setPoses();
+
 
     }
 

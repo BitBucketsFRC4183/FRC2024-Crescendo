@@ -16,6 +16,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -44,6 +46,7 @@ import org.bitbuckets.vision.VisionComponent;
 import org.bitbuckets.vision.VisionSubsystem;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.simulation.VisionSystemSim;
 import xyz.auriium.mattlib2.CTowerCommands;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
@@ -56,6 +59,8 @@ import xyz.auriium.mattlib2.sim.HardwareSIM;
 import xyz.auriium.mattlib2.utils.MockingUtil;
 
 import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.util.Optional;
 
 import static xyz.auriium.mattlib2.Mattlib.LOG;
 
@@ -258,52 +263,54 @@ public class RobotContainer {
     }
     VisionSubsystem loadVisionSubsystem() {
 
+        PhotonCamera camera1;
+        PhotonCamera camera2;
+        camera1 = new PhotonCamera(CAMERAS.camera1Name());
+        camera2 = new PhotonCamera(CAMERAS.camera2Name());
 
-        if(DISABLER.vision_disabled()){
-              return MockingUtil.buddy(VisionSubsystem.class);
-        } else {
-            PhotonCamera camera1;
-            PhotonCamera camera2;
-            camera1 = new PhotonCamera(CAMERAS.camera1Name());
-            camera2 = new PhotonCamera(CAMERAS.camera2Name());
+        AprilTagFieldLayout aprilTagFieldLayout;
+        String filepath = Filesystem.getDeployDirectory().getPath() + "/2024-crescendo.json";
 
-            AprilTagFieldLayout aprilTagFieldLayout;
-
-            // better error catching later ig
-            try {
-                aprilTagFieldLayout = new AprilTagFieldLayout(AprilTagFields.k2024Crescendo.m_resourceFile);
-            } catch (IOException e) {
-                throw new IllegalStateException(e.getMessage() + " here is why");
-            }
-
-            // USE MATTLIB FOR CONSTANTS HERE IM JUST LAZY TODO
-            Transform3d robotToCam1 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0,0,0));
-            // using multi tag localization
-            PhotonPoseEstimator photonPoseEstimator1 = new PhotonPoseEstimator(
-                    aprilTagFieldLayout,
-                    PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-                    camera1,
-                    robotToCam1
-            );
-
-            Transform3d robotToCam2 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0,0,0));
-            PhotonPoseEstimator photonPoseEstimator2 = new PhotonPoseEstimator(
-                    aprilTagFieldLayout,
-                    PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-                    camera2,
-                    robotToCam2
-
-            );
-
-            return new VisionSubsystem(
-                    camera1,
-                    camera2,
-                    aprilTagFieldLayout,
-                    photonPoseEstimator1,
-                    photonPoseEstimator2,
-                    new AprilTagDetector()
-            );
+        // better error catching later ig
+        try {
+            aprilTagFieldLayout = new AprilTagFieldLayout(filepath);
+        } catch (IOException e) {
+            throw new IllegalStateException(e.getMessage() + " here is why");
         }
+
+        // USE MATTLIB FOR CONSTANTS HERE IM JUST LAZY TODO
+        Transform3d robotToCam1 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0,0,0));
+        // using multi tag localization
+        PhotonPoseEstimator photonPoseEstimator1 = new PhotonPoseEstimator(
+                aprilTagFieldLayout,
+                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                camera1,
+                robotToCam1
+        );
+
+
+        Transform3d robotToCam2 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0,0,0));
+        PhotonPoseEstimator photonPoseEstimator2 = new PhotonPoseEstimator(
+                aprilTagFieldLayout,
+                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                camera2,
+                robotToCam2
+
+        );
+
+        photonPoseEstimator1.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
+        photonPoseEstimator2.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
+
+
+        return new VisionSubsystem(
+                odometrySubsystem,
+                camera1,
+                camera2,
+                aprilTagFieldLayout,
+                photonPoseEstimator1,
+                photonPoseEstimator2,
+                new AprilTagDetector()
+        );
 
     }
 
