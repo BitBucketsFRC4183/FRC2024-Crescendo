@@ -29,6 +29,9 @@ import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.groundIntake.GroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
 import org.bitbuckets.commands.shooter.*;
+import org.bitbuckets.disabled.DisabledIRotationEncoder;
+import org.bitbuckets.disabled.DisabledIRotationalController;
+import org.bitbuckets.disabled.DisabledIRotationalMotor;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.DrivebaseComponent;
 import org.bitbuckets.drive.OdometrySubsystem;
@@ -215,6 +218,10 @@ public class RobotContainer {
 
         if (DISABLER.shooter_disabled()) {
             //TODO
+            leftMotor = new DisabledIRotationalMotor();
+            rightMotor = new DisabledIRotationalMotor();
+            angleMotor = new DisabledIRotationalController();
+            absoluteEncoder = new DisabledIRotationEncoder();
         } else {
             leftMotor = HardwareREV.rotationalSpark_noPID(SHOOTER_WHEEL_1);
             rightMotor = HardwareREV.rotationalSpark_noPID(SHOOTER_WHEEL_2);
