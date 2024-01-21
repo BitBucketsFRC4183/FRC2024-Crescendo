@@ -94,6 +94,7 @@ metersPerRotation = 0
 mechPerEncoderRotation = 0.0
 type = "BRUSHLESS"
 rotationalInertia = 0.025
+inverted = true
 
 [swerve.steer_pid_common]
 p = 0
