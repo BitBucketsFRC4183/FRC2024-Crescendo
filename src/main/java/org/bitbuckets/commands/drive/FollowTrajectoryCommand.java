@@ -46,10 +46,12 @@ public class FollowTrajectoryCommand extends Command {
         double Y_error = holoController.getYController().getPositionError();
         double theta_error = holoController.getThetaController().getPositionError();
 
-        if ((X_error < 0.1 && X_error > -0.1) && (Y_error < 0.1 && Y_error > -0.1) && (theta_error < 5 && theta_error > -5)) {
+        double errorBound = 0.1;
+
+        if ((X_error < errorBound && X_error > -errorBound) && (Y_error < errorBound && Y_error > -errorBound) && (theta_error < 10 && theta_error > -10)) {
             speeds = new ChassisSpeeds(0, 0, 0);
         }
-        ChassisSpeeds speedWithFeedback = new ChassisSpeeds(sample.x + speeds.vxMetersPerSecond, sample.y + speeds.vyMetersPerSecond , sample.angularVelocity + speeds.omegaRadiansPerSecond);
+        ChassisSpeeds speedWithFeedback = new ChassisSpeeds(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond , 0);
 
         driveSubsystem.driveUsingChassisSpeed(speedWithFeedback);
     }
@@ -57,16 +59,20 @@ public class FollowTrajectoryCommand extends Command {
     @Override
     public boolean isFinished() {
         //exit trajectory if it takes too long
-        if (curTime_seconds > TIMEOUT){
-            return true;
-        }
+
+//        if (curTime_seconds > TIMEOUT){
+//            System.out.println("this");
+//            return true;
+//        }
 
         Pose2d desiredPoseAtTheEndOfTheTrajectory = trajectory.getFinalPose();
         Pose2d currentPose = odometrySubsystem.getCurrentPosition();
-        boolean xCorrect = Math.abs(currentPose.getX() - desiredPoseAtTheEndOfTheTrajectory.getX()) > 0.2;
-        boolean yCorrect = Math.abs(currentPose.getY() - desiredPoseAtTheEndOfTheTrajectory.getY()) > 0.2;
-        boolean rotationCorrect = Math.abs(currentPose.getRotation().getRotations() - desiredPoseAtTheEndOfTheTrajectory.getRotation().getRotations()) > 0.014;
+        boolean xCorrect = Math.abs(currentPose.getX() - desiredPoseAtTheEndOfTheTrajectory.getX()) < 0.2;
+        boolean yCorrect = Math.abs(currentPose.getY() - desiredPoseAtTheEndOfTheTrajectory.getY()) < 0.2;
+        boolean rotationCorrect = Math.abs(currentPose.getRotation().getRotations() - desiredPoseAtTheEndOfTheTrajectory.getRotation().getRotations()) < 0.014;
+
         return xCorrect && yCorrect && rotationCorrect;
+
 
     }
 

@@ -119,11 +119,13 @@ public class RobotContainer {
                         new TrapezoidProfile.Constraints(1,2)) //TODO
         );
 
-        new SequentialCommandGroup(
+        /*new SequentialCommandGroup(
                 new SetSpeakerShootingAngleCommand(shooterSubsystem),
                 new ShootNoteCommand(shooterSubsystem),
                 new FollowTrajectoryCommand(trajectory, driveSubsystem, odometrySubsystem, holonomicDriveController)
-        ).schedule();
+        ).schedule();*/
+
+        new SequentialCommandGroup(new FollowTrajectoryCommand(trajectory, driveSubsystem, odometrySubsystem, holonomicDriveController)).schedule();
 
     }
 
