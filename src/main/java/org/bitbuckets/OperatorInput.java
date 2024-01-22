@@ -14,6 +14,8 @@ import java.util.Optional;
  * This class holds all of our operator triggers
  */
 public class OperatorInput {
+    // axis 0 and axis 1 correspond to up and down
+    // axis 4 correspond to rot
 
     final CommandXboxController operatorControl = new CommandXboxController(1);
     final CommandXboxController driver = new CommandXboxController(0);
@@ -104,6 +106,13 @@ public class OperatorInput {
     }
 
     public double getDriverRightStickX() {
+        return driver.getRightX();
+    }
+
+    public double getdriverRightStickY() {
+        return driver.getRightY();
+    }
+    public double getdriverRightStickX() {
         return driver.getRightX();
     }
     public double getOperatorLeftStickY(){return deadband(operatorControl.getRawAxis(XboxController.Axis.kLeftY.value));}

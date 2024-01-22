@@ -5,6 +5,8 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.Robot;
 import org.bitbuckets.RobotContainer;
@@ -19,14 +21,17 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
     final VisionSubsystem visionSubsystem;
     final SwerveDrivePoseEstimator odometry;
     final IGyro gyro;
+    final SwerveDriveKinematics kinematics;
+    SwerveModulePosition[] lastPositions;
 
-
-    public OdometrySubsystem(DriveSubsystem driveSubsystem, VisionSubsystem visionSubsystem, SwerveDrivePoseEstimator odometry, IGyro gyro) {
+    public OdometrySubsystem(DriveSubsystem driveSubsystem, VisionSubsystem visionSubsystem, SwerveDrivePoseEstimator odometry, IGyro gyro, SwerveDriveKinematics kinematics) {
         this.driveSubsystem = driveSubsystem;
         this.visionSubsystem = visionSubsystem;
+        this.kinematics = kinematics;
         this.odometry = odometry;
         this.gyro = gyro;
 
+        lastPositions = driveSubsystem.currentPositions();
         mattRegister();
         register();
     }
@@ -35,8 +40,7 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
 
     @Override
     public void periodic() {
-
-        odometry.update(gyro.currentRotation(),driveSubsystem.currentPositions());
+        odometry.update(getGyroAngle(),driveSubsystem.currentPositions());
 
         if (Robot.isReal()) {
             //VISION
@@ -57,10 +61,30 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
         RobotContainer.SWERVE.logPosition(odometry.getEstimatedPosition());
     }
 
+    Rotation2d lastAngle_fieldRelative = Rotation2d.fromDegrees(0);
 
+
+    static SwerveModulePosition[] delta(SwerveModulePosition[] now, SwerveModulePosition[] last) {
+        SwerveModulePosition[] positions = new SwerveModulePosition[now.length];
+        for (int i = 0; i < now.length; i++) {
+            positions[i] = new SwerveModulePosition(now[i].distanceMeters - last[i].distanceMeters, now[i].angle);
+        }
+
+        return positions;
+    }
    public Rotation2d getGyroAngle() {
         if (Robot.isSimulation()) {
-            return odometry.getEstimatedPosition().getRotation();
+            SwerveModulePosition[] currentPositions = driveSubsystem.currentPositions();
+            SwerveModulePosition[] deltaPositions = delta(currentPositions, lastPositions);
+
+            Rotation2d dTheta = new Rotation2d(kinematics.toTwist2d(deltaPositions).dtheta);
+
+            lastAngle_fieldRelative = lastAngle_fieldRelative.plus(dTheta);
+            lastPositions = currentPositions;
+
+
+
+            return lastAngle_fieldRelative;
         } else {
             return gyro.currentRotation();
         }

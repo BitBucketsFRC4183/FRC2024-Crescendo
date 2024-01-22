@@ -29,10 +29,11 @@ public class DefaultDriveCommand extends Command {
     @Override
     public void execute() {
         ChassisSpeeds fieldRelativeSpeeds = new ChassisSpeeds(
-                3d*operatorInput.getDriverLeftStickX(),
                 3d*operatorInput.getDriverLeftStickY(),
+                3d*operatorInput.getDriverLeftStickX(),
                 operatorInput.getDriverRightStickX()
         );
+
 
         ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 fieldRelativeSpeeds,

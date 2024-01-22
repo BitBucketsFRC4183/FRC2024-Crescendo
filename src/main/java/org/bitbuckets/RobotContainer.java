@@ -119,11 +119,13 @@ public class RobotContainer {
                         new TrapezoidProfile.Constraints(1,2)) //TODO
         );
 
-        new SequentialCommandGroup(
+        /*new SequentialCommandGroup(
                 new SetSpeakerShootingAngleCommand(shooterSubsystem),
                 new ShootNoteCommand(shooterSubsystem),
                 new FollowTrajectoryCommand(trajectory, driveSubsystem, odometrySubsystem, holonomicDriveController)
-        ).schedule();
+        ).schedule();*/
+
+        new SequentialCommandGroup(new FollowTrajectoryCommand(trajectory, driveSubsystem, odometrySubsystem, holonomicDriveController)).schedule();
 
     }
 
@@ -201,7 +203,7 @@ public class RobotContainer {
             else if (Robot.isSimulation()) {
                 driveMotor = HardwareSIM.linearSIM_noPID(DRIVES[i], DCMotor.getNEO(1));
                 steerController = HardwareSIM.rotationalSIM_pid(STEERS[i], PIDS[i], DCMotor.getNEO(1));
-                absoluteEncoder = steerController; //TODO silly hack
+                absoluteEncoder = steerController; //TODO silly hack wtf this is not a hack i have spent two hours on this and i have not found a solution
             } else {
                 driveMotor = HardwareREV.linearSpark_noPID(DRIVES[i]);
                 steerController = HardwareREV.rotationalSpark_builtInPID(STEERS[i], PIDS[i]);
@@ -278,7 +280,8 @@ public class RobotContainer {
                         driveSubsystem.currentPositions(),
                         new Pose2d()
                 ),
-                gyro
+                gyro,
+                kinematics
         ); //TODO
     }
     VisionSubsystem loadVisionSubsystem() {

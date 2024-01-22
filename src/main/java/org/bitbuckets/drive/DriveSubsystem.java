@@ -43,7 +43,6 @@ public class DriveSubsystem implements Subsystem, IPeriodicLooped {
      */
     public void driveUsingChassisSpeed(ChassisSpeeds speeds) {
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
-
         driveUsingSwerveStates(states);
     }
 
