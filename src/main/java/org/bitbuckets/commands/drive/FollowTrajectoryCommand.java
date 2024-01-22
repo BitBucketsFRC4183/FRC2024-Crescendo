@@ -34,6 +34,7 @@ public class FollowTrajectoryCommand extends Command {
     public void execute() {
         curTime_seconds += 0.02;
         ChoreoTrajectoryState sample = trajectory.sample(curTime_seconds);
+        System.out.println(sample.getPose());
         ChassisSpeeds speeds = holoController.calculate(
                 odometrySubsystem.getCurrentPosition(),
                 sample.getPose(),
@@ -45,19 +46,25 @@ public class FollowTrajectoryCommand extends Command {
         double X_error = holoController.getXController().getPositionError();
         double Y_error = holoController.getYController().getPositionError();
         double theta_error = holoController.getThetaController().getPositionError();
+        System.out.println(X_error + " " + Y_error);
 
         double errorBound = 0.1;
 
-        if ((X_error < errorBound && X_error > -errorBound) && (Y_error < errorBound && Y_error > -errorBound) && (theta_error < 10 && theta_error > -10)) {
-            speeds = new ChassisSpeeds(0, 0, 0);
-        }
-        ChassisSpeeds speedWithFeedback = new ChassisSpeeds(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond , 0);
+         if ((X_error < errorBound && X_error > -errorBound) && (Y_error < errorBound && Y_error > -errorBound) && (theta_error < 10 && theta_error > -10)) {
+             speeds = new ChassisSpeeds(0, 0, 0);
+         }
+
+        ChassisSpeeds speedWithFeedback = new ChassisSpeeds(sample.getChassisSpeeds().vxMetersPerSecond,
+                                            sample.getChassisSpeeds().vyMetersPerSecond ,
+                sample.angularVelocity);
+
 
         driveSubsystem.driveUsingChassisSpeed(speedWithFeedback);
     }
 
     @Override
     public boolean isFinished() {
+
         //exit trajectory if it takes too long
 
         if (curTime_seconds > TIMEOUT){

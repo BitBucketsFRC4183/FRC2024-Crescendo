@@ -111,7 +111,7 @@ public class RobotContainer {
 
     public void autonomousInit() {
 
-        ChoreoTrajectory trajectory = Choreo.getTrajectory("MVPTaxi");
+        ChoreoTrajectory trajectory = Choreo.getTrajectory("sixPointAutoTraj");
         HolonomicDriveController holonomicDriveController = new HolonomicDriveController(
                 new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant()),
                 new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant()),
