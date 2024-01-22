@@ -278,7 +278,8 @@ public class RobotContainer {
                         driveSubsystem.currentPositions(),
                         new Pose2d()
                 ),
-                gyro
+                gyro,
+                kinematics
         ); //TODO
     }
     VisionSubsystem loadVisionSubsystem() {
