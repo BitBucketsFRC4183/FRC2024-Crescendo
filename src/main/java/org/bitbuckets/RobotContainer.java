@@ -201,7 +201,7 @@ public class RobotContainer {
             else if (Robot.isSimulation()) {
                 driveMotor = HardwareSIM.linearSIM_noPID(DRIVES[i], DCMotor.getNEO(1));
                 steerController = HardwareSIM.rotationalSIM_pid(STEERS[i], PIDS[i], DCMotor.getNEO(1));
-                absoluteEncoder = steerController; //TODO silly hack
+                absoluteEncoder = steerController; //TODO silly hack wtf this is not a hack i have spent two hours on this and i have not found a solution
             } else {
                 driveMotor = HardwareREV.linearSpark_noPID(DRIVES[i]);
                 steerController = HardwareREV.rotationalSpark_builtInPID(STEERS[i], PIDS[i]);

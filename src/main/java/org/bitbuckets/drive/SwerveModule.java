@@ -90,6 +90,7 @@ public class SwerveModule implements IPeriodicLooped {
                 referenceAngle_normalizedMechanismRotations
         );
 
+        
         driveMotor.setToVoltage(driveVoltage);
     }
 

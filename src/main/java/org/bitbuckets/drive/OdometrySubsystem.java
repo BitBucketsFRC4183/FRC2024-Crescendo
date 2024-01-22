@@ -35,8 +35,7 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
 
     @Override
     public void periodic() {
-
-        odometry.update(gyro.currentRotation(),driveSubsystem.currentPositions());
+        odometry.update(getGyroAngle(),driveSubsystem.currentPositions());
 
         if (Robot.isReal()) {
             //VISION

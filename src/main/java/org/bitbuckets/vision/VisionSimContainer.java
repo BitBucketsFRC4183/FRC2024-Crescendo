@@ -28,7 +28,7 @@ public class VisionSimContainer {
         visionSystemSim.addAprilTags(layout);
 
         SimCameraProperties cameraProp = new SimCameraProperties();
-        cameraProp.setCalibration(1280, 800, new Rotation2d(100));
+        cameraProp.setCalibration(1280, 800, Rotation2d.fromDegrees(100));
         // Approximate detection noise with average and standard deviation error in pixels.
         cameraProp.setCalibError(0.25, 0.08);
         // Set the camera image capture frame rate (Note: this is limited by robot loop rate).
@@ -53,7 +53,6 @@ public class VisionSimContainer {
     }
 
     public void simulationPeriodic() {
-        System.out.println(odometrySubsystem.getCurrentPosition());
         visionSystemSim.update(odometrySubsystem.getCurrentPosition());
         // visionSystemSim.update(new Pose2d(0, 0, new Rotation2d(0)));
         // Field2d debugField = visionSystemSim.getDebugField();
