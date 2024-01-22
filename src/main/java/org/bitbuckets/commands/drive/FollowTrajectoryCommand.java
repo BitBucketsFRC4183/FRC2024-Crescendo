@@ -60,10 +60,9 @@ public class FollowTrajectoryCommand extends Command {
     public boolean isFinished() {
         //exit trajectory if it takes too long
 
-//        if (curTime_seconds > TIMEOUT){
-//            System.out.println("this");
-//            return true;
-//        }
+        if (curTime_seconds > TIMEOUT){
+            return true;
+        }
 
         Pose2d desiredPoseAtTheEndOfTheTrajectory = trajectory.getFinalPose();
         Pose2d currentPose = odometrySubsystem.getCurrentPosition();
