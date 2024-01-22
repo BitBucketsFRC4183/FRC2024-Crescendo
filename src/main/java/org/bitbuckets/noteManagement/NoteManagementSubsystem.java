@@ -1,21 +1,23 @@
 package org.bitbuckets.noteManagement;
 
+import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import xyz.auriium.mattlib2.hardware.ILinearController;
+import xyz.auriium.mattlib2.hardware.ILinearMotor;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.hardware.IRotationalMotor;
 
 public class NoteManagementSubsystem implements Subsystem {
 
     final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(4, 3);
-    final IRotationalMotor motorOne;
-    final IRotationalMotor motorTwo;
-    final IRotationEncoder absoluteEncoder;
+    final ILinearController motorOne;
+    final ILinearMotor motorTwo;
+
 
     public NoteManagementSubsystem(IRotationalMotor motorOne, IRotationalMotor motorTwo, IRotationEncoder absoluteEncoder) {
-        this.motorOne = motorOne;
-        this.motorTwo = motorTwo;
-        this.absoluteEncoder = absoluteEncoder;
+        this.motorOne = (ILinearController) motorOne;
+        this.motorTwo = (ILinearMotor) motorTwo;
     }
 
     @Override
@@ -30,8 +32,6 @@ public class NoteManagementSubsystem implements Subsystem {
         motorOne.setToVoltage(leftVoltage);
         motorTwo.setToVoltage(rightVoltage);
 
-        motorOne.angularVelocity_mechanismRotationsPerSecond();
-        motorTwo.angularVelocity_mechanismRotationsPerSecond();
     }
 
     public void setAllMotorsToVoltage(double voltage) {
@@ -41,14 +41,5 @@ public class NoteManagementSubsystem implements Subsystem {
 
     public void maintainSpeed(double motorOne_rotationsPerSecond, double motorTwo_rotationsPerSecond) {
         setMotorRotationalSpeeds(motorOne_rotationsPerSecond, motorTwo_rotationsPerSecond);
-    }
-
-    public boolean hasReachedSpeeds(double motorOneSpeeds, double motorTwoSpeeds) {
-
-        boolean oneAtSpeed = motorOne.angularVelocity_mechanismRotationsPerSecond() >= motorOneSpeeds;
-        boolean twoAtSpeed = motorTwo.angularVelocity_mechanismRotationsPerSecond() >= motorTwoSpeeds;
-
-        return oneAtSpeed && twoAtSpeed;
-
     }
 }

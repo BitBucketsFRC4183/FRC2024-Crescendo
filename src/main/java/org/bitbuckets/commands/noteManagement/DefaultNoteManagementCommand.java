@@ -19,7 +19,6 @@ public class DefaultNoteManagementCommand extends Command {
     @Override
     public void execute() {
         //rotations per second are placeholder values
-        noteManagementSubsystem.setMotorRotationalSpeeds(0, 0);
     }
 
     @Override
