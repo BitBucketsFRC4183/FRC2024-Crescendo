@@ -67,21 +67,21 @@ halfWidth = 9.125
 halfBase = 10.25
 
 [swerve.steer_fr]
-id = 0
+id = 8
 [swerve.steer_fl]
-id = 0
+id = 6
 [swerve.steer_br]
-id = 0
+id = 2
 [swerve.steer_bl]
-id = 0
+id = 4
 [swerve.drive_fr]
-id = 0
+id = 7
 [swerve.drive_fl]
-id = 0
+id = 5
 [swerve.drive_br]
-id = 0
+id = 1
 [swerve.drive_bl]
-id = 0
+id = 3
 
 [swerve.steer_common]
 metersPerRotation = 0.31519599093
