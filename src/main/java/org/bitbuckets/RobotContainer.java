@@ -15,9 +15,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -35,6 +35,8 @@ import org.bitbuckets.disabled.DisablerComponent;
 import org.bitbuckets.drive.*;
 import org.bitbuckets.groundIntake.GroundIntakeComponent;
 import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
+import org.bitbuckets.noteManagement.NoteManagementComponent;
+import org.bitbuckets.noteManagement.NoteManagementSubsystem;
 import org.bitbuckets.shooter.ShooterComponent;
 import org.bitbuckets.shooter.ShooterSubsystem;
 import org.bitbuckets.util.EncoderComponent;
@@ -56,7 +58,6 @@ import xyz.auriium.mattlib2.hardware.*;
 import xyz.auriium.mattlib2.hardware.config.*;
 import xyz.auriium.mattlib2.rev.HardwareREV;
 import xyz.auriium.mattlib2.sim.HardwareSIM;
-import xyz.auriium.mattlib2.utils.MockingUtil;
 
 import java.io.IOException;
 
@@ -73,10 +74,11 @@ public class RobotContainer {
     public final VisionSimContainer visionSimContainer;
     public final ClimberSubsystem climberSubsystem;
     public final GroundIntakeSubsystem groundIntakeSubsystem;
+    public final NoteManagementSubsystem noteManagementSubsystem;
     public final SwerveDriveKinematics kinematics;
 
 
-    public RobotContainer() {
+    public RobotContainer(NoteManagementSubsystem noteManagementSubsystem) {
         //THIS HAS TO RUN FIRST
         Mattlib.LOOPER.runPreInit();
         MattlibSettings.USE_LOGGING = true;
@@ -91,6 +93,7 @@ public class RobotContainer {
         this.shooterSubsystem = loadShooterSubsystem();
         this.climberSubsystem = loadClimberSubsystem();
         this.groundIntakeSubsystem = loadGroundIntakeSubsystem();
+        this.noteManagementSubsystem = loadNoteManagementSubsystem();
 
         if (!DISABLER.vision_disabled() && Robot.isSimulation()) {
             PhotonCamera[] cameras = visionSubsystem.getCameras();
@@ -257,6 +260,27 @@ public class RobotContainer {
        );
 
     }
+
+    NoteManagementSubsystem loadNoteManagementSubsystem() {
+        ILinearMotor nms_motor;
+
+
+        if (DISABLER.nms_disabled()) {
+            nms_motor = HardwareDisabled.linearController_disabled();
+        } else if (Robot.isSimulation()) {
+            nms_motor = HardwareSIM.linearSIM_noPID(NMS_COMPONENT, DCMotor.getNEO(1));
+        }
+
+        else {
+            nms_motor = HardwareREV.linearSpark_builtInPID(NMS_COMPONENT, NMS_PID);
+        }
+
+        return new NoteManagementSubsystem(
+                nms_motor, new DigitalInput(BEAM_BREAK.channel())
+        );
+
+    }
+
     OdometrySubsystem loadOdometrySubsystem() {
 
         IGyro gyro;
@@ -384,6 +408,9 @@ public class RobotContainer {
 
     public static final VisionComponent VISION = LOG.load(VisionComponent.class, "vision");
 
+    // NMS: Note Management System
+    public static final MotorComponent NMS = LOG.load(MotorComponent.class, "note_management/NMS");
+
     public static final ClimberComponent CLIMBER = LOG.load(ClimberComponent.class, "climber");
     public static final PIDComponent CLIMBER_PID = LOG.load(PIDComponent.class, "climber/climber_pid");
     public static final MotorComponent LEFT_CLIMBER = LOG.load(MotorComponent.class, "climber/left");
@@ -400,6 +427,9 @@ public class RobotContainer {
     public static final MotorComponent SHOOTER_WHEEL_2 = LOG.load(MotorComponent.class, "shooter/wheel_2");
     public static final MotorComponent ANGLE_SHOOTER_MOTOR = LOG.load(MotorComponent.class,"shooter/angle_motor");
     public static final PIDComponent ANGLE_PID = LOG.load(PIDComponent.class,"shooter/angle/pid");
+
+    public static final MotorComponent NMS_COMPONENT = LOG.load(MotorComponent.class, "NMS");
+    public static final PIDComponent NMS_PID = LOG.load(PIDComponent.class, "NMS/pid");
 
     public static final SwerveComponent SWERVE = LOG.load(SwerveComponent.class, "swerve");
     public static final CommonMotorComponent DRIVE_COMMON = LOG.load(CommonMotorComponent.class, "swerve/drive_common");
@@ -418,5 +448,6 @@ public class RobotContainer {
 
     public static final DisablerComponent DISABLER = LOG.load(DisablerComponent.class, "disabler");
 
+    public static final NoteManagementComponent BEAM_BREAK = LOG.load(NoteManagementComponent.class, "beam breaker");
 
 }
