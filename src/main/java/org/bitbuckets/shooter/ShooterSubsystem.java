@@ -23,8 +23,6 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     final IRotationEncoder absoluteEncoder;
     final ShooterComponent shooterComponent;
     final CommonEncoderComponent encoderComponent;
-    final DigitalInput noteSensor;
-
     public ShooterSubsystem(IRotationalMotor leftMotor, IRotationalMotor rightMotor, IRotationalController angleMotor, IRotationEncoder absoluteEncoder, ShooterComponent shooterComponent, CommonEncoderComponent encoderComponent) {
         this.leftMotor = leftMotor;
         this.rightMotor = rightMotor;
@@ -32,8 +30,6 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
         this.absoluteEncoder = absoluteEncoder;
         this.shooterComponent = shooterComponent;
         this.encoderComponent = encoderComponent;
-        this.noteSensor = new DigitalInput(shooterComponent.dio());
-
         mattRegister();
         register();
     }
@@ -144,10 +140,7 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
         return 0.16472536666;
     }
 
-    //returns true if note is in the sensor
-    public boolean getNoteState(){
-        return !noteSensor.get(); // get() returns true if circuit open
-    }
+
 
 
 }

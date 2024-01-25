@@ -7,13 +7,13 @@ halfBase = 0.26035 # 20.5 / 2 inches to meters (last years robot)
 
 
 [swerve.drive_common]
-metersPerRotation = 0.31519599093 # diameter of mk4i L2s * pi
-mechPerEncoderRotation = 0.14823529411 # (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) mk4i reduction
+rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
+encoderToMechanismCoef = 0.14823529411 # (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) mk4i reduction
 rotationalInertia = 0.025 #ngl i forgot
 
 [swerve.steer_common]
-metersPerRotation = 0.31519599093 # diameter of mk4i L2s * pi
-mechPerEncoderRotation = 0.04666666666 # (14.0 / 50.0) * (10.0 / 60.0) mk4i reduction
+rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
+encoderToMechanismCoef = 0.04666666666 # (14.0 / 50.0) * (10.0 / 60.0) mk4i reduction
 rotationalInertia = 0.002 #ngl i forgot
 
 [swerve.steer_pid_common]
@@ -37,7 +37,7 @@ id = 0
 id = 0
 
 [shooter.common]
-mechPerEncoderRotation = 0.0
+encoderToMechanismCoef = 0.0
 
 [shooter.angle.pid]
 p = 0
@@ -45,7 +45,8 @@ d = 0
 i = 0
 
 [shooter.angle_motor]
-mechPerEncoderRotation = 0.0
+encoderToMechanismCoef = 0.0
 id = 0
+
 
 

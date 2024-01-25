@@ -15,7 +15,7 @@ public class Robot extends TimedRobot {
     public void robotInit() {
 
 
-        container = new RobotContainer(noteManagementSubsystem);
+        container = new RobotContainer();
         if (isSimulation()) {
             System.out.println("we in the matrix baby");
         }

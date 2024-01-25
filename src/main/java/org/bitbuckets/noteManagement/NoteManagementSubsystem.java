@@ -31,9 +31,11 @@ public class NoteManagementSubsystem implements Subsystem {
         nms_topMotor.setToVoltage(topVoltage);
     }
 
-   public boolean isBeamBreakTrue() {
-       return digitalInput.get();
+   public boolean isNoteIn() {
+       return !digitalInput.get();
    }
+
+
 
 
 }
