@@ -26,9 +26,6 @@ public class DriveSubsystem implements Subsystem, IPeriodicLooped {
         mattRegister();
     }
 
-
-    // periodic looped
-
     @Override
     public void logPeriodic() {
         if (desiredStates != null) {
@@ -41,22 +38,22 @@ public class DriveSubsystem implements Subsystem, IPeriodicLooped {
      * Commands the motors to drive at some voltages, using a chassis speed reference
      * This will set them for the rest of time
      */
-    public void driveUsingChassisSpeed(ChassisSpeeds speeds) {
-        SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
+    public void driveUsingChassisSpeed(ChassisSpeeds speeds_robotRelative) {
+        SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds_robotRelative);
         driveUsingSwerveStates(states);
     }
 
     /**
-     * Commands each module in the module array to move using the swerve module states as reference
-     * @param states states indexed by the IDs at the top of this class
+     * Commands each module in the module array to move using the swerve module states_robotRelative as reference
+     * @param states_robotRelative states_robotRelative indexed by the IDs at the top of this class
      */
-    public void driveUsingSwerveStates(SwerveModuleState[] states) {
-        desiredStates = states;
+    public void driveUsingSwerveStates(SwerveModuleState[] states_robotRelative) {
+        desiredStates = states_robotRelative;
 
         for (int i = 0; i < modules.length; i++) {
-            double feedforwardVoltage = ff.calculate(states[i].speedMetersPerSecond);
+            double feedforwardVoltage = ff.calculate(states_robotRelative[i].speedMetersPerSecond);
             feedforwardVoltage = MathUtil.clamp(feedforwardVoltage, -Util.MAX_VOLTAGE, Util.MAX_VOLTAGE);
-            double referenceAngle = states[i].angle.getRotations();
+            double referenceAngle = states_robotRelative[i].angle.getRotations();
 
             modules[i].setToMoveAt(feedforwardVoltage, referenceAngle);
         }
