@@ -17,7 +17,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -37,10 +36,7 @@ import org.bitbuckets.groundIntake.GroundIntakeComponent;
 import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
 import org.bitbuckets.shooter.ShooterComponent;
 import org.bitbuckets.shooter.ShooterSubsystem;
-import org.bitbuckets.util.EncoderComponent;
-import org.bitbuckets.util.HardwareDisabled;
-import org.bitbuckets.util.ThriftyAbsoluteEncoder;
-import org.bitbuckets.util.Util;
+import org.bitbuckets.util.*;
 import org.bitbuckets.vision.CamerasComponent;
 import org.bitbuckets.vision.VisionComponent;
 import org.bitbuckets.vision.VisionSimContainer;
@@ -56,7 +52,6 @@ import xyz.auriium.mattlib2.hardware.*;
 import xyz.auriium.mattlib2.hardware.config.*;
 import xyz.auriium.mattlib2.rev.HardwareREV;
 import xyz.auriium.mattlib2.sim.HardwareSIM;
-import xyz.auriium.mattlib2.utils.MockingUtil;
 
 import java.io.IOException;
 
@@ -207,7 +202,7 @@ public class RobotContainer {
             } else {
                 driveMotor = HardwareREV.linearSpark_noPID(DRIVES[i]);
                 steerController = HardwareREV.rotationalSpark_builtInPID(STEERS[i], PIDS[i]);
-                absoluteEncoder = new ThriftyAbsoluteEncoder(null, null);
+                absoluteEncoder = HardwareUtil.thriftyEncoder()
             }
             /*
             if (disabled) {
@@ -413,7 +408,7 @@ public class RobotContainer {
     public static final PIDComponent DRIVE_Y_PID = LOG.load(PIDComponent.class, "swerve/y_holonomic_pid");
     public static final PIDComponent DRIVE_T_PID = LOG.load(PIDComponent.class, "swerve/t_holonomic_pid");
 
-    public static final EncoderComponent ABSOLUTE = LOG.load(EncoderComponent.class, "absolute");
+    public static final CommonEncoderComponent ABSOLUTE = LOG.load(CommonEncoderComponent.class, "absolute");
     public static final CamerasComponent CAMERAS = LOG.load(CamerasComponent.class, "cameras");
 
     public static final DisablerComponent DISABLER = LOG.load(DisablerComponent.class, "disabler");
