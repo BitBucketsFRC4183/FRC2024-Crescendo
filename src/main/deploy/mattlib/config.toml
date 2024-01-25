@@ -147,6 +147,13 @@ rotationalInertia = 0.0
 camera1Name = "arducam1"
 camera2Name = "arducam2"
 
+[NMS]
+mechPerEncoderRotation = 0.0
+metersPerRotation = 1
+rotationalInertia = 0
+id = 0
+type = "BRUSHLESS"
+
 # Disabler
 
 [disabler]
@@ -156,4 +163,3 @@ shooter_disabled = true
 odometry_disabled = false
 climber_disabled = true
 groundIntake_disabled = true
-

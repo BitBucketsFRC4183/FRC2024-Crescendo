@@ -75,7 +75,7 @@ public class RobotContainer {
     public final SwerveDriveKinematics kinematics;
 
 
-    public RobotContainer(NoteManagementSubsystem noteManagementSubsystem) {
+    public RobotContainer() {
         //THIS HAS TO RUN FIRST
         Mattlib.LOOPER.runPreInit();
         MattlibSettings.USE_LOGGING = true;
@@ -269,7 +269,7 @@ public class RobotContainer {
         }
 
         else {
-            nms_motor = HardwareREV.linearSpark_builtInPID(NMS_COMPONENT, NMS_PID);
+            nms_motor = HardwareREV.linearSpark_noPID(NMS_COMPONENT);
         }
 
         return new NoteManagementSubsystem(
@@ -426,7 +426,6 @@ public class RobotContainer {
     public static final PIDComponent ANGLE_PID = LOG.load(PIDComponent.class,"shooter/angle/pid");
 
     public static final MotorComponent NMS_COMPONENT = LOG.load(MotorComponent.class, "NMS");
-    public static final PIDComponent NMS_PID = LOG.load(PIDComponent.class, "NMS/pid");
 
     public static final SwerveComponent SWERVE = LOG.load(SwerveComponent.class, "swerve");
     public static final CommonMotorComponent DRIVE_COMMON = LOG.load(CommonMotorComponent.class, "swerve/drive_common");
