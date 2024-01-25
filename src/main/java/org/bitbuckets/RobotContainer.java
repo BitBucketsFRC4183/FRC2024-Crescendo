@@ -259,21 +259,25 @@ public class RobotContainer {
     }
 
     NoteManagementSubsystem loadNoteManagementSubsystem() {
-        ILinearMotor nms_motor;
+        ILinearMotor nms_bottomMotor;
+        ILinearMotor nms_topMotor;
 
 
         if (DISABLER.nms_disabled()) {
-            nms_motor = HardwareDisabled.linearController_disabled();
+            nms_bottomMotor = HardwareDisabled.linearController_disabled();
+            nms_topMotor = HardwareDisabled.linearMotor_disabled();
         } else if (Robot.isSimulation()) {
-            nms_motor = HardwareSIM.linearSIM_noPID(NMS_COMPONENT, DCMotor.getNEO(1));
+            nms_bottomMotor = HardwareSIM.linearSIM_noPID(NMS_COMPONENT, DCMotor.getNEO(1));
+            nms_topMotor = HardwareSIM.linearSIM_noPID(NMS_COMPONENT, DCMotor.getNEO(1));
         }
 
         else {
-            nms_motor = HardwareREV.linearSpark_builtInPID(NMS_COMPONENT, NMS_PID);
+            nms_bottomMotor = HardwareREV.linearSpark_builtInPID(NMS_COMPONENT, NMS_PID);
+            nms_topMotor = HardwareREV.linearSpark_builtInPID(NMS_COMPONENT, NMS_PID);
         }
 
         return new NoteManagementSubsystem(
-                nms_motor, new DigitalInput(BEAM_BREAK.channel())
+                nms_bottomMotor, nms_topMotor,new DigitalInput(BEAM_BREAK.channel())
         );
 
     }
