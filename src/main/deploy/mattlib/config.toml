@@ -101,6 +101,28 @@ p = 0
 i = 0
 d = 0
 
+[swerve.abs_fr]
+analogChannel = 3
+absoluteOffset = 0.2926585288
+coefficient = 1
+
+[swerve.abs_fl]
+analogChannel = 2
+absoluteOffset = 0.21779
+coefficient = 1
+
+[swerve.abs_br]
+analogChannel = 0
+absoluteOffset = 0.3571329413
+coefficient = 1
+
+[swerve.abs_bl]
+analogChannel = 1
+absoluteOffset = 0.0352701817
+coefficient = 1
+
+
+
 
 # CLIMBER STUFF GOES HERE
 

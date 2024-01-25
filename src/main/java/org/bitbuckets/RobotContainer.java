@@ -202,7 +202,7 @@ public class RobotContainer {
             } else {
                 driveMotor = HardwareREV.linearSpark_noPID(DRIVES[i]);
                 steerController = HardwareREV.rotationalSpark_builtInPID(STEERS[i], PIDS[i]);
-                absoluteEncoder = HardwareUtil.thriftyEncoder()
+                absoluteEncoder = HardwareUtil.thriftyEncoder(STEER_ABS_ENCODERS[i]);
             }
             /*
             if (disabled) {
@@ -403,6 +403,8 @@ public class RobotContainer {
     public static final MotorComponent[] DRIVES = MotorComponent.ofRange(DRIVE_COMMON, LOG.loadRange(IndividualMotorComponent.class, "swerve/drive", 4, Util.RENAMER));
     public static final MotorComponent[] STEERS = MotorComponent.ofRange(STEER_COMMON, LOG.loadRange(IndividualMotorComponent.class, "swerve/steer", 4, Util.RENAMER));
     public static final PIDComponent[] PIDS = PIDComponent.ofRange(PID_COMMON, LOG.loadRange(IndividualPIDComponent.class, "swerve/pid", 4, Util.RENAMER));
+
+    public static final CommonEncoderComponent[] STEER_ABS_ENCODERS = LOG.loadRange(CommonEncoderComponent.class, "swerve/abs", 4, Util.RENAMER);
 
     public static final PIDComponent DRIVE_X_PID = LOG.load(PIDComponent.class, "swerve/x_holonomic_pid");
     public static final PIDComponent DRIVE_Y_PID = LOG.load(PIDComponent.class, "swerve/y_holonomic_pid");
