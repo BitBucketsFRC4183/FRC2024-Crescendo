@@ -3,12 +3,10 @@ package org.bitbuckets.util;
 import com.revrobotics.RelativeEncoder;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 
-import java.beans.Encoder;
-
 public class CUIEncoder implements IRotationEncoder {
 
     RelativeEncoder relativeEncoder;
-    EncoderComponent encoderComponent;
+    CommonEncoderComponent encoderComponent;
     public CUIEncoder() {
 
 
