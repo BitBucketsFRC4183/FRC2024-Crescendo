@@ -6,7 +6,7 @@ public class ConfigIsValidTest {
 
     @Test
     public void testInitializationValid() {
-        new RobotContainer();
+        new RobotContainer(noteManagementSubsystem);
     }
 
 }

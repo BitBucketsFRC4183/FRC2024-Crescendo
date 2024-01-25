@@ -1,23 +1,22 @@
 package org.bitbuckets.noteManagement;
 
-import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import xyz.auriium.mattlib2.hardware.ILinearController;
 import xyz.auriium.mattlib2.hardware.ILinearMotor;
-import xyz.auriium.mattlib2.hardware.IRotationEncoder;
-import xyz.auriium.mattlib2.hardware.IRotationalMotor;
 
 public class NoteManagementSubsystem implements Subsystem {
 
     final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(4, 3);
-    final ILinearController motorOne;
-    final ILinearMotor motorTwo;
+    final ILinearMotor nms_bottomMotor;
+    final ILinearMotor nms_topMotor;
+    final DigitalInput digitalInput;
 
 
-    public NoteManagementSubsystem(IRotationalMotor motorOne, IRotationalMotor motorTwo, IRotationEncoder absoluteEncoder) {
-        this.motorOne = (ILinearController) motorOne;
-        this.motorTwo = (ILinearMotor) motorTwo;
+    public NoteManagementSubsystem(ILinearMotor nms_bottomMotor, ILinearMotor nms_topMotor,DigitalInput digitalInput) {
+        this.nms_bottomMotor = nms_bottomMotor;
+        this.nms_topMotor = nms_topMotor;
+        this.digitalInput = digitalInput;
     }
 
     @Override
@@ -25,21 +24,16 @@ public class NoteManagementSubsystem implements Subsystem {
 
     }
 
-    public void setMotorRotationalSpeeds(double leftMotorSpeed_rotationsPerSecond, double rightMotorSpeed_rotationsPerSecond) {
-        double leftVoltage = feedforward.calculate(leftMotorSpeed_rotationsPerSecond);
-        double rightVoltage = feedforward.calculate(rightMotorSpeed_rotationsPerSecond);
-
-        motorOne.setToVoltage(leftVoltage);
-        motorTwo.setToVoltage(rightVoltage);
-
+    public void setAllMotorsToVoltage(double bottomMotorSpeed_metersPerSecond, double topMotorSpeed_metersPerSecond) {
+        double bottomVoltage = feedforward.calculate(bottomMotorSpeed_metersPerSecond);
+        double topVoltage = feedforward.calculate(topMotorSpeed_metersPerSecond);
+        nms_bottomMotor.setToVoltage(bottomVoltage);
+        nms_topMotor.setToVoltage(topVoltage);
     }
 
-    public void setAllMotorsToVoltage(double voltage) {
-        motorOne.setToVoltage(voltage);
-        motorTwo.setToVoltage(voltage);
-    }
+   public boolean isBeamBreakTrue() {
+       return digitalInput.get();
+   }
 
-    public void maintainSpeed(double motorOne_rotationsPerSecond, double motorTwo_rotationsPerSecond) {
-        setMotorRotationalSpeeds(motorOne_rotationsPerSecond, motorTwo_rotationsPerSecond);
-    }
+
 }

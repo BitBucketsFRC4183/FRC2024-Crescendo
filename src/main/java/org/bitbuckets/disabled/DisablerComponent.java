@@ -10,4 +10,5 @@ public interface DisablerComponent extends INetworkedComponent {
     @Conf("odometry_disabled") boolean odometry_disabled();
     @Conf("climber_disabled") boolean climber_disabled();
     @Conf("groundIntake_disabled") boolean groundIntake_disabled();
+    @Conf("nms_disabled") boolean nms_disabled();
 }

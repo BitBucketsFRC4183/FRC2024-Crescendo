@@ -10,10 +10,10 @@ public class ThriftyAbsoluteEncoder implements IRotationEncoder {
     private static final double READ_VOLTAGE_MAX = 4.8;
 
     final AnalogInput input;
-    final EncoderComponent encoderComponent;
+    final CommonEncoderComponent encoderComponent;
 
     double currentOffset;
-    public ThriftyAbsoluteEncoder(AnalogInput input, EncoderComponent encoderComponent) {
+    public ThriftyAbsoluteEncoder(AnalogInput input, CommonEncoderComponent encoderComponent) {
         this.input = input;
         this.encoderComponent = encoderComponent;
 

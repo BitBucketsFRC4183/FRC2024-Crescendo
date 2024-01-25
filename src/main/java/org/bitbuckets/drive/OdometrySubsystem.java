@@ -22,6 +22,7 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
     final SwerveDrivePoseEstimator odometry;
     final IGyro gyro;
     final SwerveDriveKinematics kinematics;
+
     SwerveModulePosition[] lastPositions;
 
     public OdometrySubsystem(DriveSubsystem driveSubsystem, VisionSubsystem visionSubsystem, SwerveDrivePoseEstimator odometry, IGyro gyro, SwerveDriveKinematics kinematics) {
@@ -81,8 +82,6 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
 
             lastAngle_fieldRelative = lastAngle_fieldRelative.plus(dTheta);
             lastPositions = currentPositions;
-
-
 
             return lastAngle_fieldRelative;
         } else {

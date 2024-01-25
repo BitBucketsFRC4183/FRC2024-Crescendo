@@ -31,7 +31,7 @@ public class DefaultDriveCommand extends Command {
         ChassisSpeeds fieldRelativeSpeeds = new ChassisSpeeds(
                 3d*operatorInput.getDriverLeftStickY(),
                 3d*operatorInput.getDriverLeftStickX(),
-                operatorInput.getDriverRightStickX()
+                2 * operatorInput.getDriverRightStickX()
         );
 
 
@@ -39,8 +39,6 @@ public class DefaultDriveCommand extends Command {
                 fieldRelativeSpeeds,
                 odometrySubsystem.getGyroAngle()
         );
-
-
 
         driveSubsystem.driveUsingChassisSpeed(robotRelativeSpeeds);
     }

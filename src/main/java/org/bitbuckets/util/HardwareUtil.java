@@ -5,7 +5,7 @@ import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 
 public class HardwareUtil {
 
-    public static IRotationEncoder thriftyEncoder(EncoderComponent encoderComponent) {
+    public static IRotationEncoder thriftyEncoder(CommonEncoderComponent encoderComponent) {
         AnalogInput input = new AnalogInput(encoderComponent.analogChannel());
 
         return new ThriftyAbsoluteEncoder(input, encoderComponent);
