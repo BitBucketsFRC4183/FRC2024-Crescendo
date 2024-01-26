@@ -1,7 +1,7 @@
 //Don't touch this unless you want me to murder you (in minecraft)
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2024.1.1"
+    id "edu.wpi.first.GradleRIO" version "2024.2.1"
     id 'jacoco'
 }
 
