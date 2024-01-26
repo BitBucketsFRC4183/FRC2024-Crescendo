@@ -2,14 +2,14 @@
 
 [ground_intake.top]
 id = 17
-metersPerRotation = 1
-mechPerEncoderRotation = 1
+rotationToMeterCoef = 1
+encoderToMechanismCoef = 1
 type = "BRUSHLESS"
 
 [ground_intake.bottom]
 id = 9
-metersPerRotation = 1
-mechPerEncoderRotation = 1
+rotationToMeterCoef = 1
+encoderToMechanismCoef = 1
 type = "BRUSHLESS"
 inverted = true
 
@@ -40,7 +40,7 @@ id = 0
 id = 0
 
 [shooter.common]
-mechPerEncoderRotation = 0.0
+encoderToMechanismCoef = 0.0
 type = "BRUSHLESS"
 
 [shooter.angle.pid]
@@ -49,7 +49,7 @@ d = 0
 i = 0
 
 [shooter.angle_motor]
-mechPerEncoderRotation = 0.0
+encoderToMechanismCoef = 0.0
 id = 0
 type = "BRUSHLESS"
 
@@ -84,14 +84,14 @@ id = 1
 id = 3
 
 [swerve.steer_common]
-metersPerRotation = 0.31519599093
-mechPerEncoderRotation = 0.04666666666
+rotationToMeterCoef = 0.31519599093
+encoderToMechanismCoef = 0.04666666666
 type = "BRUSHLESS"
 rotationalInertia = 0.002
 
 [swerve.drive_common]
-metersPerRotation = 0.31519599093
-mechPerEncoderRotation = 0.14823529411
+rotationToMeterCoef = 0.31519599093
+encoderToMechanismCoef = 0.14823529411
 type = "BRUSHLESS"
 rotationalInertia = 0.025
 inverted = false
@@ -133,15 +133,32 @@ ff_ks = 0.0
 
 [climber.left]
 id = 0
-mechPerEncoderRotation = 0.0
+encoderToMechanismCoef = 0.0
 type = "BRUSHLESS"
 rotationalInertia = 0.0
 
 [climber.right]
 id = 0
-mechPerEncoderRotation = 0.0
+encoderToMechanismCoef = 0.0
 type = "BRUSHLESS"
 rotationalInertia = 0.0
+
+# NMS
+[NMS.top]
+id = 0
+rotationToMeterCoef = 1 #WRONG
+encoderToMechanismCoef = 1 #WRONG
+rotationalInertia = 1.0
+type = "BRUSHLESS"
+
+
+[NMS.bottom]
+id = 0
+rotationToMeterCoef = 1 #WRONG
+encoderToMechanismCoef = 1 #WRONG
+rotationalInertia = 1.0
+type = "BRUSHLESS"
+
 
 [cameras]
 camera1Name = "arducam1"

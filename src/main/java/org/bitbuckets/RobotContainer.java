@@ -261,23 +261,24 @@ public class RobotContainer {
     NoteManagementSubsystem loadNoteManagementSubsystem() {
         ILinearMotor nms_bottomMotor;
         ILinearMotor nms_topMotor;
+        DigitalInput beamBreak = new DigitalInput(BEAM_BREAK.channel());
 
 
         if (DISABLER.nms_disabled()) {
             nms_bottomMotor = HardwareDisabled.linearController_disabled();
             nms_topMotor = HardwareDisabled.linearMotor_disabled();
         } else if (Robot.isSimulation()) {
-            nms_bottomMotor = HardwareSIM.linearSIM_noPID(NMS_COMPONENT, DCMotor.getNEO(1));
-            nms_topMotor = HardwareSIM.linearSIM_noPID(NMS_COMPONENT, DCMotor.getNEO(1));
+            nms_bottomMotor = HardwareSIM.linearSIM_noPID(NMS_BOTTOMCOMPONENT, DCMotor.getNEO(1));
+            nms_topMotor = HardwareSIM.linearSIM_noPID(NMS_TOPCOMPONENT, DCMotor.getNEO(1));
         }
 
         else {
-            nms_bottomMotor = HardwareREV.linearSpark_builtInPID(NMS_COMPONENT, NMS_PID);
-            nms_topMotor = HardwareREV.linearSpark_builtInPID(NMS_COMPONENT, NMS_PID);
+            nms_bottomMotor = HardwareREV.linearSpark_builtInPID(NMS_BOTTOMCOMPONENT, NMS_PID);
+            nms_topMotor = HardwareREV.linearSpark_builtInPID(NMS_TOPCOMPONENT, NMS_PID);
         }
 
         return new NoteManagementSubsystem(
-                nms_bottomMotor, nms_topMotor,new DigitalInput(BEAM_BREAK.channel())
+                nms_bottomMotor, nms_topMotor, beamBreak
         );
 
     }
@@ -391,6 +392,10 @@ public class RobotContainer {
         if (DISABLER.groundIntake_disabled()) {
             topGroundIntake = HardwareDisabled.linearController_disabled();
             bottomGroundIntake = HardwareDisabled.linearController_disabled();
+
+        } else if (Robot.isSimulation()) {
+            topGroundIntake = HardwareSIM.linearSIM_pid(GROUND_INTAKE_TOP, GROUND_INTAKE_PID, DCMotor.getNeo550(1));
+            bottomGroundIntake = HardwareSIM.linearSIM_pid(GROUND_INTAKE_BOTTOM, GROUND_INTAKE_PID, DCMotor.getNeo550(1));
         } else {
             topGroundIntake = HardwareREV.linearSpark_builtInPID(GROUND_INTAKE_TOP, GROUND_INTAKE_PID);
             bottomGroundIntake = HardwareREV.linearSpark_builtInPID(GROUND_INTAKE_BOTTOM, GROUND_INTAKE_PID);
@@ -429,7 +434,8 @@ public class RobotContainer {
     public static final MotorComponent ANGLE_SHOOTER_MOTOR = LOG.load(MotorComponent.class,"shooter/angle_motor");
     public static final PIDComponent ANGLE_PID = LOG.load(PIDComponent.class,"shooter/angle/pid");
 
-    public static final MotorComponent NMS_COMPONENT = LOG.load(MotorComponent.class, "NMS");
+    public static final MotorComponent NMS_TOPCOMPONENT = LOG.load(MotorComponent.class, "NMS/top");
+    public static final MotorComponent NMS_BOTTOMCOMPONENT = LOG.load(MotorComponent.class, "NMS/bottom");
     public static final PIDComponent NMS_PID = LOG.load(PIDComponent.class, "NMS/pid");
 
     public static final SwerveComponent SWERVE = LOG.load(SwerveComponent.class, "swerve");

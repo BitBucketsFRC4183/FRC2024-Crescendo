@@ -23,7 +23,7 @@ public class DefaultNoteManagementCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        noteManagementSubsystem.setAllMotorsToVoltage(0);
+        noteManagementSubsystem.setAllMotorsToVoltage(0, 0);
     }
 
     @Override
