@@ -1,6 +1,8 @@
 package org.bitbuckets.util;
 
-public class ShooterCalculator {
+import edu.wpi.first.wpilibj2.command.Subsystem;
+
+public class ShooterCalculator implements Subsystem {
 
     /*
     Note Specifications
@@ -11,17 +13,19 @@ public class ShooterCalculator {
     Weight: 8.3 Oz +/- 0.2 Oz --> 0.24 kg +/- 0.01 kg
      */
 
-    public ShooterCalculator(double mass, double area_cross_section, double note_radius, double air_density, double drag_coefficient, double magnus_coefficient, double vx, double vy) {
+    public ShooterCalculator(ShooterCalculatorComponent shooterCalculatorComponent, double mass, double area_cross_section, double note_radius, double air_density, double drag_coefficient, double magnus_coefficient, double Vx, double Vy) {
+        this.shooterCalculatorComponent = shooterCalculatorComponent;
         this.mass = mass;
         this.area_cross_section = area_cross_section;
         this.note_radius = note_radius;
         this.air_density = air_density;
         this.drag_coefficient = drag_coefficient;
         this.magnus_coefficient = magnus_coefficient;
-        Vx = vx;
-        Vy = vy;
+        this.Vx = Vx;
+        this.Vy = Vy;
     }
 
+    ShooterCalculatorComponent shooterCalculatorComponent;
     double mass;
     double area_cross_section;
     double note_radius;
@@ -30,7 +34,12 @@ public class ShooterCalculator {
     double magnus_coefficient;
     double Vx;
     double Vy;
+    double x = shooterCalculatorComponent.speaker_distance();
+    double y = shooterCalculatorComponent.speaker_height();
+    double Ax = -(Math.sqrt(Vx*Vx+Vy*Vy)/mass)*(drag_coefficient*Vx+magnus_coefficient*Vy);
+    double Ay = (Math.sqrt(Vx*Vx+Vy*Vy)/mass)*(magnus_coefficient*Vx-drag_coefficient*Vy) + 9.81;
 
+    /*
 
     public double calculateAccelerationX ()
     {
@@ -38,19 +47,46 @@ public class ShooterCalculator {
         return accelerationx;
     }
 
-    public double calculateAccerationY()
+    public double calculateAccelerationY()
     {
         double accelerationy = (Math.sqrt(Vx*Vx+Vy*Vy)/mass)*(magnus_coefficient*Vx-drag_coefficient*Vy) + 9.81;
         return accelerationy;
     }
-    public void velocityFinalX(){
-       double Vxf = Vx;
-    }
-    public void trapezoidalIntegrationX()
-    {
+
+     */
+
+
+    @Override
+    public void periodic(){
+        updateVelocityAndAcceleration();
+        calculateAngle();
 
     }
-    public void calculateAngle (double speaker_height, double speaker_distance)
+
+    public void updateVelocityAndAcceleration()
+    {
+        if (y > 0) {
+            double Vxf = Vx + Ax;
+            double Vyf = Vy + Ay;
+
+            x = trapezoidalIntegrationOfPosition(x, Vx, Vxf);
+            y = trapezoidalIntegrationOfPosition(y, Vy, Vyf);
+
+            Vx = Vxf;
+            Vy = Vyf;
+
+            double v = Math.sqrt(Vx*Vx + Vy*Vy);
+
+            Ax = -(v/mass) * (drag_coefficient*Vx+magnus_coefficient*Vy);
+            Ay = 9.81 + (v/mass) * (magnus_coefficient*Vx-drag_coefficient*Vy);
+        }
+    }
+
+    public double trapezoidalIntegrationOfPosition(double initial_position, double initial_velocity, double final_velocity)
+    {
+        return initial_position + (initial_position + final_velocity)/2;
+    }
+    public void calculateAngle ()
     {
 
     }
