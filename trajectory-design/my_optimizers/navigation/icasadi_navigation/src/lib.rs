@@ -15,16 +15,16 @@
 // #![no_std]
 
 /// Number of static parameters (this also includes penalty constraints)
-const NUM_STATIC_PARAMETERS: usize = 2;
+const NUM_STATIC_PARAMETERS: usize = 6;
 
 /// Number of decision variables
-const NUM_DECISION_VARIABLES: usize = 5;
+const NUM_DECISION_VARIABLES: usize = 20;
 
 /// Number of ALM-type constraints (dimension of F1, i.e., n1)
 const NUM_CONSTRAINTS_TYPE_ALM: usize = 0;
 
 /// Number of penalty constraints (dimension of F2, i.e., n2)
-const NUM_CONSTRAINTS_TYPE_PENALTY: usize = 2;
+const NUM_CONSTRAINTS_TYPE_PENALTY: usize = 0;
 
 use libc::{c_double, c_int};  // might need to include: c_longlong, c_void
 

@@ -48,21 +48,23 @@ const DO_PRECONDITIONING: bool = false;
 // ---Public Constants-----------------------------------------------------------------------------------
 
 /// Number of decision variables
-pub const NAVIGATION_NUM_DECISION_VARIABLES: usize = 5;
+pub const NAVIGATION_NUM_DECISION_VARIABLES: usize = 20;
 
 /// Number of parameters
-pub const NAVIGATION_NUM_PARAMETERS: usize = 2;
+pub const NAVIGATION_NUM_PARAMETERS: usize = 6;
 
 /// Number of parameters associated with augmented Lagrangian
 pub const NAVIGATION_N1: usize = 0;
 
 /// Number of penalty constraints
-pub const NAVIGATION_N2: usize = 2;
+pub const NAVIGATION_N2: usize = 0;
 
 
 
 // ---Parameters of the constraints----------------------------------------------------------------------
 
+const CONSTRAINTS_XMIN :Option<&[f64]> = Some(&[-2.0,-1.0,-2.0,-1.0,-2.0,-1.0,-2.0,-1.0,-2.0,-1.0,-2.0,-1.0,-2.0,-1.0,-2.0,-1.0,-2.0,-1.0,-2.0,-1.0,]);
+const CONSTRAINTS_XMAX :Option<&[f64]> = Some(&[2.0,1.0,2.0,1.0,2.0,1.0,2.0,1.0,2.0,1.0,2.0,1.0,2.0,1.0,2.0,1.0,2.0,1.0,2.0,1.0,]);
 
 
 
@@ -77,8 +79,8 @@ pub const NAVIGATION_N2: usize = 2;
 
 /// Make constraints U
 fn make_constraints() -> impl Constraint {
-    // - No constraints (whole Rn):
-    NoConstraints::new()
+    // - Rectangle:
+    Rectangle::new(CONSTRAINTS_XMIN, CONSTRAINTS_XMAX)
     }
 
 
@@ -148,10 +150,7 @@ pub fn solve(
         Ok(())
     };
     
-    let f2 = |u: &[f64], res: &mut [f64]| -> Result<(), SolverError> {
-        icasadi_navigation::mapping_f2(u, p, res);
-        Ok(())
-    };let bounds = make_constraints();
+    let bounds = make_constraints();
 
     let alm_problem = AlmProblem::new(
         bounds,
@@ -160,7 +159,7 @@ pub fn solve(
         psi,
         grad_psi,
         NO_MAPPING,
-        Some(f2),
+        NO_MAPPING,
         NAVIGATION_N1,
         NAVIGATION_N2,
     );

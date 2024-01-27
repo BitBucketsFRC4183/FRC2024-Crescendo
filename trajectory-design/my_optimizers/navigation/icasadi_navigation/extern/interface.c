@@ -18,10 +18,10 @@
  *   + version: 0.0.0
  *   + licence: MIT
  * + Problem
- *   + vars: 5
- *   + parameters: 2
+ *   + vars: 20
+ *   + parameters: 6
  *   + n1: 0
- *   + n2: 2
+ *   + n2: 0
  *
  */
 #include <stdlib.h>
@@ -37,19 +37,19 @@
 #include "casadi_memory.h"
 
 /* Number of input variables */
-#define NU_NAVIGATION 5
+#define NU_NAVIGATION 20
 
 /* Number of static parameters */
-#define NP_NAVIGATION 2
+#define NP_NAVIGATION 6
 
 /* Dimension of F1 (number of ALM constraints) */
 #define N1_NAVIGATION 0
 
 /* Dimension of F2 (number of PM constraints) */
-#define N2_NAVIGATION 2
+#define N2_NAVIGATION 0
 
 /* Dimension of xi = (c, y) */
-#define NXI_NAVIGATION 1
+#define NXI_NAVIGATION 0
 
 /* Preconditioning Flag */
 

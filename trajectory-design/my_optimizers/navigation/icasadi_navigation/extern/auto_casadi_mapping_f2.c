@@ -30,9 +30,9 @@ extern "C" {
 
 /* Add prefix to internal symbols */
 #define casadi_f0 CASADI_PREFIX(f0)
-#define casadi_fmax CASADI_PREFIX(fmax)
 #define casadi_s0 CASADI_PREFIX(s0)
 #define casadi_s1 CASADI_PREFIX(s1)
+#define casadi_s2 CASADI_PREFIX(s2)
 
 /* Symbol visibility in DLLs */
 #ifndef CASADI_SYMBOL_EXPORT
@@ -49,39 +49,17 @@ extern "C" {
   #endif
 #endif
 
-casadi_real casadi_fmax(casadi_real x, casadi_real y) {
-/* Pre-c99 compatibility */
-#if __STDC_VERSION__ < 199901L
-  return x>y ? x : y;
-#else
-  return fmax(x, y);
-#endif
-}
+static const casadi_int casadi_s0[24] = {20, 1, 0, 20, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
+static const casadi_int casadi_s1[11] = {7, 1, 0, 7, 0, 1, 2, 3, 4, 5, 6};
+static const casadi_int casadi_s2[5] = {1, 1, 0, 1, 0};
 
-static const casadi_int casadi_s0[9] = {5, 1, 0, 5, 0, 1, 2, 3, 4};
-static const casadi_int casadi_s1[6] = {2, 1, 0, 2, 0, 1};
-
-/* open_mapping_f2_navigation:(i0[5],i1[5])->(o0[2]) */
+/* open_mapping_f2_navigation:(i0[20],i1[7])->(o0) */
 static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem) {
-  casadi_real a0, a1, a2, a3;
-  a0=arg[1]? arg[1][3] : 0;
-  a1=1.5000000000000000e+00;
-  a2=arg[0]? arg[0][0] : 0;
-  a1=(a1*a2);
-  a2=arg[0]? arg[0][1] : 0;
-  a1=(a1-a2);
-  a0=(a0*a1);
-  if (res[0]!=0) res[0][0]=a0;
-  a0=arg[1]? arg[1][4] : 0;
-  a1=0.;
-  a2=arg[0]? arg[0][2] : 0;
-  a3=arg[0]? arg[0][3] : 0;
-  a2=(a2-a3);
-  a3=1.0000000000000001e-01;
-  a2=(a2+a3);
-  a1=casadi_fmax(a1,a2);
-  a0=(a0*a1);
-  if (res[0]!=0) res[0][1]=a0;
+  casadi_real w0;
+  /* #0: @0 = 0 */
+  w0 = 0.;
+  /* #1: output[0][0] = @0 */
+  if (res[0]) res[0][0] = w0;
   return 0;
 }
 
@@ -141,23 +119,23 @@ CASADI_SYMBOL_EXPORT const char* open_mapping_f2_navigation_name_out(casadi_int 
 CASADI_SYMBOL_EXPORT const casadi_int* open_mapping_f2_navigation_sparsity_in(casadi_int i) {
   switch (i) {
     case 0: return casadi_s0;
-    case 1: return casadi_s0;
+    case 1: return casadi_s1;
     default: return 0;
   }
 }
 
 CASADI_SYMBOL_EXPORT const casadi_int* open_mapping_f2_navigation_sparsity_out(casadi_int i) {
   switch (i) {
-    case 0: return casadi_s1;
+    case 0: return casadi_s2;
     default: return 0;
   }
 }
 
 CASADI_SYMBOL_EXPORT int open_mapping_f2_navigation_work(casadi_int *sz_arg, casadi_int* sz_res, casadi_int *sz_iw, casadi_int *sz_w) {
   if (sz_arg) *sz_arg = 2;
-  if (sz_res) *sz_res = 1;
+  if (sz_res) *sz_res = 2;
   if (sz_iw) *sz_iw = 0;
-  if (sz_w) *sz_w = 0;
+  if (sz_w) *sz_w = 1;
   return 0;
 }
 
