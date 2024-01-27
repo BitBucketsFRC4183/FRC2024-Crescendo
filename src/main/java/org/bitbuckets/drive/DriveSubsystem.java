@@ -2,6 +2,7 @@ package org.bitbuckets.drive;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -10,17 +11,17 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.RobotContainer;
 import org.bitbuckets.util.Util;
 import xyz.auriium.mattlib2.IPeriodicLooped;
+import xyz.auriium.mattlib2.utils.AngleUtil;
 
 public class DriveSubsystem implements Subsystem, IPeriodicLooped {
 
     final SwerveModule[] modules;
     final SwerveDriveKinematics kinematics;
-    final SimpleMotorFeedforward ff;
 
-    public DriveSubsystem(SwerveModule[] modules, SwerveDriveKinematics kinematics, SimpleMotorFeedforward ff) {
+
+    public DriveSubsystem(SwerveModule[] modules, SwerveDriveKinematics kinematics) {
         this.modules = modules;
         this.kinematics = kinematics;
-        this.ff = ff;
 
         register();
         mattRegister();
@@ -50,12 +51,9 @@ public class DriveSubsystem implements Subsystem, IPeriodicLooped {
     public void driveUsingSwerveStates(SwerveModuleState[] states_robotRelative) {
         desiredStates = states_robotRelative;
 
-        for (int i = 0; i < modules.length; i++) {
-            double feedforwardVoltage = ff.calculate(states_robotRelative[i].speedMetersPerSecond);
-            feedforwardVoltage = MathUtil.clamp(feedforwardVoltage, -Util.MAX_VOLTAGE, Util.MAX_VOLTAGE);
-            double referenceAngle = states_robotRelative[i].angle.getRotations();
 
-            modules[i].setToMoveAt(feedforwardVoltage, referenceAngle);
+        for (int i = 0; i < modules.length; i++) {
+            modules[i].setToMoveAt(states_robotRelative[i]);
         }
     }
 

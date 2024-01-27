@@ -1,25 +1,9 @@
-[swerve]
-ff_ks = 0.65292 #possibly ff for a neo? i have no clue where i got those last year
-ff_kv = 2.3053
-ff_ka = 0.37626
-halfWidth = 0.231775 #18.25 / 2 inches to meters (last years robot)
-halfBase = 0.26035 # 20.5 / 2 inches to meters (last years robot)
-
-
-[swerve.drive_common]
-rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
-encoderToMechanismCoef = 0.14823529411 # (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) mk4i reduction
-rotationalInertia = 0.025 #ngl i forgot
-
-[swerve.steer_common]
-rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
-encoderToMechanismCoef = 0.04666666666 # (14.0 / 50.0) * (10.0 / 60.0) mk4i reduction
-rotationalInertia = 0.002 #ngl i forgot
-
 [swerve.steer_pid_common]
 p = 30
-i = 0
-d = 0.1
+
+[swerve.steer_common]
+inverted = false
+
 [absolute]
 analogChannel = 0
 coefficient = 0.0

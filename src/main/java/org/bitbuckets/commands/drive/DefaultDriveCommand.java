@@ -29,8 +29,8 @@ public class DefaultDriveCommand extends Command {
     @Override
     public void execute() {
         ChassisSpeeds fieldRelativeSpeeds = new ChassisSpeeds(
-                3d*operatorInput.getDriverLeftStickY(),
-                3d*operatorInput.getDriverLeftStickX(),
+                3d*operatorInput.getRobotForwardComponent(),
+                3d*operatorInput.getDriverRightComponent(),
                 2 * operatorInput.getDriverRightStickX()
         );
 
@@ -40,7 +40,9 @@ public class DefaultDriveCommand extends Command {
                 odometrySubsystem.getGyroAngle()
         );
 
-        driveSubsystem.driveUsingChassisSpeed(robotRelativeSpeeds);
+
+
+        driveSubsystem.driveUsingChassisSpeed(fieldRelativeSpeeds);
     }
 
     @Override

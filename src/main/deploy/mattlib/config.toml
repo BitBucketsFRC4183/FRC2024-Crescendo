@@ -23,10 +23,7 @@ ff_ks = 0
 ff_kv = 0
 pid = {p = 0, i = 0, d = 0}
 
-[absolute]
-analogChannel = 0
-coefficient = 0.0
-absoluteOffset = 0.0
+# SHOOTER
 
 [shooter]
 dio_channel = 0
@@ -35,13 +32,18 @@ channel = 0
 
 [shooter.wheel_1]
 id = 0
+encoderToMechanismCoef = 0.0
+type = "BRUSHLESS"
 
 [shooter.wheel_2]
 id = 0
-
-[shooter.common]
 encoderToMechanismCoef = 0.0
 type = "BRUSHLESS"
+
+[shooter.absolute]
+analogChannel = 0
+encoderToMechanismCoef = 0.0
+offset = 0.0
 
 [shooter.angle.pid]
 p = 0
@@ -56,15 +58,15 @@ type = "BRUSHLESS"
 # DRIVE STUFF GOES HERE
 
 [swerve]
-x_holonomic_pid = {p = 1.2, i = 0, d = 0}
-y_holonomic_pid = {p = 1.2, i = 0, d = 0}
-t_holonomic_pid = {p = 1, i = 0, d = 0}
 pigeonId = 5
 ff_ks = 0.65292
 ff_kv = 2.3053
 ff_ka = 0.37626
 halfWidth = 9.125
 halfBase = 10.25
+x_holonomic_pid = {p = 1.2, i = 0, d = 0}
+y_holonomic_pid = {p = 1.2, i = 0, d = 0}
+t_holonomic_pid = {p = 1, i = 0, d = 0}
 
 [swerve.steer_fr]
 id = 8
@@ -83,43 +85,43 @@ id = 1
 [swerve.drive_bl]
 id = 3
 
-[swerve.steer_common]
-rotationToMeterCoef = 0.31519599093
-encoderToMechanismCoef = 0.04666666666
-type = "BRUSHLESS"
-rotationalInertia = 0.002
-
 [swerve.drive_common]
-rotationToMeterCoef = 0.31519599093
-encoderToMechanismCoef = 0.14823529411
+rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
+encoderToMechanismCoef = 0.14823529411 # (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) mk4i reduction
 type = "BRUSHLESS"
 rotationalInertia = 0.025
-inverted = false
+
+[swerve.steer_common]
+encoderToMechanismCoef = 0.04666666666# (14.0 / 50.0) * (10.0 / 60.0) mk4i reduction
+type = "BRUSHLESS"
+rotationalInertia = 0.002
+inverted = true
+
 
 [swerve.steer_pid_common]
-p = 30
+p = 2
 i = 0
 d = 0.1
 
 [swerve.abs_fr]
 analogChannel = 3
-absoluteOffset = 0.2926585288
-coefficient = 1
+offset = 0.2926585288
+encoderToMechanismCoef = 1
 
 [swerve.abs_fl]
 analogChannel = 2
-absoluteOffset = 0.21779
-coefficient = 1
+offset = 0.21779
+encoderToMechanismCoef = 1
 
 [swerve.abs_br]
 analogChannel = 0
-absoluteOffset = 0.3571329413
-coefficient = 1
+offset = 0.3571329413
+encoderToMechanismCoef = 1
 
 [swerve.abs_bl]
 analogChannel = 1
-absoluteOffset = 0.0352701817
-coefficient = 1
+offset = 0.0352701817
+encoderToMechanismCoef = 1
 
 
 
@@ -143,22 +145,26 @@ encoderToMechanismCoef = 0.0
 type = "BRUSHLESS"
 rotationalInertia = 0.0
 
-# NMS
-[NMS.top]
+# NMS NOTE MANAGEMENT SUBSYSTEM
+[nms]
+channel = 0
+deadband = 0 # FIX LATER
+
+[nms.top]
 id = 0
 rotationToMeterCoef = 1 #WRONG
 encoderToMechanismCoef = 1 #WRONG
 rotationalInertia = 1.0
 type = "BRUSHLESS"
 
-
-[NMS.bottom]
+[nms.bottom]
 id = 0
 rotationToMeterCoef = 1 #WRONG
 encoderToMechanismCoef = 1 #WRONG
 rotationalInertia = 1.0
 type = "BRUSHLESS"
 
+# CAMERA
 
 [cameras]
 camera1Name = "arducam1"
@@ -173,4 +179,5 @@ shooter_disabled = true
 odometry_disabled = false
 climber_disabled = true
 groundIntake_disabled = true
+nms_disabled = true
 

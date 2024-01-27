@@ -13,7 +13,7 @@ public class NoteManagementSubsystem implements Subsystem {
     final DigitalInput digitalInput;
 
 
-    public NoteManagementSubsystem(ILinearMotor nms_bottomMotor, ILinearMotor nms_topMotor,DigitalInput digitalInput) {
+    public NoteManagementSubsystem(ILinearMotor nms_bottomMotor, ILinearMotor nms_topMotor, DigitalInput digitalInput) {
         this.nms_bottomMotor = nms_bottomMotor;
         this.nms_topMotor = nms_topMotor;
         this.digitalInput = digitalInput;

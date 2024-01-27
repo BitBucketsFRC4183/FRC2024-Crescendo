@@ -6,7 +6,7 @@ import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 public class CUIEncoder implements IRotationEncoder {
 
     RelativeEncoder relativeEncoder;
-    CommonEncoderComponent encoderComponent;
+    AbsoluteEncoderComponent encoderComponent;
     public CUIEncoder() {
 
 
