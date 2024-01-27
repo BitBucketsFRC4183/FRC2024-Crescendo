@@ -6,7 +6,6 @@ import org.mockito.AdditionalMatchers;
 import xyz.auriium.mattlib2.hardware.ILinearMotor;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.hardware.IRotationalController;
-import xyz.auriium.mattlib2.hardware.IRotationalMotor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -25,15 +24,11 @@ public class SwerveModuleTest {
     }
 
     @Test
-    public void TestLogicPeriodic() {
-
-        IRotationalMotor steerController = mock(IRotationalMotor.class);
+    public void testLogicPeriodic() {
         when(steerController.angularVelocity_mechanismRotationsPerSecond()).thenReturn(20d);
-
-        IRotationEncoder absoluteEncoder = mock(IRotationEncoder.class);
         when(absoluteEncoder.angularPosition_normalizedMechanismRotations()).thenReturn(10d);
+
         double absoluteAngularPosition_infiniteMechanismRotations = absoluteEncoder.angularPosition_normalizedMechanismRotations();
-        System.out.print(steerController.angularPosition_mechanismRotations());
         steerController.forceRotationalOffset(absoluteAngularPosition_infiniteMechanismRotations);
 
         assertEquals(0d, steerController.angularPosition_mechanismRotations(), 0);
