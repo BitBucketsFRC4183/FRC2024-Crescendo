@@ -59,7 +59,7 @@ public class ShooterCalculator implements Subsystem {
     @Override
     public void periodic(){
         updateVelocityAndAcceleration();
-        calculateAngle();
+        double angle = calculateAngle();
 
     }
 
@@ -75,20 +75,29 @@ public class ShooterCalculator implements Subsystem {
             Vx = Vxf;
             Vy = Vyf;
 
-            double v = Math.sqrt(Vx*Vx + Vy*Vy);
+            double v = findMagnitude(Vx, Vy);
 
             Ax = -(v/mass) * (drag_coefficient*Vx+magnus_coefficient*Vy);
             Ay = 9.81 + (v/mass) * (magnus_coefficient*Vx-drag_coefficient*Vy);
+
         }
+    }
+
+    public double findMagnitude(double x_component, double y_component)
+    {
+        return Math.sqrt(x_component*x_component + y_component*y_component);
     }
 
     public double trapezoidalIntegrationOfPosition(double initial_position, double initial_velocity, double final_velocity)
     {
-        return initial_position + (initial_position + final_velocity)/2;
+        return initial_position + (initial_velocity + final_velocity)/2;
     }
-    public void calculateAngle ()
+    public double calculateAngle ()
     {
+        double v = findMagnitude(Vx, Vy);
+        double a = findMagnitude(Ax, Ay);
 
+        return Math.atan(1/(Math.sqrt((2* shooterCalculatorComponent.speaker_height()*9.81*9.81+9.81*v*v)/(2*a*Math.pow(v,4)+9.81*v*v))));
     }
 
 }
