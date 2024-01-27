@@ -105,6 +105,7 @@ public class RobotContainer {
     }
 
     public void simulationPeriodic() {
+        if (DISABLER.vision_disabled()) return;
         this.visionSimContainer.simulationPeriodic();
     }
 
