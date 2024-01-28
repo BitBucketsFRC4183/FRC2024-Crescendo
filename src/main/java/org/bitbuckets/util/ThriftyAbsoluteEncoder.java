@@ -34,16 +34,13 @@ public class ThriftyAbsoluteEncoder implements IRotationEncoder, IPeriodicLooped
 
     @Override
     public double angularPosition_encoderRotations() {
-
-        double offset_encoderRotations = encoderComponent.offset_mechanismRotations() / encoderComponent.encoderToMechanismCoefficient();
-        double currentEncoderRotations = input.getAverageVoltage() / RobotController.getVoltage5V();
-        return currentEncoderRotations - offset_encoderRotations;
+        return angularPosition_mechanismRotations() / encoderComponent.encoderToMechanismCoefficient();
     }
 
     @Override
     public double angularPosition_mechanismRotations() {
         double currentMechanismRotations = input.getAverageVoltage() / RobotController.getVoltage5V() * encoderComponent.encoderToMechanismCoefficient();
-        return currentMechanismRotations - encoderComponent.offset_mechanismRotations();
+        return currentMechanismRotations - encoderComponent.offset_mechanismRotations() - 0.5;
     }
 
     @Override

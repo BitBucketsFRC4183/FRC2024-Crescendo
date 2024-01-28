@@ -64,9 +64,18 @@ ff_kv = 2.3053
 ff_ka = 0.37626
 halfWidth = 9.125
 halfBase = 10.25
+magnitudeSlew = 1
+angleSlew = 1
 x_holonomic_pid = {p = 1.2, i = 0, d = 0}
 y_holonomic_pid = {p = 1.2, i = 0, d = 0}
 t_holonomic_pid = {p = 1, i = 0, d = 0}
+
+# Steer
+[swerve.steer_common]
+encoderToMechanismCoef = 0.04666666666# (14.0 / 50.0) * (10.0 / 60.0) mk4i reduction
+type = "BRUSHLESS"
+rotationalInertia = 0.002
+inverted = true
 
 [swerve.steer_fr]
 id = 8
@@ -76,26 +85,41 @@ id = 6
 id = 2
 [swerve.steer_bl]
 id = 4
+
+#Drive
 [swerve.drive_fr]
 id = 7
-[swerve.drive_fl]
-id = 5
-[swerve.drive_br]
-id = 1
-[swerve.drive_bl]
-id = 3
-
-[swerve.drive_common]
 rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
 encoderToMechanismCoef = 0.14823529411 # (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) mk4i reduction
 type = "BRUSHLESS"
 rotationalInertia = 0.025
-
-[swerve.steer_common]
-encoderToMechanismCoef = 0.04666666666# (14.0 / 50.0) * (10.0 / 60.0) mk4i reduction
-type = "BRUSHLESS"
-rotationalInertia = 0.002
 inverted = true
+
+[swerve.drive_fl]
+id = 5
+rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
+encoderToMechanismCoef = 0.14823529411 # (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) mk4i reduction
+type = "BRUSHLESS"
+rotationalInertia = 0.025
+inverted = true
+
+[swerve.drive_br]
+id = 1
+rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
+encoderToMechanismCoef = 0.14823529411 # (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) mk4i reduction
+type = "BRUSHLESS"
+rotationalInertia = 0.025
+inverted = false
+
+[swerve.drive_bl]
+id = 3
+rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
+encoderToMechanismCoef = 0.14823529411 # (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) mk4i reduction
+type = "BRUSHLESS"
+rotationalInertia = 0.025
+inverted = false
+
+
 
 
 [swerve.steer_pid_common]
@@ -105,22 +129,22 @@ d = 0.1
 
 [swerve.abs_fr]
 analogChannel = 3
-offset = 0.2926585288
+offset = 0.2626585288
 encoderToMechanismCoef = 1
 
 [swerve.abs_fl]
 analogChannel = 2
-offset = 0.21779
+offset = 0.20779
 encoderToMechanismCoef = 1
 
 [swerve.abs_br]
 analogChannel = 0
-offset = 0.3571329413
+offset = -0.17627
 encoderToMechanismCoef = 1
 
 [swerve.abs_bl]
 analogChannel = 1
-offset = 0.0352701817
+offset = -0.4868#0.0352701817
 encoderToMechanismCoef = 1
 
 
