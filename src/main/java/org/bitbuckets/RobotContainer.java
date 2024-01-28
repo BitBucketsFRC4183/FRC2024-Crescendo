@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -27,8 +28,6 @@ import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
 import org.bitbuckets.commands.drive.AugmentedDriveCommand;
-import org.bitbuckets.commands.drive.DefaultDriveCommand;
-import org.bitbuckets.commands.drive.FollowTrajectoryCommand;
 import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.groundIntake.GroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
@@ -47,6 +46,7 @@ import org.bitbuckets.vision.CamerasComponent;
 import org.bitbuckets.vision.VisionComponent;
 import org.bitbuckets.vision.VisionSimContainer;
 import org.bitbuckets.vision.VisionSubsystem;
+import org.opencv.core.Mat;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import xyz.auriium.mattlib2.CTowerCommands;
@@ -83,6 +83,7 @@ public class RobotContainer {
         //THIS HAS TO RUN FIRST
         Mattlib.LOOPER.runPreInit();
         MattlibSettings.USE_LOGGING = true;
+
         CommandScheduler.getInstance().enable();
 
         // load order matters!!!!!
@@ -118,14 +119,10 @@ public class RobotContainer {
 
     public void autonomousInit() {
 
-
         ChoreoTrajectory trajectory = Choreo.getTrajectory("MVPTaxi");
-        HolonomicDriveController holonomicDriveController = new HolonomicDriveController(
-                new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant()),
-                new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant()),
-                new ProfiledPIDController(DRIVE_T_PID.pConstant(), DRIVE_T_PID.iConstant(), DRIVE_T_PID.dConstant(),
-                        new TrapezoidProfile.Constraints(1,2)) //TODO
-        );
+        var pidx = new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant());
+        var pidy = new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant());
+        var pidtheta = new PIDController(DRIVE_T_PID.pConstant(), DRIVE_T_PID.iConstant(), DRIVE_T_PID.dConstant());
 
         /*new SequentialCommandGroup(
                 new SetSpeakerShootingAngleCommand(shooterSubsystem),
@@ -135,7 +132,25 @@ public class RobotContainer {
 
         odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(trajectory.getInitialPose()));
 
-        new SequentialCommandGroup(new FollowTrajectoryCommand(trajectory, driveSubsystem, odometrySubsystem, holonomicDriveController)).schedule();
+
+        Command follow = Choreo.choreoSwerveCommand(
+                trajectory,
+                odometrySubsystem::getCurrentPosition,
+                pidx,
+                pidy,
+                pidtheta,
+                spds -> {
+                    ChassisSpeeds robotRelative = ChassisSpeeds.fromFieldRelativeSpeeds(spds, odometrySubsystem.getGyroAngle());
+                    driveSubsystem.driveUsingChassisSpeed(robotRelative);
+                },
+                false
+        );
+
+        new SequentialCommandGroup(
+                follow,
+                Commands.runOnce(() -> System.out.println("FINISHED")),
+                Commands.runOnce(driveSubsystem::commandWheelsToZero)
+        ).schedule();
 
     }
 
@@ -190,10 +205,10 @@ public class RobotContainer {
 
     SwerveDriveKinematics loadKinematics() {
         return new SwerveDriveKinematics(
-                new Translation2d(SWERVE.halfWidth_meters(), SWERVE.halfBase_meters()), // FL
-                new Translation2d(SWERVE.halfWidth_meters(), -SWERVE.halfBase_meters()), // FR
-                new Translation2d(-SWERVE.halfWidth_meters(), SWERVE.halfBase_meters()), // BL
-                new Translation2d(-SWERVE.halfWidth_meters(), -SWERVE.halfBase_meters()) // BR
+                SWERVE.fl_offset(),
+                SWERVE.fr_offset(),
+                SWERVE.bl_offset(),
+                SWERVE.br_offset()
         );
     }
 

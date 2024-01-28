@@ -4,13 +4,11 @@
 id = 17
 rotationToMeterCoef = 1
 encoderToMechanismCoef = 1
-type = "BRUSHLESS"
 
 [ground_intake.bottom]
 id = 9
 rotationToMeterCoef = 1
 encoderToMechanismCoef = 1
-type = "BRUSHLESS"
 inverted = true
 
 [ground_intake.ff_top]
@@ -33,12 +31,10 @@ channel = 0
 [shooter.wheel_1]
 id = 0
 encoderToMechanismCoef = 0.0
-type = "BRUSHLESS"
 
 [shooter.wheel_2]
 id = 0
 encoderToMechanismCoef = 0.0
-type = "BRUSHLESS"
 
 [shooter.absolute]
 analogChannel = 0
@@ -53,7 +49,6 @@ i = 0
 [shooter.angle_motor]
 encoderToMechanismCoef = 0.0
 id = 0
-type = "BRUSHLESS"
 
 # DRIVE STUFF GOES HERE
 
@@ -62,66 +57,57 @@ pigeonId = 5
 ff_ks = 0.65292
 ff_kv = 2.3053
 ff_ka = 0.37626
-halfWidth = 9.125
-halfBase = 10.25
-directionSlew = 2.0
-angleSlew = 2.4
-magnitudeSlewFw = 2.6
-magnitudeSlewCancel = 2.6
+fl_offset = {x = 0.2286, y = 0.3429}
+fr_offset = {x = 0.2286, y = -0.3429}
+bl_offset = {x = -0.3556, y = 0.3429}
+br_offset = {x = -0.3556, y = -0.3429}
 x_holonomic_pid = {p = 1.2, i = 0, d = 0}
 y_holonomic_pid = {p = 1.2, i = 0, d = 0}
 t_holonomic_pid = {p = 1, i = 0, d = 0}
 
 # Steer
 [swerve.steer_common]
-encoderToMechanismCoef = 0.04666666666# (14.0 / 50.0) * (10.0 / 60.0) mk4i reduction
-type = "BRUSHLESS"
+encoderToMechanismCoef = 0.078 # (14.0 / 50.0) * (10.0 / 60.0) mk4i reduction
 rotationalInertia = 0.002
 inverted = true
 
 [swerve.steer_fr]
-id = 8
+id = 16
 [swerve.steer_fl]
-id = 6
+id = 17
 [swerve.steer_br]
-id = 2
+id = 21
 [swerve.steer_bl]
-id = 4
+id = 9
 
-#Drive
+#Drive (mk4 l2 is same as mk4i)
 [swerve.drive_fr]
-id = 7
-rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
-encoderToMechanismCoef = 0.14823529411 # (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) mk4i reduction
-type = "BRUSHLESS"
+id = 20
+rotationToMeterCoef = 0.31519599093
+encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
 inverted = true
 
 [swerve.drive_fl]
-id = 5
-rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
-encoderToMechanismCoef = 0.14823529411 # (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) mk4i reduction
-type = "BRUSHLESS"
+id = 15
+rotationToMeterCoef = 0.31519599093
+encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
 inverted = true
 
 [swerve.drive_br]
-id = 1
+id = 19
 rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
-encoderToMechanismCoef = 0.14823529411 # (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) mk4i reduction
-type = "BRUSHLESS"
+encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
 inverted = false
 
 [swerve.drive_bl]
-id = 3
-rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
-encoderToMechanismCoef = 0.14823529411 # (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) mk4i reduction
-type = "BRUSHLESS"
+id = 14
+rotationToMeterCoef = 0.31519599093
+encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
 inverted = true
-
-
 
 
 [swerve.steer_pid_common]
@@ -130,26 +116,24 @@ i = 0
 d = 0.1
 
 [swerve.abs_fr]
-analogChannel = 3
+analogChannel = 0
 offset = 0.25165
 encoderToMechanismCoef = 1
 
 [swerve.abs_fl]
-analogChannel = 2
+analogChannel = 3
 offset = 0.20929
 encoderToMechanismCoef = 1
 
 [swerve.abs_br]
-analogChannel = 0
+analogChannel = 1
 offset = -0.15827
 encoderToMechanismCoef = 1
 
 [swerve.abs_bl]
-analogChannel = 1
-offset = 0.0123#0.0352701817
+analogChannel = 2
+offset = 0.0123
 encoderToMechanismCoef = 1
-
-
 
 
 # CLIMBER STUFF GOES HERE
@@ -162,13 +146,11 @@ ff_ks = 0.0
 [climber.left]
 id = 0
 encoderToMechanismCoef = 0.0
-type = "BRUSHLESS"
 rotationalInertia = 0.0
 
 [climber.right]
 id = 0
 encoderToMechanismCoef = 0.0
-type = "BRUSHLESS"
 rotationalInertia = 0.0
 
 # NMS NOTE MANAGEMENT SUBSYSTEM
@@ -181,14 +163,12 @@ id = 0
 rotationToMeterCoef = 1 #WRONG
 encoderToMechanismCoef = 1 #WRONG
 rotationalInertia = 1.0
-type = "BRUSHLESS"
 
 [nms.bottom]
 id = 0
 rotationToMeterCoef = 1 #WRONG
 encoderToMechanismCoef = 1 #WRONG
 rotationalInertia = 1.0
-type = "BRUSHLESS"
 
 # CAMERA
 

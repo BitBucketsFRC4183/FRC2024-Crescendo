@@ -101,6 +101,19 @@ public class OperatorInput {
         return deadband(-driver.getLeftY()); //reference frame stuff
     }
 
+    public double getDriverRightComponentRaw() {
+        return -driver.getLeftX(); //reference frame stuff
+    }
+
+    public double getRobotForwardComponentRaw() {
+        return -driver.getLeftY(); //reference frame stuff
+    }
+
+    public double getRobotRotationRaw() {
+        return driver.getRightX();
+    }
+
+
     public double getDriverRightStickX() {
         return deadband(driver.getRightX());
     }

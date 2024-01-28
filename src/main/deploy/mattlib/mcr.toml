@@ -1,0 +1,58 @@
+# mcr data goes here
+
+[swerve]
+#THIS IS WRONG
+fl_offset = {x = 0.2318, y = 0.26035}
+fr_offset = {x = 0.2318, y = -0.26035}
+bl_offset = {x = -0.2318, y = 0.26035}
+br_offset = {x = -0.2318, y = -0.26035}
+
+[swerve.steer_common]
+encoderToMechanismCoef = 0.04666666666 # (14.0 / 50.0) * (10.0 / 60.0) mk4i reduction
+
+[swerve.steer_fr]
+id = 8
+[swerve.steer_fl]
+id = 6
+[swerve.steer_br]
+id = 2
+[swerve.steer_bl]
+id = 4
+
+#Drive
+[swerve.drive_fr]
+id = 7
+rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
+inverted = true
+
+[swerve.drive_fl]
+id = 5
+rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
+inverted = true
+
+[swerve.drive_br]
+id = 1
+rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
+inverted = false
+
+[swerve.drive_bl]
+id = 3
+rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
+inverted = true
+
+
+[swerve.abs_fr]
+analogChannel = 3
+offset = 0.75165
+
+[swerve.abs_fl]
+analogChannel = 2
+offset = 0.70929
+
+[swerve.abs_br]
+analogChannel = 0
+offset = 0.34173
+
+[swerve.abs_bl]
+analogChannel = 1
+offset = 0.5123#0.0352701817
