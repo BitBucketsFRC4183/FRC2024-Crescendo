@@ -64,8 +64,10 @@ ff_kv = 2.3053
 ff_ka = 0.37626
 halfWidth = 9.125
 halfBase = 10.25
-magnitudeSlew = 1
-angleSlew = 1
+directionSlew = 2.0
+angleSlew = 2.4
+magnitudeSlewFw = 2.6
+magnitudeSlewCancel = 2.6
 x_holonomic_pid = {p = 1.2, i = 0, d = 0}
 y_holonomic_pid = {p = 1.2, i = 0, d = 0}
 t_holonomic_pid = {p = 1, i = 0, d = 0}
@@ -117,7 +119,7 @@ rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
 encoderToMechanismCoef = 0.14823529411 # (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) mk4i reduction
 type = "BRUSHLESS"
 rotationalInertia = 0.025
-inverted = false
+inverted = true
 
 
 
@@ -129,22 +131,22 @@ d = 0.1
 
 [swerve.abs_fr]
 analogChannel = 3
-offset = 0.2626585288
+offset = 0.25165
 encoderToMechanismCoef = 1
 
 [swerve.abs_fl]
 analogChannel = 2
-offset = 0.20779
+offset = 0.20929
 encoderToMechanismCoef = 1
 
 [swerve.abs_br]
 analogChannel = 0
-offset = -0.17627
+offset = -0.15827
 encoderToMechanismCoef = 1
 
 [swerve.abs_bl]
 analogChannel = 1
-offset = -0.4868#0.0352701817
+offset = 0.0123#0.0352701817
 encoderToMechanismCoef = 1
 
 

@@ -41,7 +41,7 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
 
     @Override
     public void periodic() {
-        odometry.update(getGyroAngle(),driveSubsystem.currentPositions());
+        odometry.update(gyro.initializationRelativeRotation(),driveSubsystem.currentPositions());
 
         if (Robot.isReal()) {
             //VISION
@@ -73,7 +73,8 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
 
         return positions;
     }
-   public Rotation2d getGyroAngle() {
+
+    public Rotation2d getGyroAngle() {
         if (Robot.isSimulation()) {
             SwerveModulePosition[] currentPositions = driveSubsystem.currentPositions();
             SwerveModulePosition[] deltaPositions = delta(currentPositions, lastPositions);
@@ -85,7 +86,7 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
 
             return lastAngle_fieldRelative;
         } else {
-            return gyro.currentRotation();
+            return gyro.userZeroRelativeRotation();
         }
    }
 
@@ -94,6 +95,11 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
    }
 
    public void forceOdometryToThinkWeAreAt(Pose3d position) {
-        odometry.resetPosition(gyro.currentRotation(), driveSubsystem.currentPositions(), position.toPose2d());
+        odometry.resetPosition(gyro.initializationRelativeRotation(), driveSubsystem.currentPositions(), position.toPose2d());
+   }
+
+   //i have no idea what this does dont use it
+   public void debugZero() {
+        gyro.userZero();
    }
 }

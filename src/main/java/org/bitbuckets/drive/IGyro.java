@@ -4,6 +4,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 
 public interface IGyro {
 
-    Rotation2d currentRotation();
+    Rotation2d initializationRelativeRotation();
+    Rotation2d userZeroRelativeRotation();
+
+    void userZero();
 
 }

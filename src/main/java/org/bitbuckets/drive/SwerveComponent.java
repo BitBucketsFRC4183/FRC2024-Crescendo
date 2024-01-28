@@ -16,8 +16,10 @@ public interface SwerveComponent extends INetworkedComponent {
     @Conf("halfWidth") double halfWidth_meters();
     @Conf("halfBase") double halfBase_meters();
 
-    @Conf("magnitudeSlew") double magnitudeSlew();
+    @Conf("magnitudeSlewFw") double magnitudeSlewFw();
+    @Conf("magnitudeSlewCancel") double magnitudeSlewCancel();
     @Conf("angleSlew") double rotationalSlew();
+    @Conf("directionSlew") double directionSlew();
 
     //@Log("positions") void logSwervePositions(SwerveModulePosition[] positions);
     @Log("states") void logSwerveStates(SwerveModuleState[] states);
