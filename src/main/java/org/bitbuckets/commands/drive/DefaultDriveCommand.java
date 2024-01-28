@@ -25,6 +25,7 @@ public class DefaultDriveCommand extends Command {
         this.odometrySubsystem = odometrySubsystem;
         this.operatorInput = operatorInput;
 
+        addRequirements(driveSubsystem);
 
     }
 
@@ -51,7 +52,7 @@ public class DefaultDriveCommand extends Command {
 
 
 
-        driveSubsystem.driveUsingChassisSpeed(fieldRelativeSpeeds);
+        driveSubsystem.driveUsingChassisSpeed(robotRelativeSpeeds);
     }
 
     @Override

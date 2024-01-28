@@ -11,8 +11,20 @@ public class Pigeon2Gyro implements IGyro{
         this.pigeon2 = pigeon2;
     }
 
+    Rotation2d tare = new Rotation2d();
+
     @Override
-    public Rotation2d currentRotation() {
+    public Rotation2d initializationRelativeRotation() {
         return pigeon2.getRotation2d();
+    }
+
+    @Override
+    public Rotation2d userZeroRelativeRotation() {
+        return pigeon2.getRotation2d().minus(tare);
+    }
+
+    @Override
+    public void userZero() {
+        tare = tare.plus(userZeroRelativeRotation());
     }
 }

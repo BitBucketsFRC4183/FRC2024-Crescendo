@@ -1,11 +1,12 @@
 package org.bitbuckets.commands.drive;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.bitbuckets.OperatorInput;
 import org.bitbuckets.drive.DriveSubsystem;
+import org.bitbuckets.drive.OdometrySubsystem;
 import org.bitbuckets.drive.SwerveComponent;
 
 /**
@@ -15,6 +16,7 @@ public class AugmentedDriveCommand extends Command {
 
     final OperatorInput operatorInput;
     final DriveSubsystem driveSubsystem;
+    final OdometrySubsystem odometrySubsystem;
     final SwerveComponent swerveComponent;
 
     final SlewRateLimiter magnitudeLimit;
@@ -25,20 +27,25 @@ public class AugmentedDriveCommand extends Command {
     double currentPolar_radians = 0;
     double lastTime = WPIUtilJNI.now() * 1e-6;
 
-    public AugmentedDriveCommand(OperatorInput operatorInput, DriveSubsystem driveSubsystem, SwerveComponent swerveComponent) {
+    public AugmentedDriveCommand(SwerveComponent swerveComponent, DriveSubsystem driveSubsystem, OdometrySubsystem odometrySubsystem, OperatorInput operatorInput) {
         this.operatorInput = operatorInput;
         this.driveSubsystem = driveSubsystem;
+        this.odometrySubsystem = odometrySubsystem;
         this.swerveComponent = swerveComponent;
-        magnitudeLimit = new SlewRateLimiter(swerveComponent.magnitudeSlew());
+
+        addRequirements(driveSubsystem);
+
+        magnitudeLimit = new SlewRateLimiter(swerveComponent.magnitudeSlewFw(), - swerveComponent.magnitudeSlewCancel(), 0);
         rotationalLimit = new SlewRateLimiter(swerveComponent.rotationalSlew());
     }
 
+    //copy pasted shit
     @Override
     public void execute() {
 
-        double fieldX = 3d * operatorInput.getRobotForwardComponent(); //-3 to 3 m/s
-        double fieldY = 3d * operatorInput.getDriverRightComponent();
-        double rot_radians = 2d * operatorInput.getDriverRightStickX();
+        double fieldX = operatorInput.getRobotForwardComponent(); //-3 to 3 m/s
+        double fieldY = operatorInput.getDriverRightComponent();
+        double rot_radians = operatorInput.getDriverRightStickX();
 
         // Convert XY to polar for rate limiting
         double polar_radians = Math.atan2(fieldY, fieldX);
@@ -48,7 +55,7 @@ public class AugmentedDriveCommand extends Command {
         double directionSlewRate;
 
         if (translationalMagnitude != 0.0) {
-            directionSlewRate = Math.abs(swerveComponent.magnitudeSlew() / currentTranslationMagnitude);
+            directionSlewRate = Math.abs(swerveComponent.directionSlew() / currentTranslationMagnitude);
         } else {
             directionSlewRate = 500.0; //some high number that means the slew rate is effectively instantaneous
         }
@@ -56,15 +63,16 @@ public class AugmentedDriveCommand extends Command {
 
         double currentTime = WPIUtilJNI.now() * 1e-6;
         double elapsedTime = currentTime - lastTime;
-        double angleDif = AngleDifference(polar_radians, polar_radians);
+        double angleDif = AngleDifference(polar_radians, currentPolar_radians);
 
         if (angleDif < 0.45*Math.PI) {
-            currentPolar_radians = StepTowardsCircular(currentTranslationMagnitude, translationalMagnitude, directionSlewRate * elapsedTime);
+            currentPolar_radians = StepTowardsCircular(currentPolar_radians, polar_radians, directionSlewRate * elapsedTime);
             currentTranslationMagnitude = magnitudeLimit.calculate(translationalMagnitude);
         }
         else if (angleDif > 0.85*Math.PI) {
-            if (currentTranslationMagnitude > 1e-4) { //some small number to avoid floating-point errors with equality checking
-                // keep currentTranslationDir unchanged
+
+            if (currentTranslationMagnitude > 1e-4) {
+                System.out.println("DOING THE Strange thing?");
                 currentTranslationMagnitude = magnitudeLimit.calculate(0.0);
             }
             else {
@@ -84,7 +92,26 @@ public class AugmentedDriveCommand extends Command {
         double rotationCommanded = rotationalLimit.calculate(rot_radians);
 
 
+        ChassisSpeeds fieldRelativeSpeeds = new ChassisSpeeds(
+                3d * xSpeedCommanded,
+                3d * ySpeedCommanded,
+                2d * rotationCommanded
+        );
 
+
+        ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                fieldRelativeSpeeds,
+                odometrySubsystem.getGyroAngle()
+        );
+
+
+        driveSubsystem.driveUsingChassisSpeed(robotRelativeSpeeds);
+
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        driveSubsystem.commandWheelsToZero();
     }
 
     /**

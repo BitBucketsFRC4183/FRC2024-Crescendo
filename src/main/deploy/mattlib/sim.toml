@@ -1,36 +1,11 @@
 [swerve.steer_pid_common]
 p = 30
-
 [swerve.steer_common]
 inverted = false
-
-[absolute]
-analogChannel = 0
-coefficient = 0.0
-absoluteOffset = 0.0
-
-[shooter]
-dio_channel = 0
-deadband = 0.0
-channel = 0
-
-[shooter.wheel_1]
-id = 0
-
-[shooter.wheel_2]
-id = 0
-
-[shooter.common]
-encoderToMechanismCoef = 0.0
-
-[shooter.angle.pid]
-p = 0
-d = 0
-i = 0
-
-[shooter.angle_motor]
-encoderToMechanismCoef = 0.0
-id = 0
-
-
+[swerve.drive_fl] #irl motors in front are biased inverse, but sim ones arent
+inverted = false
+[swerve.drive_fr]
+inverted = false
+[swerve.drive_bl]
+inverted = false
 

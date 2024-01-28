@@ -80,6 +80,7 @@ public class SwerveModule implements IPeriodicLooped {
 
     public void setToMoveAt(SwerveModuleState state) {
 
+
         SwerveModuleState optimizedState = SwerveModuleState.optimize(
                 state,
                 Rotation2d.fromRotations(steerController.angularPosition_normalizedMechanismRotations())
