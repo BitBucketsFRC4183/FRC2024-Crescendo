@@ -55,6 +55,7 @@ import xyz.auriium.mattlib2.hardware.*;
 import xyz.auriium.mattlib2.hardware.config.*;
 import xyz.auriium.mattlib2.rev.HardwareREV;
 import xyz.auriium.mattlib2.sim.HardwareSIM;
+import xyz.auriium.mattlib2.utils.MockingUtil;
 
 import java.io.IOException;
 
@@ -102,6 +103,8 @@ public class RobotContainer {
 
         //THIS HAS TO RUN AT THE END
         Mattlib.LOOPER.runPostInit();
+
+        System.out.println(DISABLER.nms_disabled() + " IS DISABLED");
     }
 
     public void simulationPeriodic() {
@@ -148,7 +151,7 @@ public class RobotContainer {
         Trigger rotGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kRightX.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kRightX.value, -0.1));;
         Trigger climberThreshold = operatorInput.operatorControl.axisGreaterThan(XboxController.Axis.kRightY.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kRightY.value, -0.1));
 
-        operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(new DefaultDriveCommand(driveSubsystem, odometrySubsystem, operatorInput));
+        operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(new DefaultDriveCommand(SWERVE, driveSubsystem, odometrySubsystem, operatorInput));
 
         // Trigger things
         operatorInput.ampSetpoint_hold.whileTrue(new SetAmpShootingAngleCommand(shooterSubsystem).andThen(new ShootNoteCommand(shooterSubsystem)));
@@ -185,12 +188,13 @@ public class RobotContainer {
 
     DriveSubsystem loadDriveSubsystem() {
         SwerveModule[] modules = loadSwerveModules();
-        SimpleMotorFeedforward ff = new SimpleMotorFeedforward(SWERVE.ff_ks(), SWERVE.ff_kv());
-        return new DriveSubsystem(modules,kinematics,ff);
+
+        return new DriveSubsystem(modules,kinematics);
     }
 
     SwerveModule[] loadSwerveModules() {
         SwerveModule[] modules = new SwerveModule[4];
+        SimpleMotorFeedforward ff = new SimpleMotorFeedforward(SWERVE.ff_ks(), SWERVE.ff_kv());
         for (int i = 0; i < modules.length; i++) {
             ILinearMotor driveMotor;
             IRotationalController steerController;
@@ -215,7 +219,7 @@ public class RobotContainer {
                 driveMotor = HardwareDisabled.linearMotor_disabled();
             }
 */
-            modules[i] = new SwerveModule(driveMotor, steerController, absoluteEncoder);
+            modules[i] = new SwerveModule(driveMotor, steerController, absoluteEncoder, ff);
         }
 
         return modules;
@@ -244,7 +248,7 @@ public class RobotContainer {
             leftMotor = HardwareREV.rotationalSpark_noPID(SHOOTER_WHEEL_1);
             rightMotor = HardwareREV.rotationalSpark_noPID(SHOOTER_WHEEL_2);
             angleMotor = HardwareREV.rotationalSpark_builtInPID(ANGLE_SHOOTER_MOTOR, ANGLE_PID);
-            absoluteEncoder = new ThriftyAbsoluteEncoder(new AnalogInput(SHOOTER.channel()), ABSOLUTE);
+            absoluteEncoder = new ThriftyAbsoluteEncoder(new AnalogInput(SHOOTER.channel()), SHOOTER_ABSOLUTE);
         }
 
 
@@ -254,16 +258,19 @@ public class RobotContainer {
                angleMotor,
                absoluteEncoder,
                SHOOTER,
-               ABSOLUTE
+               SHOOTER_ABSOLUTE
        );
 
     }
 
     NoteManagementSubsystem loadNoteManagementSubsystem() {
+        if (DISABLER.nms_disabled()) {
+            return MockingUtil.buddy(NoteManagementSubsystem.class);
+        }
+
         ILinearMotor nms_bottomMotor;
         ILinearMotor nms_topMotor;
-        DigitalInput beamBreak = new DigitalInput(BEAM_BREAK.channel());
-
+        DigitalInput beamBreak = new DigitalInput(NMS.channel());
 
         if (DISABLER.nms_disabled()) {
             nms_bottomMotor = HardwareDisabled.linearController_disabled();
@@ -274,8 +281,8 @@ public class RobotContainer {
         }
 
         else {
-            nms_bottomMotor = HardwareREV.linearSpark_builtInPID(NMS_BOTTOMCOMPONENT, NMS_PID);
-            nms_topMotor = HardwareREV.linearSpark_builtInPID(NMS_TOPCOMPONENT, NMS_PID);
+            nms_bottomMotor = HardwareREV.linearSpark_noPID(NMS_BOTTOMCOMPONENT);
+            nms_topMotor = HardwareREV.linearSpark_noPID(NMS_TOPCOMPONENT);
         }
 
         return new NoteManagementSubsystem(
@@ -312,6 +319,9 @@ public class RobotContainer {
         ); //TODO
     }
     VisionSubsystem loadVisionSubsystem() {
+        if (DISABLER.vision_disabled()) {
+            return MockingUtil.buddy(VisionSubsystem.class);
+        }
 
         PhotonCamera camera1;
         PhotonCamera camera2;
@@ -415,9 +425,6 @@ public class RobotContainer {
 
     public static final VisionComponent VISION = LOG.load(VisionComponent.class, "vision");
 
-    // NMS: Note Management System
-    public static final MotorComponent NMS = LOG.load(MotorComponent.class, "note_management/NMS");
-
     public static final ClimberComponent CLIMBER = LOG.load(ClimberComponent.class, "climber");
     public static final PIDComponent CLIMBER_PID = LOG.load(PIDComponent.class, "climber/climber_pid");
     public static final MotorComponent LEFT_CLIMBER = LOG.load(MotorComponent.class, "climber/left");
@@ -432,32 +439,30 @@ public class RobotContainer {
     public static final ShooterComponent SHOOTER = LOG.load(ShooterComponent.class, "shooter");
     public static final MotorComponent SHOOTER_WHEEL_1 = LOG.load(MotorComponent.class, "shooter/wheel_1");
     public static final MotorComponent SHOOTER_WHEEL_2 = LOG.load(MotorComponent.class, "shooter/wheel_2");
+    public static final AbsoluteEncoderComponent SHOOTER_ABSOLUTE = LOG.load(AbsoluteEncoderComponent.class, "shooter/absolute");
     public static final MotorComponent ANGLE_SHOOTER_MOTOR = LOG.load(MotorComponent.class,"shooter/angle_motor");
     public static final PIDComponent ANGLE_PID = LOG.load(PIDComponent.class,"shooter/angle/pid");
 
-    public static final MotorComponent NMS_TOPCOMPONENT = LOG.load(MotorComponent.class, "NMS/top");
-    public static final MotorComponent NMS_BOTTOMCOMPONENT = LOG.load(MotorComponent.class, "NMS/bottom");
-    public static final PIDComponent NMS_PID = LOG.load(PIDComponent.class, "NMS/pid");
+    public static final NoteManagementComponent NMS = LOG.load(NoteManagementComponent.class, "nms");
+    public static final MotorComponent NMS_TOPCOMPONENT = LOG.load(MotorComponent.class, "nms/top");
+    public static final MotorComponent NMS_BOTTOMCOMPONENT = LOG.load(MotorComponent.class, "nms/bottom");
 
     public static final SwerveComponent SWERVE = LOG.load(SwerveComponent.class, "swerve");
-    public static final CommonMotorComponent DRIVE_COMMON = LOG.load(CommonMotorComponent.class, "swerve/drive_common");
     public static final CommonMotorComponent STEER_COMMON = LOG.load(CommonMotorComponent.class, "swerve/steer_common");
     public static final CommonPIDComponent PID_COMMON = LOG.load(CommonPIDComponent.class, "swerve/steer_pid_common");
-    public static final MotorComponent[] DRIVES = MotorComponent.ofRange(DRIVE_COMMON, LOG.loadRange(IndividualMotorComponent.class, "swerve/drive", 4, Util.RENAMER));
+    public static final MotorComponent[] DRIVES = LOG.loadRange(MotorComponent.class, "swerve/drive", 4, Util.RENAMER);
     public static final MotorComponent[] STEERS = MotorComponent.ofRange(STEER_COMMON, LOG.loadRange(IndividualMotorComponent.class, "swerve/steer", 4, Util.RENAMER));
     public static final PIDComponent[] PIDS = PIDComponent.ofRange(PID_COMMON, LOG.loadRange(IndividualPIDComponent.class, "swerve/pid", 4, Util.RENAMER));
 
-    public static final CommonEncoderComponent[] STEER_ABS_ENCODERS = LOG.loadRange(CommonEncoderComponent.class, "swerve/abs", 4, Util.RENAMER);
+    public static final AbsoluteEncoderComponent[] STEER_ABS_ENCODERS = LOG.loadRange(AbsoluteEncoderComponent.class, "swerve/abs", 4, Util.RENAMER);
 
     public static final PIDComponent DRIVE_X_PID = LOG.load(PIDComponent.class, "swerve/x_holonomic_pid");
     public static final PIDComponent DRIVE_Y_PID = LOG.load(PIDComponent.class, "swerve/y_holonomic_pid");
     public static final PIDComponent DRIVE_T_PID = LOG.load(PIDComponent.class, "swerve/t_holonomic_pid");
 
-    public static final CommonEncoderComponent ABSOLUTE = LOG.load(CommonEncoderComponent.class, "absolute");
     public static final CamerasComponent CAMERAS = LOG.load(CamerasComponent.class, "cameras");
 
     public static final DisablerComponent DISABLER = LOG.load(DisablerComponent.class, "disabler");
 
-    public static final NoteManagementComponent BEAM_BREAK = LOG.load(NoteManagementComponent.class, "beam breaker");
 
 }

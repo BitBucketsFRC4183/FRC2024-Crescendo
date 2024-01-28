@@ -1,29 +1,47 @@
 package org.bitbuckets.drive;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import org.bitbuckets.Robot;
+import org.bitbuckets.util.Util;
 import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.mattlib2.hardware.ILinearMotor;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.hardware.IRotationalController;
+import xyz.auriium.mattlib2.utils.AngleUtil;
+import xyz.auriium.yuukonstants.exception.ExplainedException;
+
+import java.util.Optional;
 
 public class SwerveModule implements IPeriodicLooped {
 
     final ILinearMotor driveMotor;
     final IRotationalController steerController;
     final IRotationEncoder absoluteEncoder;
+    final SimpleMotorFeedforward ff;
 
-    public SwerveModule(ILinearMotor driveMotor, IRotationalController steerController, IRotationEncoder absoluteEncoder) {
+    public SwerveModule(ILinearMotor driveMotor, IRotationalController steerController, IRotationEncoder absoluteEncoder, SimpleMotorFeedforward ff) {
         this.driveMotor = driveMotor;
         this.steerController = steerController;
         this.absoluteEncoder = absoluteEncoder;
+        this.ff = ff;
 
         mattRegister();
     }
 
     //periodic looped stuff & state
+
+
+    @Override
+    public Optional<ExplainedException> verifyInit() {
+        double absoluteAngularPosition_infiniteMechanismRotations = absoluteEncoder.angularPosition_normalizedMechanismRotations();
+        steerController.forceRotationalOffset(absoluteAngularPosition_infiniteMechanismRotations);
+
+        return Optional.empty();
+    }
 
     int resetIteration = 0;
 
@@ -32,12 +50,18 @@ public class SwerveModule implements IPeriodicLooped {
      */
     @Override
     public void logicPeriodic() {
+        if (true) return;
         if (Robot.isSimulation()) return; //STOP IT
 
-        if (steerController.angularVelocity_mechanismRotationsPerSecond() * 10 >= 0.5) return;
+        if (steerController.angularVelocity_mechanismRotationsPerSecond() * 10 >= 0.5) {
+            resetIteration = 0;
+            return;
+        }
         if (++resetIteration > 500) {
             resetIteration = 0;
             double absoluteAngularPosition_infiniteMechanismRotations = absoluteEncoder.angularPosition_normalizedMechanismRotations();
+            System.out.println("RESET TO " + absoluteAngularPosition_infiniteMechanismRotations);
+
             steerController.forceRotationalOffset(absoluteAngularPosition_infiniteMechanismRotations);
         }
     }
@@ -53,45 +77,27 @@ public class SwerveModule implements IPeriodicLooped {
         steerController.setToVoltage(0);
     }
 
-    /**
-     *
-     * @param driveVoltage a voltage to drive at until eternity
-     * @param referenceAngle_normalizedMechanismRotations a rotation to PID to until eternity
-     */
-    public void setToMoveAt(double driveVoltage, double referenceAngle_normalizedMechanismRotations) {
 
-        //referenceAngle is 0 to 1, currentSteerAngle is 0 to 1
-        double difference = referenceAngle_normalizedMechanismRotations - currentSteerAngle_normalizedMechanismRotations();
+    public void setToMoveAt(SwerveModuleState state) {
 
-        //we want difference to be -0.5 to 0.5
-        if (difference >= 0.5) { //let's say it's .7
-            referenceAngle_normalizedMechanismRotations -= 1.0; //now it's -.3
-        } else if (difference < -0.5) { //-.7
-            referenceAngle_normalizedMechanismRotations += 1.0; //.3
-        }
+        SwerveModuleState optimizedState = SwerveModuleState.optimize(
+                state,
+                Rotation2d.fromRotations(steerController.angularPosition_normalizedMechanismRotations())
+        );
 
-        difference = referenceAngle_normalizedMechanismRotations - currentSteerAngle_normalizedMechanismRotations(); // Recalculate difference
-
-        // If the difference is greater than 0.25 or less than 0.25 the drive can be inverted so the total
-        // movement of the module is less than 0.25
-        if (difference > 0.25 || difference < -0.25) {
-            // Only need to add 180 deg here because the target angle will be put back into the range 0 to 1
-            referenceAngle_normalizedMechanismRotations += 0.5;
-            driveVoltage *= -1.0;
-        }
-
-        // Put the target angle back into the range 0 to 1
-        referenceAngle_normalizedMechanismRotations %= (1.0);
-        if (referenceAngle_normalizedMechanismRotations < 0.0) {
-            referenceAngle_normalizedMechanismRotations += 1.0;
+        if (optimizedState.speedMetersPerSecond < 0.001 && Math.abs(optimizedState.angle.getRotations() - steerController.angularPosition_normalizedMechanismRotations()) < 0.01) {
+            steerController.setToVoltage(0);
+            driveMotor.setToVoltage(0);
         }
 
         steerController.controlToNormalizedReference(
-                referenceAngle_normalizedMechanismRotations
+                AngleUtil.normalizeRotations(optimizedState.angle.getRotations())
         );
 
-        
-        driveMotor.setToVoltage(driveVoltage);
+
+        double feedforwardVoltage = ff.calculate(optimizedState.speedMetersPerSecond);
+        feedforwardVoltage = MathUtil.clamp(feedforwardVoltage, -Util.MAX_VOLTAGE, Util.MAX_VOLTAGE);
+        driveMotor.setToVoltage(feedforwardVoltage);
     }
 
 
@@ -101,7 +107,7 @@ public class SwerveModule implements IPeriodicLooped {
         return new SwerveModulePosition(
                 driveMotor.linearPosition_mechanismMeters(),
                 Rotation2d.fromRotations(
-                        absoluteEncoder.angularPosition_normalizedMechanismRotations()
+                        steerController.angularPosition_normalizedMechanismRotations()
                 )
         );
     }
@@ -110,17 +116,9 @@ public class SwerveModule implements IPeriodicLooped {
         return new SwerveModuleState(
                 driveMotor.linearVelocity_mechanismMetersPerSecond(),
                 Rotation2d.fromRotations(
-                        absoluteEncoder.angularPosition_normalizedMechanismRotations()
+                        steerController.angularPosition_normalizedMechanismRotations()
                 )
         );
-    }
-
-    public double getDriveVelocity_metersPerSecond() {
-        return driveMotor.linearVelocity_mechanismMetersPerSecond();
-    }
-
-    public double currentSteerAngle_normalizedMechanismRotations() {
-        return absoluteEncoder.angularPosition_normalizedMechanismRotations();
     }
 
 

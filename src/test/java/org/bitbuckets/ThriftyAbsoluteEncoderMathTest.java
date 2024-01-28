@@ -1,7 +1,7 @@
 package org.bitbuckets;
 
 import edu.wpi.first.wpilibj.AnalogInput;
-import org.bitbuckets.util.CommonEncoderComponent;
+import org.bitbuckets.util.AbsoluteEncoderComponent;
 import org.bitbuckets.util.ThriftyAbsoluteEncoder;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -18,7 +18,7 @@ public class ThriftyAbsoluteEncoderMathTest {
         AnalogInput fake = Mockito.mock(AnalogInput.class);
         Mockito.when(fake.getVoltage()).thenReturn(-2.4);
 
-        ThriftyAbsoluteEncoder thriftyAbsoluteEncoder = new ThriftyAbsoluteEncoder(fake, Mockito.mock(CommonEncoderComponent.class));
+        ThriftyAbsoluteEncoder thriftyAbsoluteEncoder = new ThriftyAbsoluteEncoder(fake, Mockito.mock(AbsoluteEncoderComponent.class));
         assertEquals(-0.5, thriftyAbsoluteEncoder.angularPosition_encoderRotations(), 0);
     }
     
@@ -29,7 +29,7 @@ public class ThriftyAbsoluteEncoderMathTest {
         AnalogInput fake = Mockito.mock(AnalogInput.class);
         Mockito.when(fake.getVoltage()).thenReturn(-4.8);
 
-        ThriftyAbsoluteEncoder thriftyAbsoluteEncoder = new ThriftyAbsoluteEncoder(fake, Mockito.mock(CommonEncoderComponent.class));
+        ThriftyAbsoluteEncoder thriftyAbsoluteEncoder = new ThriftyAbsoluteEncoder(fake, Mockito.mock(AbsoluteEncoderComponent.class));
         assertEquals(0, thriftyAbsoluteEncoder.angularPosition_normalizedEncoderRotations(), 0);
     }
 
@@ -39,8 +39,8 @@ public class ThriftyAbsoluteEncoderMathTest {
     {
         AnalogInput fake = Mockito.mock(AnalogInput.class);
         Mockito.when(fake.getVoltage()).thenReturn(2d);
-        CommonEncoderComponent component =  Mockito.mock(CommonEncoderComponent.class);
-        Mockito.when(component.getEncoderToMechanismCoefficient()).thenReturn(3d);
+        AbsoluteEncoderComponent component =  Mockito.mock(AbsoluteEncoderComponent.class);
+        Mockito.when(component.encoderToMechanismCoefficient()).thenReturn(3d);
 
         ThriftyAbsoluteEncoder thriftyAbsoluteEncoder = new ThriftyAbsoluteEncoder(fake,component);
 
@@ -53,8 +53,8 @@ public class ThriftyAbsoluteEncoderMathTest {
     {
         AnalogInput fake = Mockito.mock(AnalogInput.class);
         Mockito.when(fake.getVoltage()).thenReturn(-2d);
-        CommonEncoderComponent component =  Mockito.mock(CommonEncoderComponent.class);
-        Mockito.when(component.getEncoderToMechanismCoefficient()).thenReturn(3d);
+        AbsoluteEncoderComponent component =  Mockito.mock(AbsoluteEncoderComponent.class);
+        Mockito.when(component.encoderToMechanismCoefficient()).thenReturn(3d);
 
         ThriftyAbsoluteEncoder thriftyAbsoluteEncoder = new ThriftyAbsoluteEncoder(fake, component);
         assertEquals(0.75, thriftyAbsoluteEncoder.angularPosition_normalizedMechanismRotations(), 0.1);
