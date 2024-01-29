@@ -9,6 +9,7 @@ br_offset = {x = -0.2318, y = -0.26035}
 
 [swerve.steer_common]
 encoderToMechanismCoef = 0.04666666666 # (14.0 / 50.0) * (10.0 / 60.0) mk4i reduction
+inverted = true
 
 [swerve.steer_fr]
 id = 8

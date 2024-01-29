@@ -37,7 +37,7 @@ public class SwerveModule implements IPeriodicLooped {
 
     @Override
     public Optional<ExplainedException> verifyInit() {
-        double absoluteAngularPosition_infiniteMechanismRotations = absoluteEncoder.angularPosition_normalizedMechanismRotations();
+        double absoluteAngularPosition_infiniteMechanismRotations = absoluteEncoder.angularPosition_mechanismRotations();
         steerController.forceRotationalOffset(absoluteAngularPosition_infiniteMechanismRotations);
 
         return Optional.empty();
