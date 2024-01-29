@@ -1,6 +1,7 @@
 package org.bitbuckets.util;
 
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
 import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
@@ -39,7 +40,7 @@ public class ThriftyAbsoluteEncoder implements IRotationEncoder, IPeriodicLooped
 
     @Override
     public double angularPosition_mechanismRotations() {
-        double currentMechanismRotations = input.getAverageVoltage() / RobotController.getVoltage5V() * encoderComponent.encoderToMechanismCoefficient();
+        double currentMechanismRotations = input.getVoltage() / RobotController.getVoltage5V() * encoderComponent.encoderToMechanismCoefficient();
         return currentMechanismRotations - encoderComponent.offset_mechanismRotations();
     }
 

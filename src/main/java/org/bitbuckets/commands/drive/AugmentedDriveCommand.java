@@ -59,7 +59,7 @@ public class AugmentedDriveCommand extends Command {
                         linearVelocity.getY() * 3d,
                         theta * Math.PI / 2 );
 
-        speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, odometrySubsystem.getGyroAngle());
+        //speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, odometrySubsystem.getGyroAngle());
 
         driveSubsystem.driveUsingChassisSpeed(speeds);
 

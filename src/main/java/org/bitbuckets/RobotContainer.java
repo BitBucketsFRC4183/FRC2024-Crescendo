@@ -28,6 +28,7 @@ import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
 import org.bitbuckets.commands.drive.AugmentedDriveCommand;
+import org.bitbuckets.commands.drive.DefaultDriveCommand;
 import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.groundIntake.GroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
@@ -80,9 +81,14 @@ public class RobotContainer {
 
 
     public RobotContainer() {
+
+        //DO SETTINGS BEFORE PRE INIT
+        MattlibSettings.USE_LOGGING = true;
+        MattlibSettings.ROBOT = MattlibSettings.Robot.MCR;
+
         //THIS HAS TO RUN FIRST
         Mattlib.LOOPER.runPreInit();
-        MattlibSettings.USE_LOGGING = true;
+
 
         CommandScheduler.getInstance().enable();
 
@@ -108,7 +114,7 @@ public class RobotContainer {
         //THIS HAS TO RUN AT THE END
         Mattlib.LOOPER.runPostInit();
 
-        System.out.println(DISABLER.nms_disabled() + " IS DISABLED");
+        System.out.println(STEER_COMMON.encoderToMechanismCoefficient() + " THE PLACE");
     }
 
     public void simulationPeriodic() {
@@ -172,7 +178,7 @@ public class RobotContainer {
         Trigger rotGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kRightX.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kRightX.value, -0.1));;
         Trigger climberThreshold = operatorInput.operatorControl.axisGreaterThan(XboxController.Axis.kRightY.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kRightY.value, -0.1));
 
-        operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(new AugmentedDriveCommand(SWERVE, driveSubsystem, odometrySubsystem, operatorInput));
+        operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(new DefaultDriveCommand(SWERVE, driveSubsystem, odometrySubsystem, operatorInput));
 
         // Trigger things
         operatorInput.ampSetpoint_hold.whileTrue(new SetAmpShootingAngleCommand(shooterSubsystem).andThen(new ShootNoteCommand(shooterSubsystem)));

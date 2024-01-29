@@ -67,7 +67,7 @@ t_holonomic_pid = {p = 1, i = 0, d = 0}
 
 # Steer
 [swerve.steer_common]
-encoderToMechanismCoef = 0.078 # (14.0 / 50.0) * (10.0 / 60.0) mk4i reduction
+encoderToMechanismCoef = 0.078125 # (14.0 / 50.0) * (10.0 / 60.0) mk4i reduction
 rotationalInertia = 0.002
 inverted = true
 
@@ -93,14 +93,14 @@ id = 15
 rotationToMeterCoef = 0.31519599093
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
-inverted = true
+inverted = false
 
 [swerve.drive_br]
 id = 19
 rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
-inverted = false
+inverted = true
 
 [swerve.drive_bl]
 id = 14
@@ -111,28 +111,28 @@ inverted = true
 
 
 [swerve.steer_pid_common]
-p = 2
+p = 3
 i = 0
-d = 0.1
+d = 0.3
 
 [swerve.abs_fr]
 analogChannel = 0
-offset = 0.25165
+offset = 0.377
 encoderToMechanismCoef = 1
 
 [swerve.abs_fl]
 analogChannel = 3
-offset = 0.20929
+offset = 0.849
 encoderToMechanismCoef = 1
 
 [swerve.abs_br]
 analogChannel = 1
-offset = -0.15827
+offset = 0.3521
 encoderToMechanismCoef = 1
 
 [swerve.abs_bl]
 analogChannel = 2
-offset = 0.0123
+offset = 0.572
 encoderToMechanismCoef = 1
 
 
