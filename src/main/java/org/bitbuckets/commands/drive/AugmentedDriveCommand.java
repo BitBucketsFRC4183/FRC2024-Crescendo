@@ -29,8 +29,11 @@ public class AugmentedDriveCommand extends Command {
         this.odometrySubsystem = odometrySubsystem;
         this.swerveComponent = swerveComponent;
 
+        magnitudeChange = new SlewRateLimiter(swerveComponent.magnitudeFwLimit());
         addRequirements(driveSubsystem);
     }
+
+    final SlewRateLimiter magnitudeChange;
 
     //copy pasted shit
     @Override
@@ -48,6 +51,9 @@ public class AugmentedDriveCommand extends Command {
         linearMagnitude = linearMagnitude * linearMagnitude; //TODO slew this again
         theta = Math.copySign(theta * theta, theta);
 
+        //TODO limiter
+        //linearMagnitude = magnitudeChange.calculate(linearMagnitude);
+
         Translation2d linearVelocity =
                 new Pose2d(new Translation2d(), linearDirection)
                         .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
@@ -61,6 +67,7 @@ public class AugmentedDriveCommand extends Command {
 
         //speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, odometrySubsystem.getGyroAngle());
 
+        speeds = ChassisSpeeds.discretize(speeds, 0.02); //second order comp
         driveSubsystem.driveUsingChassisSpeed(speeds);
 
     }

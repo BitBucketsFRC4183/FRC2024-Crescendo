@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -79,6 +80,8 @@ public class RobotContainer {
     public final NoteManagementSubsystem noteManagementSubsystem;
     public final SwerveDriveKinematics kinematics;
 
+    public final SendableChooser<Command> chooser;
+
 
     public RobotContainer() {
 
@@ -110,6 +113,7 @@ public class RobotContainer {
         } else this.visionSimContainer = null;
 
         loadCommands();
+        chooser = loadAutonomous();
 
         //THIS HAS TO RUN AT THE END
         Mattlib.LOOPER.runPostInit();
@@ -125,6 +129,22 @@ public class RobotContainer {
 
     public void autonomousInit() {
 
+
+
+        chooser.getSelected().schedule();
+
+    }
+
+    public void testInit() {
+
+        LinearFFGenRoutine groundTopFFRoutine = new LinearFFGenRoutine(TOP_GROUND_FFGEN, groundIntakeSubsystem.topMotor, groundIntakeSubsystem.topMotor);
+        //LinearFFGenRoutine groundBottomFFRoutine = new LinearFFGenRoutine(BOTTOM_GROUND_FFGEN, groundIntakeSubsystem.bottomMotor, groundIntakeSubsystem.bottomMotor);
+        CTowerCommands.wrapRoutine(groundTopFFRoutine).schedule();
+        //CTowerCommands.wrapRoutine(groundBottomFFRoutine).schedule();
+
+    }
+
+    SendableChooser<Command> loadAutonomous() {
         ChoreoTrajectory trajectory = Choreo.getTrajectory("MVPTaxi");
         var pidx = new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant());
         var pidy = new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant());
@@ -135,9 +155,6 @@ public class RobotContainer {
                 new ShootNoteCommand(shooterSubsystem),
                 new FollowTrajectoryCommand(trajectory, driveSubsystem, odometrySubsystem, holonomicDriveController)
         ).schedule();*/
-
-        odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(trajectory.getInitialPose()));
-
 
         Command follow = Choreo.choreoSwerveCommand(
                 trajectory,
@@ -152,21 +169,17 @@ public class RobotContainer {
                 false
         );
 
-        new SequentialCommandGroup(
+        var backwardsFollow = new SequentialCommandGroup(
+                Commands.runOnce(() -> odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(trajectory.getInitialPose()))),
                 follow,
                 Commands.runOnce(() -> System.out.println("FINISHED")),
                 Commands.runOnce(driveSubsystem::commandWheelsToZero)
-        ).schedule();
+        );
 
-    }
+        SendableChooser<Command> chooser = new SendableChooser<>();
+        chooser.addOption("backwards", backwardsFollow);
 
-    public void testInit() {
-
-        LinearFFGenRoutine groundTopFFRoutine = new LinearFFGenRoutine(TOP_GROUND_FFGEN, groundIntakeSubsystem.topMotor, groundIntakeSubsystem.topMotor);
-        //LinearFFGenRoutine groundBottomFFRoutine = new LinearFFGenRoutine(BOTTOM_GROUND_FFGEN, groundIntakeSubsystem.bottomMotor, groundIntakeSubsystem.bottomMotor);
-        CTowerCommands.wrapRoutine(groundTopFFRoutine).schedule();
-        //CTowerCommands.wrapRoutine(groundBottomFFRoutine).schedule();
-
+        return chooser;
     }
 
     void loadCommands() {

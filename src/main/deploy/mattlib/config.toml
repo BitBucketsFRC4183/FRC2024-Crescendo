@@ -57,6 +57,7 @@ pigeonId = 5
 ff_ks = 0.65292
 ff_kv = 2.3053
 ff_ka = 0.37626
+magnitudeFWLim = 3.3
 fl_offset = {x = 0.2286, y = 0.3429}
 fr_offset = {x = 0.2286, y = -0.3429}
 bl_offset = {x = -0.3556, y = 0.3429}

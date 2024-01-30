@@ -14,6 +14,8 @@ public interface SwerveComponent extends INetworkedComponent {
     @Conf("ff_kv") double ff_kv();
     @Conf("ff_ka") double ff_ka();
 
+    @Conf("magnitudeFWLim") double magnitudeFwLimit();
+
     @Conf("fr_offset") Translation2d fr_offset();
     @Conf("fl_offset") Translation2d fl_offset();
     @Conf("br_offset") Translation2d br_offset();
