@@ -5,6 +5,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.OperatorInput;
+import org.bitbuckets.RobotContainer;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.OdometrySubsystem;
 import org.bitbuckets.drive.SwerveComponent;
@@ -38,21 +39,17 @@ public class DefaultDriveCommand extends Command {
 
     @Override
     public void execute() {
-        ChassisSpeeds fieldRelativeSpeeds = new ChassisSpeeds(
+        ChassisSpeeds speeds = new ChassisSpeeds(
                 3d*operatorInput.getRobotForwardComponent(),
                 3d*operatorInput.getDriverRightComponent(),
-                2 * operatorInput.getDriverRightStickX()
+                3 * operatorInput.getDriverRightStickX()
         );
 
+        if (RobotContainer.SWERVE.fieldOriented()) {
+            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, odometrySubsystem.getGyroAngle());
+        }
 
-        ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                fieldRelativeSpeeds,
-                odometrySubsystem.getGyroAngle()
-        );
-
-
-
-        driveSubsystem.driveUsingChassisSpeed(fieldRelativeSpeeds);
+        driveSubsystem.driveUsingChassisSpeed(speeds);
     }
 
     @Override

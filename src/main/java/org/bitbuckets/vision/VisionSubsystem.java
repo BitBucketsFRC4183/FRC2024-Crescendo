@@ -2,28 +2,15 @@ package org.bitbuckets.vision;
 
 import edu.wpi.first.apriltag.AprilTagDetector;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.*;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import org.bitbuckets.Robot;
 import org.bitbuckets.RobotContainer;
-import org.bitbuckets.drive.DriveSubsystem;
-import org.bitbuckets.drive.OdometrySubsystem;
-import org.bitbuckets.drive.SwerveModule;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.simulation.PhotonCameraSim;
-import org.photonvision.simulation.SimCameraProperties;
-import org.photonvision.simulation.VisionSystemSim;
 import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.yuukonstants.exception.ExplainedException;
 
 import java.util.Optional;
-import java.util.function.Consumer;
 
 public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
 
@@ -49,6 +36,10 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         mattRegister();
     }
 
+    public VisionThing lookingAt() {
+        return null; //TODO FINISH THIS
+    }
+
     @Override
     public Optional<ExplainedException> verifyInit() {
         // if (RobotContainer.DISABLER.vision_disabled()) return Optional.empty();
@@ -56,6 +47,20 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         // aprilTagDetector.addFamily("36h11");
 
         return Optional.empty();
+    }
+
+
+    public Optional<Pose3d> estimateAprilTagTargetPose() {
+        //TODO BLEND THE DATA BETWEEN THE TWO CAMERAS.
+
+
+        return Optional.empty();
+    }
+
+    public Optional<Transform3d> getTargetGoalTransformBasedOnThing(VisionThing thing) {
+        //TODO APPLY TRANSFORMATIONS BASED ON WHAT WE ARE LOOKING AT - HERE'S WHERE THE FIELD LAYOUT COMES IN HANDY
+
+        return null;
     }
 
 

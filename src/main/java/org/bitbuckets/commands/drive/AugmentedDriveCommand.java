@@ -7,8 +7,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.bitbuckets.OperatorInput;
+import org.bitbuckets.RobotContainer;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.OdometrySubsystem;
 import org.bitbuckets.drive.SwerveComponent;
@@ -34,10 +36,14 @@ public class AugmentedDriveCommand extends Command {
     }
 
     final SlewRateLimiter magnitudeChange;
+    double lastTime = WPIUtilJNI.now() * 1e-6;
 
     //copy pasted shit
     @Override
     public void execute() {
+
+        double now = WPIUtilJNI.now() * 1e-6;
+        double dt = now - lastTime;
 
         double x = operatorInput.getRobotForwardComponentRaw();
         double y = operatorInput.getDriverRightComponentRaw();
@@ -65,11 +71,14 @@ public class AugmentedDriveCommand extends Command {
                         linearVelocity.getY() * 3d,
                         theta * Math.PI / 2 );
 
-        //speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, odometrySubsystem.getGyroAngle());
+        if (RobotContainer.SWERVE.fieldOriented()) {
+            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, odometrySubsystem.getGyroAngle());
+        }
 
-        speeds = ChassisSpeeds.discretize(speeds, 0.02); //second order comp
+        speeds = ChassisSpeeds.discretize(speeds, dt); //second order comp
         driveSubsystem.driveUsingChassisSpeed(speeds);
 
+        lastTime = now;
     }
 
     @Override

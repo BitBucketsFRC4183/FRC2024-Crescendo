@@ -15,12 +15,6 @@ public class GroundIntakeCommand extends Command {
         this.operatorInput = operatorInput;
     }
 
-
-    @Override
-    public void initialize() {
-
-    }
-
     @Override
     public void execute() {
         groundIntakeSubsystem.setToVoltage(6); //TODO tune voltage for intake
@@ -31,8 +25,4 @@ public class GroundIntakeCommand extends Command {
         groundIntakeSubsystem.setToVoltage(0);
     }
 
-    @Override
-    public boolean isFinished() {
-        return super.isFinished();
-    }
 }

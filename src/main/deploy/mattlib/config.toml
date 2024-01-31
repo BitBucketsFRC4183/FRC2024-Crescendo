@@ -58,13 +58,18 @@ ff_ks = 0.65292
 ff_kv = 2.3053
 ff_ka = 0.37626
 magnitudeFWLim = 3.3
-fl_offset = {x = 0.2286, y = 0.3429}
-fr_offset = {x = 0.2286, y = -0.3429}
-bl_offset = {x = -0.3556, y = 0.3429}
-br_offset = {x = -0.3556, y = -0.3429}
+fieldOriented = true
 x_holonomic_pid = {p = 1.2, i = 0, d = 0}
 y_holonomic_pid = {p = 1.2, i = 0, d = 0}
 t_holonomic_pid = {p = 1, i = 0, d = 0}
+
+[odometry]
+centroid_height = 0 #TODO
+camera_centroid_offset = {x = 0, y = 0, z = 0} #TODO
+fl_pos_offset = {x = 0.2286, y = 0.3429}
+fr_pos_offset = {x = 0.2286, y = -0.3429}
+bl_pos_offset = {x = -0.3556, y = 0.3429}
+br_pos_offset = {x = -0.3556, y = -0.3429}
 
 # Steer
 [swerve.steer_common]

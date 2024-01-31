@@ -4,7 +4,6 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import org.bitbuckets.drive.OdometrySubsystem;
 import org.photonvision.PhotonCamera;
 import org.photonvision.simulation.PhotonCameraSim;
@@ -53,7 +52,7 @@ public class VisionSimContainer {
     }
 
     public void simulationPeriodic() {
-        visionSystemSim.update(odometrySubsystem.getCurrentPosition());
+        visionSystemSim.update(odometrySubsystem.getRobotCentroidPosition());
         // visionSystemSim.update(new Pose2d(0, 0, new Rotation2d(0)));
         // Field2d debugField = visionSystemSim.getDebugField();
         // debugField.getObject("EstimatedRobot").setPose(odometrySubsystem.getCurrentPosition());

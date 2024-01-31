@@ -8,4 +8,6 @@ inverted = false
 inverted = false
 [swerve.drive_bl]
 inverted = false
+[swerve.drive_br]
+inverted = false
 

@@ -29,12 +29,11 @@ import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
 import org.bitbuckets.commands.drive.AugmentedDriveCommand;
-import org.bitbuckets.commands.drive.DefaultDriveCommand;
 import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.groundIntake.GroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
 import org.bitbuckets.commands.shooter.*;
-import org.bitbuckets.disabled.DisabledGyro;
+import org.bitbuckets.disabled.KinematicGyro;
 import org.bitbuckets.disabled.DisablerComponent;
 import org.bitbuckets.drive.*;
 import org.bitbuckets.groundIntake.GroundIntakeComponent;
@@ -48,7 +47,6 @@ import org.bitbuckets.vision.CamerasComponent;
 import org.bitbuckets.vision.VisionComponent;
 import org.bitbuckets.vision.VisionSimContainer;
 import org.bitbuckets.vision.VisionSubsystem;
-import org.opencv.core.Mat;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import xyz.auriium.mattlib2.CTowerCommands;
@@ -158,7 +156,7 @@ public class RobotContainer {
 
         Command follow = Choreo.choreoSwerveCommand(
                 trajectory,
-                odometrySubsystem::getCurrentPosition,
+                odometrySubsystem::getRobotCentroidPosition,
                 pidx,
                 pidy,
                 pidtheta,
@@ -194,12 +192,12 @@ public class RobotContainer {
         operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(new AugmentedDriveCommand(SWERVE, driveSubsystem, odometrySubsystem, operatorInput));
 
         // Trigger things
-        operatorInput.ampSetpoint_hold.whileTrue(new SetAmpShootingAngleCommand(shooterSubsystem).andThen(new ShootNoteCommand(shooterSubsystem)));
+        operatorInput.ampSetpoint_hold.whileTrue(new SetAmpShootingAngleCommand(shooterSubsystem).andThen(new AchieveFlatShotSpeedCommand(shooterSubsystem)));
         operatorInput.speakerSetpoint_hold.whileTrue(new SetSpeakerShootingAngleCommand(shooterSubsystem));
         // .andThen(new ShootNoteCommand(shooterSubsystem))
-        operatorInput.shootManually.onTrue(new ShootNoteCommand(shooterSubsystem));
-        operatorInput.sourceIntake_hold.whileTrue(new IntakeCommand(shooterSubsystem));
-        operatorInput.setShooterAngleManually.onTrue(new SetShootingAngleManuallyCommand(operatorInput, shooterSubsystem));
+        operatorInput.shootManually.onTrue(new AchieveFlatShotSpeedCommand(shooterSubsystem));
+        operatorInput.sourceIntake_hold.whileTrue(new AwaitShooterIntakeCommand(noteManagementSubsystem, shooterSubsystem));
+        operatorInput.setShooterAngleManually.onTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));
 
         HolonomicDriveController holonomicDriveController = new HolonomicDriveController(
                 new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant()),
@@ -224,10 +222,10 @@ public class RobotContainer {
 
     SwerveDriveKinematics loadKinematics() {
         return new SwerveDriveKinematics(
-                SWERVE.fl_offset(),
-                SWERVE.fr_offset(),
-                SWERVE.bl_offset(),
-                SWERVE.br_offset()
+                ODO.fl_offset(),
+                ODO.fr_offset(),
+                ODO.bl_offset(),
+                ODO.br_offset()
         );
     }
 
@@ -341,7 +339,7 @@ public class RobotContainer {
         IGyro gyro;
 
         if (Robot.isSimulation() || DISABLER.odometry_disabled()) {
-            gyro = new DisabledGyro();
+            gyro = new KinematicGyro(driveSubsystem, kinematics);
         } else {
             Pigeon2 pigeon2 = new Pigeon2(SWERVE.pigeonCanId());
 
@@ -360,7 +358,8 @@ public class RobotContainer {
                         new Pose2d()
                 ),
                 gyro,
-                kinematics
+                kinematics,
+                ODO
         ); //TODO
     }
     VisionSubsystem loadVisionSubsystem() {
@@ -493,6 +492,7 @@ public class RobotContainer {
     public static final MotorComponent NMS_BOTTOMCOMPONENT = LOG.load(MotorComponent.class, "nms/bottom");
 
     public static final SwerveComponent SWERVE = LOG.load(SwerveComponent.class, "swerve");
+    public static final OdometrySubsystem.Component ODO = LOG.load(OdometrySubsystem.Component.class, "odometry");
     public static final CommonMotorComponent STEER_COMMON = LOG.load(CommonMotorComponent.class, "swerve/steer_common");
     public static final CommonPIDComponent PID_COMMON = LOG.load(CommonPIDComponent.class, "swerve/steer_pid_common");
     public static final MotorComponent[] DRIVES = LOG.loadRange(MotorComponent.class, "swerve/drive", 4, Util.RENAMER);

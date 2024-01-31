@@ -2,7 +2,6 @@ package org.bitbuckets.commands.drive;
 
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -10,8 +9,6 @@ import org.bitbuckets.OperatorInput;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.OdometrySubsystem;
 import org.bitbuckets.vision.VisionSubsystem;
-
-import java.util.Optional;
 
 public class MoveToAlignCommand extends Command {
 
@@ -43,7 +40,7 @@ public class MoveToAlignCommand extends Command {
 
 
         ChassisSpeeds speed = holoController.calculate(
-                odometrySubsystem.getCurrentPosition(),
+                odometrySubsystem.getRobotCentroidPosition(),
                 target,
                 desiredVelocity,
                 holonomicRotation
