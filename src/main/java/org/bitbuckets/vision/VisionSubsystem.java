@@ -36,7 +36,7 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         mattRegister();
     }
 
-    public VisionThing lookingAt() {
+    public VisionFieldTarget lookingAt() {
         return null; //TODO FINISH THIS
     }
 
@@ -57,7 +57,7 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         return Optional.empty();
     }
 
-    public Optional<Transform3d> getTargetGoalTransformBasedOnThing(VisionThing thing) {
+    public Optional<Transform3d> getTargetGoalTransformBasedOnThing(VisionFieldTarget thing) {
         //TODO APPLY TRANSFORMATIONS BASED ON WHAT WE ARE LOOKING AT - HERE'S WHERE THE FIELD LAYOUT COMES IN HANDY
 
         return null;
