@@ -144,7 +144,7 @@ public class RobotContainer {
     }
 
     SendableChooser<Command> loadAutonomous() {
-        ChoreoTrajectory trajectory = Choreo.getTrajectory("MVPTaxi");
+        ChoreoTrajectory trajectory = Choreo.getTrajectory("MVPTaxiNEOs");
         var pidx = new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant());
         var pidy = new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant());
         var pidtheta = new PIDController(DRIVE_T_PID.pConstant(), DRIVE_T_PID.iConstant(), DRIVE_T_PID.dConstant());
