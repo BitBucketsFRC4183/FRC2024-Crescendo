@@ -10,20 +10,10 @@ public class SetAmpShootingAngleCommand extends Command {
         this.shooterSubsystem = shooterSubsystem;
     }
 
-    @Override
-    public void initialize() {
-
-    }
-
     // this angle needs to be tuned for amp (40 is only a placeholder)
     @Override
     public void execute() {
         shooterSubsystem.moveToRotation(0.125);
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-
     }
 
     @Override

@@ -3,18 +3,13 @@ package org.bitbuckets.commands.shooter;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.bitbuckets.shooter.ShooterSubsystem;
 
-public class ShootNoteCommand extends Command {
+public class AchieveFlatShotSpeedCommand extends Command {
 
-    private final ShooterSubsystem shooterSubsystem;
+    final ShooterSubsystem shooterSubsystem;
 
 
-    public ShootNoteCommand(ShooterSubsystem shooterSubsystem) {
+    public AchieveFlatShotSpeedCommand(ShooterSubsystem shooterSubsystem) {
         this.shooterSubsystem = shooterSubsystem;
-    }
-
-    @Override
-    public void initialize() {
-
     }
 
     @Override

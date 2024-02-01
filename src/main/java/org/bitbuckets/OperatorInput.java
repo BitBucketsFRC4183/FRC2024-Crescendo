@@ -3,12 +3,8 @@ package org.bitbuckets;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.simulation.JoystickSim;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
-import java.util.Optional;
 
 /**
  * This class holds all of our operator triggers
@@ -42,7 +38,7 @@ public class OperatorInput {
     final Trigger groundIntakeHold = driver.rightBumper();
 
     final Trigger groundOuttakeHold = driver.leftBumper(); //TODO Assign ground outtake to another button besides left bumper (left bumper already used for ground intake)
-    final Trigger resetGyroToggle = driver.start();
+    final Trigger resetGyroPress = driver.start();
 
 
     /**
@@ -94,27 +90,34 @@ public class OperatorInput {
     }
 
     public boolean getResetGyroState() {
-        return resetGyroToggle.getAsBoolean();
+        return resetGyroPress.getAsBoolean();
     }
 
-    public double getDriverLeftStickX() {
-        return driver.getLeftX();
+    public double getDriverRightComponent() {
+        return deadband(-driver.getLeftX()); //reference frame stuff
     }
 
-    public double getDriverLeftStickY() {
-        return driver.getLeftY();
+    public double getRobotForwardComponent() {
+        return deadband(-driver.getLeftY()); //reference frame stuff
     }
+
+    public double getDriverRightComponentRaw() {
+        return -driver.getLeftX(); //reference frame stuff
+    }
+
+    public double getRobotForwardComponentRaw() {
+        return -driver.getLeftY(); //reference frame stuff
+    }
+
+    public double getRobotRotationRaw() {
+        return driver.getRightX();
+    }
+
 
     public double getDriverRightStickX() {
-        return driver.getRightX();
+        return deadband(driver.getRightX());
     }
 
-    public double getdriverRightStickY() {
-        return driver.getRightY();
-    }
-    public double getdriverRightStickX() {
-        return driver.getRightX();
-    }
     public double getOperatorLeftStickY(){return deadband(operatorControl.getRawAxis(XboxController.Axis.kLeftY.value));}
 
 }

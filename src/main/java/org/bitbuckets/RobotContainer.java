@@ -11,6 +11,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -18,19 +19,21 @@ import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
-import org.bitbuckets.commands.drive.DefaultDriveCommand;
-import org.bitbuckets.commands.drive.FollowTrajectoryCommand;
+import org.bitbuckets.commands.drive.AugmentedDriveCommand;
 import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.groundIntake.GroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
 import org.bitbuckets.commands.shooter.*;
-import org.bitbuckets.disabled.DisabledGyro;
+import org.bitbuckets.disabled.KinematicGyro;
 import org.bitbuckets.disabled.DisablerComponent;
 import org.bitbuckets.drive.*;
 import org.bitbuckets.groundIntake.GroundIntakeComponent;
@@ -55,6 +58,7 @@ import xyz.auriium.mattlib2.hardware.*;
 import xyz.auriium.mattlib2.hardware.config.*;
 import xyz.auriium.mattlib2.rev.HardwareREV;
 import xyz.auriium.mattlib2.sim.HardwareSIM;
+import xyz.auriium.mattlib2.utils.MockingUtil;
 
 import java.io.IOException;
 
@@ -74,11 +78,19 @@ public class RobotContainer {
     public final NoteManagementSubsystem noteManagementSubsystem;
     public final SwerveDriveKinematics kinematics;
 
+    public final SendableChooser<Command> chooser;
+
 
     public RobotContainer() {
+
+        //DO SETTINGS BEFORE PRE INIT
+        MattlibSettings.USE_LOGGING = true;
+        MattlibSettings.ROBOT = MattlibSettings.Robot.CARY;
+
         //THIS HAS TO RUN FIRST
         Mattlib.LOOPER.runPreInit();
-        MattlibSettings.USE_LOGGING = true;
+
+
         CommandScheduler.getInstance().enable();
 
         // load order matters!!!!!
@@ -99,9 +111,12 @@ public class RobotContainer {
         } else this.visionSimContainer = null;
 
         loadCommands();
+        chooser = loadAutonomous();
 
         //THIS HAS TO RUN AT THE END
         Mattlib.LOOPER.runPostInit();
+
+        System.out.println(STEER_COMMON.encoderToMechanismCoefficient() + " THE PLACE");
     }
 
     public void simulationPeriodic() {
@@ -112,21 +127,9 @@ public class RobotContainer {
 
     public void autonomousInit() {
 
-        ChoreoTrajectory trajectory = Choreo.getTrajectory("sixPointAutoTraj");
-        HolonomicDriveController holonomicDriveController = new HolonomicDriveController(
-                new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant()),
-                new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant()),
-                new ProfiledPIDController(DRIVE_T_PID.pConstant(), DRIVE_T_PID.iConstant(), DRIVE_T_PID.dConstant(),
-                        new TrapezoidProfile.Constraints(1,2)) //TODO
-        );
 
-        /*new SequentialCommandGroup(
-                new SetSpeakerShootingAngleCommand(shooterSubsystem),
-                new ShootNoteCommand(shooterSubsystem),
-                new FollowTrajectoryCommand(trajectory, driveSubsystem, odometrySubsystem, holonomicDriveController)
-        ).schedule();*/
 
-        new SequentialCommandGroup(new FollowTrajectoryCommand(trajectory, driveSubsystem, odometrySubsystem, holonomicDriveController)).schedule();
+        chooser.getSelected().schedule();
 
     }
 
@@ -139,6 +142,44 @@ public class RobotContainer {
 
     }
 
+    SendableChooser<Command> loadAutonomous() {
+        ChoreoTrajectory trajectory = Choreo.getTrajectory("MVPTaxi");
+        var pidx = new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant());
+        var pidy = new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant());
+        var pidtheta = new PIDController(DRIVE_T_PID.pConstant(), DRIVE_T_PID.iConstant(), DRIVE_T_PID.dConstant());
+
+        /*new SequentialCommandGroup(
+                new SetSpeakerShootingAngleCommand(shooterSubsystem),
+                new ShootNoteCommand(shooterSubsystem),
+                new FollowTrajectoryCommand(trajectory, driveSubsystem, odometrySubsystem, holonomicDriveController)
+        ).schedule();*/
+
+        Command follow = Choreo.choreoSwerveCommand(
+                trajectory,
+                odometrySubsystem::getRobotCentroidPosition,
+                pidx,
+                pidy,
+                pidtheta,
+                spds -> {
+                    ChassisSpeeds robotRelative = ChassisSpeeds.fromFieldRelativeSpeeds(spds, odometrySubsystem.getGyroAngle());
+                    driveSubsystem.driveUsingChassisSpeed(robotRelative);
+                },
+                false
+        );
+
+        var backwardsFollow = new SequentialCommandGroup(
+                Commands.runOnce(() -> odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(trajectory.getInitialPose()))),
+                follow,
+                Commands.runOnce(() -> System.out.println("FINISHED")),
+                Commands.runOnce(driveSubsystem::commandWheelsToZero)
+        );
+
+        SendableChooser<Command> chooser = new SendableChooser<>();
+        chooser.addOption("backwards", backwardsFollow);
+
+        return chooser;
+    }
+
     void loadCommands() {
 
 
@@ -148,15 +189,15 @@ public class RobotContainer {
         Trigger rotGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kRightX.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kRightX.value, -0.1));;
         Trigger climberThreshold = operatorInput.operatorControl.axisGreaterThan(XboxController.Axis.kRightY.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kRightY.value, -0.1));
 
-        operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(new DefaultDriveCommand(driveSubsystem, odometrySubsystem, operatorInput));
+        operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(new AugmentedDriveCommand(SWERVE, driveSubsystem, odometrySubsystem, operatorInput));
 
         // Trigger things
-        operatorInput.ampSetpoint_hold.whileTrue(new SetAmpShootingAngleCommand(shooterSubsystem).andThen(new ShootNoteCommand(shooterSubsystem)));
+        operatorInput.ampSetpoint_hold.whileTrue(new SetAmpShootingAngleCommand(shooterSubsystem).andThen(new AchieveFlatShotSpeedCommand(shooterSubsystem)));
         operatorInput.speakerSetpoint_hold.whileTrue(new SetSpeakerShootingAngleCommand(shooterSubsystem));
         // .andThen(new ShootNoteCommand(shooterSubsystem))
-        operatorInput.shootManually.onTrue(new ShootNoteCommand(shooterSubsystem));
-        operatorInput.sourceIntake_hold.whileTrue(new IntakeCommand(shooterSubsystem));
-        operatorInput.setShooterAngleManually.onTrue(new SetShootingAngleManuallyCommand(operatorInput, shooterSubsystem));
+        operatorInput.shootManually.onTrue(new AchieveFlatShotSpeedCommand(shooterSubsystem));
+        operatorInput.sourceIntake_hold.whileTrue(new AwaitShooterIntakeCommand(noteManagementSubsystem, shooterSubsystem));
+        operatorInput.setShooterAngleManually.onTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));
 
         HolonomicDriveController holonomicDriveController = new HolonomicDriveController(
                 new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant()),
@@ -171,26 +212,32 @@ public class RobotContainer {
         operatorInput.groundIntakeHold.whileTrue(new GroundIntakeCommand(groundIntakeSubsystem, operatorInput));
         operatorInput.groundOuttakeHold.whileTrue(new GroundOuttakeCommand(groundIntakeSubsystem, operatorInput));
 
+        operatorInput.resetGyroPress.onTrue(Commands.runOnce(() -> {
+            odometrySubsystem.debugZero();
+            odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(new Pose2d(0,0, new Rotation2d())));
+        }));
+
     }
 
 
     SwerveDriveKinematics loadKinematics() {
         return new SwerveDriveKinematics(
-                new Translation2d(SWERVE.halfWidth_meters(), SWERVE.halfBase_meters()), // FL
-                new Translation2d(SWERVE.halfWidth_meters(), -SWERVE.halfBase_meters()), // FR
-                new Translation2d(-SWERVE.halfWidth_meters(), SWERVE.halfBase_meters()), // BL
-                new Translation2d(-SWERVE.halfWidth_meters(), -SWERVE.halfBase_meters()) // BR
+                ODO.fl_offset(),
+                ODO.fr_offset(),
+                ODO.bl_offset(),
+                ODO.br_offset()
         );
     }
 
     DriveSubsystem loadDriveSubsystem() {
         SwerveModule[] modules = loadSwerveModules();
-        SimpleMotorFeedforward ff = new SimpleMotorFeedforward(SWERVE.ff_ks(), SWERVE.ff_kv());
-        return new DriveSubsystem(modules,kinematics,ff);
+
+        return new DriveSubsystem(modules,kinematics);
     }
 
     SwerveModule[] loadSwerveModules() {
         SwerveModule[] modules = new SwerveModule[4];
+        SimpleMotorFeedforward ff = new SimpleMotorFeedforward(SWERVE.ff_ks(), SWERVE.ff_kv());
         for (int i = 0; i < modules.length; i++) {
             ILinearMotor driveMotor;
             IRotationalController steerController;
@@ -215,7 +262,7 @@ public class RobotContainer {
                 driveMotor = HardwareDisabled.linearMotor_disabled();
             }
 */
-            modules[i] = new SwerveModule(driveMotor, steerController, absoluteEncoder);
+            modules[i] = new SwerveModule(driveMotor, steerController, absoluteEncoder, ff);
         }
 
         return modules;
@@ -244,7 +291,7 @@ public class RobotContainer {
             leftMotor = HardwareREV.rotationalSpark_noPID(SHOOTER_WHEEL_1);
             rightMotor = HardwareREV.rotationalSpark_noPID(SHOOTER_WHEEL_2);
             angleMotor = HardwareREV.rotationalSpark_builtInPID(ANGLE_SHOOTER_MOTOR, ANGLE_PID);
-            absoluteEncoder = new ThriftyAbsoluteEncoder(new AnalogInput(SHOOTER.channel()), ABSOLUTE);
+            absoluteEncoder = new ThriftyAbsoluteEncoder(new AnalogInput(SHOOTER.channel()), SHOOTER_ABSOLUTE);
         }
 
 
@@ -254,16 +301,19 @@ public class RobotContainer {
                angleMotor,
                absoluteEncoder,
                SHOOTER,
-               ABSOLUTE
+               SHOOTER_ABSOLUTE
        );
 
     }
 
     NoteManagementSubsystem loadNoteManagementSubsystem() {
+        if (DISABLER.nms_disabled()) {
+            return MockingUtil.buddy(NoteManagementSubsystem.class);
+        }
+
         ILinearMotor nms_bottomMotor;
         ILinearMotor nms_topMotor;
-        DigitalInput beamBreak = new DigitalInput(BEAM_BREAK.channel());
-
+        DigitalInput beamBreak = new DigitalInput(NMS.channel());
 
         if (DISABLER.nms_disabled()) {
             nms_bottomMotor = HardwareDisabled.linearController_disabled();
@@ -274,8 +324,8 @@ public class RobotContainer {
         }
 
         else {
-            nms_bottomMotor = HardwareREV.linearSpark_builtInPID(NMS_BOTTOMCOMPONENT, NMS_PID);
-            nms_topMotor = HardwareREV.linearSpark_builtInPID(NMS_TOPCOMPONENT, NMS_PID);
+            nms_bottomMotor = HardwareREV.linearSpark_noPID(NMS_BOTTOMCOMPONENT);
+            nms_topMotor = HardwareREV.linearSpark_noPID(NMS_TOPCOMPONENT);
         }
 
         return new NoteManagementSubsystem(
@@ -289,7 +339,7 @@ public class RobotContainer {
         IGyro gyro;
 
         if (Robot.isSimulation() || DISABLER.odometry_disabled()) {
-            gyro = new DisabledGyro();
+            gyro = new KinematicGyro(driveSubsystem, kinematics);
         } else {
             Pigeon2 pigeon2 = new Pigeon2(SWERVE.pigeonCanId());
 
@@ -308,10 +358,14 @@ public class RobotContainer {
                         new Pose2d()
                 ),
                 gyro,
-                kinematics
+                kinematics,
+                ODO
         ); //TODO
     }
     VisionSubsystem loadVisionSubsystem() {
+        if (DISABLER.vision_disabled()) {
+            return MockingUtil.buddy(VisionSubsystem.class);
+        }
 
         PhotonCamera camera1;
         PhotonCamera camera2;
@@ -415,9 +469,6 @@ public class RobotContainer {
 
     public static final VisionComponent VISION = LOG.load(VisionComponent.class, "vision");
 
-    // NMS: Note Management System
-    public static final MotorComponent NMS = LOG.load(MotorComponent.class, "note_management/NMS");
-
     public static final ClimberComponent CLIMBER = LOG.load(ClimberComponent.class, "climber");
     public static final PIDComponent CLIMBER_PID = LOG.load(PIDComponent.class, "climber/climber_pid");
     public static final MotorComponent LEFT_CLIMBER = LOG.load(MotorComponent.class, "climber/left");
@@ -432,32 +483,31 @@ public class RobotContainer {
     public static final ShooterComponent SHOOTER = LOG.load(ShooterComponent.class, "shooter");
     public static final MotorComponent SHOOTER_WHEEL_1 = LOG.load(MotorComponent.class, "shooter/wheel_1");
     public static final MotorComponent SHOOTER_WHEEL_2 = LOG.load(MotorComponent.class, "shooter/wheel_2");
+    public static final AbsoluteEncoderComponent SHOOTER_ABSOLUTE = LOG.load(AbsoluteEncoderComponent.class, "shooter/absolute");
     public static final MotorComponent ANGLE_SHOOTER_MOTOR = LOG.load(MotorComponent.class,"shooter/angle_motor");
     public static final PIDComponent ANGLE_PID = LOG.load(PIDComponent.class,"shooter/angle/pid");
 
-    public static final MotorComponent NMS_TOPCOMPONENT = LOG.load(MotorComponent.class, "NMS/top");
-    public static final MotorComponent NMS_BOTTOMCOMPONENT = LOG.load(MotorComponent.class, "NMS/bottom");
-    public static final PIDComponent NMS_PID = LOG.load(PIDComponent.class, "NMS/pid");
+    public static final NoteManagementComponent NMS = LOG.load(NoteManagementComponent.class, "nms");
+    public static final MotorComponent NMS_TOPCOMPONENT = LOG.load(MotorComponent.class, "nms/top");
+    public static final MotorComponent NMS_BOTTOMCOMPONENT = LOG.load(MotorComponent.class, "nms/bottom");
 
     public static final SwerveComponent SWERVE = LOG.load(SwerveComponent.class, "swerve");
-    public static final CommonMotorComponent DRIVE_COMMON = LOG.load(CommonMotorComponent.class, "swerve/drive_common");
+    public static final OdometrySubsystem.Component ODO = LOG.load(OdometrySubsystem.Component.class, "odometry");
     public static final CommonMotorComponent STEER_COMMON = LOG.load(CommonMotorComponent.class, "swerve/steer_common");
     public static final CommonPIDComponent PID_COMMON = LOG.load(CommonPIDComponent.class, "swerve/steer_pid_common");
-    public static final MotorComponent[] DRIVES = MotorComponent.ofRange(DRIVE_COMMON, LOG.loadRange(IndividualMotorComponent.class, "swerve/drive", 4, Util.RENAMER));
+    public static final MotorComponent[] DRIVES = LOG.loadRange(MotorComponent.class, "swerve/drive", 4, Util.RENAMER);
     public static final MotorComponent[] STEERS = MotorComponent.ofRange(STEER_COMMON, LOG.loadRange(IndividualMotorComponent.class, "swerve/steer", 4, Util.RENAMER));
     public static final PIDComponent[] PIDS = PIDComponent.ofRange(PID_COMMON, LOG.loadRange(IndividualPIDComponent.class, "swerve/pid", 4, Util.RENAMER));
 
-    public static final CommonEncoderComponent[] STEER_ABS_ENCODERS = LOG.loadRange(CommonEncoderComponent.class, "swerve/abs", 4, Util.RENAMER);
+    public static final AbsoluteEncoderComponent[] STEER_ABS_ENCODERS = LOG.loadRange(AbsoluteEncoderComponent.class, "swerve/abs", 4, Util.RENAMER);
 
     public static final PIDComponent DRIVE_X_PID = LOG.load(PIDComponent.class, "swerve/x_holonomic_pid");
     public static final PIDComponent DRIVE_Y_PID = LOG.load(PIDComponent.class, "swerve/y_holonomic_pid");
     public static final PIDComponent DRIVE_T_PID = LOG.load(PIDComponent.class, "swerve/t_holonomic_pid");
 
-    public static final CommonEncoderComponent ABSOLUTE = LOG.load(CommonEncoderComponent.class, "absolute");
     public static final CamerasComponent CAMERAS = LOG.load(CamerasComponent.class, "cameras");
 
     public static final DisablerComponent DISABLER = LOG.load(DisablerComponent.class, "disabler");
 
-    public static final NoteManagementComponent BEAM_BREAK = LOG.load(NoteManagementComponent.class, "beam breaker");
 
 }

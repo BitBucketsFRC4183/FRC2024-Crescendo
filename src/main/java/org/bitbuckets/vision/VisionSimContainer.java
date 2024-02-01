@@ -1,18 +1,22 @@
 package org.bitbuckets.vision;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.util.Units;
 import org.bitbuckets.drive.OdometrySubsystem;
 import org.photonvision.PhotonCamera;
+import org.photonvision.estimation.TargetModel;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
+import org.photonvision.simulation.VisionTargetSim;
+
+import java.util.List;
+import java.util.Map;
 
 public class VisionSimContainer {
     final VisionSystemSim visionSystemSim;
+    final VisionTargetSim visionTargets;
     final VisionSubsystem visionSubsystem;
     final OdometrySubsystem odometrySubsystem;
 
@@ -23,9 +27,15 @@ public class VisionSimContainer {
         this.odometrySubsystem = odometrySubsystem;
         this.layout = layout;
 
+        TargetModel targetModel = new TargetModel(Units.inchesToMeters(6.5), Units.inchesToMeters(6.5));
+        Pose3d targetPose = new Pose3d(new Translation3d(652.73, 196.17, 57.13), new Rotation3d(0, 0, Math.PI));
+
+        this.visionTargets = new VisionTargetSim(targetPose, targetModel);
+
         this.visionSystemSim = new VisionSystemSim("main");
 
         visionSystemSim.addAprilTags(layout);
+        visionSystemSim.addVisionTargets(visionTargets);
 
         SimCameraProperties cameraProp = new SimCameraProperties();
         cameraProp.setCalibration(1280, 800, Rotation2d.fromDegrees(100));
@@ -40,10 +50,10 @@ public class VisionSimContainer {
         PhotonCameraSim camera1Sim = new PhotonCameraSim(camera_1, cameraProp);
         PhotonCameraSim camera2Sim = new PhotonCameraSim(camera_2, cameraProp);
 
-        visionSystemSim.addCamera(camera1Sim,new Transform3d(0, 0, 0,
+        visionSystemSim.addCamera(camera1Sim,new Transform3d(0, Units.inchesToMeters(5), Units.inchesToMeters(10),
                 new Rotation3d(0, 0, 0)));
 
-        visionSystemSim.addCamera(camera2Sim,new Transform3d(0, 0, 0,
+        visionSystemSim.addCamera(camera2Sim,new Transform3d(0, Units.inchesToMeters(-5), Units.inchesToMeters(10),
                 new Rotation3d(0, 0, 0)));
 
         camera1Sim.enableDrawWireframe(true);
@@ -53,7 +63,7 @@ public class VisionSimContainer {
     }
 
     public void simulationPeriodic() {
-        visionSystemSim.update(odometrySubsystem.getCurrentPosition());
+        visionSystemSim.update(odometrySubsystem.getRobotCentroidPosition());
         // visionSystemSim.update(new Pose2d(0, 0, new Rotation2d(0)));
         // Field2d debugField = visionSystemSim.getDebugField();
         // debugField.getObject("EstimatedRobot").setPose(odometrySubsystem.getCurrentPosition());

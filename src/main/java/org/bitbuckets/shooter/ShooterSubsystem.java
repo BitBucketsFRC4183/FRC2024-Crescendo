@@ -2,9 +2,8 @@ package org.bitbuckets.shooter;
 
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import org.bitbuckets.util.CommonEncoderComponent;
+import org.bitbuckets.util.AbsoluteEncoderComponent;
 import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.hardware.IRotationalController;
@@ -22,8 +21,8 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     final IRotationalController angleMotor;
     final IRotationEncoder absoluteEncoder;
     final ShooterComponent shooterComponent;
-    final CommonEncoderComponent encoderComponent;
-    public ShooterSubsystem(IRotationalMotor leftMotor, IRotationalMotor rightMotor, IRotationalController angleMotor, IRotationEncoder absoluteEncoder, ShooterComponent shooterComponent, CommonEncoderComponent encoderComponent) {
+    final AbsoluteEncoderComponent encoderComponent;
+    public ShooterSubsystem(IRotationalMotor leftMotor, IRotationalMotor rightMotor, IRotationalController angleMotor, IRotationEncoder absoluteEncoder, ShooterComponent shooterComponent, AbsoluteEncoderComponent encoderComponent) {
         this.leftMotor = leftMotor;
         this.rightMotor = rightMotor;
         this.angleMotor = angleMotor;
@@ -37,7 +36,7 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     @Override
     public Optional<ExplainedException> verifyInit() {
         absoluteEncoder.forceRotationalOffset(
-                encoderComponent.getAbsoluteEncoderOffset()
+                encoderComponent.offset_mechanismRotations()
         );
 
         angleMotor.forceRotationalOffset(
@@ -45,6 +44,12 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
         );
 
         return Optional.empty();
+    }
+
+
+    @Override
+    public void periodic() {
+
     }
 
 
@@ -81,39 +86,18 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
         angleMotor.setToVoltage(voltage);
     }
 
-    public void moveToMechanismPosition(double mechanism_positions) {
-        angleMotor.controlToNormalizedReference(mechanism_positions);
-    }
-
     public void setZeroAngle() {
 
         double offset = absoluteEncoder.angularPosition_normalizedMechanismRotations();
         angleMotor.forceRotationalOffset(offset);
     }
 
-    public void intake() {
-        moveToRotation(0.125);
-        // rotate wheels in the other direction
-        setMotorRotationalSpeeds(-4000,-4000);
-    }
-
-    // needs velocity pid in mattlib to be added first to work; wip
-    public void maintainSpeed(double leftWheel_rotationsPerSecond, double rightWheel_rotationsPerSecond) {
-        setMotorRotationalSpeeds(leftWheel_rotationsPerSecond, rightWheel_rotationsPerSecond);
-    }
-
-    @Override
-    public void periodic() {
-
-    }
 
     public boolean hasReachedSpeeds(double leftSpeeds, double rightSpeeds) {
-
         boolean leftAtSpeed = leftMotor.angularVelocity_mechanismRotationsPerSecond() >= leftSpeeds;
         boolean rightAtSpeed = rightMotor.angularVelocity_mechanismRotationsPerSecond() >= rightSpeeds;
 
         return leftAtSpeed && rightAtSpeed;
-
     }
 
     public static boolean isWithinDeadband(double deadband, double target, double actual) {
@@ -123,10 +107,7 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     public boolean hasReachedAngle(double angle_mechanismRotations) {
         double currentPos_mechRot = angleMotor.angularPosition_normalizedMechanismRotations();
 
-
         return isWithinDeadband(shooterComponent.deadband_mechanismRotations(), angle_mechanismRotations, currentPos_mechRot);
-
-
     }
 
     public double getPivotAnglePosition_normalizedMechanismRotations() {

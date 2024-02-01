@@ -17,11 +17,6 @@ public class GroundOuttakeCommand extends Command {
 
 
     @Override
-    public void initialize() {
-
-    }
-
-    @Override
     public void execute() {
         groundIntakeSubsystem.setToVoltage(-6); //TODO tune voltage for intake
     }
@@ -31,8 +26,4 @@ public class GroundOuttakeCommand extends Command {
         groundIntakeSubsystem.setToVoltage(0);
     }
 
-    @Override
-    public boolean isFinished() {
-        return super.isFinished();
-    }
 }

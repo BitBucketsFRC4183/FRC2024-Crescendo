@@ -2,16 +2,15 @@ package org.bitbuckets.drive;
 
 import edu.wpi.first.math.MathSharedStore;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.Robot;
 import org.bitbuckets.RobotContainer;
 import org.bitbuckets.vision.VisionSubsystem;
 import xyz.auriium.mattlib2.IPeriodicLooped;
+import xyz.auriium.mattlib2.log.INetworkedComponent;
+import xyz.auriium.mattlib2.log.annote.Conf;
 
 import java.util.Optional;
 
@@ -20,28 +19,40 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
     final DriveSubsystem driveSubsystem;
     final VisionSubsystem visionSubsystem;
     final SwerveDrivePoseEstimator odometry;
-    final IGyro gyro;
     final SwerveDriveKinematics kinematics;
+    final IGyro gyro;
 
-    SwerveModulePosition[] lastPositions;
+    final Component odometryComponent;
 
-    public OdometrySubsystem(DriveSubsystem driveSubsystem, VisionSubsystem visionSubsystem, SwerveDrivePoseEstimator odometry, IGyro gyro, SwerveDriveKinematics kinematics) {
+    public interface Component extends INetworkedComponent {
+        @Conf("centroid_height") double robotCentroidHeightWrtGround_meters();
+
+
+        @Conf("camera_centroid_offset") Translation3d cameraCentroidOffset();
+
+        @Conf("fr_pos_offset") Translation2d fr_offset();
+        @Conf("fl_pos_offset") Translation2d fl_offset();
+        @Conf("br_pos_offset") Translation2d br_offset();
+        @Conf("bl_pos_offset") Translation2d bl_offset();
+    }
+
+
+    public OdometrySubsystem(DriveSubsystem driveSubsystem, VisionSubsystem visionSubsystem, SwerveDrivePoseEstimator odometry, IGyro gyro, SwerveDriveKinematics kinematics, Component odometryComponent) {
         this.driveSubsystem = driveSubsystem;
         this.visionSubsystem = visionSubsystem;
         this.kinematics = kinematics;
         this.odometry = odometry;
         this.gyro = gyro;
+        this.odometryComponent = odometryComponent;
 
-        lastPositions = driveSubsystem.currentPositions();
+
         mattRegister();
         register();
     }
 
-
-
     @Override
     public void periodic() {
-        odometry.update(getGyroAngle(),driveSubsystem.currentPositions());
+        odometry.update(gyro.initializationRelativeRotation(),driveSubsystem.currentPositions());
 
         if (Robot.isReal()) {
             //VISION
@@ -53,47 +64,60 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
             }
         }
 
-
     }
 
 
     @Override
     public void logPeriodic() {
+        RobotContainer.SWERVE.logGyroRotation(gyro.initializationRelativeRotation().getDegrees());
         RobotContainer.SWERVE.logPosition(odometry.getEstimatedPosition());
     }
 
-    Rotation2d lastAngle_fieldRelative = Rotation2d.fromDegrees(0);
 
-
-    static SwerveModulePosition[] delta(SwerveModulePosition[] now, SwerveModulePosition[] last) {
-        SwerveModulePosition[] positions = new SwerveModulePosition[now.length];
-        for (int i = 0; i < now.length; i++) {
-            positions[i] = new SwerveModulePosition(now[i].distanceMeters - last[i].distanceMeters, now[i].angle);
-        }
-
-        return positions;
-    }
-   public Rotation2d getGyroAngle() {
-        if (Robot.isSimulation()) {
-            SwerveModulePosition[] currentPositions = driveSubsystem.currentPositions();
-            SwerveModulePosition[] deltaPositions = delta(currentPositions, lastPositions);
-
-            Rotation2d dTheta = new Rotation2d(kinematics.toTwist2d(deltaPositions).dtheta);
-
-            lastAngle_fieldRelative = lastAngle_fieldRelative.plus(dTheta);
-            lastPositions = currentPositions;
-
-            return lastAngle_fieldRelative;
-        } else {
-            return gyro.currentRotation();
-        }
+    public Rotation2d getGyroAngle() {
+        return gyro.userZeroRelativeRotation();
    }
 
-   public Pose2d getCurrentPosition() {
+   public Pose2d getRobotCentroidPosition() {
         return odometry.getEstimatedPosition();
    }
 
+   public Pose3d getRobotCentroidPositionVert() {
+        Pose2d estimatedPose = odometry.getEstimatedPosition();
+
+        return new Pose3d(
+                estimatedPose.getX(),
+                estimatedPose.getY(),
+                odometryComponent.robotCentroidHeightWrtGround_meters(),
+                new Rotation3d(0,0, estimatedPose.getRotation().getRadians())
+        );
+   }
+
+   public Pose3d getCameraPositionVert() {
+        return getRobotCentroidPositionVert().plus(
+                new Transform3d(
+                        odometryComponent.cameraCentroidOffset(),
+                        new Rotation3d()
+                )
+        );
+   }
+
+   public Pose3d getShooterCentroidPositionVert() {
+        //TODO someone needs to do this
+
+       return null;
+   }
+
    public void forceOdometryToThinkWeAreAt(Pose3d position) {
-        odometry.resetPosition(gyro.currentRotation(), driveSubsystem.currentPositions(), position.toPose2d());
+        odometry.resetPosition(gyro.initializationRelativeRotation(), driveSubsystem.currentPositions(), position.toPose2d());
+   }
+
+   //i have no idea what this does dont use it
+   public void debugZero() {
+        gyro.userZero();
+   }
+
+   public Translation2d robotVelocity_metersPerSecond() {
+        return null; //TODO
    }
 }

@@ -1,7 +1,8 @@
 package org.bitbuckets.drive;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import xyz.auriium.mattlib2.log.annote.Conf;
 import xyz.auriium.mattlib2.log.INetworkedComponent;
@@ -14,12 +15,13 @@ public interface SwerveComponent extends INetworkedComponent {
     @Conf("ff_kv") double ff_kv();
     @Conf("ff_ka") double ff_ka();
 
-    @Conf("halfWidth") double halfWidth_meters();
-    @Conf("halfBase") double halfBase_meters();
+    @Conf("magnitudeFWLim") double magnitudeFwLimit();
+    @Conf("fieldOriented") boolean fieldOriented();
 
     //@Log("positions") void logSwervePositions(SwerveModulePosition[] positions);
     @Log("states") void logSwerveStates(SwerveModuleState[] states);
     @Log("desiredStates") void logDesiredStates(SwerveModuleState[] desiredStates);
     @Log("pose2") void logPosition(Pose2d pose2d);
+    @Log("rot") void logGyroRotation(double rot);
 
 }
