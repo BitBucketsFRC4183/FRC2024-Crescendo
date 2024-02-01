@@ -1,6 +1,7 @@
 package org.bitbuckets.drive;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -23,5 +24,6 @@ public interface SwerveComponent extends INetworkedComponent {
     @Log("desiredStates") void logDesiredStates(SwerveModuleState[] desiredStates);
     @Log("pose2") void logPosition(Pose2d pose2d);
     @Log("rot") void logGyroRotation(double rot);
+    @Log("endpos") void logEndpoint(Pose2d pose);
 
 }

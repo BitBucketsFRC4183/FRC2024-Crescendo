@@ -81,11 +81,12 @@ public class RobotContainer {
     public final SendableChooser<Command> chooser;
 
 
+
     public RobotContainer() {
 
         //DO SETTINGS BEFORE PRE INIT
         MattlibSettings.USE_LOGGING = true;
-        MattlibSettings.ROBOT = MattlibSettings.Robot.CARY;
+        MattlibSettings.ROBOT = MattlibSettings.Robot.MCR;
 
         //THIS HAS TO RUN FIRST
         Mattlib.LOOPER.runPreInit();
@@ -154,20 +155,20 @@ public class RobotContainer {
                 new FollowTrajectoryCommand(trajectory, driveSubsystem, odometrySubsystem, holonomicDriveController)
         ).schedule();*/
 
+
         Command follow = Choreo.choreoSwerveCommand(
                 trajectory,
                 odometrySubsystem::getRobotCentroidPosition,
                 pidx,
                 pidy,
                 pidtheta,
-                spds -> {
-                    ChassisSpeeds robotRelative = ChassisSpeeds.fromFieldRelativeSpeeds(spds, odometrySubsystem.getGyroAngle());
-                    driveSubsystem.driveUsingChassisSpeed(robotRelative);
-                },
+                driveSubsystem::driveUsingChassisSpeed,
                 false
         );
 
+
         var backwardsFollow = new SequentialCommandGroup(
+                Commands.runOnce(() -> SWERVE.logEndpoint(trajectory.getFinalPose())),
                 Commands.runOnce(() -> odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(trajectory.getInitialPose()))),
                 follow,
                 Commands.runOnce(() -> System.out.println("FINISHED")),
@@ -175,7 +176,7 @@ public class RobotContainer {
         );
 
         SendableChooser<Command> chooser = new SendableChooser<>();
-        chooser.addOption("backwards", backwardsFollow);
+        chooser.setDefaultOption("backwards", backwardsFollow);
 
         return chooser;
     }
@@ -436,8 +437,6 @@ public class RobotContainer {
         ); // TODO
 
     }
-
-
 
     GroundIntakeSubsystem loadGroundIntakeSubsystem() {
         ILinearController topGroundIntake;
