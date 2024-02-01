@@ -1,10 +1,11 @@
 package org.bitbuckets.vision;
 
-public enum VisionThing {
+public enum VisionFieldTarget {
 
     SPEAKER,
     AMP,
-    ROCK,
+    SOURCE_INTAKE,
+    STAGE,
     NOTHING
     //TODO ad more please
 

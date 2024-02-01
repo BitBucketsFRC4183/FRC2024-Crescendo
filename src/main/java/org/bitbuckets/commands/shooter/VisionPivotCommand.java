@@ -1,12 +1,10 @@
 package org.bitbuckets.commands.shooter;
 
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.bitbuckets.drive.OdometrySubsystem;
 import org.bitbuckets.shooter.ShooterSubsystem;
 import org.bitbuckets.vision.VisionSubsystem;
-import org.bitbuckets.vision.VisionThing;
 
 public class VisionPivotCommand extends Command {
 
