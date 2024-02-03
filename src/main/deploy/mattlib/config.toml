@@ -29,11 +29,11 @@ deadband = 0.0
 channel = 0
 
 [shooter.wheel_1]
-id = 0
+id = 14
 encoderToMechanismCoef = 0.0
 
 [shooter.wheel_2]
-id = 0
+id = 13
 encoderToMechanismCoef = 0.0
 
 [shooter.absolute]
@@ -207,9 +207,9 @@ Vy = 5 #m/s
 
 [disabler]
 vision_disabled = true
-drive_disabled = false
-shooter_disabled = true
-odometry_disabled = false
+drive_disabled = true
+shooter_disabled = false
+odometry_disabled = true
 climber_disabled = true
 groundIntake_disabled = true
 nms_disabled = true

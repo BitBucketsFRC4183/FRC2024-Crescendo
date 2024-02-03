@@ -14,10 +14,10 @@ import xyz.auriium.mattlib2.utils.AngleUtil;
 public class ThroughBoreEncoder implements IRotationEncoder {
 
     Encoder encoder;
-    CommonEncoderComponent encoderComponent;
+    AbsoluteEncoderComponent encoderComponent;
 
 
-    public ThroughBoreEncoder(Encoder encoder, CommonEncoderComponent encoderComponent) {
+    public ThroughBoreEncoder(Encoder encoder, AbsoluteEncoderComponent encoderComponent) {
         this.encoder = encoder;
         this.encoderComponent = encoderComponent;
         // setDistancePerPulse is 1/pulses per revolution
@@ -39,7 +39,7 @@ public class ThroughBoreEncoder implements IRotationEncoder {
 
     @Override
     public double angularPosition_mechanismRotations() {
-        return encoder.getDistance() * encoderComponent.getEncoderToMechanismCoefficient();
+        return encoder.getDistance() * encoderComponent.encoderToMechanismCoefficient();
     }
 
     @Override
@@ -55,7 +55,7 @@ public class ThroughBoreEncoder implements IRotationEncoder {
 
     @Override
     public double angularVelocity_mechanismRotationsPerSecond() {
-        return encoder.getRate() * encoderComponent.getEncoderToMechanismCoefficient();
+        return encoder.getRate() * encoderComponent.encoderToMechanismCoefficient();
     }
 
     @Override
