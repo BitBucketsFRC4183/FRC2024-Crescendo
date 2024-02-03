@@ -11,6 +11,7 @@ public interface AbsoluteEncoderComponent extends INetworkedComponent {
     @Conf("encoderToMechanismCoef") double encoderToMechanismCoefficient();
 
     @Log("positionWithOffset") void logPositionWithOffset(double position_mechanismRotations);
+    @Log("velocity") void logVelocity(double velocity_metersPerSecond);
 
 
 

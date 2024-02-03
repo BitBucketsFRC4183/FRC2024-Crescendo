@@ -22,13 +22,16 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     final IRotationEncoder absoluteEncoder;
     final ShooterComponent shooterComponent;
     final AbsoluteEncoderComponent encoderComponent;
-    public ShooterSubsystem(IRotationalMotor leftMotor, IRotationalMotor rightMotor, IRotationalController angleMotor, IRotationEncoder absoluteEncoder, ShooterComponent shooterComponent, AbsoluteEncoderComponent encoderComponent) {
+    final IRotationEncoder velocityEncoder;
+
+    public ShooterSubsystem(IRotationalMotor leftMotor, IRotationalMotor rightMotor, IRotationalController angleMotor, IRotationEncoder absoluteEncoder, ShooterComponent shooterComponent, AbsoluteEncoderComponent encoderComponent, IRotationEncoder velocityEncoder) {
         this.leftMotor = leftMotor;
         this.rightMotor = rightMotor;
         this.angleMotor = angleMotor;
         this.absoluteEncoder = absoluteEncoder;
         this.shooterComponent = shooterComponent;
         this.encoderComponent = encoderComponent;
+        this.velocityEncoder = velocityEncoder;
         mattRegister();
         register();
     }
