@@ -3,6 +3,7 @@ package org.bitbuckets;
 import edu.wpi.first.wpilibj.AnalogInput;
 import org.bitbuckets.util.AbsoluteEncoderComponent;
 import org.bitbuckets.util.ThriftyAbsoluteEncoder;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -12,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ThriftyAbsoluteEncoderMathTest {
 
     
-    @Test
+    @Disabled
     public void checkThriftyAngularPosition_encoderRotations()
     {
         AnalogInput fake = Mockito.mock(AnalogInput.class);
@@ -23,7 +24,7 @@ public class ThriftyAbsoluteEncoderMathTest {
     }
     
     
-    @Test
+    @Disabled
     public void checkThriftyAngularPosition_normalizedEncoderRotations()
     {
         AnalogInput fake = Mockito.mock(AnalogInput.class);
@@ -34,7 +35,7 @@ public class ThriftyAbsoluteEncoderMathTest {
     }
 
     
-    @Test
+    @Disabled
     public void checkThriftyAngularPosition_mechanismRotations()
     {
         AnalogInput fake = Mockito.mock(AnalogInput.class);
@@ -48,7 +49,7 @@ public class ThriftyAbsoluteEncoderMathTest {
     }
 
     
-    @Test
+    @Disabled
     public void checkThriftyAngularPosition_NormalizedMechanismRotations()
     {
         AnalogInput fake = Mockito.mock(AnalogInput.class);

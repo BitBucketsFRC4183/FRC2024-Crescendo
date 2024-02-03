@@ -144,7 +144,9 @@ public class RobotContainer {
     }
 
     SendableChooser<Command> loadAutonomous() {
-        ChoreoTrajectory trajectory = Choreo.getTrajectory("MVPJan31");
+        ChoreoTrajectory trajectory = Choreo.getTrajectory("ShootFarNote");
+        ChoreoTrajectory trajectory2 = Choreo.getTrajectory("FarNoteShoot");
+
         var pidx = new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant());
         var pidy = new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant());
         var pidtheta = new PIDController(DRIVE_T_PID.pConstant(), DRIVE_T_PID.iConstant(), DRIVE_T_PID.dConstant());
@@ -165,12 +167,24 @@ public class RobotContainer {
                 driveSubsystem::driveUsingChassisSpeed,
                 false
         );
+        Command follow2 = Choreo.choreoSwerveCommand(
+                trajectory2,
+                odometrySubsystem::getRobotCentroidPosition,
+                pidx,
+                pidy,
+                pidtheta,
+                driveSubsystem::driveUsingChassisSpeed,
+                false
+        );
+
 
 
         var backwardsFollow = new SequentialCommandGroup(
                 Commands.runOnce(() -> SWERVE.logEndpoint(trajectory.getFinalPose())),
                 Commands.runOnce(() -> odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(trajectory.getInitialPose()))),
                 follow,
+                Commands.waitSeconds(1),
+                follow2,
                 Commands.runOnce(() -> System.out.println("FINISHED")),
                 Commands.runOnce(driveSubsystem::commandWheelsToZero)
         );
