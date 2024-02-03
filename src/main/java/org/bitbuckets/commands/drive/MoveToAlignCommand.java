@@ -20,6 +20,10 @@ public class MoveToAlignCommand extends Command {
 
     Pose3d targetPose;
 
+    final double xThreshold = 0.05;
+    final double yThreshold = 0.05;
+    final double angleThreshold = 5;
+
 
     public MoveToAlignCommand(DriveSubsystem driveSubsystem, VisionSubsystem visionSubsystem, HolonomicDriveController holoController, OdometrySubsystem odometrySubsystem, OperatorInput operatorInput) {
         this.driveSubsystem = driveSubsystem;
@@ -68,8 +72,8 @@ public class MoveToAlignCommand extends Command {
     public boolean isFinished() {
         Pose2d currentPose = odometrySubsystem.getRobotCentroidPosition();
 
-        return Math.abs(currentPose.getX() - targetPose.getY()) < 0.05 &&
-                Math.abs(currentPose.getX() - targetPose.getY()) < 0.05 &&
-                (currentPose.getRotation().getDegrees() - targetPose.getRotation().getAngle()) < 5;
+        return Math.abs(currentPose.getX() - targetPose.getX()) < xThreshold &&
+                Math.abs(currentPose.getY() - targetPose.getY()) < yThreshold &&
+                (currentPose.getRotation().getDegrees() - targetPose.getRotation().getAngle()) < angleThreshold;
     }
 }
