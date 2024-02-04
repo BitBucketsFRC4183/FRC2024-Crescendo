@@ -63,6 +63,11 @@ analogChannel = 0
 encoderToMechanismCoef = 1
 offset = 0.0
 
+[shooter.pid]
+p = 0
+d = 0
+i = 0
+
 [shooter.angle.pid]
 p = 0
 d = 0
