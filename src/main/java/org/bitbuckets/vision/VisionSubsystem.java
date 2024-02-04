@@ -88,74 +88,56 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         //frc using 36h11 fam this year
         // aprilTagDetector.addFamily("36h11");
 
-
         return Optional.empty();
     }
 
-
-    // field relative pose
-    // desired transform to move the robot to the desired final position
+    // desired transform to move the robot to the desired final position, field relative pose
     public Optional<Transform3d> getDesiredTargetAlignTransform() {
         Optional<PhotonTrackedTarget> optTrackedTarget = getBestVisionTarget();
         ;
-
-        if (optTrackedTarget.isPresent()) {
-            PhotonTrackedTarget trackedTarget = optTrackedTarget.get();
-            int fidID = trackedTarget.getFiducialId();
-
-            VisionFieldTarget target = lookingAt(fidID).orElseThrow();
-            RobotContainer.VISION.log_looking_at(target.toString());
-            Optional<Transform3d> optTransform = getDesiredTransformFromTarget(target);
-
-            if (optTransform.isPresent()) {
-                // may throw error somewhere
-
-                Transform3d cameraToTagTransform = trackedTarget.getBestCameraToTarget();
-                Transform3d desiredTransformation = optTransform.get();
-
-                Transform3d betweenTransformation = new Transform3d(
-                        cameraToTagTransform.getTranslation().minus(desiredTransformation.getTranslation()),
-                        cameraToTagTransform.getRotation().minus(desiredTransformation.getRotation())
-                );
-                RobotContainer.VISION.log_between_transformation(betweenTransformation.getTranslation().toTranslation2d().getDistance(new Translation2d(0, 0)));
-                return Optional.ofNullable(betweenTransformation);
-            }
+        if (optTrackedTarget.isEmpty()) {
+            return Optional.empty();
         }
 
+        PhotonTrackedTarget trackedTarget = optTrackedTarget.get();
+        VisionFieldTarget target = lookingAt(trackedTarget.getFiducialId()).orElseThrow(); //field element
+        RobotContainer.VISION.log_looking_at(target.toString());
+        Transform3d tagTransform = getDesiredTransformFromTarget(target);
+        Transform3d cameraToTagTransform = trackedTarget.getBestCameraToTarget();
 
-        // TODO combine two cameras (weighting if see more than two aptriltags) in different part of a code
+        // subtract transforms for final robot transform
+        Transform3d robotTransform = new Transform3d(
+                cameraToTagTransform.getTranslation().minus(tagTransform.getTranslation()),
+                cameraToTagTransform.getRotation().minus(tagTransform.getRotation())
+        );
+        RobotContainer.VISION.log_between_transformation(robotTransform.getTranslation().toTranslation2d().getDistance(new Translation2d(0, 0)));
+        return Optional.of(robotTransform);
 
-
-        return Optional.empty();
     }
 
-    // TODO clean up naming and actually refractor everything
-    // Returns the transformation for each target for desired final position
-    // e.g. stop close to amp, far away from speaker
-    public Optional<Transform3d> getDesiredTransformFromTarget(VisionFieldTarget target) {
+    // Returns the transformation needed for final position depending on tag, apriltag relative
+    public Transform3d getDesiredTransformFromTarget(VisionFieldTarget target) {
 
         // translations are in inches
         return switch (target) {
             case SPEAKER_CENTER ->
-                    Optional.of(new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(72)), new Rotation3d(0d, 0d, 0)));
+                    new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(72)), new Rotation3d(0d, 0d, 0));
             case SPEAKER_LEFT ->
-                    Optional.of(new Transform3d(new Translation3d(Units.inchesToMeters(24), 0d, Units.inchesToMeters(72)), new Rotation3d(0d, 0d, 0)));
+                    new Transform3d(new Translation3d(Units.inchesToMeters(24), 0d, Units.inchesToMeters(72)), new Rotation3d(0d, 0d, 0));
             case SPEAKER_RIGHT ->
-                    Optional.of(new Transform3d(new Translation3d(Units.inchesToMeters(-24), 0d, Units.inchesToMeters(72)), new Rotation3d(0d, 0d, 0)));
+                    new Transform3d(new Translation3d(Units.inchesToMeters(-24), 0d, Units.inchesToMeters(72)), new Rotation3d(0d, 0d, 0));
             case AMP ->
-                    Optional.of(new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0)));
+                    new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0));
             case SOURCE_LEFT -> //relative to the robot
-                    Optional.of(new Transform3d(new Translation3d(Units.inchesToMeters(20), 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0)));
+                    new Transform3d(new Translation3d(Units.inchesToMeters(20), 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0));
             case SOURCE_RIGHT -> //relative to the robot
-                    Optional.of(new Transform3d(new Translation3d(Units.inchesToMeters(-20), 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0)));
+                    new Transform3d(new Translation3d(Units.inchesToMeters(-20), 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0));
             case STAGE -> //relative to the robot
-                    Optional.of(new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0)));
+                    new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0));
         };
-
     }
 
-
-    // selects the vision target based on priorities
+    // returns the vision target based on priorities
     public Optional<PhotonTrackedTarget> getBestVisionTarget() {
         Optional<PhotonTrackedTarget> vt1 = Optional.ofNullable(
                 camera_1.getLatestResult().getBestTarget()
@@ -167,22 +149,22 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
 
         // default priorities, lower index represents high priority
         List<VisionFieldTarget> priorities = List.of(
+                VisionFieldTarget.STAGE,
                 VisionFieldTarget.SPEAKER_CENTER,
                 VisionFieldTarget.SPEAKER_LEFT,
                 VisionFieldTarget.SPEAKER_RIGHT,
                 VisionFieldTarget.AMP,
                 VisionFieldTarget.SOURCE_LEFT,
-                VisionFieldTarget.SOURCE_RIGHT,
-                VisionFieldTarget.STAGE
+                VisionFieldTarget.SOURCE_RIGHT
         );
 
 
         // Chooses best target based on priority list
-        if (!vt1.isPresent()) {
+        if (vt1.isEmpty()) {
             return vt2;
         }
 
-        if (!vt2.isPresent()) {
+        if (vt2.isEmpty()) {
             return vt1;
         }
 

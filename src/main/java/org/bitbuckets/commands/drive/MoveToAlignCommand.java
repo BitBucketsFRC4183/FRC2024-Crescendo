@@ -53,8 +53,8 @@ public class MoveToAlignCommand extends Command {
     @Override
     public void execute() {
         // this must be updated every as frequently as possible
-        Optional<Transform3d> optionalTagTransform = visionSubsystem.getDesiredTargetAlignTransform();
-        optionalTagTransform.ifPresent(transform3d -> this.targetPose = odometrySubsystem.getRobotCentroidPositionVert().plus(transform3d));
+        Optional<Transform3d> robotTransform = visionSubsystem.getDesiredTargetAlignTransform();
+        robotTransform.ifPresent(transform3d -> this.targetPose = odometrySubsystem.getRobotCentroidPositionVert().plus(transform3d));
 
             moveToAlign();
     }
