@@ -26,7 +26,8 @@ public class ThroughBoreEncoder implements IRotationEncoder, IPeriodicLooped {
         // Configures the encoder to return a 1 rotation for every x pulses
         // Also changes the units of getRate
         System.out.print(encoder.get());
-        encoder.setDistancePerPulse(1/1024); // TODO check this value please!
+        double pulsePerSecond = 1/360d;
+        encoder.setDistancePerPulse(pulsePerSecond); // TODO check this value please!
 
         mattRegister();
     }
@@ -69,8 +70,9 @@ public class ThroughBoreEncoder implements IRotationEncoder, IPeriodicLooped {
 
     @Override
     public double angularVelocity_encoderRotationsPerSecond() {
-        System.out.println("Logging encoder rpms");
-        return encoder.getRate();
+        //System.out.println("Logging encoder raw: " + encoder.getRaw());
+        return encoder.getRate(); //in rotations per minute (double check tho)
+        // make sure the switch on the physical through bore encoder is set to A mode (DOES NOT STAND FOR ABSOLUTE ENCODER)
         //throw new UnsupportedOperationException("This encoder is mounted directly on the axis, hence will only read Mechanism rotations and not Encoder Rotations. Please use angularVelocity_mechanismRotationsPerSecond() instead!");
     }
 }
