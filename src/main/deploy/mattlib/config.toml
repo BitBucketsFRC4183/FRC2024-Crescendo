@@ -28,18 +28,45 @@ dio_channel = 0
 deadband = 0.0
 channel = 0
 
+
 [shooter.wheel_1]
-id = 0
-encoderToMechanismCoef = 0.0
+id = 14
+encoderToMechanismCoef = 1
+rotationalInertia = 0.002
+velocityStdv = 0.001
+positionStdv = 0.001
 
 [shooter.wheel_2]
-id = 0
-encoderToMechanismCoef = 0.0
+id = 13
+encoderToMechanismCoef = 1
+rotationalInertia = 0.002
+velocityStdv = 0.001
+positionStdv = 0.001
+
+[shooter.wheel_1_ffgen]
+startDelay_ms = 20
+endVoltage = 12
+rampRate_vPerMs = 0.001
+
+[shooter.wheel_2_ffgen]
+startDelay_ms = 20
+endVoltage = 12
+rampRate_vPerMs = 0.001
 
 [shooter.absolute]
 analogChannel = 0
-encoderToMechanismCoef = 0.0
+encoderToMechanismCoef = 1
 offset = 0.0
+
+[shooter.velocity]
+analogChannel = 0
+encoderToMechanismCoef = 1
+offset = 0.0
+
+[shooter.pid]
+p = 0
+d = 0
+i = 0
 
 [shooter.angle.pid]
 p = 0
@@ -47,8 +74,24 @@ d = 0
 i = 0
 
 [shooter.angle_motor]
-encoderToMechanismCoef = 0.0
-id = 0
+encoderToMechanismCoef = 1
+id = 11
+rotationalInertia = 0.002
+velocityStdv = 0.001
+positionStdv = 0.001
+
+
+
+[shooter.calculator]
+mass = 0.25 #kg
+area_cross_section = 0.4 #m;
+note_radius = 17.78 #cm
+air_density = 1.225 #kg/m^3
+drag_coefficient = 1.3 #guess
+magnus_coefficient = 0.2 #guess
+
+Vx = 10 #m/s
+Vy = 5 #m/s
 
 # DRIVE STUFF GOES HERE
 
@@ -191,14 +234,22 @@ rotationalInertia = 1.0
 camera1Name = "arducam1"
 camera2Name = "arducam2"
 
+[NMS]
+mechPerEncoderRotation = 0.0
+metersPerRotation = 1
+rotationalInertia = 0
+id = 0
+type = "BRUSHLESS"
+
+
+
 # Disabler
 
 [disabler]
 vision_disabled = true
-drive_disabled = false
-shooter_disabled = true
-odometry_disabled = false
+drive_disabled = true
+shooter_disabled = false
+odometry_disabled = true
 climber_disabled = true
 groundIntake_disabled = true
 nms_disabled = true
-

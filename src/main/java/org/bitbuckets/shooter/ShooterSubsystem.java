@@ -15,20 +15,23 @@ import java.util.Optional;
 public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
 
     // converts desired velocity into voltage
-    final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(4,3);
+    final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(-3.9555685080898364,7.794219410765281);
     public final IRotationalMotor leftMotor; //TODO find a way to not use public here (linearFFGenRoutine)
-    final IRotationalMotor rightMotor;
+    public final IRotationalMotor rightMotor;
     final IRotationalController angleMotor;
     final IRotationEncoder absoluteEncoder;
     final ShooterComponent shooterComponent;
     final AbsoluteEncoderComponent encoderComponent;
-    public ShooterSubsystem(IRotationalMotor leftMotor, IRotationalMotor rightMotor, IRotationalController angleMotor, IRotationEncoder absoluteEncoder, ShooterComponent shooterComponent, AbsoluteEncoderComponent encoderComponent) {
+    final IRotationEncoder velocityEncoder;
+
+    public ShooterSubsystem(IRotationalMotor leftMotor, IRotationalMotor rightMotor, IRotationalController angleMotor, IRotationEncoder absoluteEncoder, ShooterComponent shooterComponent, AbsoluteEncoderComponent encoderComponent, IRotationEncoder velocityEncoder) {
         this.leftMotor = leftMotor;
         this.rightMotor = rightMotor;
         this.angleMotor = angleMotor;
         this.absoluteEncoder = absoluteEncoder;
         this.shooterComponent = shooterComponent;
         this.encoderComponent = encoderComponent;
+        this.velocityEncoder = velocityEncoder;
         mattRegister();
         register();
     }
@@ -66,7 +69,9 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
 
     public void setAllMotorsToVoltage(double voltage) {
         leftMotor.setToVoltage(voltage);
+        System.out.println("this is the left motor");
         rightMotor.setToVoltage(voltage);
+        System.out.println("this is the right motor");
     }
 
     /*

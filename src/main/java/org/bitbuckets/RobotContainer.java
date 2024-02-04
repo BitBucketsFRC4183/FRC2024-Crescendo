@@ -15,10 +15,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -54,6 +51,7 @@ import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
 import xyz.auriium.mattlib2.auto.controls.ff.FFGenComponent;
 import xyz.auriium.mattlib2.auto.controls.ff.LinearFFGenRoutine;
+import xyz.auriium.mattlib2.auto.controls.ff.RotationFFGenRoutine;
 import xyz.auriium.mattlib2.hardware.*;
 import xyz.auriium.mattlib2.hardware.config.*;
 import xyz.auriium.mattlib2.rev.HardwareREV;
@@ -136,10 +134,14 @@ public class RobotContainer {
 
     public void testInit() {
 
-        LinearFFGenRoutine groundTopFFRoutine = new LinearFFGenRoutine(TOP_GROUND_FFGEN, groundIntakeSubsystem.topMotor, groundIntakeSubsystem.topMotor);
+        //LinearFFGenRoutine groundTopFFRoutine = new LinearFFGenRoutine(TOP_GROUND_FFGEN, groundIntakeSubsystem.topMotor, groundIntakeSubsystem.topMotor);
         //LinearFFGenRoutine groundBottomFFRoutine = new LinearFFGenRoutine(BOTTOM_GROUND_FFGEN, groundIntakeSubsystem.bottomMotor, groundIntakeSubsystem.bottomMotor);
-        CTowerCommands.wrapRoutine(groundTopFFRoutine).schedule();
+        //CTowerCommands.wrapRoutine(groundTopFFRoutine).schedule();
         //CTowerCommands.wrapRoutine(groundBottomFFRoutine).schedule();
+        RotationFFGenRoutine shooterFFRoutine = new RotationFFGenRoutine(SHOOTER_WHEEL_1_FFGEN, shooterSubsystem.leftMotor, shooterSubsystem.leftMotor );
+        CTowerCommands.wrapRoutine(shooterFFRoutine).schedule();
+        shooterFFRoutine = new RotationFFGenRoutine(SHOOTER_WHEEL_2_FFGEN, shooterSubsystem.rightMotor, shooterSubsystem.rightMotor);
+        CTowerCommands.wrapRoutine(shooterFFRoutine).schedule();
 
     }
 
@@ -186,8 +188,8 @@ public class RobotContainer {
 
         //When driver
         Trigger xGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftX.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kLeftX.value, -0.1));
-        Trigger yGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kLeftY.value, -0.1));;
-        Trigger rotGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kRightX.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kRightX.value, -0.1));;
+        Trigger yGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kLeftY.value, -0.1));
+        Trigger rotGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kRightX.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kRightX.value, -0.1));
         Trigger climberThreshold = operatorInput.operatorControl.axisGreaterThan(XboxController.Axis.kRightY.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kRightY.value, -0.1));
 
         operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(new AugmentedDriveCommand(SWERVE, driveSubsystem, odometrySubsystem, operatorInput));
@@ -196,7 +198,7 @@ public class RobotContainer {
         operatorInput.ampSetpoint_hold.whileTrue(new SetAmpShootingAngleCommand(shooterSubsystem).andThen(new AchieveFlatShotSpeedCommand(shooterSubsystem)));
         operatorInput.speakerSetpoint_hold.whileTrue(new SetSpeakerShootingAngleCommand(shooterSubsystem));
         // .andThen(new ShootNoteCommand(shooterSubsystem))
-        operatorInput.shootManually.onTrue(new AchieveFlatShotSpeedCommand(shooterSubsystem));
+        operatorInput.shootManually.whileTrue(new AchieveFlatShotSpeedCommand(shooterSubsystem));
         operatorInput.sourceIntake_hold.whileTrue(new AwaitShooterIntakeCommand(noteManagementSubsystem, shooterSubsystem));
         operatorInput.setShooterAngleManually.onTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));
 
@@ -274,25 +276,31 @@ public class RobotContainer {
         IRotationalMotor rightMotor;
         IRotationalController angleMotor;
         IRotationEncoder absoluteEncoder;
+        IRotationEncoder velocityEncoder;
 
         if (DISABLER.shooter_disabled()) {
             leftMotor = HardwareDisabled.rotationalMotor_disabled();
             rightMotor = HardwareDisabled.rotationalMotor_disabled();
             angleMotor = HardwareDisabled.rotationalController_disabled();
             absoluteEncoder = HardwareDisabled.rotationEncoder_disabled();
+            velocityEncoder = HardwareDisabled.rotationEncoder_disabled();
         }
         else if (Robot.isSimulation()){
             leftMotor = HardwareSIM.rotationalSIM_noPID(SHOOTER_WHEEL_1, DCMotor.getNEO(1) );
             rightMotor = HardwareSIM.rotationalSIM_noPID(SHOOTER_WHEEL_2, DCMotor.getNEO(1));
             angleMotor = HardwareSIM.rotationalSIM_pid(ANGLE_SHOOTER_MOTOR,ANGLE_PID,DCMotor.getNEO(1) );
             absoluteEncoder = angleMotor;
+            velocityEncoder = leftMotor; //TODO switch out leftMotor with actual velocity encoder
 
         }
         else {
-            leftMotor = HardwareREV.rotationalSpark_noPID(SHOOTER_WHEEL_1);
-            rightMotor = HardwareREV.rotationalSpark_noPID(SHOOTER_WHEEL_2);
+            leftMotor = HardwareREV.rotationalSpark_builtInVelocityPID(SHOOTER_WHEEL_1,SHOOTER_PID);
+            rightMotor = HardwareREV.rotationalSpark_builtInVelocityPID(SHOOTER_WHEEL_2,SHOOTER_PID);
             angleMotor = HardwareREV.rotationalSpark_builtInPID(ANGLE_SHOOTER_MOTOR, ANGLE_PID);
             absoluteEncoder = new ThriftyAbsoluteEncoder(new AnalogInput(SHOOTER.channel()), SHOOTER_ABSOLUTE);
+            velocityEncoder = new ThroughBoreEncoder(
+                    new Encoder(2,3), VELOCITY_ENCODER
+            );
         }
 
 
@@ -302,7 +310,8 @@ public class RobotContainer {
                angleMotor,
                absoluteEncoder,
                SHOOTER,
-               SHOOTER_ABSOLUTE
+               SHOOTER_ABSOLUTE,
+                velocityEncoder
        );
 
     }
@@ -479,10 +488,15 @@ public class RobotContainer {
     public static final PIDComponent GROUND_INTAKE_PID = LOG.load(PIDComponent.class, "ground_intake/pid");
     public static final FFGenComponent TOP_GROUND_FFGEN = LOG.load(FFGenComponent.class, "ground_intake/ff_top");
 
+    public static final FFGenComponent SHOOTER_WHEEL_1_FFGEN = LOG.load(FFGenComponent.class,"shooter/wheel_1_ffgen");
+    public static final FFGenComponent SHOOTER_WHEEL_2_FFGEN = LOG.load(FFGenComponent.class, "shooter/wheel_2_ffgen");
+    public static final PIDComponent SHOOTER_PID = LOG.load(PIDComponent.class, "shooter/pid");
+
     public static final ShooterComponent SHOOTER = LOG.load(ShooterComponent.class, "shooter");
     public static final MotorComponent SHOOTER_WHEEL_1 = LOG.load(MotorComponent.class, "shooter/wheel_1");
     public static final MotorComponent SHOOTER_WHEEL_2 = LOG.load(MotorComponent.class, "shooter/wheel_2");
     public static final AbsoluteEncoderComponent SHOOTER_ABSOLUTE = LOG.load(AbsoluteEncoderComponent.class, "shooter/absolute");
+    public static final AbsoluteEncoderComponent VELOCITY_ENCODER = LOG.load(AbsoluteEncoderComponent.class, "shooter/velocity");
     public static final MotorComponent ANGLE_SHOOTER_MOTOR = LOG.load(MotorComponent.class,"shooter/angle_motor");
     public static final PIDComponent ANGLE_PID = LOG.load(PIDComponent.class,"shooter/angle/pid");
 
