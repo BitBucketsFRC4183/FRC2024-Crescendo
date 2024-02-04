@@ -121,11 +121,11 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         // translations are in inches
         return switch (target) {
             case SPEAKER_CENTER ->
-                    new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(72)), new Rotation3d(0d, 0d, 0));
+                    new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(80)), new Rotation3d(0d, 0d, 0));
             case SPEAKER_LEFT ->
-                    new Transform3d(new Translation3d(Units.inchesToMeters(24), 0d, Units.inchesToMeters(72)), new Rotation3d(0d, 0d, 0));
+                    new Transform3d(new Translation3d(Units.inchesToMeters(24), 0d, Units.inchesToMeters(80)), new Rotation3d(0d, 0d, 0));
             case SPEAKER_RIGHT ->
-                    new Transform3d(new Translation3d(Units.inchesToMeters(-24), 0d, Units.inchesToMeters(72)), new Rotation3d(0d, 0d, 0));
+                    new Transform3d(new Translation3d(Units.inchesToMeters(-24), 0d, Units.inchesToMeters(80)), new Rotation3d(0d, 0d, 0));
             case AMP ->
                     new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0));
             case SOURCE_LEFT -> //relative to the robot
@@ -149,13 +149,13 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
 
         // default priorities, lower index represents high priority
         List<VisionFieldTarget> priorities = List.of(
-                VisionFieldTarget.STAGE,
                 VisionFieldTarget.SPEAKER_CENTER,
                 VisionFieldTarget.SPEAKER_LEFT,
                 VisionFieldTarget.SPEAKER_RIGHT,
                 VisionFieldTarget.AMP,
                 VisionFieldTarget.SOURCE_LEFT,
-                VisionFieldTarget.SOURCE_RIGHT
+                VisionFieldTarget.SOURCE_RIGHT,
+                VisionFieldTarget.STAGE
         );
 
 
