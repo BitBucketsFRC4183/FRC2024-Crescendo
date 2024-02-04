@@ -20,11 +20,12 @@ public class VisionPivotCommand extends Command {
 
     @Override
     public void execute() {
-        var opt = visionSubsystem.estimateAprilTagTargetPose();
-        if (opt.isEmpty()) return; //TODO please
-
-        Pose3d visionTargetAprilTagPose = opt.get();
-        Pose3d shooterPose = odometrySubsystem.getShooterCentroidPositionVert();
+        // this shit idk how this works so uh comment bye bye
+//        var opt = visionSubsystem.getDesiredTargetAlignPose();
+//        if (opt.isEmpty()) return; //TODO please
+//
+//        Pose3d visionTargetAprilTagPose = opt.get();
+//        Pose3d shooterPose = odometrySubsystem.getShooterCentroidPositionVert();
 
         
 

@@ -64,6 +64,8 @@ public class VisionSimContainer {
 
     public void simulationPeriodic() {
         visionSystemSim.update(odometrySubsystem.getRobotCentroidPosition());
+
+
         // visionSystemSim.update(new Pose2d(0, 0, new Rotation2d(0)));
         // Field2d debugField = visionSystemSim.getDebugField();
         // debugField.getObject("EstimatedRobot").setPose(odometrySubsystem.getCurrentPosition());

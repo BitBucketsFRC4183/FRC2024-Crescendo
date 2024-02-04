@@ -2,11 +2,12 @@ package org.bitbuckets.vision;
 
 public enum VisionFieldTarget {
 
-    SPEAKER,
+    SPEAKER_CENTER,
+    SPEAKER_SIDE_LEFT,
+    SPEAKER_SIDE_RIGHT,
     AMP,
-    SOURCE_INTAKE,
+    SOURCE_LEFT,
+    SOURCE_RIGHT,
     STAGE,
-    NOTHING
-    //TODO ad more please
 
 }
