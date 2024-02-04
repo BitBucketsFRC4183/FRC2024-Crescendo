@@ -36,7 +36,11 @@ public class MoveToAlignCommand extends Command {
         this.operatorInput = operatorInput;
 
         // change this with visiontarget implementation later
-        this.targetPose = new Pose3d(0, 0 ,0, new Rotation3d(0, 0 ,0));
+        Optional<Transform3d> optionalTagTransform = visionSubsystem.getDesiredTargetAlignTransform();
+        if (optionalTagTransform.isPresent()) {
+            this.targetPose = odometrySubsystem.getRobotCentroidPositionVert().plus(optionalTagTransform.get());
+        } else { this.targetPose = odometrySubsystem.getRobotCentroidPositionVert(); }
+
     }
 
     @Override
@@ -47,10 +51,10 @@ public class MoveToAlignCommand extends Command {
     @Override
     public void execute() {
         // this must be updated every as frequently as possible
-        Optional<Pose3d> optionalTagPose = visionSubsystem.getDesiredTargetAlignPose();
-        optionalTagPose.ifPresent(pose3d -> this.targetPose = pose3d);
+        Optional<Transform3d> optionalTagTransform = visionSubsystem.getDesiredTargetAlignTransform();
+        optionalTagTransform.ifPresent(transform3d -> this.targetPose = odometrySubsystem.getRobotCentroidPositionVert().plus(transform3d));
 
-        moveToAlign();
+            moveToAlign();
     }
     public ChassisSpeeds calculateTagSpeeds(Pose2d target, Rotation2d holonomicRotation, double desiredVelocity) {
         return holoController.calculate(
@@ -62,6 +66,7 @@ public class MoveToAlignCommand extends Command {
     }
 
     public void moveToAlign() {
+
         ChassisSpeeds speeds = calculateTagSpeeds(this.targetPose.toPose2d(),
                 this.targetPose.toPose2d().getRotation().plus(Rotation2d.fromDegrees(180)),
                 1);

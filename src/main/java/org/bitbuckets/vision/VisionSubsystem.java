@@ -13,6 +13,7 @@ import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.yuukonstants.exception.ExplainedException;
 
 import javax.swing.text.html.Option;
+import javax.xml.crypto.dsig.Transform;
 import java.util.Optional;
 
 public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
@@ -41,7 +42,7 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
 
     public Optional<VisionFieldTarget> lookingAt(int fiducialID) {
         VisionFieldTarget target;
-        switch(fiducialID) {
+        switch (fiducialID) {
             case 1:
             case 9:
                 target = VisionFieldTarget.SOURCE_RIGHT;
@@ -85,37 +86,40 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         // aprilTagDetector.addFamily("36h11");
 
 
-
         return Optional.empty();
     }
 
 
     // field relative pose
-    public Optional<Pose3d> getDesiredTargetAlignPose() {
-        Optional<PhotonTrackedTarget> optTrackedTarget = getBestVisionTarget_1();;
+    public Optional<Transform3d> getDesiredTargetAlignTransform() {
+        Optional<PhotonTrackedTarget> optTrackedTarget = getBestVisionTarget();
+        ;
 
         if (optTrackedTarget.isPresent()) {
-            int fidID = optTrackedTarget.get().getFiducialId();
+            PhotonTrackedTarget trackedTarget = optTrackedTarget.get();
+            int fidID = trackedTarget.getFiducialId();
 
-            var target = lookingAt(fidID).orElseThrow();
+            VisionFieldTarget target = lookingAt(fidID).orElseThrow();
             RobotContainer.VISION.log_looking_at(target.toString());
+            Optional<Transform3d> optTransform = getDesiredTransformFromTarget(target);
 
-            Optional<Transform3d> optTranfrom = getDesiredTransformFromTarget(target);
-
-            if (optTranform.isPresent()) {
+            if (optTransform.isPresent()) {
                 // may throw error somewhere
 
-                Pose3d aprilTagPose = layout.getTagPose(fidID).orElseThrow();
-                Transform3d desiredTransformation = optTranform.get();
+                Transform3d cameraToTagTransform = trackedTarget.getBestCameraToTarget();
+                Transform3d desiredTransformation = optTransform.get();
 
-                Pose3d desiredPose = aprilTagPose.plus(desiredTransformation);
-                return Optional.ofNullable(desiredPose);
+                Transform3d betweenTransformation = new Transform3d(
+                        cameraToTagTransform.getTranslation().minus(desiredTransformation.getTranslation()),
+                        cameraToTagTransform.getRotation().minus(desiredTransformation.getRotation())
+                );
+                RobotContainer.VISION.log_between_transformation(betweenTransformation.getTranslation().toTranslation2d().getDistance(new Translation2d(0, 0)));
+                return Optional.ofNullable(betweenTransformation);
             }
         }
 
 
         // TODO combine two cameras (weighting if see more than two aptriltags) in different part of a code
-
 
 
         return Optional.empty();
@@ -148,25 +152,28 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
 
 
     //BASIC INFORMATION GATHERING FROM CAMERAS
-    public Optional<PhotonTrackedTarget> getBestVisionTarget_1() {
-
-
-        Optional<PhotonTrackedTarget> vt  = Optional.ofNullable(
+    public Optional<PhotonTrackedTarget> getBestVisionTarget() {
+        Optional<PhotonTrackedTarget> vt1 = Optional.ofNullable(
                 camera_1.getLatestResult().getBestTarget()
         );
 
-        return vt;
-    }
-
-    public Optional<PhotonTrackedTarget> getBestVisionTarget_2() {
-
-
-        Optional<PhotonTrackedTarget> vt  = Optional.ofNullable(
+        Optional<PhotonTrackedTarget> vt2 = Optional.ofNullable(
                 camera_2.getLatestResult().getBestTarget()
         );
 
+        // decision tree, lowest ambiguity prioritized
+        // TODO WHEN SAME ID, COMBINE DATA TOGETHER
+        // TODO CREATE HAS TARGETS BASED OFF OF TWO CAMERAS
+        if (vt1.isPresent() && vt2.isPresent()) {
+            if (vt1.get().equals(vt2.get())) {
+                return vt1;
+            } else if (vt1.get().getPoseAmbiguity() <= vt2.get().getPoseAmbiguity()) {
+                return vt1;
+            } else return vt2;
 
-        return vt;
+        } else if (vt1.isPresent()) {
+            return vt1;
+        } else return vt2;
     }
 
 
