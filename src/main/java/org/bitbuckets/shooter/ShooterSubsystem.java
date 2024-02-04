@@ -15,7 +15,7 @@ import java.util.Optional;
 public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
 
     // converts desired velocity into voltage
-    final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(1,0);
+    final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(-3.9555685080898364,7.794219410765281);
     public final IRotationalMotor leftMotor; //TODO find a way to not use public here (linearFFGenRoutine)
     public final IRotationalMotor rightMotor;
     final IRotationalController angleMotor;

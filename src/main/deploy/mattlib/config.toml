@@ -45,9 +45,8 @@ positionStdv = 0.001
 
 [shooter.wheel_2_ffgen]
 startDelay_ms = 20
-endVoltage = 0
-rampRate_vPerMs = 0.5
-
+endVoltage = 12
+rampRate_vPerMs = 0.001
 
 [shooter.absolute]
 analogChannel = 0
