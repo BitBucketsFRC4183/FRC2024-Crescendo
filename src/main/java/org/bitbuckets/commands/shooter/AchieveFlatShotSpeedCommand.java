@@ -23,7 +23,7 @@ public class AchieveFlatShotSpeedCommand extends Command {
     }
 
     @Override
-    public void end(boolean isinteruppted) {
+    public void end(boolean interrupted) {
         shooterSubsystem.setAllMotorsToVoltage(0);
     }
 

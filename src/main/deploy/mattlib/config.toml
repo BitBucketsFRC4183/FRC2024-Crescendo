@@ -93,6 +93,7 @@ rotationToMeterCoef = 0.31519599093
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
 inverted = true
+breakModeEnabled = false
 
 [swerve.drive_fl]
 id = 15
@@ -100,6 +101,8 @@ rotationToMeterCoef = 0.31519599093
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
 inverted = true
+breakModeEnabled = false
+
 
 [swerve.drive_br]
 id = 19
@@ -107,6 +110,8 @@ rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
 inverted = true
+breakModeEnabled = false
+
 
 [swerve.drive_bl]
 id = 14
@@ -114,6 +119,8 @@ rotationToMeterCoef = 0.31519599093
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
 inverted = false
+breakModeEnabled = false
+
 
 
 [swerve.steer_pid_common]
