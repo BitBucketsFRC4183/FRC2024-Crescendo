@@ -37,8 +37,12 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         mattRegister();
     }
 
-    public VisionFieldTarget lookingAt() {
-        return null; //TODO FINISH THIS
+    public Optional<VisionFieldTarget> lookingAt(int fiducialID) {
+        switch(fiducialID) {
+            case 1:
+            case 2:
+        }
+        return null;
     }
 
     @Override
@@ -47,11 +51,14 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         //frc using 36h11 fam this year
         // aprilTagDetector.addFamily("36h11");
 
+
+
         return Optional.empty();
     }
 
 
-    public Optional<Pose3d> estimateAprilTagTargetPose() {
+    public Optional<Pose3d> estimateAprilTagTargetPose(VisionFieldTarget target) {
+
         //TODO BLEND THE DATA BETWEEN THE TWO CAMERAS.
 
 
@@ -107,25 +114,7 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
     }
 
 
-    public Optional<Pose3d> estimateRobotPose_1() {
 
-        Optional<Pose3d> p = Optional.ofNullable(
-                camera_1.getLatestResult().getBestTarget()
-        ).flatMap(tgt -> layout.getTagPose(tgt.getFiducialId()));
-
-        p.ifPresent(RobotContainer.VISION::log_vision_robot_pose_1);
-        return p;
-    }
-
-    public Optional<Pose3d> estimateRobotPose_2() {
-
-        Optional<Pose3d> p = Optional.ofNullable(
-                camera_2.getLatestResult().getBestTarget()
-        ).flatMap(tgt -> layout.getTagPose(tgt.getFiducialId()));
-
-        p.ifPresent(RobotContainer.VISION::log_vision_robot_pose_2);
-        return p;
-    }
 
     public Optional<Pose3d> estimateVisionRobotPose_1() {
         return estimator1.update(camera_1.getLatestResult()).map(poseDat -> poseDat.estimatedPose);
