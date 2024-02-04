@@ -1,7 +1,6 @@
 package org.bitbuckets.util;
 
 import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
 import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;

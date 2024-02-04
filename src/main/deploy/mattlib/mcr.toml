@@ -24,7 +24,7 @@ id = 4
 [swerve.drive_fr]
 id = 7
 rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
-inverted = true
+inverted = false
 
 [swerve.drive_fl]
 id = 5
@@ -39,21 +39,21 @@ inverted = false
 [swerve.drive_bl]
 id = 3
 rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
-inverted = true
+inverted = false
 
 
 [swerve.abs_fr]
 analogChannel = 3
-offset = 0.75165
+offset = 0.262
 
 [swerve.abs_fl]
 analogChannel = 2
-offset = 0.70929
+offset = 0.709
 
 [swerve.abs_br]
 analogChannel = 0
-offset = 0.34173
+offset = 0.323
 
 [swerve.abs_bl]
 analogChannel = 1
-offset = 0.5123#0.0352701817
+offset = 0.011#0.0352701817
