@@ -12,8 +12,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.yuukonstants.exception.ExplainedException;
 
-import javax.swing.text.html.Option;
-import javax.xml.crypto.dsig.Transform;
+import java.util.List;
 import java.util.Optional;
 
 public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
@@ -53,10 +52,10 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
                 target = VisionFieldTarget.SOURCE_LEFT;
                 break;
             case 3:
-                target = VisionFieldTarget.SPEAKER_SIDE_RIGHT;
+                target = VisionFieldTarget.SPEAKER_RIGHT;
                 break;
             case 8:
-                target = VisionFieldTarget.SPEAKER_SIDE_LEFT;
+                target = VisionFieldTarget.SPEAKER_LEFT;
                 break;
             case 5:
             case 6:
@@ -136,9 +135,9 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         return switch (target) {
             case SPEAKER_CENTER ->
                     Optional.of(new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(72)), new Rotation3d(0d, 0d, 0)));
-            case SPEAKER_SIDE_LEFT ->
+            case SPEAKER_LEFT ->
                     Optional.of(new Transform3d(new Translation3d(Units.inchesToMeters(24), 0d, Units.inchesToMeters(72)), new Rotation3d(0d, 0d, 0)));
-            case SPEAKER_SIDE_RIGHT ->
+            case SPEAKER_RIGHT ->
                     Optional.of(new Transform3d(new Translation3d(Units.inchesToMeters(-24), 0d, Units.inchesToMeters(72)), new Rotation3d(0d, 0d, 0)));
             case AMP ->
                     Optional.of(new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0)));
@@ -153,7 +152,7 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
     }
 
 
-    //BASIC INFORMATION GATHERING FROM CAMERAS
+    // selects the vision target based on priorities
     public Optional<PhotonTrackedTarget> getBestVisionTarget() {
         Optional<PhotonTrackedTarget> vt1 = Optional.ofNullable(
                 camera_1.getLatestResult().getBestTarget()
@@ -163,19 +162,39 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
                 camera_2.getLatestResult().getBestTarget()
         );
 
-        // decision tree, lowest ambiguity prioritized
-        // TODO WHEN SAME ID, COMBINE DATA TOGETHER
-        // TODO CREATE HAS TARGETS BASED OFF OF TWO CAMERAS
-        if (vt1.isPresent() && vt2.isPresent()) {
-            if (vt1.get().equals(vt2.get())) {
-                return vt1;
-            } else if (vt1.get().getPoseAmbiguity() <= vt2.get().getPoseAmbiguity()) {
-                return vt1;
-            } else return vt2;
+        // default priorities, lower index represents high priority
+        List<VisionFieldTarget> priorities = List.of(
+                VisionFieldTarget.SPEAKER_CENTER,
+                VisionFieldTarget.SPEAKER_LEFT,
+                VisionFieldTarget.SPEAKER_RIGHT,
+                VisionFieldTarget.AMP,
+                VisionFieldTarget.SOURCE_LEFT,
+                VisionFieldTarget.SOURCE_RIGHT,
+                VisionFieldTarget.STAGE
+        );
 
-        } else if (vt1.isPresent()) {
+
+        // Chooses best target based on priority list
+        if (!vt1.isPresent()){
+            return vt2;
+        } else if (!vt2.isPresent()){
             return vt1;
-        } else return vt2;
+        } else {
+            if (vt1.get().equals(vt2.get())) {
+                // best target is the same tag, so return that tag
+                return vt1;
+            } else {
+                // cameras see different tags, so choose based on priority
+                Optional<VisionFieldTarget> vt1Element = lookingAt(vt1.get().getFiducialId());
+                Optional<VisionFieldTarget> vt2Element = lookingAt(vt2.get().getFiducialId());
+
+                if (priorities.indexOf(vt1Element) < priorities.indexOf(vt2Element)){
+                    return vt1;
+                } else {
+                    return vt2;
+                }
+            }
+        }
     }
 
 

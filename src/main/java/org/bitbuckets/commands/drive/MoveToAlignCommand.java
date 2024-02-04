@@ -39,7 +39,9 @@ public class MoveToAlignCommand extends Command {
         Optional<Transform3d> optionalTagTransform = visionSubsystem.getDesiredTargetAlignTransform();
         if (optionalTagTransform.isPresent()) {
             this.targetPose = odometrySubsystem.getRobotCentroidPositionVert().plus(optionalTagTransform.get());
-        } else { this.targetPose = odometrySubsystem.getRobotCentroidPositionVert(); }
+        } else {
+            this.targetPose = odometrySubsystem.getRobotCentroidPositionVert();
+        }
 
     }
 
