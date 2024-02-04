@@ -12,14 +12,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ThriftyAbsoluteEncoderMathTest {
 
-<<<<<<< HEAD
 
-    @Disabled
-    @Test
-=======
     
     @Disabled
->>>>>>> auto-paths
+    @Test
     public void checkThriftyAngularPosition_encoderRotations()
     {
         AnalogInput fake = Mockito.mock(AnalogInput.class);
@@ -29,14 +25,11 @@ public class ThriftyAbsoluteEncoderMathTest {
         assertEquals(-0.5, thriftyAbsoluteEncoder.angularPosition_encoderRotations(), 0);
     }
     
-<<<<<<< HEAD
+
 
     @Disabled
     @Test
-=======
-    
-    @Disabled
->>>>>>> auto-paths
+
     public void checkThriftyAngularPosition_normalizedEncoderRotations()
     {
         AnalogInput fake = Mockito.mock(AnalogInput.class);
@@ -46,14 +39,11 @@ public class ThriftyAbsoluteEncoderMathTest {
         assertEquals(0, thriftyAbsoluteEncoder.angularPosition_normalizedEncoderRotations(), 0);
     }
 
-<<<<<<< HEAD
+
 
     @Disabled
     @Test
-=======
-    
-    @Disabled
->>>>>>> auto-paths
+
     public void checkThriftyAngularPosition_mechanismRotations()
     {
         AnalogInput fake = Mockito.mock(AnalogInput.class);
@@ -66,14 +56,9 @@ public class ThriftyAbsoluteEncoderMathTest {
         assertEquals(1.25, thriftyAbsoluteEncoder.angularPosition_mechanismRotations(), 0);
     }
 
-<<<<<<< HEAD
-
     @Disabled
     @Test
-=======
-    
-    @Disabled
->>>>>>> auto-paths
+
     public void checkThriftyAngularPosition_NormalizedMechanismRotations()
     {
         AnalogInput fake = Mockito.mock(AnalogInput.class);
