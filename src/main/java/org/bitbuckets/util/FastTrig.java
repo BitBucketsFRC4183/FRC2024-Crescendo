@@ -2,6 +2,7 @@ package org.bitbuckets.util;
 
 public class FastTrig
 {
+
     /** Fast approximation of 1.0 / sqrt(x).
      * See <a href="http://www.beyond3d.com/content/articles/8/">http://www.beyond3d.com/content/articles/8/</a>
      * @param x Positive value to estimate inverse of square root of
@@ -22,6 +23,7 @@ public class FastTrig
      *  Slightly faster and substantially less accurate than
      *  {@link Math#atan2(double, double)}.
      **/
+    /*
     public static double fast_atan2(double y, double x)
     {
         double d2 = x*x + y*y;
@@ -81,6 +83,7 @@ public class FastTrig
 
         return θ;
     }
+    */
 
     private static final double ONE_SIXTH = 1.0 / 6.0;
     private static final int FRAC_EXP = 8; // LUT precision == 2 ** -8 == 1/256
@@ -89,6 +92,7 @@ public class FastTrig
             Double.longBitsToDouble((0x433L - FRAC_EXP) << 52);
     private static final double[] ASIN_TAB = new double[LUT_SIZE];
     private static final double[] COS_TAB = new double[LUT_SIZE];
+
 
     static
     {
@@ -101,4 +105,6 @@ public class FastTrig
             ASIN_TAB[ind] = asinv;
         }
     }
+
+
 }

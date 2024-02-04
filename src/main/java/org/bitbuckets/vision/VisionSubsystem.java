@@ -3,6 +3,7 @@ package org.bitbuckets.vision;
 import edu.wpi.first.apriltag.AprilTagDetector;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.RobotContainer;
 import org.photonvision.PhotonCamera;
@@ -10,6 +11,7 @@ import org.photonvision.PhotonPoseEstimator;
 import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.yuukonstants.exception.ExplainedException;
 
+import java.util.EnumMap;
 import java.util.Optional;
 
 public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
@@ -57,8 +59,19 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         return Optional.empty();
     }
 
+    // Returns the transformation for each target for desired final position
+    // e.g. stop close to amp, far away from speaker
     public Optional<Transform3d> getTargetGoalTransformBasedOnThing(VisionFieldTarget thing) {
-        //TODO APPLY TRANSFORMATIONS BASED ON WHAT WE ARE LOOKING AT - HERE'S WHERE THE FIELD LAYOUT COMES IN HANDY
+        // translations are in inches
+        switch (thing) {
+
+            case SPEAKER_CENTER:
+                return new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(72))), new Rotation3d(0, 0, 0));
+
+            case AMP -> return new Transform3d(new Translation3d(0, 0, 36))
+        }
+
+
 
         return null;
     }

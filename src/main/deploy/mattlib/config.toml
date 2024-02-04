@@ -187,7 +187,7 @@ camera2Name = "arducam2"
 # Disabler
 
 [disabler]
-vision_disabled = true
+vision_disabled = false
 drive_disabled = false
 shooter_disabled = true
 odometry_disabled = false
