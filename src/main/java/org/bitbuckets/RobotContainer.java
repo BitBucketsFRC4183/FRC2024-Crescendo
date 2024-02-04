@@ -138,7 +138,9 @@ public class RobotContainer {
         //LinearFFGenRoutine groundBottomFFRoutine = new LinearFFGenRoutine(BOTTOM_GROUND_FFGEN, groundIntakeSubsystem.bottomMotor, groundIntakeSubsystem.bottomMotor);
         //CTowerCommands.wrapRoutine(groundTopFFRoutine).schedule();
         //CTowerCommands.wrapRoutine(groundBottomFFRoutine).schedule();
-        RotationFFGenRoutine shooterFFRoutine = new RotationFFGenRoutine(SHOOTER_WHEEL_2_FFGEN, shooterSubsystem.rightMotor, shooterSubsystem.rightMotor);
+        RotationFFGenRoutine shooterFFRoutine = new RotationFFGenRoutine(SHOOTER_WHEEL_1_FFGEN, shooterSubsystem.leftMotor, shooterSubsystem.leftMotor );
+        CTowerCommands.wrapRoutine(shooterFFRoutine).schedule();
+        shooterFFRoutine = new RotationFFGenRoutine(SHOOTER_WHEEL_2_FFGEN, shooterSubsystem.rightMotor, shooterSubsystem.rightMotor);
         CTowerCommands.wrapRoutine(shooterFFRoutine).schedule();
 
     }
@@ -486,6 +488,7 @@ public class RobotContainer {
     public static final PIDComponent GROUND_INTAKE_PID = LOG.load(PIDComponent.class, "ground_intake/pid");
     public static final FFGenComponent TOP_GROUND_FFGEN = LOG.load(FFGenComponent.class, "ground_intake/ff_top");
 
+    public static final FFGenComponent SHOOTER_WHEEL_1_FFGEN = LOG.load(FFGenComponent.class,"shooter/wheel_1_ffgen");
     public static final FFGenComponent SHOOTER_WHEEL_2_FFGEN = LOG.load(FFGenComponent.class, "shooter/wheel_2_ffgen");
 
     public static final ShooterComponent SHOOTER = LOG.load(ShooterComponent.class, "shooter");
