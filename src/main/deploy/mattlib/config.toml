@@ -43,6 +43,11 @@ rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
 
+[shooter.wheel_2_ffgen]
+startDelay_ms = 20
+endVoltage = 0
+rampRate_vPerMs = 0.5
+
 
 [shooter.absolute]
 analogChannel = 0
