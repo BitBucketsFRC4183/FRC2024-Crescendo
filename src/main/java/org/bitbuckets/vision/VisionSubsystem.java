@@ -40,6 +40,7 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         mattRegister();
     }
 
+    // converts apriltag ID to an element of the target enum
     public Optional<VisionFieldTarget> lookingAt(int fiducialID) {
         VisionFieldTarget target;
         switch (fiducialID) {
@@ -91,6 +92,7 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
 
 
     // field relative pose
+    // desired transform to move the robot to the desired final position
     public Optional<Transform3d> getDesiredTargetAlignTransform() {
         Optional<PhotonTrackedTarget> optTrackedTarget = getBestVisionTarget();
         ;
@@ -128,10 +130,10 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
     // TODO clean up naming and actually refractor everything
     // Returns the transformation for each target for desired final position
     // e.g. stop close to amp, far away from speaker
-    public Optional<Transform3d> getDesiredTransformFromTarget(VisionFieldTarget thing) {
+    public Optional<Transform3d> getDesiredTransformFromTarget(VisionFieldTarget target) {
 
         // translations are in inches
-        return switch (thing) {
+        return switch (target) {
             case SPEAKER_CENTER ->
                     Optional.of(new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(72)), new Rotation3d(0d, 0d, 0)));
             case SPEAKER_SIDE_LEFT ->
@@ -177,14 +179,17 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
     }
 
 
+    // estimated robot pose using cam 1
     public Optional<Pose3d> estimateVisionRobotPose_1() {
         return estimator1.update(camera_1.getLatestResult()).map(poseDat -> poseDat.estimatedPose);
     }
 
+    // estimated robot pose using cam 2
     public Optional<Pose3d> estimateVisionRobotPose_2() {
         return estimator2.update(camera_2.getLatestResult()).map(poseDat -> poseDat.estimatedPose);
     }
 
+    // combines estimated poses by averaging
     public Optional<Pose3d> combineEstimatedPose(Optional<Pose3d> pose1, Optional<Pose3d> pose2){
 
         if (pose1.isEmpty() && pose2.isEmpty()){
