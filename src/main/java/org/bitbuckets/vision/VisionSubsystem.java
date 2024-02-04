@@ -11,7 +11,6 @@ import org.photonvision.PhotonPoseEstimator;
 import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.yuukonstants.exception.ExplainedException;
 
-import java.util.EnumMap;
 import java.util.Optional;
 
 public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
@@ -61,19 +60,26 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
 
     // Returns the transformation for each target for desired final position
     // e.g. stop close to amp, far away from speaker
-    public Optional<Transform3d> getTargetGoalTransformBasedOnThing(VisionFieldTarget thing) {
+    public Optional<Transform3d> getTagTransformBasedOnThing(VisionFieldTarget thing) {
+
         // translations are in inches
-        switch (thing) {
+        return switch (thing) {
+            case SPEAKER_CENTER ->
+                    Optional.of(new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(72)), new Rotation3d(0d, 0d, 180d)));
+            case SPEAKER_SIDE_LEFT ->
+                    Optional.of(new Transform3d(new Translation3d(Units.inchesToMeters(24), 0d, Units.inchesToMeters(72)), new Rotation3d(0d, 0d, 180d)));
+            case SPEAKER_SIDE_RIGHT ->
+                    Optional.of(new Transform3d(new Translation3d(Units.inchesToMeters(-24), 0d, Units.inchesToMeters(72)), new Rotation3d(0d, 0d, 180d)));
+            case AMP ->
+                    Optional.of(new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 180d)));
+            case SOURCE_LEFT -> //relative to the robot
+                    Optional.of(new Transform3d(new Translation3d(Units.inchesToMeters(20), 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 180d)));
+            case SOURCE_RIGHT -> //relative to the robot
+                    Optional.of(new Transform3d(new Translation3d(Units.inchesToMeters(-20), 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 180d)));
+            case STAGE -> //relative to the robot
+                    Optional.of(new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 180d)));
+        };
 
-            case SPEAKER_CENTER:
-                return new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(72))), new Rotation3d(0, 0, 0));
-
-            case AMP -> return new Transform3d(new Translation3d(0, 0, 36))
-        }
-
-
-
-        return null;
     }
 
 
