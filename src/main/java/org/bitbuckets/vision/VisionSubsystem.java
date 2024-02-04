@@ -5,6 +5,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import org.bitbuckets.OperatorInput;
 import org.bitbuckets.RobotContainer;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -23,10 +24,11 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
     final PhotonPoseEstimator estimator1;
     final PhotonPoseEstimator estimator2;
     final AprilTagDetector aprilTagDetector;
+    final OperatorInput operatorInput;
 
     public VisionSubsystem(PhotonCamera camera_1, PhotonCamera camera_2, AprilTagFieldLayout layout,
                            PhotonPoseEstimator estimator1, PhotonPoseEstimator estimator2,
-                           AprilTagDetector aprilTagDetector) {
+                           AprilTagDetector aprilTagDetector, OperatorInput operatorInput) {
 
         this.camera_1 = camera_1;
         this.camera_2 = camera_2;
@@ -34,6 +36,7 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         this.estimator1 = estimator1;
         this.estimator2 = estimator2;
         this.aprilTagDetector = aprilTagDetector;
+        this.operatorInput = operatorInput;
 
         register();
         mattRegister();
@@ -175,28 +178,52 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
 
 
         // Chooses best target based on priority list
-        if (!vt1.isPresent()){
+        if (!vt1.isPresent()) {
             return vt2;
-        } else if (!vt2.isPresent()){
+        }
+
+        if (!vt2.isPresent()) {
             return vt1;
+        }
+
+        if (vt1.get().equals(vt2.get())) {
+            // best target is the same tag, so return that tag
+            return vt1;
+        }
+
+        // cameras see different tags, so choose based on priority
+        Optional<VisionFieldTarget> vt1Element = lookingAt(vt1.get().getFiducialId());
+        Optional<VisionFieldTarget> vt2Element = lookingAt(vt2.get().getFiducialId());
+
+        // check if the operator has a priority currently enabled
+        // if both priorities are enabled, by default it does the speaker first
+        if (operatorInput.getSpeakerPriorityToggleState()) {
+            if (vt1Element.get() == VisionFieldTarget.SPEAKER_CENTER ||
+                    vt1Element.get() == VisionFieldTarget.SPEAKER_LEFT ||
+                    vt1Element.get() == VisionFieldTarget.SPEAKER_RIGHT) {
+                return vt1;
+            } else if (vt2Element.get() == VisionFieldTarget.SPEAKER_CENTER ||
+                    vt2Element.get() == VisionFieldTarget.SPEAKER_LEFT ||
+                    vt2Element.get() == VisionFieldTarget.SPEAKER_RIGHT) {
+                return vt2;
+            }
+        } else if (operatorInput.getAmpPriorityToggleState()) {
+            if (vt1Element.get() == VisionFieldTarget.AMP) {
+                return vt1;
+            } else if (vt2Element.get() == VisionFieldTarget.AMP) {
+                return vt2;
+            }
         } else {
-            if (vt1.get().equals(vt2.get())) {
-                // best target is the same tag, so return that tag
+            // if no operator priority selection, go by defaults
+            if (priorities.indexOf(vt1Element) < priorities.indexOf(vt2Element)) {
                 return vt1;
             } else {
-                // cameras see different tags, so choose based on priority
-                Optional<VisionFieldTarget> vt1Element = lookingAt(vt1.get().getFiducialId());
-                Optional<VisionFieldTarget> vt2Element = lookingAt(vt2.get().getFiducialId());
-
-                if (priorities.indexOf(vt1Element) < priorities.indexOf(vt2Element)){
-                    return vt1;
-                } else {
-                    return vt2;
-                }
+                return vt2;
             }
         }
-    }
 
+        return Optional.empty();
+    }
 
     // estimated robot pose using cam 1
     public Optional<Pose3d> estimateVisionRobotPose_1() {

@@ -436,7 +436,8 @@ public class RobotContainer {
                 aprilTagFieldLayout,
                 photonPoseEstimator1,
                 photonPoseEstimator2,
-                new AprilTagDetector()
+                new AprilTagDetector(),
+                operatorInput
         );
 
     }
