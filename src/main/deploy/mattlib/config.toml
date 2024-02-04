@@ -246,10 +246,10 @@ type = "BRUSHLESS"
 # Disabler
 
 [disabler]
-vision_disabled = true
-drive_disabled = true
-shooter_disabled = false
-odometry_disabled = true
+vision_disabled = false
+drive_disabled = false
+shooter_disabled = true
+odometry_disabled = false
 climber_disabled = true
 groundIntake_disabled = true
 nms_disabled = true
