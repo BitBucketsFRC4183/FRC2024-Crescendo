@@ -38,11 +38,35 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
     }
 
     public Optional<VisionFieldTarget> lookingAt(int fiducialID) {
+        VisionFieldTarget target;
         switch(fiducialID) {
             case 1:
+            case 9:
+                target = VisionFieldTarget.SOURCE_RIGHT;
             case 2:
+            case 10:
+                target = VisionFieldTarget.SOURCE_LEFT;
+            case 3:
+                target = VisionFieldTarget.SPEAKER_SIDE_RIGHT;
+            case 8:
+                target = VisionFieldTarget.SPEAKER_SIDE_LEFT;
+            case 5:
+            case 6:
+                target = VisionFieldTarget.AMP;
+            case 7:
+            case 4:
+                target = VisionFieldTarget.SPEAKER_CENTER;
+            case 11:
+            case 12:
+            case 13:
+            case 14:
+            case 15:
+            case 16:
+                target = VisionFieldTarget.STAGE;
+            default:
+                target = null;
         }
-        return null;
+        return Optional.ofNullable(target);
     }
 
     @Override
@@ -57,14 +81,25 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
     }
 
 
-    public Optional<Pose3d> estimateAprilTagTargetPose(VisionFieldTarget target) {
+    // TODO rename vision pivot stuff
+    // field relative pose
+    public Optional<Pose3d> getDesiredTargetAlignPose(VisionFieldTarget target) {
+        Optional<Transform3d> optTranform = getTargetGoalTransformBasedOnThing(target);
+        Optional<Pose3d> optAprilTagPose = estimateBestAprilTagTargetPose_1();
 
-        //TODO BLEND THE DATA BETWEEN THE TWO CAMERAS.
+        // TODO combine two cameras (weighting if see more than two aptriltags)
 
+        if (optTranform.isPresent() && optAprilTagPose.isPresent()) {
+            Pose3d aprilTagPose = optAprilTagPose.get();
+            Transform3d desiredTransformation = optTranform.get();
+
+            Pose3d desiredPose = aprilTagPose.plus(desiredTransformation);
+        }
 
         return Optional.empty();
     }
 
+    // TODO clean up naming
     // Returns the transformation for each target for desired final position
     // e.g. stop close to amp, far away from speaker
     public Optional<Transform3d> getTagTransformBasedOnThing(VisionFieldTarget thing) {
@@ -91,7 +126,7 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
 
 
     //BASIC INFORMATION GATHERING FROM CAMERAS
-    public Optional<Pose3d> estimateBestVisionTarget_1() {
+    public Optional<Pose3d> estimateBestAprilTagTargetPose_1() {
 
 
         Optional<Pose3d> vt  = Optional.ofNullable(
@@ -103,7 +138,7 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         return vt;
     }
 
-    public Optional<Pose3d> estimateBestVisionTarget_2() {
+    public Optional<Pose3d> estimateBestAprilTagTargetPose_2() {
 
         Optional<Pose3d> vt = Optional.ofNullable(
                 camera_2.getLatestResult().getBestTarget()
