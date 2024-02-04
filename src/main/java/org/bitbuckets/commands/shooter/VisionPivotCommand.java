@@ -20,7 +20,7 @@ public class VisionPivotCommand extends Command {
 
     @Override
     public void execute() {
-        var opt = visionSubsystem.estimateAprilTagTargetPose();
+        var opt = visionSubsystem.getDesiredTargetAlignPose();
         if (opt.isEmpty()) return; //TODO please
 
         Pose3d visionTargetAprilTagPose = opt.get();

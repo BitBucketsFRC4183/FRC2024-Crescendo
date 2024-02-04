@@ -8,6 +8,9 @@ import org.bitbuckets.OperatorInput;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.OdometrySubsystem;
 import org.bitbuckets.vision.VisionSubsystem;
+import org.photonvision.PhotonCamera;
+import org.photonvision.targeting.PhotonTrackedTarget;
+
 import java.util.Optional;
 
 public class MoveToAlignCommand extends Command {
@@ -44,8 +47,9 @@ public class MoveToAlignCommand extends Command {
     @Override
     public void execute() {
         // this must be updated every as frequently as possible
-        Optional<Pose3d> optionalTagPose = visionSubsystem.estimateBestVisionTarget_1();
+        Optional<Pose3d> optionalTagPose = visionSubsystem.getDesiredTargetAlignPose();
         optionalTagPose.ifPresent(pose3d -> this.targetPose = pose3d);
+
         moveToAlign();
     }
     public ChassisSpeeds calculateTagSpeeds(Pose2d target, Rotation2d holonomicRotation, double desiredVelocity) {
@@ -58,7 +62,9 @@ public class MoveToAlignCommand extends Command {
     }
 
     public void moveToAlign() {
-        ChassisSpeeds speeds = calculateTagSpeeds(this.targetPose.toPose2d(), this.targetPose.toPose2d().getRotation().plus(Rotation2d.fromDegrees(180)), 1);
+        ChassisSpeeds speeds = calculateTagSpeeds(this.targetPose.toPose2d(),
+                this.targetPose.toPose2d().getRotation().plus(Rotation2d.fromDegrees(180)),
+                1);
         driveSubsystem.driveUsingChassisSpeed(speeds);
 
     }

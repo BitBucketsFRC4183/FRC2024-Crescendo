@@ -8,9 +8,11 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.RobotContainer;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.targeting.PhotonTrackedTarget;
 import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.yuukonstants.exception.ExplainedException;
 
+import javax.swing.text.html.Option;
 import java.util.Optional;
 
 public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
@@ -43,19 +45,25 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
             case 1:
             case 9:
                 target = VisionFieldTarget.SOURCE_RIGHT;
+                break;
             case 2:
             case 10:
                 target = VisionFieldTarget.SOURCE_LEFT;
+                break;
             case 3:
                 target = VisionFieldTarget.SPEAKER_SIDE_RIGHT;
+                break;
             case 8:
                 target = VisionFieldTarget.SPEAKER_SIDE_LEFT;
+                break;
             case 5:
             case 6:
                 target = VisionFieldTarget.AMP;
+                break;
             case 7:
             case 4:
                 target = VisionFieldTarget.SPEAKER_CENTER;
+                break;
             case 11:
             case 12:
             case 13:
@@ -63,6 +71,7 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
             case 15:
             case 16:
                 target = VisionFieldTarget.STAGE;
+                break;
             default:
                 target = null;
         }
@@ -81,28 +90,41 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
     }
 
 
-    // TODO rename vision pivot stuff
     // field relative pose
-    public Optional<Pose3d> getDesiredTargetAlignPose(VisionFieldTarget target) {
-        Optional<Transform3d> optTranform = getTargetGoalTransformBasedOnThing(target);
-        Optional<Pose3d> optAprilTagPose = estimateBestAprilTagTargetPose_1();
+    public Optional<Pose3d> getDesiredTargetAlignPose() {
+        Optional<PhotonTrackedTarget> optTrackedTarget = getBestVisionTarget_1();;
 
-        // TODO combine two cameras (weighting if see more than two aptriltags)
+        if (optTrackedTarget.isPresent()) {
+            int fidID = optTrackedTarget.get().getFiducialId();
 
-        if (optTranform.isPresent() && optAprilTagPose.isPresent()) {
-            Pose3d aprilTagPose = optAprilTagPose.get();
-            Transform3d desiredTransformation = optTranform.get();
+            var target = lookingAt(fidID).orElseThrow();
+            RobotContainer.VISION.log_looking_at(target.toString());
 
-            Pose3d desiredPose = aprilTagPose.plus(desiredTransformation);
+            Optional<Transform3d> optTranfrom = getDesiredTransformFromTarget(target);
+
+            if (optTranform.isPresent()) {
+                // may throw error somewhere
+
+                Pose3d aprilTagPose = layout.getTagPose(fidID).orElseThrow();
+                Transform3d desiredTransformation = optTranform.get();
+
+                Pose3d desiredPose = aprilTagPose.plus(desiredTransformation);
+                return Optional.ofNullable(desiredPose);
+            }
         }
+
+
+        // TODO combine two cameras (weighting if see more than two aptriltags) in different part of a code
+
+
 
         return Optional.empty();
     }
 
-    // TODO clean up naming
+    // TODO clean up naming and actually refractor everything
     // Returns the transformation for each target for desired final position
     // e.g. stop close to amp, far away from speaker
-    public Optional<Transform3d> getTagTransformBasedOnThing(VisionFieldTarget thing) {
+    public Optional<Transform3d> getDesiredTransformFromTarget(VisionFieldTarget thing) {
 
         // translations are in inches
         return switch (thing) {
@@ -126,29 +148,26 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
 
 
     //BASIC INFORMATION GATHERING FROM CAMERAS
-    public Optional<Pose3d> estimateBestAprilTagTargetPose_1() {
+    public Optional<PhotonTrackedTarget> getBestVisionTarget_1() {
 
 
-        Optional<Pose3d> vt  = Optional.ofNullable(
+        Optional<PhotonTrackedTarget> vt  = Optional.ofNullable(
                 camera_1.getLatestResult().getBestTarget()
-        ).flatMap(tgt -> layout.getTagPose(tgt.getFiducialId()));
-
-        vt.ifPresent(RobotContainer.VISION::log_vision_target_1);
+        );
 
         return vt;
     }
 
-    public Optional<Pose3d> estimateBestAprilTagTargetPose_2() {
+    public Optional<PhotonTrackedTarget> getBestVisionTarget_2() {
 
-        Optional<Pose3d> vt = Optional.ofNullable(
+
+        Optional<PhotonTrackedTarget> vt  = Optional.ofNullable(
                 camera_2.getLatestResult().getBestTarget()
-        ).flatMap(tgt -> layout.getTagPose(tgt.getFiducialId()));
+        );
 
-        vt.ifPresent(RobotContainer.VISION::log_vision_target_2);
+
         return vt;
     }
-
-
 
 
     public Optional<Pose3d> estimateVisionRobotPose_1() {
