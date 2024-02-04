@@ -28,8 +28,8 @@ dio_channel = 0
 deadband = 0.0
 channel = 0
 pid = {p = 0, i = 0, d = 0}
-ff_ks = -3.6757639717285007
-ff_kv = 7.611587818848932
+ff_ks = -1
+ff_kv = 2
 
 
 [shooter.wheel_1]
@@ -68,6 +68,15 @@ offset = 0.0
 
 [shooter.angle.pid]
 p = 0
+d = 0
+i = 0
+[shooter.pid_1]
+p = 1
+d = 0
+i = 0
+
+[shooter.pid_2]
+p = 1
 d = 0
 i = 0
 
@@ -244,10 +253,10 @@ type = "BRUSHLESS"
 # Disabler
 
 [disabler]
-vision_disabled = false
-drive_disabled = false
-shooter_disabled = true
-odometry_disabled = false
+vision_disabled = true
+drive_disabled = true
+shooter_disabled = false
+odometry_disabled = true
 climber_disabled = true
 groundIntake_disabled = true
 nms_disabled = true

@@ -34,6 +34,7 @@ public class ThroughBoreEncoder implements IRotationEncoder, IPeriodicLooped {
 
     @Override
     public void logPeriodic() {
+        encoderComponent.logPositionWithOffset(angularPosition_mechanismRotations());
         encoderComponent.logVelocity(angularVelocity_encoderRotationsPerSecond());
     }
 

@@ -138,9 +138,9 @@ public class RobotContainer {
         //LinearFFGenRoutine groundBottomFFRoutine = new LinearFFGenRoutine(BOTTOM_GROUND_FFGEN, groundIntakeSubsystem.bottomMotor, groundIntakeSubsystem.bottomMotor);
         //CTowerCommands.wrapRoutine(groundTopFFRoutine).schedule();
         //CTowerCommands.wrapRoutine(groundBottomFFRoutine).schedule();
-        RotationFFGenRoutine shooterFFRoutine = new RotationFFGenRoutine(SHOOTER_WHEEL_1_FFGEN, shooterSubsystem.leftMotor, shooterSubsystem.leftMotor );
-        CTowerCommands.wrapRoutine(shooterFFRoutine).schedule();
-        shooterFFRoutine = new RotationFFGenRoutine(SHOOTER_WHEEL_2_FFGEN, shooterSubsystem.rightMotor, shooterSubsystem.rightMotor);
+        //RotationFFGenRoutine shooterFFRoutine = new RotationFFGenRoutine(SHOOTER_WHEEL_1_FFGEN, shooterSubsystem.leftMotor, shooterSubsystem.leftMotor );
+        //CTowerCommands.wrapRoutine(shooterFFRoutine).schedule();
+        RotationFFGenRoutine shooterFFRoutine = new RotationFFGenRoutine(SHOOTER_WHEEL_2_FFGEN, shooterSubsystem.rightMotor, shooterSubsystem.rightMotor);
         CTowerCommands.wrapRoutine(shooterFFRoutine).schedule();
 
     }
@@ -286,30 +286,30 @@ public class RobotContainer {
     }
 
     ShooterSubsystem loadShooterSubsystem() {
-        IRotationalMotor leftMotor;
-        IRotationalMotor rightMotor;
+        IRotationalController leftMotor;
+        IRotationalController rightMotor;
         IRotationalController angleMotor;
         IRotationEncoder absoluteEncoder;
         IRotationEncoder velocityEncoder;
 
         if (DISABLER.shooter_disabled()) {
-            leftMotor = HardwareDisabled.rotationalMotor_disabled();
-            rightMotor = HardwareDisabled.rotationalMotor_disabled();
+            leftMotor = HardwareDisabled.rotationalController_disabled();
+            rightMotor = HardwareDisabled.rotationalController_disabled();
             angleMotor = HardwareDisabled.rotationalController_disabled();
             absoluteEncoder = HardwareDisabled.rotationEncoder_disabled();
             velocityEncoder = HardwareDisabled.rotationEncoder_disabled();
         }
         else if (Robot.isSimulation()){
-            leftMotor = HardwareSIM.rotationalSIM_noPID(SHOOTER_WHEEL_1, DCMotor.getNEO(1) );
-            rightMotor = HardwareSIM.rotationalSIM_noPID(SHOOTER_WHEEL_2, DCMotor.getNEO(1));
+            leftMotor = HardwareSIM.rotationalSIM_pid(SHOOTER_WHEEL_1, SHOOTER_PID_1, DCMotor.getNEO(1) );
+            rightMotor = HardwareSIM.rotationalSIM_pid(SHOOTER_WHEEL_2, SHOOTER_PID_2,DCMotor.getNEO(1));
             angleMotor = HardwareSIM.rotationalSIM_pid(ANGLE_SHOOTER_MOTOR,ANGLE_PID,DCMotor.getNEO(1) );
             absoluteEncoder = angleMotor;
             velocityEncoder = leftMotor; //TODO switch out leftMotor with actual velocity encoder
 
         }
         else {
-            leftMotor = HardwareREV.rotationalSpark_builtInVelocityPID(SHOOTER_WHEEL_1,SHOOTER_PID);
-            rightMotor = HardwareREV.rotationalSpark_builtInVelocityPID(SHOOTER_WHEEL_2,SHOOTER_PID);
+            leftMotor = HardwareREV.rotationalSpark_builtInPID(SHOOTER_WHEEL_1,SHOOTER_PID_1);
+            rightMotor = HardwareREV.rotationalSpark_builtInPID(SHOOTER_WHEEL_2,SHOOTER_PID_2);
             angleMotor = HardwareREV.rotationalSpark_builtInPID(ANGLE_SHOOTER_MOTOR, ANGLE_PID);
             absoluteEncoder = new ThriftyAbsoluteEncoder(new AnalogInput(SHOOTER.channel()), SHOOTER_ABSOLUTE);
             velocityEncoder = new ThroughBoreEncoder(
@@ -504,9 +504,10 @@ public class RobotContainer {
 
     public static final FFGenComponent SHOOTER_WHEEL_1_FFGEN = LOG.load(FFGenComponent.class,"shooter/wheel_1_ffgen");
     public static final FFGenComponent SHOOTER_WHEEL_2_FFGEN = LOG.load(FFGenComponent.class, "shooter/wheel_2_ffgen");
-    public static final PIDComponent SHOOTER_PID = LOG.load(PIDComponent.class, "shooter/pid");
+    public static final PIDComponent SHOOTER_PID_1 = LOG.load(PIDComponent.class, "shooter/pid_1");
+    public static final PIDComponent SHOOTER_PID_2 = LOG.load(PIDComponent.class, "shooter/pid_2");
 
-    public static final ShooterComponent SHOOTER_TUNING = LOG.load(ShooterComponent.class,"shooter/tuning");
+    //public static final ShooterComponent SHOOTER_TUNING = LOG.load(ShooterComponent.class,"shooter/tuning");
 
     public static final ShooterComponent SHOOTER = LOG.load(ShooterComponent.class, "shooter");
     public static final MotorComponent SHOOTER_WHEEL_1 = LOG.load(MotorComponent.class, "shooter/wheel_1");

@@ -18,15 +18,15 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
 
     // converts desired velocity into voltage
     final SimpleMotorFeedforward feedforward;
-    public final IRotationalMotor leftMotor; //TODO find a way to not use public here (linearFFGenRoutine)
-    public final IRotationalMotor rightMotor;
+    public final IRotationalController leftMotor; //TODO find a way to not use public here (linearFFGenRoutine)
+    public final IRotationalController rightMotor;
     final IRotationalController angleMotor;
     final IRotationEncoder absoluteEncoder;
     final ShooterComponent shooterComponent;
     final AbsoluteEncoderComponent encoderComponent;
     final IRotationEncoder velocityEncoder;
 
-    public ShooterSubsystem(IRotationalMotor leftMotor, IRotationalMotor rightMotor, IRotationalController angleMotor, IRotationEncoder absoluteEncoder, ShooterComponent shooterComponent, AbsoluteEncoderComponent encoderComponent, IRotationEncoder velocityEncoder) {
+    public ShooterSubsystem(IRotationalController leftMotor, IRotationalController rightMotor, IRotationalController angleMotor, IRotationEncoder absoluteEncoder, ShooterComponent shooterComponent, AbsoluteEncoderComponent encoderComponent, IRotationEncoder velocityEncoder) {
         this.leftMotor = leftMotor;
         this.rightMotor = rightMotor;
         this.angleMotor = angleMotor;
