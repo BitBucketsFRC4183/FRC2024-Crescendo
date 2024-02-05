@@ -55,6 +55,33 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         this.aprilTagDetector = aprilTagDetector;
         this.operatorInput = operatorInput;
 
+        NetworkTableInstance inst = NetworkTableInstance.getDefault();
+
+        xSub = inst.getDefault().getDoubleTopic("vision/x").subscribe(0.0);
+        ySub = inst.getDefault().getDoubleTopic("vision/y").subscribe(0.0);
+        detectedSub = inst.getDefault().getBooleanTopic("vision/detected").subscribe(false);
+
+        xValueListenerHandle = inst.addListener(
+                xSub,
+                EnumSet.of(NetworkTableEvent.Kind.kValueAll),
+                event -> {
+                    xValue.set(event.valueData.value.getDouble());
+                });
+
+        yValueListenerHandle = inst.addListener(
+                ySub,
+                EnumSet.of(NetworkTableEvent.Kind.kValueAll),
+                event -> {
+                    yValue.set(event.valueData.value.getDouble());
+                });
+
+        detectedValueListenerHandle = inst.addListener(
+                detectedSub,
+                EnumSet.of(NetworkTableEvent.Kind.kValueAll),
+                event -> {
+                    detectedValue.set(event.valueData.value.getBoolean());
+                });
+
         register();
         mattRegister();
     }
@@ -265,34 +292,37 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         return Optional.of(result);
     }
 
-    public void getNoteDetectionData() {
-        NetworkTableInstance inst = NetworkTableInstance.getDefault();
+    public double getNoteX() {
+        double xPos = 0d;
 
-        xSub = inst.getDefault().getDoubleTopic("vision/x").subscribe(0.0);
-        ySub = inst.getDefault().getDoubleTopic("vision/y").subscribe(0.0);
-        detectedSub = inst.getDefault().getBooleanTopic("vision/detected").subscribe(false);
+        Double x = xValue.getAndSet(null);
+        if (x != null) {
+            xPos = x;
+        }
 
-        xValueListenerHandle = inst.addListener(
-                xSub,
-                EnumSet.of(NetworkTableEvent.Kind.kValueAll),
-                event -> {
-                    xValue.set(event.valueData.value.getDouble());
-                });
+        return xPos;
+    }
 
-        yValueListenerHandle = inst.addListener(
-                ySub,
-                EnumSet.of(NetworkTableEvent.Kind.kValueAll),
-                event -> {
-                    yValue.set(event.valueData.value.getDouble());
-                });
+    public double getNoteY() {
+        double yPos = 0d;
 
-        detectedValueListenerHandle = inst.addListener(
-                detectedSub,
-                EnumSet.of(NetworkTableEvent.Kind.kValueAll),
-                event -> {
-                    detectedValue.set(event.valueData.value.getBoolean());
-                });
+        Double y = xValue.getAndSet(null);
+        if (y != null) {
+            yPos = y;
+        }
 
+        return yPos;
+    }
+
+    public boolean getNoteState() {
+        boolean noteState = false;
+
+        Boolean state = detectedValue.getAndSet(null);
+        if (state != null) {
+            noteState = state;
+        }
+
+        return noteState;
     }
 
     public PhotonCamera[] getCameras() {
