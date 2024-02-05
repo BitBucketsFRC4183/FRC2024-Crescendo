@@ -28,8 +28,8 @@ dio_channel = 0
 deadband = 0.0
 channel = 0
 pid = {p = 0, i = 0, d = 0}
-ff_ks = -1
-ff_kv = 2
+ff_ks = 0.4895168812659137
+ff_kv = 0.12869522412846462
 
 
 [shooter.wheel_1]

@@ -1,6 +1,7 @@
 package org.bitbuckets.shooter;
 
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.Robot;
@@ -25,6 +26,8 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     final ShooterComponent shooterComponent;
     final AbsoluteEncoderComponent encoderComponent;
     final IRotationEncoder velocityEncoder;
+
+    
 
     public ShooterSubsystem(IRotationalController leftMotor, IRotationalController rightMotor, IRotationalController angleMotor, IRotationEncoder absoluteEncoder, ShooterComponent shooterComponent, AbsoluteEncoderComponent encoderComponent, IRotationEncoder velocityEncoder) {
         this.leftMotor = leftMotor;
@@ -73,9 +76,7 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
 
     public void setAllMotorsToVoltage(double voltage) {
         leftMotor.setToVoltage(voltage);
-        System.out.println("this is the left motor");
         rightMotor.setToVoltage(voltage);
-        System.out.println("this is the right motor");
     }
 
     /*

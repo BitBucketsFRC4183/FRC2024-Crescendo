@@ -26,7 +26,7 @@ public class ThroughBoreEncoder implements IRotationEncoder, IPeriodicLooped {
         // Configures the encoder to return a 1 rotation for every x pulses
         // Also changes the units of getRate
         System.out.print(encoder.get());
-        double pulsePerSecond = 1/360d;
+        double pulsePerSecond = 1/2048d;
         encoder.setDistancePerPulse(pulsePerSecond); // TODO check this value please!
 
         mattRegister();
@@ -35,7 +35,7 @@ public class ThroughBoreEncoder implements IRotationEncoder, IPeriodicLooped {
     @Override
     public void logPeriodic() {
         encoderComponent.logPositionWithOffset(angularPosition_mechanismRotations());
-        encoderComponent.logVelocity(angularVelocity_encoderRotationsPerSecond());
+        encoderComponent.logVelocity(angularVelocity_mechanismRotationsPerSecond());
     }
 
     @Override
