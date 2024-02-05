@@ -138,11 +138,15 @@ public class RobotContainer {
         //LinearFFGenRoutine groundBottomFFRoutine = new LinearFFGenRoutine(BOTTOM_GROUND_FFGEN, groundIntakeSubsystem.bottomMotor, groundIntakeSubsystem.bottomMotor);
         //CTowerCommands.wrapRoutine(groundTopFFRoutine).schedule();
         //CTowerCommands.wrapRoutine(groundBottomFFRoutine).schedule();
-        RotationFFGenRoutine shooterFFRoutine = new RotationFFGenRoutine(SHOOTER_WHEEL_1_FFGEN, shooterSubsystem.leftMotor, shooterSubsystem.leftMotor );
+       /* RotationFFGenRoutine shooterFFRoutine = new RotationFFGenRoutine(SHOOTER_WHEEL_1_FFGEN, shooterSubsystem.leftMotor, shooterSubsystem.leftMotor );
         CTowerCommands.wrapRoutine(shooterFFRoutine).schedule();
         shooterFFRoutine = new RotationFFGenRoutine(SHOOTER_WHEEL_2_FFGEN, shooterSubsystem.rightMotor, shooterSubsystem.rightMotor);
-        CTowerCommands.wrapRoutine(shooterFFRoutine).schedule();
+        CTowerCommands.wrapRoutine(shooterFFRoutine).schedule();*/
 
+        var motorWeAreTesting = driveSubsystem.modules[0].driveMotor;
+        LinearFFGenRoutine driveFFRoutine = new LinearFFGenRoutine(LINEAR_ROUTINE_FFGEN, motorWeAreTesting, motorWeAreTesting);
+
+        CTowerCommands.wrapRoutine(driveFFRoutine).schedule();
     }
 
     SendableChooser<Command> loadAutonomous() {
@@ -525,6 +529,7 @@ public class RobotContainer {
     public static final MotorComponent[] DRIVES = LOG.loadRange(MotorComponent.class, "swerve/drive", 4, Util.RENAMER);
     public static final MotorComponent[] STEERS = MotorComponent.ofRange(STEER_COMMON, LOG.loadRange(IndividualMotorComponent.class, "swerve/steer", 4, Util.RENAMER));
     public static final PIDComponent[] PIDS = PIDComponent.ofRange(PID_COMMON, LOG.loadRange(IndividualPIDComponent.class, "swerve/pid", 4, Util.RENAMER));
+    public static final FFGenComponent LINEAR_ROUTINE_FFGEN = LOG.load(FFGenComponent.class, "swerve/ffroutine");
 
     public static final AbsoluteEncoderComponent[] STEER_ABS_ENCODERS = LOG.loadRange(AbsoluteEncoderComponent.class, "swerve/abs", 4, Util.RENAMER);
 

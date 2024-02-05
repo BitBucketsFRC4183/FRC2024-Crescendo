@@ -7,7 +7,9 @@ fr_pos_offset = {x = 0.2318, y = -0.26035}
 bl_pos_offset = {x = -0.2318, y = 0.26035}
 br_pos_offset = {x = -0.2318, y = -0.26035}
 
-[swerve.pid]
+[swerve]
+ff_ks = -0.09042092711168422
+ff_kv = 0.35715258672300254
 
 
 [swerve.steer_common]

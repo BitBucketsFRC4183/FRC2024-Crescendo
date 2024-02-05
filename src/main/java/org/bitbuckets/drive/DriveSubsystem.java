@@ -15,7 +15,7 @@ import xyz.auriium.mattlib2.utils.AngleUtil;
 
 public class DriveSubsystem implements Subsystem, IPeriodicLooped {
 
-    final SwerveModule[] modules;
+    public final SwerveModule[] modules;
     final SwerveDriveKinematics kinematics;
 
 

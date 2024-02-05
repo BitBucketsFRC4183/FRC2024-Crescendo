@@ -19,7 +19,7 @@ import java.util.Optional;
 
 public class SwerveModule implements IPeriodicLooped {
 
-    final ILinearMotor driveMotor;
+    public final ILinearMotor driveMotor;
     final IRotationalController steerController;
     final IRotationEncoder absoluteEncoder;
     final SimpleMotorFeedforward ff;
