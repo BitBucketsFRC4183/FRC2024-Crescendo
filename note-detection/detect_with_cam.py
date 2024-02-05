@@ -184,12 +184,20 @@ def print_outputs(boxes, classes, scores):
     if boxes is not None:
         for box, score, cl in zip(boxes, scores, classes):
             top, left, right, bottom = [int(_b) for _b in box]
-            xVal = (top + right) / 2
-            yVal = (left + bottom) / 2
-            print("%s @ (%d %d) %f" % (CLASSES[cl], (xVal, yVal, score)))
+            x_mid = (top + right) / 2
+            y_mid = (left + bottom) / 2
+            print("%s @ (%d %d) %f" % (CLASSES[cl], (x_mid, y_mid, score)))
     else:
         print("No notes detected")
 
+
+def location_data(boxes):
+    for box in boxes:
+        top, left, right, bottom = [int(_b) for _b in box]
+        x_mid = (top + right) / 2
+        y_mid = (left + bottom) / 2
+    return (x_mid, y_mid)
+            
 
 if __name__ == '__main__':
 
@@ -197,9 +205,9 @@ if __name__ == '__main__':
     nt = NetworkTable()
 
     cam = cv2.VideoCapture(0)
-    # create video output
-    fourcc = cv2.VideoWriter_fourcc(*'MP4V') 
-    video = cv2.VideoWriter('video.mp4', fourcc, 24, IMG_SIZE)
+    # create video output for testing
+    #fourcc = cv2.VideoWriter_fourcc(*'MP4V') 
+    #video = cv2.VideoWriter('video.mp4', fourcc, 24, IMG_SIZE)
     
     # Get device information
     host_name = get_host()
@@ -250,12 +258,21 @@ if __name__ == '__main__':
 
         # Show the classification results
         boxes, classes, scores = post_process(outputs)
+
+        detected = boxes is not None
+        x, y = location_data(boxes)
+
+        # publish data using networktables
+        nt.periodic(x, y, detected)
+
+        # printing for testing
         print_outputs(boxes, classes, scores)
 
-        if boxes is not None:
-            draw(img[0], boxes, scores, classes)
-            video.write(cv2.cvtColor(img[0], cv2.COLOR_RGB2BGR))
-            #cv2.imwrite("output_image.jpg", cv2.cvtColor(img[0], cv2.COLOR_RGB2BGR))
+        # draw the boxes and make video
+        # if boxes is not None:
+        #     draw(img[0], boxes, scores, classes)
+        #     video.write(cv2.cvtColor(img[0], cv2.COLOR_RGB2BGR))
+        #     cv2.imwrite("output_image.jpg", cv2.cvtColor(img[0], cv2.COLOR_RGB2BGR))
 
         # calculate average fps every 30 frames
         if frames % 30 == 0:

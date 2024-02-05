@@ -1,24 +1,25 @@
 import ntcore
 
 class NetworkTable:
-    def __init__(self, dblTopic: ntcore.DoubleTopic):
+    def __init__(self):
 
-        # start publishing
-        self.dblPub = dblTopic.publish()
+        self.xTopic = ntcore.NetworkTableInstance.getDefault().getDoubleTopic("vision/x")
+        self.yTopic = ntcore.NetworkTableInstance.getDefault().getDoubleTopic("vision/y")
+        self.detectedTopic = ntcore.NetworkTableInstance.getDefault().getBooleanTopic("vision/detected")
 
-        # specify publish options
-        self.dblPub = dblTopic.publish(ntcore.PubSubOptions(keepDuplicates=True))
+        self.xPublisher = self.xTopic.publish()
+        self.yPublisher = self.yTopic.publish()
+        self.detectedPublisher = self.detectedTopic.publish()
 
-        # set initial properties and custom type string
-        self.dblPub = dblTopic.publishEx("double", '{"xCoor": 0, "yCoor": 0}')
-
-    def periodic(self, x, y):
-        # publish a default value
-        self.dblPub.setDefault(0.0)
-
+    def periodic(self, x, y, detected):
         # publish a value with current timestamp
-        self.dblPub.set(2.0, 0)  # 0 = use current time
+        self.xPublisher.set(x, 0)  # 0 = use current time
+        self.yPublisher.set(y, 0)
+        self.detectedPublisher.set(detected, 0)
 
     def close(self):
         # stop publishing
-        self.dblPub.close()
+        self.xPublisher.close()
+        self.xTopic.close()
+        self.yPublisher.close()
+        self.yTopic.close()

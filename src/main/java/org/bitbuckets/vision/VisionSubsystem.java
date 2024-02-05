@@ -4,6 +4,7 @@ import edu.wpi.first.apriltag.AprilTagDetector;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.*;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.OperatorInput;
 import org.bitbuckets.RobotContainer;
@@ -13,10 +14,26 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.yuukonstants.exception.ExplainedException;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
+
+    DoubleSubscriber xSub;
+    DoubleSubscriber ySub;
+    BooleanSubscriber detectedSub;
+
+    // use an AtomicReference to make updating the value thread-safe
+    final AtomicReference<Double> xValue = new AtomicReference<Double>();
+    final AtomicReference<Double> yValue = new AtomicReference<Double>();
+    final AtomicReference<Boolean> detectedValue = new AtomicReference<Boolean>();
+
+    // retain listener handles for later removal
+    int xValueListenerHandle;
+    int yValueListenerHandle;
+    int detectedValueListenerHandle;
 
     final PhotonCamera camera_1;
     final PhotonCamera camera_2;
@@ -217,7 +234,12 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         return estimator2.update(camera_2.getLatestResult()).map(poseDat -> poseDat.estimatedPose);
     }
 
+    public synchronized void acceptSpaceData(double data) {
+
+    }
+
     // combines estimated poses by averaging
+    // this is not currently used as we just use the cameratotag transform from the camera that has our desired target
     public Optional<Pose3d> combineEstimatedPose(Optional<Pose3d> pose1, Optional<Pose3d> pose2){
 
         if (pose1.isEmpty() && pose2.isEmpty()){
@@ -241,6 +263,36 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         Pose3d result = new Pose3d(translation, rotation);
 
         return Optional.of(result);
+    }
+
+    public void getNoteDetectionData() {
+        NetworkTableInstance inst = NetworkTableInstance.getDefault();
+
+        xSub = inst.getDefault().getDoubleTopic("vision/x").subscribe(0.0);
+        ySub = inst.getDefault().getDoubleTopic("vision/y").subscribe(0.0);
+        detectedSub = inst.getDefault().getBooleanTopic("vision/detected").subscribe(false);
+
+        xValueListenerHandle = inst.addListener(
+                xSub,
+                EnumSet.of(NetworkTableEvent.Kind.kValueAll),
+                event -> {
+                    xValue.set(event.valueData.value.getDouble());
+                });
+
+        yValueListenerHandle = inst.addListener(
+                ySub,
+                EnumSet.of(NetworkTableEvent.Kind.kValueAll),
+                event -> {
+                    yValue.set(event.valueData.value.getDouble());
+                });
+
+        detectedValueListenerHandle = inst.addListener(
+                detectedSub,
+                EnumSet.of(NetworkTableEvent.Kind.kValueAll),
+                event -> {
+                    detectedValue.set(event.valueData.value.getBoolean());
+                });
+
     }
 
     public PhotonCamera[] getCameras() {
