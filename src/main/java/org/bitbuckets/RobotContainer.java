@@ -143,9 +143,18 @@ public class RobotContainer {
 
     }
 
+    //TODO rename trajectory names to be more useful/strategic/descriptive/less bad
     SendableChooser<Command> loadAutonomous() {
-        ChoreoTrajectory trajectory = Choreo.getTrajectory("ShootFarNote");
-        ChoreoTrajectory trajectory2 = Choreo.getTrajectory("FarNoteShoot");
+        ChoreoTrajectory trajectory = Choreo.getTrajectory("pt1");
+        ChoreoTrajectory trajectory2 = Choreo.getTrajectory("pt2");
+        ChoreoTrajectory trajectory3 = Choreo.getTrajectory("pt3");
+        ChoreoTrajectory trajectory4 = Choreo.getTrajectory("pt4");
+        ChoreoTrajectory trajectory5 = Choreo.getTrajectory("pt5");
+        ChoreoTrajectory trajectory6 = Choreo.getTrajectory("pt6");
+        ChoreoTrajectory trajectory7 = Choreo.getTrajectory("pt7");
+        ChoreoTrajectory trajectory8 = Choreo.getTrajectory("pt8");
+        ChoreoTrajectory trajectory9 = Choreo.getTrajectory("pt9");
+
 
         var pidx = new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant());
         var pidy = new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant());
@@ -176,6 +185,73 @@ public class RobotContainer {
                 driveSubsystem::driveUsingChassisSpeed,
                 false
         );
+        Command follow3 = Choreo.choreoSwerveCommand(
+                trajectory3,
+                odometrySubsystem::getRobotCentroidPosition,
+                pidx,
+                pidy,
+                pidtheta,
+                driveSubsystem::driveUsingChassisSpeed,
+                false
+        );
+        Command follow4 = Choreo.choreoSwerveCommand(
+                trajectory4,
+                odometrySubsystem::getRobotCentroidPosition,
+                pidx,
+                pidy,
+                pidtheta,
+                (driveSubsystem::driveUsingChassisSpeed),
+                false
+        );
+        Command follow5 = Choreo.choreoSwerveCommand(
+                trajectory5,
+                odometrySubsystem::getRobotCentroidPosition,
+                pidx,
+                pidy,
+                pidtheta,
+                (driveSubsystem::driveUsingChassisSpeed),
+                false
+        );
+        Command follow6 = Choreo.choreoSwerveCommand(
+                trajectory6,
+                odometrySubsystem::getRobotCentroidPosition,
+                pidx,
+                pidy,
+                pidtheta,
+                (driveSubsystem::driveUsingChassisSpeed),
+                false
+        );
+        Command follow7 = Choreo.choreoSwerveCommand(
+                trajectory7,
+                odometrySubsystem::getRobotCentroidPosition,
+                pidx,
+                pidy,
+                pidtheta,
+                (driveSubsystem::driveUsingChassisSpeed),
+                false
+        );
+        Command follow8 = Choreo.choreoSwerveCommand(
+                trajectory8,
+                odometrySubsystem::getRobotCentroidPosition,
+                pidx,
+                pidy,
+                pidtheta,
+                (driveSubsystem::driveUsingChassisSpeed),
+                false
+        );
+        Command follow9 = Choreo.choreoSwerveCommand(
+                trajectory9,
+                odometrySubsystem::getRobotCentroidPosition,
+                pidx,
+                pidy,
+                pidtheta,
+                (driveSubsystem::driveUsingChassisSpeed),
+                false
+        );
+
+
+
+
 
 
 
@@ -189,8 +265,27 @@ public class RobotContainer {
                 Commands.runOnce(driveSubsystem::commandWheelsToZero)
         );
 
+        var fourNoteTest = new SequentialCommandGroup(
+                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                follow,
+                follow2,
+                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
+                follow3,
+                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                follow4,
+                follow5,
+                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
+                follow6,
+                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                follow7,
+                follow8,
+                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
+                follow9,
+                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1))
+        );
+
         SendableChooser<Command> chooser = new SendableChooser<>();
-        chooser.setDefaultOption("backwards", backwardsFollow);
+        chooser.setDefaultOption("fourNoteTest", fourNoteTest);
 
         return chooser;
     }
