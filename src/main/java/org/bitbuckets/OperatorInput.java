@@ -115,7 +115,7 @@ public class OperatorInput {
 
 
     public double getDriverRightStickX() {
-        return deadband(driver.getRightX());
+        return deadband(-driver.getRightX());
     }
 
     public double getOperatorLeftStickY(){return deadband(operatorControl.getRawAxis(XboxController.Axis.kLeftY.value));}

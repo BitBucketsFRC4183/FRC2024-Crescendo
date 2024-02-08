@@ -142,7 +142,7 @@ id = 20
 rotationToMeterCoef = 0.31519599093
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
-inverted = true
+inverted = false
 breakModeEnabled = true
 
 [swerve.drive_fl]
@@ -182,22 +182,22 @@ d = 0.3
 
 [swerve.abs_fr]
 analogChannel = 0
-offset = 0.379
+offset = 0.8810658462072642
 encoderToMechanismCoef = 1
 
 [swerve.abs_fl]
 analogChannel = 3
-offset = 0.3375
+offset = 0.3437554295215841
 encoderToMechanismCoef = 1
 
 [swerve.abs_br]
 analogChannel = 1
-offset = 0.845
+offset = 0.8487552760398386
 encoderToMechanismCoef = 1
 
 [swerve.abs_bl]
 analogChannel = 2
-offset = 0.0798
+offset = 0.07165493027641628
 encoderToMechanismCoef = 1
 
 
@@ -253,7 +253,7 @@ type = "BRUSHLESS"
 # Disabler
 
 [disabler]
-vision_disabled = false
+vision_disabled = true
 drive_disabled = false
 shooter_disabled = true
 odometry_disabled = false
