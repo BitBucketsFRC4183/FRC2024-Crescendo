@@ -3,6 +3,9 @@ package org.bitbuckets.shooter;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import org.bitbuckets.commands.shooter.InterpolatingDouble;
+import org.bitbuckets.commands.shooter.InterpolatingTreeMap;
+import org.bitbuckets.commands.shooter.InverseInterpolable;
 import org.bitbuckets.util.AbsoluteEncoderComponent;
 import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
@@ -23,10 +26,11 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     final ShooterComponent shooterComponent;
     final AbsoluteEncoderComponent encoderComponent;
     final IRotationEncoder velocityEncoder;
+    final InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> speedTreeMap;
 
     final ShooterCalculation shooterCalculation = new ShooterCalculation();
 
-    public ShooterSubsystem(IRotationalMotor leftMotor, IRotationalMotor rightMotor, IRotationalController angleMotor, IRotationEncoder absoluteEncoder, ShooterComponent shooterComponent, AbsoluteEncoderComponent encoderComponent, IRotationEncoder velocityEncoder) {
+    public ShooterSubsystem(IRotationalMotor leftMotor, IRotationalMotor rightMotor, IRotationalController angleMotor, IRotationEncoder absoluteEncoder, ShooterComponent shooterComponent, AbsoluteEncoderComponent encoderComponent, IRotationEncoder velocityEncoder, InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> speedTreeMap) {
         this.leftMotor = leftMotor;
         this.rightMotor = rightMotor;
         this.angleMotor = angleMotor;
@@ -34,6 +38,7 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
         this.shooterComponent = shooterComponent;
         this.encoderComponent = encoderComponent;
         this.velocityEncoder = velocityEncoder;
+        this.speedTreeMap = speedTreeMap;
         mattRegister();
         register();
     }
@@ -91,6 +96,13 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
 
     public void setPivotMotorToVoltage(double voltage) {
         angleMotor.setToVoltage(voltage);
+    }
+
+    public double getDesiredWheelSpeeds(double desiredNoteSpeed)
+    {
+        InterpolatingDouble noteSpeed = new InterpolatingDouble(desiredNoteSpeed);
+        InterpolatingDouble wheelSpeed = speedTreeMap.getInterpolated(noteSpeed);
+        return wheelSpeed.value;
     }
 
     public void setZeroAngle() {
