@@ -65,10 +65,12 @@ public class AugmentedDriveCommand extends Command {
                         .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
                         .getTranslation();
 
+
+
         ChassisSpeeds speeds =
                 new ChassisSpeeds(
-                        linearVelocity.getX() * 3d,
-                        linearVelocity.getY() * 3d,
+                        linearVelocity.getX() * 4d,
+                        linearVelocity.getY() * 4d,
                         -theta * Math.PI / 2 );
 
         if (RobotContainer.SWERVE.fieldOriented()) {

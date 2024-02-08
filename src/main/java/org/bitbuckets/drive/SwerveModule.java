@@ -97,8 +97,11 @@ public class SwerveModule implements IPeriodicLooped {
         );
 
 
+
         double feedforwardVoltage = ff.calculate(optimizedState.speedMetersPerSecond);
         feedforwardVoltage = MathUtil.clamp(feedforwardVoltage, -Util.MAX_VOLTAGE, Util.MAX_VOLTAGE);
+
+        System.out.print("[ " + feedforwardVoltage + " | " + optimizedState.speedMetersPerSecond + " ]");
         driveMotor.setToVoltage(feedforwardVoltage);
     }
 
