@@ -291,6 +291,9 @@ public class RobotContainer {
         IRotationalController angleMotor;
         IRotationEncoder absoluteEncoder;
         IRotationEncoder velocityEncoder;
+        InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> speedTreeMap = new InterpolatingTreeMap<>(10);
+
+        speedTreeMap.put(new InterpolatingDouble(2.0), new InterpolatingDouble(10.0)); //key = note speed, value = wheel speed
 
         if (DISABLER.shooter_disabled()) {
             leftMotor = HardwareDisabled.rotationalMotor_disabled();
@@ -325,7 +328,8 @@ public class RobotContainer {
                absoluteEncoder,
                SHOOTER,
                SHOOTER_ABSOLUTE,
-                velocityEncoder
+               velocityEncoder,
+               speedTreeMap
        );
 
     }

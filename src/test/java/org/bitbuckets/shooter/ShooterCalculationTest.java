@@ -1,5 +1,6 @@
 package org.bitbuckets.shooter;
 
+import org.bitbuckets.commands.shooter.InterpolatingTreeMap;
 import org.bitbuckets.util.AbsoluteEncoderComponent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,7 @@ public class ShooterCalculationTest {
     ShooterComponent shooterComponent;
     AbsoluteEncoderComponent encoderComponent;
     IRotationEncoder velocityEncoder;
+    InterpolatingTreeMap speedTreeMap;
 
     ShooterSubsystem shooterSubsystem;
 
@@ -31,7 +33,8 @@ public class ShooterCalculationTest {
          shooterComponent = mock(ShooterComponent.class);
          encoderComponent = mock(AbsoluteEncoderComponent.class);
          velocityEncoder = mock(IRotationEncoder.class);
-         shooterSubsystem = new ShooterSubsystem(leftMotor, rightMotor, angleMotor, absoluteEncoder, shooterComponent, encoderComponent, velocityEncoder);
+         speedTreeMap = mock(InterpolatingTreeMap.class);
+         shooterSubsystem = new ShooterSubsystem(leftMotor, rightMotor, angleMotor, absoluteEncoder, shooterComponent, encoderComponent, velocityEncoder, speedTreeMap);
     }
 
     @Test
