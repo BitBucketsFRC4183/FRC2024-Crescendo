@@ -118,11 +118,4 @@ public class OperatorInput {
         return deadband(operatorControl.getRawAxis(XboxController.Axis.kLeftY.value));
     }
 
-    public boolean getAmpPriorityToggleState() {
-        return ampVisionPriority_toggle.getAsBoolean();
-    }
-
-    public boolean getSpeakerPriorityToggleState() {
-        return speakerVisionPriority_toggle.getAsBoolean();
-    }
 }

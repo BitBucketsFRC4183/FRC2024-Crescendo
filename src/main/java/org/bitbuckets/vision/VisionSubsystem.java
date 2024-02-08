@@ -10,10 +10,12 @@ import org.bitbuckets.OperatorInput;
 import org.bitbuckets.RobotContainer;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.yuukonstants.exception.ExplainedException;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -41,11 +43,12 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
     final PhotonPoseEstimator estimator1;
     final PhotonPoseEstimator estimator2;
     final AprilTagDetector aprilTagDetector;
-    final OperatorInput operatorInput;
+
+    public VisionPriority priority;
 
     public VisionSubsystem(PhotonCamera camera_1, PhotonCamera camera_2, AprilTagFieldLayout layout,
                            PhotonPoseEstimator estimator1, PhotonPoseEstimator estimator2,
-                           AprilTagDetector aprilTagDetector, OperatorInput operatorInput) {
+                           AprilTagDetector aprilTagDetector) {
 
         this.camera_1 = camera_1;
         this.camera_2 = camera_2;
@@ -53,7 +56,7 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         this.estimator1 = estimator1;
         this.estimator2 = estimator2;
         this.aprilTagDetector = aprilTagDetector;
-        this.operatorInput = operatorInput;
+        this.priority = VisionPriority.SPEAKER;
 
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
 
@@ -84,6 +87,11 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
 
         register();
         mattRegister();
+    }
+
+    public enum VisionPriority {
+        AMP,
+        SPEAKER
     }
 
     // converts apriltag ID to an element of the target enum
@@ -181,15 +189,40 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         };
     }
 
+    public enum TargetPriority {
+        AREA,
+        POSE_AMBIGUITY
+    }
+    public static PhotonTrackedTarget compareTwoTargets(PhotonTrackedTarget t1, PhotonTrackedTarget t2, TargetPriority priorityType) {
+        if (priorityType == TargetPriority.AREA) {
+            if (t1.getArea() > t2.getArea()) {
+                return t1;
+            } else return t2;
+        } else if (priorityType == TargetPriority.POSE_AMBIGUITY) {
+            if (t1.getPoseAmbiguity() > t2.getPoseAmbiguity()) {
+                return t1;
+            } else return t2;
+        } else return t1;
+    }
     // returns the vision target based on priorities
     public Optional<PhotonTrackedTarget> getBestVisionTarget() {
-        Optional<PhotonTrackedTarget> vt1 = Optional.ofNullable(
-                camera_1.getLatestResult().getBestTarget()
-        );
+        // absolute priority
+        PhotonPipelineResult result_cam1 = camera_1.getLatestResult();
+        PhotonPipelineResult result_cam2 = camera_2.getLatestResult();
 
-        Optional<PhotonTrackedTarget> vt2 = Optional.ofNullable(
-                camera_2.getLatestResult().getBestTarget()
-        );
+        List<PhotonTrackedTarget> allTargets = new ArrayList<>();
+
+        if (result_cam1.hasTargets()) {
+            allTargets.addAll(result_cam1.getTargets());
+        }
+
+        if (result_cam2.hasTargets()) {
+            allTargets.addAll(result_cam2.getTargets());
+        }
+
+        if (allTargets.isEmpty()) {
+            return Optional.empty();
+        }
 
         // default priorities, lower index represents high priority
         List<VisionFieldTarget> priorities = List.of(
@@ -202,55 +235,29 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
                 VisionFieldTarget.STAGE
         );
 
+        PhotonTrackedTarget bestTarget = allTargets.get(0);
+        TargetPriority targetPriority = TargetPriority.AREA;
 
-        // Chooses best target based on priority list
-        if (vt1.isEmpty()) {
-            return vt2;
-        }
-
-        if (vt2.isEmpty()) {
-            return vt1;
-        }
-
-        if (vt1.get().equals(vt2.get())) {
-            // best target is the same tag, so return that tag
-            return vt1;
-        }
-
-        // cameras see different tags, so choose based on priority
-        Optional<VisionFieldTarget> vt1Element = lookingAt(vt1.get().getFiducialId());
-        Optional<VisionFieldTarget> vt2Element = lookingAt(vt2.get().getFiducialId());
-
-        // check if the operator has a priority currently enabled
-        // if both priorities are enabled, by default it does the speaker first
-        if (operatorInput.getSpeakerPriorityToggleState()) {
-            if (vt1Element.get() == VisionFieldTarget.SPEAKER_CENTER ||
-                    vt1Element.get() == VisionFieldTarget.SPEAKER_LEFT ||
-                    vt1Element.get() == VisionFieldTarget.SPEAKER_RIGHT) {
-                return vt1;
-            } else if (vt2Element.get() == VisionFieldTarget.SPEAKER_CENTER ||
-                    vt2Element.get() == VisionFieldTarget.SPEAKER_LEFT ||
-                    vt2Element.get() == VisionFieldTarget.SPEAKER_RIGHT) {
-                return vt2;
+        for (PhotonTrackedTarget target : result_cam1.getTargets()) {
+            VisionFieldTarget t1Element = lookingAt(target.getFiducialId()).orElseThrow();
+            if (this.priority == VisionPriority.SPEAKER) {
+                if (t1Element == VisionFieldTarget.SPEAKER_CENTER || t1Element == VisionFieldTarget.SPEAKER_LEFT || t1Element == VisionFieldTarget.SPEAKER_RIGHT) {
+                    bestTarget = compareTwoTargets(bestTarget, target, targetPriority);
+                }
+            } else if (this.priority == VisionPriority.AMP) {
+                if (t1Element == VisionFieldTarget.AMP) {
+                    bestTarget = compareTwoTargets(bestTarget, target, targetPriority);
+                } else {
+                    // if no operator priority selection, go by defaults
+                    if (priorities.indexOf(t1Element) < priorities.indexOf(lookingAt(bestTarget.getFiducialId()).orElseThrow())) {
+                        bestTarget = target;
+                    }
+                }
             }
-        } else if (operatorInput.getAmpPriorityToggleState()) {
-            if (vt1Element.get() == VisionFieldTarget.AMP) {
-                return vt1;
-            } else if (vt2Element.get() == VisionFieldTarget.AMP) {
-                return vt2;
-            }
-        } else {
-            // if no operator priority selection, go by defaults
-            if (priorities.indexOf(vt1Element) < priorities.indexOf(vt2Element)) {
-                return vt1;
-            } else {
-                return vt2;
-            }
-        }
 
-        return Optional.empty();
+        }
+        return Optional.of(bestTarget);
     }
-
     // estimated robot pose using cam 1
     public Optional<Pose3d> estimateVisionRobotPose_1() {
         return estimator1.update(camera_1.getLatestResult()).map(poseDat -> poseDat.estimatedPose);

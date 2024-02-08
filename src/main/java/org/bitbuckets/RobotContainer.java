@@ -30,6 +30,7 @@ import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.groundIntake.GroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
 import org.bitbuckets.commands.shooter.*;
+import org.bitbuckets.commands.vision.SetPriority;
 import org.bitbuckets.disabled.KinematicGyro;
 import org.bitbuckets.disabled.DisablerComponent;
 import org.bitbuckets.drive.*;
@@ -233,6 +234,9 @@ public class RobotContainer {
             odometrySubsystem.debugZero();
             odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(new Pose2d(0,0, new Rotation2d())));
         }));
+
+        operatorInput.ampVisionPriority_toggle.onTrue(new SetPriority(visionSubsystem, VisionSubsystem.VisionPriority.AMP));
+        operatorInput.speakerVisionPriority_toggle.onTrue(new SetPriority(visionSubsystem, VisionSubsystem.VisionPriority.SPEAKER));
 
     }
 
