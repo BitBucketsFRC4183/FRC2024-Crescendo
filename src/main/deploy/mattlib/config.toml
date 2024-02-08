@@ -143,7 +143,7 @@ rotationToMeterCoef = 0.31519599093
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
 inverted = true
-breakModeEnabled = false
+breakModeEnabled = true
 
 [swerve.drive_fl]
 id = 15
@@ -151,7 +151,7 @@ rotationToMeterCoef = 0.31519599093
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
 inverted = true
-breakModeEnabled = false
+breakModeEnabled = true
 
 
 [swerve.drive_br]
@@ -160,7 +160,7 @@ rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
 inverted = true
-breakModeEnabled = false
+breakModeEnabled = true
 
 
 [swerve.drive_bl]
@@ -169,7 +169,7 @@ rotationToMeterCoef = 0.31519599093
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
 inverted = false
-breakModeEnabled = false
+breakModeEnabled = true
 
 
 
@@ -253,10 +253,10 @@ type = "BRUSHLESS"
 # Disabler
 
 [disabler]
-vision_disabled = true
-drive_disabled = true
-shooter_disabled = false
-odometry_disabled = true
+vision_disabled = false
+drive_disabled = false
+shooter_disabled = true
+odometry_disabled = false
 climber_disabled = true
 groundIntake_disabled = true
 nms_disabled = true
