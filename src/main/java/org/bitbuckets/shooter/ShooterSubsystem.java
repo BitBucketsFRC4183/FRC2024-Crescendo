@@ -24,6 +24,8 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     final AbsoluteEncoderComponent encoderComponent;
     final IRotationEncoder velocityEncoder;
 
+    final ShooterCalculation shooterCalculation = new ShooterCalculation();
+
     public ShooterSubsystem(IRotationalMotor leftMotor, IRotationalMotor rightMotor, IRotationalController angleMotor, IRotationEncoder absoluteEncoder, ShooterComponent shooterComponent, AbsoluteEncoderComponent encoderComponent, IRotationEncoder velocityEncoder) {
         this.leftMotor = leftMotor;
         this.rightMotor = rightMotor;
@@ -124,6 +126,22 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     }
     public double calculateMaximalAngleForSpeaker() {
         return 0.16472536666;
+    }
+
+    public double getOptimalAngle_degrees(double startX, double startY){
+        shooterCalculation.setup();
+        shooterCalculation.initialX = 32-startX; //distance from top front speaker
+        shooterCalculation.initialY = 452.6316 - startY; //distance from ground
+        shooterCalculation.draw();
+        return shooterCalculation.bestTheta;
+    }
+
+    public double getOptimalVelocity_inchesPerSecond (double startX, double startY){
+        shooterCalculation.setup();
+        shooterCalculation.initialX = 32-startX; //distance from top front speaker
+        shooterCalculation.initialY = 452.6316 - startY; //distance from ground
+        shooterCalculation.draw();
+        return shooterCalculation.bestVelocity;
     }
 
 
