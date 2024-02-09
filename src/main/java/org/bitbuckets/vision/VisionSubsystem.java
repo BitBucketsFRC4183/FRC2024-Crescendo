@@ -5,6 +5,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.networktables.*;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import org.bitbuckets.RobotContainer;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -177,7 +178,8 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
             bestTargetElement = lookingAt(bestTarget.getFiducialId());
             }
 
-
+        RobotContainer.VISION.log_best_target(bestTargetElement.toString());
+        RobotContainer.VISION.log_best_target_id(bestTarget.getFiducialId());
         return Optional.of(bestTarget);
     }
 
@@ -189,8 +191,10 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         if (optEstimatedRobotPose1.isEmpty() && optEstimatedRobotPose2.isEmpty()) {
             return Optional.empty();
         } else if (optEstimatedRobotPose1.isEmpty()) {
+            RobotContainer.VISION.log_vision_robot_pose_2(optEstimatedRobotPose2.get().estimatedPose);
             return optEstimatedRobotPose2;
         } else if (optEstimatedRobotPose2.isEmpty()) {
+            RobotContainer.VISION.log_vision_robot_pose_1(optEstimatedRobotPose1.get().estimatedPose);
             return optEstimatedRobotPose1;
         } else {
             // weighting is done by least pose ambiguity
@@ -218,11 +222,13 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
             }
 
             Pose3d combinedWeightedPose = VisionUtil.combineTwoPoses(estimatedRobotPose1.estimatedPose, estimatedRobotPose2.estimatedPose, weight1, weight2);
+            RobotContainer.VISION.log_combined_vision_robot_pose(combinedWeightedPose);
+
             List<PhotonTrackedTarget> allTargets = new ArrayList<>(estimatedRobotPose1.targetsUsed);
             allTargets.addAll(estimatedRobotPose2.targetsUsed);
 
             double timestamp = (estimatedRobotPose1.timestampSeconds*weight1 + estimatedRobotPose2.timestampSeconds*weight2) / (weight1 + weight2);
-            
+
             PhotonPoseEstimator.PoseStrategy poseStrategy;
             if (weight1 >= weight2) { poseStrategy = estimatedRobotPose1.strategy; } else poseStrategy = estimatedRobotPose2.strategy;
 

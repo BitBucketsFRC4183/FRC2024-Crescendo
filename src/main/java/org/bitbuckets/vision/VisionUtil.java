@@ -27,7 +27,6 @@ public class VisionUtil {
     public static Transform3d getDesiredTargetAlignTransform(PhotonTrackedTarget trackedTarget) {
 
         VisionFieldTarget target = lookingAt(trackedTarget.getFiducialId()); //field element
-        RobotContainer.VISION.log_looking_at(target.toString());
         Transform3d tagTransform = lookupRobotTransformFromTarget(target);
         Transform3d cameraToTagTransform = trackedTarget.getBestCameraToTarget();
 

@@ -11,13 +11,13 @@ import java.util.Optional;
 
 public interface VisionComponent extends INetworkedComponent {
 
-        @Log("looking_at") void log_looking_at(String target);
-        @Log("between_transformation") void log_between_transformation(double distance);
+        @Log("best_target") void log_best_target(String target);
+        @Log("best_target_id") void log_best_target_id(double id);
+        @Log("between_transformation_3d") void log_between_transformation(double distance);
 
         @Log("current_priority") void  log_current_priority(String priority);
-//    @Log("vision_target_1") void log_vision_target_1(Pose3d vt1);
-//    @Log("vision_target_2") void log_vision_target_2(Pose3d vt2);
-//    @Log("vision_robot_pose_1") void log_vision_robot_pose_1(Pose3d p1);
-//    @Log("vision_robot_pose_2") void log_vision_robot_pose_2(Pose3d p2);
+      @Log("vision_robot_pose_1") void log_vision_robot_pose_1(Pose3d p1);
+      @Log("vision_robot_pose_2") void log_vision_robot_pose_2(Pose3d p2);
 
+      @Log("combined_vision_robot_pose") void log_combined_vision_robot_pose(Pose3d p);
 }
