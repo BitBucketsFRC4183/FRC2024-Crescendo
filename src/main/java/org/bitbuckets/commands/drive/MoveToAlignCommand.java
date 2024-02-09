@@ -8,6 +8,7 @@ import org.bitbuckets.OperatorInput;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.OdometrySubsystem;
 import org.bitbuckets.vision.VisionSubsystem;
+import org.bitbuckets.vision.VisionUtil;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -36,9 +37,12 @@ public class MoveToAlignCommand extends Command {
         this.operatorInput = operatorInput;
 
         // change this with visiontarget implementation later
-        Optional<Transform3d> optionalTagTransform = visionSubsystem.getDesiredTargetAlignTransform();
-        if (optionalTagTransform.isPresent()) {
-            this.targetPose = odometrySubsystem.getRobotCentroidPositionVert().plus(optionalTagTransform.get());
+        Optional<PhotonTrackedTarget> optTarget = visionSubsystem.getBestVisionTarget();
+
+
+        if (optTarget.isPresent()) {
+            Transform3d tagTransform = VisionUtil.getDesiredTargetAlignTransform(optTarget.get());
+            this.targetPose = odometrySubsystem.getRobotCentroidPositionVert().plus(tagTransform);
         } else {
             this.targetPose = odometrySubsystem.getRobotCentroidPositionVert();
         }
@@ -53,10 +57,15 @@ public class MoveToAlignCommand extends Command {
     @Override
     public void execute() {
         // this must be updated every as frequently as possible
-        Optional<Transform3d> robotTransform = visionSubsystem.getDesiredTargetAlignTransform();
-        robotTransform.ifPresent(transform3d -> this.targetPose = odometrySubsystem.getRobotCentroidPositionVert().plus(transform3d));
+        Optional<PhotonTrackedTarget> optTarget = visionSubsystem.getBestVisionTarget();
 
-            moveToAlign();
+
+        if (optTarget.isPresent()) {
+            Transform3d tagTransform = VisionUtil.getDesiredTargetAlignTransform(optTarget.get());
+            this.targetPose = odometrySubsystem.getRobotCentroidPositionVert().plus(tagTransform);
+        }
+
+        moveToAlign();
     }
     public ChassisSpeeds calculateTagSpeeds(Pose2d target, Rotation2d holonomicRotation, double desiredVelocity) {
         return holoController.calculate(

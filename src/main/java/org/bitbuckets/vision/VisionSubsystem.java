@@ -18,6 +18,8 @@ import xyz.auriium.yuukonstants.exception.ExplainedException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.bitbuckets.vision.VisionUtil.lookingAt;
+
 public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
 
     DoubleSubscriber xSub;
@@ -92,116 +94,15 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         NONE
     }
 
-    // converts apriltag ID to an element of the target enum
-    public Optional<VisionFieldTarget> lookingAt(int fiducialID) {
-        VisionFieldTarget target;
-        switch (fiducialID) {
-            case 1:
-            case 9:
-                target = VisionFieldTarget.SOURCE_RIGHT;
-                break;
-            case 2:
-            case 10:
-                target = VisionFieldTarget.SOURCE_LEFT;
-                break;
-            case 3:
-                target = VisionFieldTarget.SPEAKER_RIGHT;
-                break;
-            case 8:
-                target = VisionFieldTarget.SPEAKER_LEFT;
-                break;
-            case 5:
-            case 6:
-                target = VisionFieldTarget.AMP;
-                break;
-            case 7:
-            case 4:
-                target = VisionFieldTarget.SPEAKER_CENTER;
-                break;
-            case 11:
-            case 12:
-            case 13:
-            case 14:
-            case 15:
-            case 16:
-                target = VisionFieldTarget.STAGE;
-                break;
-            default:
-                target = null;
-        }
-        return Optional.ofNullable(target);
-    }
 
     @Override
     public Optional<ExplainedException> verifyInit() {
         // if (RobotContainer.DISABLER.vision_disabled()) return Optional.empty();
         //frc using 36h11 fam this year
         // aprilTagDetector.addFamily("36h11");
-
         return Optional.empty();
     }
 
-    // desired transform to move the robot to the desired final position, field relative pose
-    public Optional<Transform3d> getDesiredTargetAlignTransform() {
-        Optional<PhotonTrackedTarget> optTrackedTarget = getBestVisionTarget();
-        ;
-        if (optTrackedTarget.isEmpty()) {
-            return Optional.empty();
-        }
-
-        PhotonTrackedTarget trackedTarget = optTrackedTarget.get();
-        VisionFieldTarget target = lookingAt(trackedTarget.getFiducialId()).orElseThrow(); //field element
-        RobotContainer.VISION.log_looking_at(target.toString());
-        Transform3d tagTransform = getDesiredTransformFromTarget(target);
-        Transform3d cameraToTagTransform = trackedTarget.getBestCameraToTarget();
-
-        // subtract transforms for final robot transform
-        Transform3d robotTransform = new Transform3d(
-                cameraToTagTransform.getTranslation().minus(tagTransform.getTranslation()),
-                cameraToTagTransform.getRotation().minus(tagTransform.getRotation())
-        );
-        RobotContainer.VISION.log_between_transformation(robotTransform.getTranslation().toTranslation2d().getDistance(new Translation2d(0, 0)));
-        return Optional.of(robotTransform);
-
-    }
-
-    // Returns the transformation needed for final position depending on tag, apriltag relative
-    public Transform3d getDesiredTransformFromTarget(VisionFieldTarget target) {
-
-        // translations are in inches
-        return switch (target) {
-            case SPEAKER_CENTER ->
-                    new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(80)), new Rotation3d(0d, 0d, 0));
-            case SPEAKER_LEFT ->
-                    new Transform3d(new Translation3d(Units.inchesToMeters(24), 0d, Units.inchesToMeters(80)), new Rotation3d(0d, 0d, 0));
-            case SPEAKER_RIGHT ->
-                    new Transform3d(new Translation3d(Units.inchesToMeters(-24), 0d, Units.inchesToMeters(80)), new Rotation3d(0d, 0d, 0));
-            case AMP ->
-                    new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0));
-            case SOURCE_LEFT -> //relative to the robot
-                    new Transform3d(new Translation3d(Units.inchesToMeters(20), 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0));
-            case SOURCE_RIGHT -> //relative to the robot
-                    new Transform3d(new Translation3d(Units.inchesToMeters(-20), 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0));
-            case STAGE -> //relative to the robot
-                    new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0));
-        };
-    }
-
-    public enum TargetPriority {
-        AREA,
-        POSE_AMBIGUITY
-    }
-    public static PhotonTrackedTarget compareTwoTargets(PhotonTrackedTarget t1, PhotonTrackedTarget t2, TargetPriority priorityType) {
-        if (priorityType == TargetPriority.AREA) {
-            if (t1.getArea() > t2.getArea()) {
-                return t1;
-            } else return t2;
-        } else if (priorityType == TargetPriority.POSE_AMBIGUITY) {
-            if (t1.getPoseAmbiguity() > t2.getPoseAmbiguity()) {
-                return t1;
-            } else return t2;
-        } else return t1;
-    }
     // returns the vision target based on priorities
     public Optional<PhotonTrackedTarget> getBestVisionTarget() {
         // absolute priority
@@ -234,14 +135,14 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         );
 
         PhotonTrackedTarget bestTarget = allTargets.get(0);
-        VisionFieldTarget bestTargetElement = lookingAt(bestTarget.getFiducialId()).orElseThrow();
+        VisionFieldTarget bestTargetElement = lookingAt(bestTarget.getFiducialId());
 
-        TargetPriority targetPriority = TargetPriority.AREA;
+        VisionUtil.TargetPriority targetPriority = VisionUtil.TargetPriority.AREA;
 
         // if priority enabled, BEST LOOKING AT TARGET SHOULD WIN
         // if priority enabled, not looking at ,best target wins
         for (PhotonTrackedTarget target : allTargets) {
-            VisionFieldTarget targetElement = lookingAt(target.getFiducialId()).orElseThrow();
+            VisionFieldTarget targetElement = lookingAt(target.getFiducialId());
 
             if (this.priority == VisionPriority.SPEAKER) {
                 List<VisionFieldTarget> speakers = Arrays.asList(VisionFieldTarget.SPEAKER_CENTER, VisionFieldTarget.SPEAKER_LEFT, VisionFieldTarget.SPEAKER_RIGHT);
@@ -250,36 +151,37 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
                     bestTarget = target;
                 // tests if targetElement is one of these and if bestTarget is already set to priority
                 } else if (speakers.contains(targetElement)) {
-                    bestTarget = compareTwoTargets(bestTarget, target, targetPriority);
+                    bestTarget = VisionUtil.compareTwoTargets(bestTarget, target, targetPriority);
                 // tests if targetElement is not one of these and if bestTarget is not set to priority
                 } else if (!speakers.contains(bestTargetElement)) {
-                    bestTarget = compareTwoTargets(bestTarget, target, targetPriority);
+                    bestTarget = VisionUtil.compareTwoTargets(bestTarget, target, targetPriority);
                 }
 
             } else if (this.priority == VisionPriority.AMP) {
                 if ((targetElement == VisionFieldTarget.AMP) && (bestTargetElement != VisionFieldTarget.AMP)) {
                     bestTarget = target;
                 } else if (targetElement == VisionFieldTarget.AMP) {
-                    bestTarget = compareTwoTargets(bestTarget, target, targetPriority);
+                    bestTarget = VisionUtil.compareTwoTargets(bestTarget, target, targetPriority);
 
                 } else if (bestTargetElement != VisionFieldTarget.AMP) {
-                    bestTarget = compareTwoTargets(bestTarget, target, targetPriority);
+                    bestTarget = VisionUtil.compareTwoTargets(bestTarget, target, targetPriority);
                 }
 
 
             } else if (this.priority == VisionPriority.NONE) {
                     // if no operator priority selection, go by defaults
                     if (priorities.indexOf(targetElement) < priorities.indexOf(bestTargetElement)) {
-                        bestTarget = compareTwoTargets(bestTarget,target,targetPriority);
+                        bestTarget = VisionUtil.compareTwoTargets(bestTarget,target,targetPriority);
                     }
                 }
 
-            bestTargetElement = lookingAt(bestTarget.getFiducialId()).orElseThrow();
+            bestTargetElement = lookingAt(bestTarget.getFiducialId());
             }
 
 
         return Optional.of(bestTarget);
     }
+
     // estimated robot pose using cam 1
     public Optional<Pose3d> estimateVisionRobotPose_1() {
         return estimator1.update(camera_1.getLatestResult()).map(poseDat -> poseDat.estimatedPose);

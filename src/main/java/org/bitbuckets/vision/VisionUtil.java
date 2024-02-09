@@ -1,4 +1,83 @@
 package org.bitbuckets.vision;
 
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
+import org.bitbuckets.RobotContainer;
+import org.photonvision.targeting.PhotonTrackedTarget;
+
+import java.util.Optional;
+
 public class VisionUtil {
+
+    // converts apriltag ID to an element of the target enum
+    public static VisionFieldTarget lookingAt(int fiducialID) {
+        return switch (fiducialID) {
+            case 1, 9 -> VisionFieldTarget.SOURCE_RIGHT;
+            case 2, 10 -> VisionFieldTarget.SOURCE_LEFT;
+            case 3 -> VisionFieldTarget.SPEAKER_RIGHT;
+            case 8 -> VisionFieldTarget.SPEAKER_LEFT;
+            case 5, 6 -> VisionFieldTarget.AMP;
+            case 7, 4 -> VisionFieldTarget.SPEAKER_CENTER;
+            case 11, 12, 13, 14, 15, 16 -> VisionFieldTarget.STAGE;
+            default -> throw new IllegalStateException("Unexpected value: " + fiducialID);
+        };
+    }
+
+    // Returns the transformation needed for final position depending on tag, apriltag relative
+    public static Transform3d getDesiredTargetAlignTransform(PhotonTrackedTarget trackedTarget) {
+
+        VisionFieldTarget target = lookingAt(trackedTarget.getFiducialId()); //field element
+        RobotContainer.VISION.log_looking_at(target.toString());
+        Transform3d tagTransform = lookupRobotTransformFromTarget(target);
+        Transform3d cameraToTagTransform = trackedTarget.getBestCameraToTarget();
+
+        // subtract transforms for final robot transform
+        Transform3d robotTransform = new Transform3d(
+                cameraToTagTransform.getTranslation().minus(tagTransform.getTranslation()),
+                cameraToTagTransform.getRotation().minus(tagTransform.getRotation())
+        );
+        RobotContainer.VISION.log_between_transformation(robotTransform.getTranslation().toTranslation2d().getDistance(new Translation2d(0, 0)));
+        return robotTransform;
+
+    }
+
+    // desired transform to move the robot to the desired final position, field relative pose, could be improved with mattlib
+    public static Transform3d lookupRobotTransformFromTarget(VisionFieldTarget target) {
+        // translations are in inches
+        return switch (target) {
+            case SPEAKER_CENTER ->
+                    new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(80)), new Rotation3d(0d, 0d, 0));
+            case SPEAKER_LEFT ->
+                    new Transform3d(new Translation3d(Units.inchesToMeters(24), 0d, Units.inchesToMeters(80)), new Rotation3d(0d, 0d, 0));
+            case SPEAKER_RIGHT ->
+                    new Transform3d(new Translation3d(Units.inchesToMeters(-24), 0d, Units.inchesToMeters(80)), new Rotation3d(0d, 0d, 0));
+            case AMP ->
+                    new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0));
+            case SOURCE_LEFT -> //relative to the robot
+                    new Transform3d(new Translation3d(Units.inchesToMeters(20), 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0));
+            case SOURCE_RIGHT -> //relative to the robot
+                    new Transform3d(new Translation3d(Units.inchesToMeters(-20), 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0));
+            case STAGE -> //relative to the robot
+                    new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0));
+        };
+    }
+
+    public enum TargetPriority {
+        AREA,
+        POSE_AMBIGUITY
+    }
+    public static PhotonTrackedTarget compareTwoTargets(PhotonTrackedTarget t1, PhotonTrackedTarget t2, TargetPriority priorityType) {
+        if (priorityType == TargetPriority.AREA) {
+            if (t1.getArea() > t2.getArea()) {
+                return t1;
+            } else return t2;
+        } else if (priorityType == TargetPriority.POSE_AMBIGUITY) {
+            if (t1.getPoseAmbiguity() > t2.getPoseAmbiguity()) {
+                return t1;
+            } else return t2;
+        } else return t1;
+    }
 }
