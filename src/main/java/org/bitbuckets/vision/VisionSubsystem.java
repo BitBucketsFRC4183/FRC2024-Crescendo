@@ -15,10 +15,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.yuukonstants.exception.ExplainedException;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
@@ -91,7 +88,8 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
 
     public enum VisionPriority {
         AMP,
-        SPEAKER
+        SPEAKER,
+        NONE
     }
 
     // converts apriltag ID to an element of the target enum
@@ -236,26 +234,50 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
         );
 
         PhotonTrackedTarget bestTarget = allTargets.get(0);
+        VisionFieldTarget bestTargetElement = lookingAt(bestTarget.getFiducialId()).orElseThrow();
+
         TargetPriority targetPriority = TargetPriority.AREA;
 
-        for (PhotonTrackedTarget target : result_cam1.getTargets()) {
-            VisionFieldTarget t1Element = lookingAt(target.getFiducialId()).orElseThrow();
+        // if priority enabled, BEST LOOKING AT TARGET SHOULD WIN
+        // if priority enabled, not looking at ,best target wins
+        for (PhotonTrackedTarget target : allTargets) {
+            VisionFieldTarget targetElement = lookingAt(target.getFiducialId()).orElseThrow();
+
             if (this.priority == VisionPriority.SPEAKER) {
-                if (t1Element == VisionFieldTarget.SPEAKER_CENTER || t1Element == VisionFieldTarget.SPEAKER_LEFT || t1Element == VisionFieldTarget.SPEAKER_RIGHT) {
+                List<VisionFieldTarget> speakers = Arrays.asList(VisionFieldTarget.SPEAKER_CENTER, VisionFieldTarget.SPEAKER_LEFT, VisionFieldTarget.SPEAKER_RIGHT);
+                // tests if targetElement is one of these and if the bestTarget is not yet set to priority
+                if ((speakers.contains(targetElement)) && !(speakers.contains(bestTargetElement))) {
+                    bestTarget = target;
+                // tests if targetElement is one of these and if bestTarget is already set to priority
+                } else if (speakers.contains(targetElement)) {
+                    bestTarget = compareTwoTargets(bestTarget, target, targetPriority);
+                // tests if targetElement is not one of these and if bestTarget is not set to priority
+                } else if (!speakers.contains(bestTargetElement)) {
                     bestTarget = compareTwoTargets(bestTarget, target, targetPriority);
                 }
+
             } else if (this.priority == VisionPriority.AMP) {
-                if (t1Element == VisionFieldTarget.AMP) {
+                if ((targetElement == VisionFieldTarget.AMP) && (bestTargetElement != VisionFieldTarget.AMP)) {
+                    bestTarget = target;
+                } else if (targetElement == VisionFieldTarget.AMP) {
                     bestTarget = compareTwoTargets(bestTarget, target, targetPriority);
-                } else {
+
+                } else if (bestTargetElement != VisionFieldTarget.AMP) {
+                    bestTarget = compareTwoTargets(bestTarget, target, targetPriority);
+                }
+
+
+            } else if (this.priority == VisionPriority.NONE) {
                     // if no operator priority selection, go by defaults
-                    if (priorities.indexOf(t1Element) < priorities.indexOf(lookingAt(bestTarget.getFiducialId()).orElseThrow())) {
-                        bestTarget = target;
+                    if (priorities.indexOf(targetElement) < priorities.indexOf(bestTargetElement)) {
+                        bestTarget = compareTwoTargets(bestTarget,target,targetPriority);
                     }
                 }
+
+            bestTargetElement = lookingAt(bestTarget.getFiducialId()).orElseThrow();
             }
 
-        }
+
         return Optional.of(bestTarget);
     }
     // estimated robot pose using cam 1

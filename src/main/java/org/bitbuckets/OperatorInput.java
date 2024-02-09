@@ -27,6 +27,7 @@ public class OperatorInput {
     final Trigger ampVisionPriority_toggle = operatorControl.povLeft();
     final Trigger speakerVisionPriority_toggle = operatorControl.povRight();
 
+    final Trigger resetVisionPriority_toggle = operatorControl.povUp();
     final Trigger setShooterAngleManually = operatorControl.leftStick();
 
 
@@ -39,6 +40,7 @@ public class OperatorInput {
 
     final Trigger groundOuttakeHold = driver.leftBumper(); //TODO Assign ground outtake to another button besides left bumper (left bumper already used for ground intake)
     final Trigger resetGyroPress = driver.start();
+
 
 
     /**

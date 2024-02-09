@@ -8,6 +8,6 @@ public enum VisionFieldTarget {
     AMP,
     SOURCE_LEFT,
     SOURCE_RIGHT,
-    STAGE,
+    STAGE
 
 }

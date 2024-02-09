@@ -237,6 +237,7 @@ public class RobotContainer {
 
         operatorInput.ampVisionPriority_toggle.onTrue(new SetPriority(visionSubsystem, VisionSubsystem.VisionPriority.AMP));
         operatorInput.speakerVisionPriority_toggle.onTrue(new SetPriority(visionSubsystem, VisionSubsystem.VisionPriority.SPEAKER));
+        operatorInput.resetVisionPriority_toggle.onTrue(new SetPriority(visionSubsystem, VisionSubsystem.VisionPriority.NONE));
 
     }
 
@@ -440,8 +441,7 @@ public class RobotContainer {
                 aprilTagFieldLayout,
                 photonPoseEstimator1,
                 photonPoseEstimator2,
-                new AprilTagDetector(),
-                operatorInput
+                new AprilTagDetector()
         );
 
     }
