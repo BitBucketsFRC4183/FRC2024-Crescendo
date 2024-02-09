@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.Robot;
 import org.bitbuckets.RobotContainer;
 import org.bitbuckets.vision.VisionSubsystem;
+import org.photonvision.EstimatedRobotPose;
 import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.mattlib2.log.INetworkedComponent;
 import xyz.auriium.mattlib2.log.annote.Conf;
@@ -56,11 +57,10 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
 
         if (Robot.isReal()) {
             //VISION
-            Optional<Pose3d> visionThinks = visionSubsystem.estimateVisionRobotPose_1();
-            if (visionThinks.isPresent()) {
-                Pose2d maybeAPose = visionThinks.get().toPose2d();
-
-                odometry.addVisionMeasurement(maybeAPose, MathSharedStore.getTimestamp());
+            Optional<EstimatedRobotPose> optVisionPose = visionSubsystem.estimateVisionRobotPose();
+            if (optVisionPose.isPresent()) {
+                Pose2d visionPose = optVisionPose.get().estimatedPose.toPose2d();
+                odometry.addVisionMeasurement(visionPose, optVisionPose.get().timestampSeconds);
             }
         }
 

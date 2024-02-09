@@ -3,13 +3,12 @@ package org.bitbuckets.vision;
 import edu.wpi.first.apriltag.AprilTagDetector;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.*;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.*;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import org.bitbuckets.OperatorInput;
-import org.bitbuckets.RobotContainer;
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonTargetSortMode;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import xyz.auriium.mattlib2.IPeriodicLooped;
@@ -183,45 +182,62 @@ public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
     }
 
     // estimated robot pose using cam 1
-    public Optional<Pose3d> estimateVisionRobotPose_1() {
-        return estimator1.update(camera_1.getLatestResult()).map(poseDat -> poseDat.estimatedPose);
+    public Optional<EstimatedRobotPose> estimateVisionRobotPose() {
+        Optional<EstimatedRobotPose> optEstimatedRobotPose1 = estimator1.update(camera_1.getLatestResult());
+        Optional<EstimatedRobotPose> optEstimatedRobotPose2 = estimator2.update(camera_2.getLatestResult());
+
+        if (optEstimatedRobotPose1.isEmpty() && optEstimatedRobotPose2.isEmpty()) {
+            return Optional.empty();
+        } else if (optEstimatedRobotPose1.isEmpty()) {
+            return optEstimatedRobotPose2;
+        } else if (optEstimatedRobotPose2.isEmpty()) {
+            return optEstimatedRobotPose1;
+        } else {
+            // weighting is done by least pose ambiguity
+            // if multitag was used, then that weight is multiplied by own many targets and a constant (arbitrary weighting)
+            EstimatedRobotPose estimatedRobotPose1 = optEstimatedRobotPose1.get();
+            EstimatedRobotPose estimatedRobotPose2 = optEstimatedRobotPose2.get();
+            double avgPoseAmbiguity1 = estimatedRobotPose1.targetsUsed.stream().mapToDouble(PhotonTrackedTarget::getPoseAmbiguity).sum() / estimatedRobotPose1.targetsUsed.size();
+            ;
+            double avgPoseAmbiguity2 = estimatedRobotPose2.targetsUsed.stream().mapToDouble(PhotonTrackedTarget::getPoseAmbiguity).sum() / estimatedRobotPose2.targetsUsed.size();
+
+            // avgPoseAmbiguity should be between 0 and 1, less value has more weight
+            double weight1 = 1 / (avgPoseAmbiguity1 / avgPoseAmbiguity2);
+            double weight2 = 1;
+
+
+            double multiTagWeightConstant = 1.5;
+            if (estimatedRobotPose1.strategy == PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR ||
+                    estimatedRobotPose1.strategy == PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_RIO) {
+                weight1 *= (estimatedRobotPose1.targetsUsed.size() * multiTagWeightConstant);
+            }
+
+            if (estimatedRobotPose2.strategy == PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR ||
+                    estimatedRobotPose2.strategy == PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_RIO) {
+                weight2 *= (estimatedRobotPose2.targetsUsed.size() * multiTagWeightConstant);
+            }
+
+            Pose3d combinedWeightedPose = VisionUtil.combineTwoPoses(estimatedRobotPose1.estimatedPose, estimatedRobotPose2.estimatedPose, weight1, weight2);
+            List<PhotonTrackedTarget> allTargets = new ArrayList<>(estimatedRobotPose1.targetsUsed);
+            allTargets.addAll(estimatedRobotPose2.targetsUsed);
+
+            double timestamp = (estimatedRobotPose1.timestampSeconds*weight1 + estimatedRobotPose2.timestampSeconds*weight2) / (weight1 + weight2);
+            
+            PhotonPoseEstimator.PoseStrategy poseStrategy;
+            if (weight1 >= weight2) { poseStrategy = estimatedRobotPose1.strategy; } else poseStrategy = estimatedRobotPose2.strategy;
+
+            return Optional.of(new EstimatedRobotPose(combinedWeightedPose, timestamp, allTargets, poseStrategy));
+        }
     }
 
-    // estimated robot pose using cam 2
-    public Optional<Pose3d> estimateVisionRobotPose_2() {
-        return estimator2.update(camera_2.getLatestResult()).map(poseDat -> poseDat.estimatedPose);
-    }
+
+
 
     public synchronized void acceptSpaceData(double data) {
 
     }
 
-    // combines estimated poses by averaging
-    // this is not currently used as we just use the cameratotag transform from the camera that has our desired target
-    public Optional<Pose3d> combineEstimatedPose(Optional<Pose3d> pose1, Optional<Pose3d> pose2){
 
-        if (pose1.isEmpty() && pose2.isEmpty()){
-            return Optional.empty();
-        } else if (pose1.isEmpty()){
-            return pose2;
-        } else if (pose2.isEmpty()){
-            return pose1;
-        }
-
-        Translation3d translation = new Translation3d(
-                (pose1.get().getX() + pose2.get().getX()) / 2.0,
-                (pose1.get().getY() + pose2.get().getY()) / 2.0,
-                (pose1.get().getZ() + pose2.get().getZ()) / 2.0
-        );
-        Rotation3d rotation = new Rotation3d(
-                (pose1.get().getRotation().getX() +  pose2.get().getRotation().getX()) / 2.0,
-                (pose1.get().getRotation().getY() +  pose2.get().getRotation().getY()) / 2.0,
-                (pose1.get().getRotation().getZ() +  pose2.get().getRotation().getZ()) / 2.0
-        );
-        Pose3d result = new Pose3d(translation, rotation);
-
-        return Optional.of(result);
-    }
 
     public double getNoteX() {
         double xPos = 0d;

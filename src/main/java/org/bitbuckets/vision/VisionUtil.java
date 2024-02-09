@@ -1,9 +1,6 @@
 package org.bitbuckets.vision;
 
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
 import org.bitbuckets.RobotContainer;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -75,9 +72,25 @@ public class VisionUtil {
                 return t1;
             } else return t2;
         } else if (priorityType == TargetPriority.POSE_AMBIGUITY) {
-            if (t1.getPoseAmbiguity() > t2.getPoseAmbiguity()) {
+            if (t1.getPoseAmbiguity() < t2.getPoseAmbiguity()) {
                 return t1;
             } else return t2;
         } else return t1;
+    }
+
+    // combines estimated poses by averaging
+    public static Pose3d combineTwoPoses(Pose3d pose1, Pose3d pose2, double poseWeight1, double poseWeight2) {
+        Translation3d translation = new Translation3d(
+                (pose1.getX()*poseWeight1 + pose2.getX()*poseWeight2) / (poseWeight1 + poseWeight2),
+                (pose1.getY()*poseWeight1 + pose2.getY()*poseWeight2) / (poseWeight1 + poseWeight2),
+                (pose1.getY()*poseWeight1 + pose2.getY()*poseWeight2) / (poseWeight1 + poseWeight2)
+        );
+        Rotation3d rotation = new Rotation3d(
+                (pose1.getRotation().getX()*poseWeight1 + pose2.getRotation().getX()*poseWeight2) / (poseWeight1 + poseWeight2),
+                (pose1.getRotation().getY()*poseWeight1 + pose2.getRotation().getY()*poseWeight2) / (poseWeight1 + poseWeight2),
+                (pose1.getRotation().getY()*poseWeight1 + pose2.getRotation().getY()*poseWeight2) / (poseWeight1 + poseWeight2)
+        );
+
+        return new Pose3d(translation, rotation);
     }
 }
