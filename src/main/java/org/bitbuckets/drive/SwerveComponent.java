@@ -12,8 +12,6 @@ import xyz.auriium.mattlib2.log.annote.Log;
 public interface SwerveComponent extends INetworkedComponent {
 
     @Conf("pigeonId") int pigeonCanId();
-    @Conf("ff_ks") double ff_ks();
-    @Conf("ff_kv") double ff_kv();
 
     @Conf("magnitudeFWLim") double magnitudeFwLimit();
     @Conf("fieldOriented") boolean fieldOriented();

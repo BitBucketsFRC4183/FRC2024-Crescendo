@@ -17,10 +17,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
@@ -143,10 +140,18 @@ public class RobotContainer {
         shooterFFRoutine = new RotationFFGenRoutine(SHOOTER_WHEEL_2_FFGEN, shooterSubsystem.rightMotor, shooterSubsystem.rightMotor);
         CTowerCommands.wrapRoutine(shooterFFRoutine).schedule();*/
 
-        var motorWeAreTesting = driveSubsystem.modules[0].driveMotor;
-        LinearFFGenRoutine driveFFRoutine = new LinearFFGenRoutine(LINEAR_ROUTINE_FFGEN, motorWeAreTesting, motorWeAreTesting);
+        Command[] commands = new Command[4];
+        for (int i = 0; i < 4; i++) {
+            var motorWeAreTesting = driveSubsystem.modules[i].driveMotor;
+            LinearFFGenRoutine driveFFRoutine = new LinearFFGenRoutine(LINEAR_ROUTINE_FFGEN[i],motorWeAreTesting, motorWeAreTesting);
+            commands[i]= CTowerCommands.wrapRoutine(driveFFRoutine);
+        }
 
-        CTowerCommands.wrapRoutine(driveFFRoutine).schedule();
+        new ParallelCommandGroup(commands).schedule();
+//        var motorWeAreTesting = driveSubsystem.modules[0].driveMotor;
+//        LinearFFGenRoutine driveFFRoutine = new LinearFFGenRoutine(LINEAR_ROUTINE_FFGEN, motorWeAreTesting, motorWeAreTesting);
+//
+//        CTowerCommands.wrapRoutine(driveFFRoutine).schedule();
     }
 
     SendableChooser<Command> loadAutonomous() {
@@ -258,8 +263,10 @@ public class RobotContainer {
 
     SwerveModule[] loadSwerveModules() {
         SwerveModule[] modules = new SwerveModule[4];
-        SimpleMotorFeedforward ff = new SimpleMotorFeedforward(SWERVE.ff_ks(), SWERVE.ff_kv());
+
+
         for (int i = 0; i < modules.length; i++) {
+            SimpleMotorFeedforward ff = new SimpleMotorFeedforward(FF_SWERVE[i].ff_ks(), FF_SWERVE[i].ff_kv());
             ILinearMotor driveMotor;
             IRotationalController steerController;
             IRotationEncoder absoluteEncoder;
@@ -522,6 +529,7 @@ public class RobotContainer {
     public static final MotorComponent NMS_TOPCOMPONENT = LOG.load(MotorComponent.class, "nms/top");
     public static final MotorComponent NMS_BOTTOMCOMPONENT = LOG.load(MotorComponent.class, "nms/bottom");
 
+    public static final FFComponent[] FF_SWERVE = LOG.loadRange(FFComponent.class, "swerve/feedforward", 4, Util.RENAMER);
     public static final SwerveComponent SWERVE = LOG.load(SwerveComponent.class, "swerve");
     public static final OdometrySubsystem.Component ODO = LOG.load(OdometrySubsystem.Component.class, "odometry");
     public static final CommonMotorComponent STEER_COMMON = LOG.load(CommonMotorComponent.class, "swerve/steer_common");
@@ -529,7 +537,7 @@ public class RobotContainer {
     public static final MotorComponent[] DRIVES = LOG.loadRange(MotorComponent.class, "swerve/drive", 4, Util.RENAMER);
     public static final MotorComponent[] STEERS = MotorComponent.ofRange(STEER_COMMON, LOG.loadRange(IndividualMotorComponent.class, "swerve/steer", 4, Util.RENAMER));
     public static final PIDComponent[] PIDS = PIDComponent.ofRange(PID_COMMON, LOG.loadRange(IndividualPIDComponent.class, "swerve/pid", 4, Util.RENAMER));
-    public static final FFGenComponent LINEAR_ROUTINE_FFGEN = LOG.load(FFGenComponent.class, "swerve/ffroutine");
+    public static final FFGenComponent[] LINEAR_ROUTINE_FFGEN = LOG.loadRange(FFGenComponent.class, "swerve/ffroutine",4, Util.RENAMER);
 
     public static final AbsoluteEncoderComponent[] STEER_ABS_ENCODERS = LOG.loadRange(AbsoluteEncoderComponent.class, "swerve/abs", 4, Util.RENAMER);
 

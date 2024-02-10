@@ -105,7 +105,22 @@ x_holonomic_pid = {p = 1.2, i = 0, d = 0}
 y_holonomic_pid = {p = 1.2, i = 0, d = 0}
 t_holonomic_pid = {p = 1, i = 0, d = 0}
 
-[swerve.ffroutine]
+[swerve.ffroutine_fl]
+startDelay_ms = 20
+endVoltage = 12
+rampRate_vPerMs = 0.001
+
+[swerve.ffroutine_fr]
+startDelay_ms = 20
+endVoltage = 12
+rampRate_vPerMs = 0.001
+
+[swerve.ffroutine_bl]
+startDelay_ms = 20
+endVoltage = 12
+rampRate_vPerMs = 0.001
+
+[swerve.ffroutine_br]
 startDelay_ms = 20
 endVoltage = 12
 rampRate_vPerMs = 0.001
@@ -251,9 +266,9 @@ type = "BRUSHLESS"
 
 [disabler]
 vision_disabled = true
-drive_disabled = false
+drive_disabled = true
 shooter_disabled = true
-odometry_disabled = false
+odometry_disabled = true
 climber_disabled = true
-groundIntake_disabled = true
+groundIntake_disabled = false
 nms_disabled = true
