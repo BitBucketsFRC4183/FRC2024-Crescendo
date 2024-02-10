@@ -22,6 +22,5 @@ public interface SwerveComponent extends INetworkedComponent {
     @Log("states") void logSwerveStates(SwerveModuleState[] states);
     @Log("desiredStates") void logDesiredStates(SwerveModuleState[] desiredStates);
     @Log("pose2") void logPosition(Pose2d pose2d);
-    @Log("endpos") void logEndpoint(Pose2d pose);
 
 }
