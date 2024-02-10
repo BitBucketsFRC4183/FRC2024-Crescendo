@@ -89,7 +89,7 @@ public class RobotContainer {
 
         //DO SETTINGS BEFORE PRE INIT
         MattlibSettings.USE_LOGGING = true;
-        MattlibSettings.ROBOT = MattlibSettings.Robot.CARY;
+        MattlibSettings.ROBOT = MattlibSettings.Robot.MCR;
 
         //THIS HAS TO RUN FIRST
         Mattlib.LOOPER.runPreInit();
@@ -128,7 +128,17 @@ public class RobotContainer {
 
 
     public void autonomousInit() {
+        operatorInput.actuallyIsTeleop = false;
+
         chooser.getSelected().schedule();
+    }
+
+    public void disabledInit() {
+        operatorInput.actuallyIsTeleop = false;
+    }
+
+    public void teleopInit() {
+        operatorInput.actuallyIsTeleop = true;
     }
 
     public void testInit() {
@@ -154,6 +164,8 @@ public class RobotContainer {
                 thetaController,
                 driveSubsystem::driveUsingChassisSpeed,
                 false
+        ).andThen(
+                Commands.runOnce(driveSubsystem::commandWheelsToZero)
         );
     }
 
@@ -170,10 +182,13 @@ public class RobotContainer {
                         () -> odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(startingTrajectory.getInitialPose()) )
                 ),
                 Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                Commands.waitSeconds(1),
                 followTrajectory("4note","pt1"),
                 followTrajectory("4note","pt2"),
+                Commands.waitSeconds(1),
                 Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
                 followTrajectory("4note","pt3"),
+                Commands.waitSeconds(1),
                 Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
                 followTrajectory("4note","pt4")
         );
