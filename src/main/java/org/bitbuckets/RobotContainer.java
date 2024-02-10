@@ -83,7 +83,7 @@ public class RobotContainer {
 
     public PIDController xController;
     public PIDController yController;
-    public ProfiledPIDController thetaController;
+    public PIDController thetaController;
 
     public RobotContainer() {
 
@@ -159,7 +159,7 @@ public class RobotContainer {
         return Choreo.choreoSwerveCommand(
                 trajectory,
                 odometrySubsystem::getRobotCentroidPosition,
-                TrajLoadingUtil.choreoSwerveController(xController, yController, thetaController),
+                Choreo.choreoSwerveController(xController, yController, thetaController),
                 driveSubsystem::driveUsingChassisSpeed,
                 false
         ).andThen(
@@ -171,7 +171,7 @@ public class RobotContainer {
     SendableChooser<Command> loadAutonomous() {
         xController = new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant());
         yController = new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant());
-        thetaController = new ProfiledPIDController(DRIVE_T_PID.pConstant(), DRIVE_T_PID.iConstant(), DRIVE_T_PID.dConstant(), new TrapezoidProfile.Constraints(3,3));
+        thetaController = new PIDController(DRIVE_T_PID.pConstant(), DRIVE_T_PID.iConstant(), DRIVE_T_PID.dConstant());
 
         ChoreoTrajectory startingTrajectory = TrajLoadingUtil.getTrajectory("4note", "pt1");
 
