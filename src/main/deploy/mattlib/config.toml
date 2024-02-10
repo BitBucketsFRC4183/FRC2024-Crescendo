@@ -39,12 +39,13 @@ ff_kv = 0.12869522412846462
 
 
 [shooter.wheel_1]
-id = 14
+id = 12
 encoderToMechanismCoef = 1
 rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
 pid = {p = 1, i = 0, d = 0}
+inverted = true
 
 [shooter.wheel_2]
 id = 13
@@ -53,6 +54,7 @@ rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
 pid = {p = 1, i = 0, d = 0}
+inverted = false
 
 [shooter.absolute]
 analogChannel = 0
@@ -230,9 +232,9 @@ camera2Name = "arducam2"
 
 [disabler]
 vision_disabled = true
-drive_disabled = false
-shooter_disabled = true
-odometry_disabled = false
+drive_disabled = true
+shooter_disabled = false
+odometry_disabled = true
 climber_disabled = true
 groundIntake_disabled = true
 nms_disabled = true

@@ -7,18 +7,16 @@ import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
 public class GroundOuttakeCommand extends Command {
 
     final GroundIntakeSubsystem groundIntakeSubsystem;
-    final OperatorInput operatorInput;
 
 
-    public GroundOuttakeCommand(GroundIntakeSubsystem groundIntakeSubsystem, OperatorInput operatorInput) {
+    public GroundOuttakeCommand(GroundIntakeSubsystem groundIntakeSubsystem) {
         this.groundIntakeSubsystem = groundIntakeSubsystem;
-        this.operatorInput = operatorInput;
     }
 
 
     @Override
     public void execute() {
-        groundIntakeSubsystem.setToVoltage(-6); //TODO tune voltage for intake
+        groundIntakeSubsystem.setToVoltage(-7); //TODO tune voltage for intake
     }
 
     @Override

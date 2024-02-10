@@ -1,6 +1,5 @@
 package org.bitbuckets.noteManagement;
 
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import xyz.auriium.mattlib2.hardware.ILinearMotor;
@@ -18,9 +17,9 @@ public class NoteManagementSubsystem implements Subsystem {
         this.digitalInput = digitalInput;
     }
 
-    public void runMotors() {
-        nms_bottomMotor.setToVoltage(12);
-        nms_topMotor.setToVoltage(12);
+    public void setAllToVoltage(double voltage) {
+        nms_bottomMotor.setToVoltage(voltage);
+        nms_topMotor.setToVoltage(voltage);
     }
 
     public boolean isNoteIn() {

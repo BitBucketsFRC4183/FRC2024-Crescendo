@@ -26,8 +26,10 @@ import org.bitbuckets.climber.ClimberSubsystem;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
 import org.bitbuckets.commands.drive.AugmentedDriveCommand;
 import org.bitbuckets.commands.drive.MoveToAlignCommand;
+import org.bitbuckets.commands.groundIntake.FinishGroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.GroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
+import org.bitbuckets.commands.noteManagement.NMSIntakeCommand;
 import org.bitbuckets.commands.shooter.*;
 import org.bitbuckets.disabled.DisablerComponent;
 import org.bitbuckets.disabled.KinematicGyro;
@@ -197,7 +199,7 @@ public class RobotContainer {
         operatorInput.speakerSetpoint_hold.whileTrue(new SetSpeakerShootingAngleCommand(shooterSubsystem));
         // .andThen(new ShootNoteCommand(shooterSubsystem))
         operatorInput.shootManually.whileTrue(new AchieveFlatShotSpeedCommand(shooterSubsystem));
-        operatorInput.sourceIntake_hold.whileTrue(new AwaitShooterIntakeCommand(noteManagementSubsystem, shooterSubsystem));
+        operatorInput.sourceIntake_hold.whileTrue(new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem)); //TODO use shooter to source intake, not ground intake
         operatorInput.setShooterAngleManually.onTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));
 
         HolonomicDriveController holonomicDriveController = new HolonomicDriveController(
@@ -207,11 +209,11 @@ public class RobotContainer {
                         new TrapezoidProfile.Constraints(1,2)) //TODO
         );
 
-        operatorInput.autoAlignHold.whileTrue(new MoveToAlignCommand(driveSubsystem, visionSubsystem, holonomicDriveController, odometrySubsystem, operatorInput));
+        operatorInput.autoAlignHold.whileTrue(new MoveToAlignCommand(driveSubsystem, visionSubsystem, holonomicDriveController, odometrySubsystem));
         operatorInput.isTeleop.and(climberThreshold).whileTrue(new MoveClimberCommand(climberSubsystem, operatorInput));
 
-        operatorInput.groundIntakeHold.whileTrue(new GroundIntakeCommand(groundIntakeSubsystem, operatorInput));
-        operatorInput.groundOuttakeHold.whileTrue(new GroundOuttakeCommand(groundIntakeSubsystem, operatorInput));
+        operatorInput.groundIntakeHold.whileTrue(new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem));
+        operatorInput.groundOuttakeHold.whileTrue(new GroundOuttakeCommand(groundIntakeSubsystem));
 
         operatorInput.resetGyroPress.onTrue(Commands.runOnce(() -> {
             odometrySubsystem.debugZero();
