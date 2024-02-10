@@ -159,9 +159,7 @@ public class RobotContainer {
         return Choreo.choreoSwerveCommand(
                 trajectory,
                 odometrySubsystem::getRobotCentroidPosition,
-                xController,
-                yController,
-                thetaController,
+                Choreo.choreoSwerveController(xController, yController, thetaController),
                 driveSubsystem::driveUsingChassisSpeed,
                 false
         ).andThen(
@@ -249,7 +247,7 @@ public class RobotContainer {
                 new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant()),
                 new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant()),
                 new ProfiledPIDController(DRIVE_T_PID.pConstant(), DRIVE_T_PID.iConstant(), DRIVE_T_PID.dConstant(),
-                        new TrapezoidProfile.Constraints(1,2)) //TODO
+                        new TrapezoidProfile.Constraints(2,2)) //TODO
         );
 
         operatorInput.autoAlignHold.whileTrue(new MoveToAlignCommand(driveSubsystem, visionSubsystem, holonomicDriveController, odometrySubsystem, operatorInput));
