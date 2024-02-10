@@ -23,6 +23,4 @@ public interface SwerveComponent extends INetworkedComponent {
     @Log("rot") void logGyroRotation(double rot);
     @Log("endpos") void logEndpoint(Pose2d pose);
 
-    @Log("myWheelVelocity") void logMyWheelVelocity(double myWheelVelocity);
-
 }

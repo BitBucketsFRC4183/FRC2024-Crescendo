@@ -16,7 +16,9 @@ public class OperatorInput {
     final CommandXboxController operatorControl = new CommandXboxController(1);
     final CommandXboxController driver = new CommandXboxController(0);
 
-    final Trigger isTeleop = new Trigger(DriverStation::isTeleop); //TODO fill this out
+
+    public boolean actuallyIsTeleop = false;
+    final Trigger isTeleop = new Trigger(() -> actuallyIsTeleop); //TODO fill this out
 
     final Trigger shootByVision = operatorControl.a();
 
@@ -115,7 +117,7 @@ public class OperatorInput {
 
 
     public double getDriverRightStickX() {
-        return deadband(driver.getRightX());
+        return deadband(-driver.getRightX());
     }
 
     public double getOperatorLeftStickY(){return deadband(operatorControl.getRawAxis(XboxController.Axis.kLeftY.value));}

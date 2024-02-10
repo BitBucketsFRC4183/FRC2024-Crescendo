@@ -2,11 +2,11 @@ package org.bitbuckets.util;
 
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.RobotController;
-import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
+import xyz.auriium.mattlib2.loop.IMattlibHooked;
 import xyz.auriium.mattlib2.utils.AngleUtil;
 
-public class ThriftyAbsoluteEncoder implements IRotationEncoder, IPeriodicLooped {
+public class ThriftyAbsoluteEncoder implements IRotationEncoder, IMattlibHooked {
 
     final AnalogInput input;
     final AbsoluteEncoderComponent encoderComponent;

@@ -1,3 +1,9 @@
+# startup stuff
+[shooter.wheel_1_ffgen]
+[shooter.wheel_2_ffgen]
+
+
+
 # Base Robot Stuff
 
 [ground_intake.top]
@@ -27,6 +33,9 @@ pid = {p = 0, i = 0, d = 0}
 dio_channel = 0
 deadband = 0.0
 channel = 0
+pid = {p = 0, i = 0, d = 0}
+ff_ks = 0.4895168812659137
+ff_kv = 0.12869522412846462
 
 
 [shooter.wheel_1]
@@ -35,6 +44,7 @@ encoderToMechanismCoef = 1
 rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
+pid = {p = 1, i = 0, d = 0}
 
 [shooter.wheel_2]
 id = 13
@@ -42,16 +52,7 @@ encoderToMechanismCoef = 1
 rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
-
-[shooter.wheel_1_ffgen]
-startDelay_ms = 20
-endVoltage = 12
-rampRate_vPerMs = 0.001
-
-[shooter.wheel_2_ffgen]
-startDelay_ms = 20
-endVoltage = 12
-rampRate_vPerMs = 0.001
+pid = {p = 1, i = 0, d = 0}
 
 [shooter.absolute]
 analogChannel = 0
@@ -63,24 +64,13 @@ analogChannel = 0
 encoderToMechanismCoef = 1
 offset = 0.0
 
-[shooter.pid]
-p = 0
-d = 0
-i = 0
-
-[shooter.angle.pid]
-p = 0
-d = 0
-i = 0
-
-[shooter.angle_motor]
+[shooter.pivot]
 encoderToMechanismCoef = 1
 id = 11
 rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
-
-
+pid = {p = 0, i = 0, d = 0}
 
 [shooter.calculator]
 mass = 0.25 #kg
@@ -89,7 +79,6 @@ note_radius = 17.78 #cm
 air_density = 1.225 #kg/m^3
 drag_coefficient = 1.3 #guess
 magnus_coefficient = 0.2 #guess
-
 Vx = 10 #m/s
 Vy = 5 #m/s
 
@@ -103,27 +92,12 @@ magnitudeFWLim = 3.3
 fieldOriented = true
 x_holonomic_pid = {p = 1.2, i = 0, d = 0}
 y_holonomic_pid = {p = 1.2, i = 0, d = 0}
-t_holonomic_pid = {p = 1, i = 0, d = 0}
+t_holonomic_pid = {p = 1, i = 0, d = 1.2}
 
 [swerve.ffroutine_fl]
-startDelay_ms = 20
-endVoltage = 12
-rampRate_vPerMs = 0.001
-
 [swerve.ffroutine_fr]
-startDelay_ms = 20
-endVoltage = 12
-rampRate_vPerMs = 0.001
-
 [swerve.ffroutine_bl]
-startDelay_ms = 20
-endVoltage = 12
-rampRate_vPerMs = 0.001
-
 [swerve.ffroutine_br]
-startDelay_ms = 20
-endVoltage = 12
-rampRate_vPerMs = 0.001
 
 [odometry]
 centroid_height = 0 #TODO
@@ -138,6 +112,8 @@ br_pos_offset = {x = -0.3556, y = -0.3429}
 encoderToMechanismCoef = 0.078125 # (14.0 / 50.0) * (10.0 / 60.0) mk4i reduction
 rotationalInertia = 0.002
 inverted = false
+breakModeEnabled = false
+
 
 [swerve.steer_fr]
 id = 16
@@ -154,16 +130,16 @@ id = 20
 rotationToMeterCoef = 0.31519599093
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
-inverted = true
-breakModeEnabled = false
+inverted = false
+breakModeEnabled = true
 
 [swerve.drive_fl]
 id = 15
 rotationToMeterCoef = 0.31519599093
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
-inverted = true
-breakModeEnabled = false
+inverted = false
+breakModeEnabled = true
 
 
 [swerve.drive_br]
@@ -171,8 +147,8 @@ id = 19
 rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
-inverted = true
-breakModeEnabled = false
+inverted = false
+breakModeEnabled = true
 
 
 [swerve.drive_bl]
@@ -181,7 +157,7 @@ rotationToMeterCoef = 0.31519599093
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
 inverted = false
-breakModeEnabled = false
+breakModeEnabled = true
 
 
 
@@ -191,25 +167,25 @@ i = 0
 d = 0.3
 
 # hypothesis: non offset zero is tangent to the absolute encoders?
-
+# ALWAYS LOW BALL THESE OFFSETS (if its fluctuating between 0.8 and 0.9 go for 0.8
 [swerve.abs_fr]
 analogChannel = 0
-offset = 0.379
+offset = 0.880
 encoderToMechanismCoef = 1
 
 [swerve.abs_fl]
 analogChannel = 3
-offset = 0.3375
+offset = 0.842
 encoderToMechanismCoef = 1
 
 [swerve.abs_br]
 analogChannel = 1
-offset = 0.845
+offset = 0.345
 encoderToMechanismCoef = 1
 
 [swerve.abs_bl]
 analogChannel = 2
-offset = 0.0798
+offset = 0.071
 encoderToMechanismCoef = 1
 
 
@@ -253,22 +229,13 @@ rotationalInertia = 1.0
 camera1Name = "arducam1"
 camera2Name = "arducam2"
 
-[NMS]
-mechPerEncoderRotation = 0.0
-metersPerRotation = 1
-rotationalInertia = 0
-id = 0
-type = "BRUSHLESS"
-
-
-
 # Disabler
 
 [disabler]
 vision_disabled = true
-drive_disabled = true
+drive_disabled = false
 shooter_disabled = true
-odometry_disabled = true
+odometry_disabled = false
 climber_disabled = true
-groundIntake_disabled = false
+groundIntake_disabled = true
 nms_disabled = true

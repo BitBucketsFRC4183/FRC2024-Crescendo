@@ -33,6 +33,14 @@ public class Robot extends TimedRobot {
         container.autonomousInit();
     }
 
+    @Override public void disabledInit() {
+        container.disabledInit();
+    }
+
+    @Override public void teleopInit() {
+        container.teleopInit();
+    }
+
     @Override
     public void testInit() {
         container.testInit();

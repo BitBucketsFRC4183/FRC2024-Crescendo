@@ -14,12 +14,13 @@ public class AchieveFlatShotSpeedCommand extends Command {
 
     @Override
     public void execute() {
-        shooterSubsystem.setAllMotorsToVoltage(3);
+        shooterSubsystem.setMotorRotationalSpeeds(100,100);
+        //shooterSubsystem.setMotorRotationalSpeeds(1,1);
     }
 
     @Override
     public boolean isFinished() {
-        return false;
+        return shooterSubsystem.hasReachedSpeeds(100,100);
     }
 
     @Override

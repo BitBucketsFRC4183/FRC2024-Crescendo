@@ -4,27 +4,28 @@ package org.bitbuckets.shooter;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.util.AbsoluteEncoderComponent;
-import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.hardware.IRotationalController;
-import xyz.auriium.mattlib2.hardware.IRotationalMotor;
+import xyz.auriium.mattlib2.loop.IMattlibHooked;
 import xyz.auriium.yuukonstants.exception.ExplainedException;
 
 import java.util.Optional;
 
-public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
+public class ShooterSubsystem implements Subsystem, IMattlibHooked {
 
     // converts desired velocity into voltage
-    final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(-3.9555685080898364,7.794219410765281);
-    public final IRotationalMotor leftMotor; //TODO find a way to not use public here (linearFFGenRoutine)
-    public final IRotationalMotor rightMotor;
+    final SimpleMotorFeedforward feedforward;
+    public final IRotationalController leftMotor; //TODO find a way to not use public here (linearFFGenRoutine)
+    public final IRotationalController rightMotor;
     final IRotationalController angleMotor;
     final IRotationEncoder absoluteEncoder;
     final ShooterComponent shooterComponent;
     final AbsoluteEncoderComponent encoderComponent;
     final IRotationEncoder velocityEncoder;
 
-    public ShooterSubsystem(IRotationalMotor leftMotor, IRotationalMotor rightMotor, IRotationalController angleMotor, IRotationEncoder absoluteEncoder, ShooterComponent shooterComponent, AbsoluteEncoderComponent encoderComponent, IRotationEncoder velocityEncoder) {
+    
+
+    public ShooterSubsystem(IRotationalController leftMotor, IRotationalController rightMotor, IRotationalController angleMotor, IRotationEncoder absoluteEncoder, ShooterComponent shooterComponent, AbsoluteEncoderComponent encoderComponent, IRotationEncoder velocityEncoder) {
         this.leftMotor = leftMotor;
         this.rightMotor = rightMotor;
         this.angleMotor = angleMotor;
@@ -32,6 +33,9 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
         this.shooterComponent = shooterComponent;
         this.encoderComponent = encoderComponent;
         this.velocityEncoder = velocityEncoder;
+
+        feedforward = new SimpleMotorFeedforward(shooterComponent.ks(),shooterComponent.kv());
+
         mattRegister();
         register();
     }
@@ -59,19 +63,16 @@ public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
     public void setMotorRotationalSpeeds(double leftMotorSpeed_rotationsPerSecond, double rightMotorSpeed_rotationsPerSecond) {
         double leftVoltage = feedforward.calculate(leftMotorSpeed_rotationsPerSecond);
         double rightVoltage = feedforward.calculate(rightMotorSpeed_rotationsPerSecond);
+       //RobotContainer.SHOOTER_TUNING.voltage(leftVoltage);
+       //RobotContainer.SHOOTER_TUNING.voltage(rightVoltage);
 
         leftMotor.setToVoltage(leftVoltage);
         rightMotor.setToVoltage(rightVoltage);
-
-        leftMotor.angularVelocity_mechanismRotationsPerSecond();
-        rightMotor.angularVelocity_mechanismRotationsPerSecond();
     }
 
     public void setAllMotorsToVoltage(double voltage) {
         leftMotor.setToVoltage(voltage);
-        System.out.println("this is the left motor");
         rightMotor.setToVoltage(voltage);
-        System.out.println("this is the right motor");
     }
 
     /*

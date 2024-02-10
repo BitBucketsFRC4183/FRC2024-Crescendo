@@ -7,12 +7,13 @@ import com.revrobotics.SparkRelativeEncoder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import net.bytebuddy.implementation.bytecode.Throw;
-import xyz.auriium.mattlib2.IPeriodicLooped;
+
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
+import xyz.auriium.mattlib2.loop.IMattlibHooked;
 import xyz.auriium.mattlib2.utils.AngleUtil;
 
 
-public class ThroughBoreEncoder implements IRotationEncoder, IPeriodicLooped {
+public class ThroughBoreEncoder implements IRotationEncoder, IMattlibHooked {
 
     Encoder encoder;
     AbsoluteEncoderComponent encoderComponent;
@@ -26,7 +27,7 @@ public class ThroughBoreEncoder implements IRotationEncoder, IPeriodicLooped {
         // Configures the encoder to return a 1 rotation for every x pulses
         // Also changes the units of getRate
         System.out.print(encoder.get());
-        double pulsePerSecond = 1/360d;
+        double pulsePerSecond = 1/2048d;
         encoder.setDistancePerPulse(pulsePerSecond); // TODO check this value please!
 
         mattRegister();
@@ -34,7 +35,8 @@ public class ThroughBoreEncoder implements IRotationEncoder, IPeriodicLooped {
 
     @Override
     public void logPeriodic() {
-        encoderComponent.logVelocity(angularVelocity_encoderRotationsPerSecond());
+        encoderComponent.logPositionWithOffset(angularPosition_mechanismRotations());
+        encoderComponent.logVelocity(angularVelocity_mechanismRotationsPerSecond());
     }
 
     @Override
