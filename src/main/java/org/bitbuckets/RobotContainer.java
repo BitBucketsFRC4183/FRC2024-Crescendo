@@ -26,7 +26,9 @@ import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
 import org.bitbuckets.commands.drive.AugmentedDriveCommand;
+import org.bitbuckets.commands.drive.AwaitThetaCommand;
 import org.bitbuckets.commands.drive.MoveToAlignCommand;
+import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
 import org.bitbuckets.commands.groundIntake.FinishGroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.GroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
@@ -85,7 +87,7 @@ public class RobotContainer {
 
     public PIDController xController;
     public PIDController yController;
-    public PIDController thetaController;
+    public ProfiledPIDController thetaController;
 
     public RobotContainer() {
 
@@ -145,45 +147,59 @@ public class RobotContainer {
 
     public void testInit() {
 
+        new AwaitThetaCommand(driveSubsystem, odometrySubsystem, thetaController, Rotation2d.fromDegrees(90).getRadians()).schedule();
+
         //LinearFFGenRoutine groundTopFFRoutine = new LinearFFGenRoutine(TOP_GROUND_FFGEN, groundIntakeSubsystem.topMotor, groundIntakeSubsystem.topMotor);
         //LinearFFGenRoutine groundBottomFFRoutine = new LinearFFGenRoutine(BOTTOM_GROUND_FFGEN, groundIntakeSubsystem.bottomMotor, groundIntakeSubsystem.bottomMotor);
         //CTowerCommands.wrapRoutine(groundTopFFRoutine).schedule();
         //CTowerCommands.wrapRoutine(groundBottomFFRoutine).schedule();
         //RotationFFGenRoutine shooterFFRoutine = new RotationFFGenRoutine(SHOOTER_WHEEL_1_FFGEN, shooterSubsystem.leftMotor, shooterSubsystem.leftMotor );
         //CTowerCommands.wrapRoutine(shooterFFRoutine).schedule();
-        RotationFFGenRoutine shooterFFRoutine = new RotationFFGenRoutine(SHOOTER_WHEEL_2_FFGEN, shooterSubsystem.rightMotor, shooterSubsystem.rightMotor);
-        CTowerCommands.wrapRoutine(shooterFFRoutine).schedule();
+
 
     }
 
     public Command followTrajectory(String routine, String name) {
         ChoreoTrajectory trajectory = TrajLoadingUtil.getTrajectory(routine, name);
-        return Choreo.choreoSwerveCommand(
+        return new FollowTrajectoryExactCommand(
                 trajectory,
-                odometrySubsystem::getRobotCentroidPosition,
-                Choreo.choreoSwerveController(xController, yController, thetaController),
-                driveSubsystem::driveUsingChassisSpeed,
-                DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) != DriverStation.Alliance.Blue
-        ).andThen(
-                Commands.runOnce(driveSubsystem::commandWheelsToZero)
+                odometrySubsystem,
+                driveSubsystem,
+                xController,
+                yController,
+                thetaController,
+                false
+        ).andThen(Commands.runOnce(driveSubsystem::commandWheelsToZero));
+    }
+    public Command followFirstTrajectory(String routine, String name) {
+        ChoreoTrajectory trajectory = TrajLoadingUtil.getTrajectory(routine, name);
+        return new FollowTrajectoryExactCommand(
+                trajectory,
+                odometrySubsystem,
+                driveSubsystem,
+                xController,
+                yController,
+                thetaController,
+                true
         );
     }
+
 
 
     SendableChooser<Command> loadAutonomous() {
         xController = new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant());
         yController = new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant());
-        thetaController = new PIDController(DRIVE_T_PID.pConstant(), DRIVE_T_PID.iConstant(), DRIVE_T_PID.dConstant());
-
-        ChoreoTrajectory startingTrajectory = TrajLoadingUtil.getTrajectory("4note", "pt1");
+        thetaController = new ProfiledPIDController(
+                DRIVE_T_PID.pConstant(),
+                DRIVE_T_PID.iConstant(),
+                DRIVE_T_PID.dConstant(),
+                new TrapezoidProfile.Constraints(3,3)
+        );
 
         var fourNoteTest = new SequentialCommandGroup(
-                Commands.runOnce(
-                        () -> odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(startingTrajectory.getInitialPose()) )
-                ),
                 Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
                 Commands.waitSeconds(1),
-                followTrajectory("4note","pt1"),
+                followFirstTrajectory("4note","pt1"),
                 followTrajectory("4note","pt2"),
                 Commands.waitSeconds(1),
                 Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
@@ -252,14 +268,18 @@ public class RobotContainer {
         operatorInput.speakerSetpoint_hold.whileTrue(new SetSpeakerShootingAngleCommand(shooterSubsystem));
         // .andThen(new ShootNoteCommand(shooterSubsystem))
         operatorInput.shootManually.whileTrue(new AchieveFlatShotSpeedCommand(shooterSubsystem));
-        operatorInput.sourceIntake_hold.whileTrue(new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem)); //TODO use shooter to source intake, not ground intake
+        operatorInput.sourceIntake_hold.whileTrue(new AwaitShooterIntakeCommand(noteManagementSubsystem, shooterSubsystem));
         operatorInput.setShooterAngleManually.onTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));
 
         HolonomicDriveController holonomicDriveController = new HolonomicDriveController(
                 new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant()),
                 new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant()),
-                new ProfiledPIDController(DRIVE_T_PID.pConstant(), DRIVE_T_PID.iConstant(), DRIVE_T_PID.dConstant(),
-                        new TrapezoidProfile.Constraints(2,2)) //TODO
+                new ProfiledPIDController(
+                        DRIVE_T_PID.pConstant(),
+                        DRIVE_T_PID.iConstant(),
+                        DRIVE_T_PID.dConstant(),
+                        new TrapezoidProfile.Constraints(2,2)
+                ) //TODO
         );
 
         operatorInput.autoAlignHold.whileTrue(new MoveToAlignCommand(driveSubsystem, visionSubsystem, holonomicDriveController, odometrySubsystem));
