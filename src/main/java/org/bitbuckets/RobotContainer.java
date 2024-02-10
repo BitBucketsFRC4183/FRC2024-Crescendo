@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
@@ -143,8 +144,8 @@ public class RobotContainer {
 
     }
 
-    public Command followTrajectory(String name) {
-        ChoreoTrajectory trajectory = Choreo.getTrajectory(name);
+    public Command followTrajectory(String routine, String name) {
+        ChoreoTrajectory trajectory = TrajLoadingUtil.getTrajectory(routine, name);
         return Choreo.choreoSwerveCommand(
                 trajectory,
                 odometrySubsystem::getRobotCentroidPosition,
@@ -156,10 +157,27 @@ public class RobotContainer {
         );
     }
 
+
     SendableChooser<Command> loadAutonomous() {
         xController = new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant());
         yController = new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant());
         thetaController = new PIDController(DRIVE_T_PID.pConstant(), DRIVE_T_PID.iConstant(), DRIVE_T_PID.dConstant());
+
+        ChoreoTrajectory startingTrajectory = TrajLoadingUtil.getTrajectory("4note", "pt1");
+
+        var fourNoteTest = new SequentialCommandGroup(
+                Commands.runOnce(
+                        () -> odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(startingTrajectory.getInitialPose()) )
+                ),
+                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                followTrajectory("4note","pt1"),
+                followTrajectory("4note","pt2"),
+                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
+                followTrajectory("4note","pt3"),
+                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                followTrajectory("4note","pt4")
+        );
+
 /*
 
 
@@ -173,24 +191,7 @@ public class RobotContainer {
                 Commands.runOnce(driveSubsystem::commandWheelsToZero)
         );
 
-        var fourNoteTest = new SequentialCommandGroup(
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
-                follow,
-                follow2,
-                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
-                follow3,
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
-                follow4,
-                follow5,
-                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
-                follow6,
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
-                follow7,
-                follow8,
-                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
-                follow9,
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1))
-        );
+
 
         var backwardsFollow = new SequentialCommandGroup(
                 Commands.runOnce(() -> SWERVE.logEndpoint(trajectory.getFinalPose())),
@@ -203,7 +204,7 @@ public class RobotContainer {
         );
 */
         SendableChooser<Command> chooser = new SendableChooser<>();
-        chooser.setDefaultOption("backwards", null); //TODO later
+        chooser.setDefaultOption("backwards", fourNoteTest); //TODO later
 
         SmartDashboard.putData("firstPath", chooser);
 
