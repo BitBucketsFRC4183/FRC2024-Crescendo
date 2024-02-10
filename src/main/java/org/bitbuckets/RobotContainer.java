@@ -161,7 +161,7 @@ public class RobotContainer {
                 odometrySubsystem::getRobotCentroidPosition,
                 Choreo.choreoSwerveController(xController, yController, thetaController),
                 driveSubsystem::driveUsingChassisSpeed,
-                false
+                DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) != DriverStation.Alliance.Blue
         ).andThen(
                 Commands.runOnce(driveSubsystem::commandWheelsToZero)
         );
@@ -198,6 +198,7 @@ public class RobotContainer {
                 Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
                 followTrajectory("4note", "pt9"),
                 Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1))
+                //Commands.runOnce(() -> odometrySubsystem.debugGyroToPosition(o))
         );
 
 /*

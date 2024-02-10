@@ -8,5 +8,6 @@ public interface IGyro {
     Rotation2d userZeroRelativeRotation();
 
     void userZero();
+    void userForceOffset(Rotation2d beAt);
 
 }
