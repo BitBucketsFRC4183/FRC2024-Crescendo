@@ -188,7 +188,16 @@ public class RobotContainer {
                 followTrajectory("4note","pt3"),
                 Commands.waitSeconds(1),
                 Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
-                followTrajectory("4note","pt4")
+                followTrajectory("4note","pt4"),
+                followTrajectory("4note", "pt5"),
+                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
+                followTrajectory("4note", "pt6"),
+                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                followTrajectory("4note", "pt7"),
+                followTrajectory("4note", "pt8"),
+                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
+                followTrajectory("4note", "pt9"),
+                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1))
         );
 
 /*
