@@ -9,11 +9,9 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.RobotContainer;
-import org.bitbuckets.util.Util;
-import xyz.auriium.mattlib2.IPeriodicLooped;
-import xyz.auriium.mattlib2.utils.AngleUtil;
+import xyz.auriium.mattlib2.loop.IMattlibHooked;
 
-public class DriveSubsystem implements Subsystem, IPeriodicLooped {
+public class DriveSubsystem implements Subsystem, IMattlibHooked {
 
     final SwerveModule[] modules;
     final SwerveDriveKinematics kinematics;

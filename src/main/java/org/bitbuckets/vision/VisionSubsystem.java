@@ -9,14 +9,15 @@ import org.bitbuckets.RobotContainer;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.targeting.PhotonTrackedTarget;
-import xyz.auriium.mattlib2.IPeriodicLooped;
+
+import xyz.auriium.mattlib2.loop.IMattlibHooked;
 import xyz.auriium.yuukonstants.exception.ExplainedException;
 
 import javax.swing.text.html.Option;
 import javax.xml.crypto.dsig.Transform;
 import java.util.Optional;
 
-public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
+public class VisionSubsystem  implements Subsystem, IMattlibHooked {
 
     final PhotonCamera camera_1;
     final PhotonCamera camera_2;

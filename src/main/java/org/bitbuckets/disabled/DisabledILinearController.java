@@ -49,7 +49,8 @@ public class DisabledILinearController implements ILinearController {
     }
 
     @Override
-    public void controlToLinearReference(double setpointMechanism_meters, double measurementMechanism_meters) {
+    public void controlToLinearReferenceArbitrary(double v, double v1) {
 
     }
+
 }

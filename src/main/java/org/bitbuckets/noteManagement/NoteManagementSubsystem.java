@@ -7,7 +7,6 @@ import xyz.auriium.mattlib2.hardware.ILinearMotor;
 
 public class NoteManagementSubsystem implements Subsystem {
 
-    final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(4, 3);
     final ILinearMotor nms_bottomMotor;
     final ILinearMotor nms_topMotor;
     final DigitalInput digitalInput;
@@ -19,21 +18,14 @@ public class NoteManagementSubsystem implements Subsystem {
         this.digitalInput = digitalInput;
     }
 
-    @Override
-    public void periodic() {
-
+    public void runMotors() {
+        nms_bottomMotor.setToVoltage(12);
+        nms_topMotor.setToVoltage(12);
     }
 
-    public void setAllMotorsToVoltage(double bottomMotorSpeed_metersPerSecond, double topMotorSpeed_metersPerSecond) {
-        double bottomVoltage = feedforward.calculate(bottomMotorSpeed_metersPerSecond);
-        double topVoltage = feedforward.calculate(topMotorSpeed_metersPerSecond);
-        nms_bottomMotor.setToVoltage(bottomVoltage);
-        nms_topMotor.setToVoltage(topVoltage);
+    public boolean isNoteIn() {
+        return !digitalInput.get();
     }
-
-   public boolean isNoteIn() {
-       return !digitalInput.get();
-   }
 
 
 

@@ -6,18 +6,19 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import org.bitbuckets.Robot;
 import org.bitbuckets.util.Util;
-import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.mattlib2.hardware.ILinearMotor;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.hardware.IRotationalController;
+import xyz.auriium.mattlib2.loop.IMattlibHooked;
 import xyz.auriium.mattlib2.utils.AngleUtil;
 import xyz.auriium.yuukonstants.exception.ExplainedException;
 
 import java.util.Optional;
 
-public class SwerveModule implements IPeriodicLooped {
+public class SwerveModule implements IMattlibHooked {
 
     final ILinearMotor driveMotor;
     final IRotationalController steerController;
@@ -35,12 +36,18 @@ public class SwerveModule implements IPeriodicLooped {
 
     //periodic looped stuff & state
 
-
-    @Override
-    public Optional<ExplainedException> verifyInit() {
+    /**
+     * Resets this swerve module using the absolute encoder's idea of zero
+     */
+    public void resetToAbsolute() {
         double absoluteAngularPosition_infiniteMechanismRotations = absoluteEncoder.angularPosition_mechanismRotations();
         steerController.forceRotationalOffset(absoluteAngularPosition_infiniteMechanismRotations);
 
+    }
+
+    @Override
+    public Optional<ExplainedException> verifyInit() {
+        resetToAbsolute();
         return Optional.empty();
     }
 
@@ -51,19 +58,13 @@ public class SwerveModule implements IPeriodicLooped {
      */
     @Override
     public void logicPeriodic() {
-        if (true) return;
-        if (Robot.isSimulation()) return; //STOP IT
-
         if (steerController.angularVelocity_mechanismRotationsPerSecond() * 10 >= 0.5) {
             resetIteration = 0;
             return;
         }
         if (++resetIteration > 500) {
             resetIteration = 0;
-            double absoluteAngularPosition_infiniteMechanismRotations = absoluteEncoder.angularPosition_normalizedMechanismRotations();
-            System.out.println("RESET TO " + absoluteAngularPosition_infiniteMechanismRotations);
-
-            steerController.forceRotationalOffset(absoluteAngularPosition_infiniteMechanismRotations);
+            resetToAbsolute();
         }
     }
 
@@ -80,7 +81,6 @@ public class SwerveModule implements IPeriodicLooped {
 
 
     public void setToMoveAt(SwerveModuleState state) {
-
 
         SwerveModuleState optimizedState = SwerveModuleState.optimize(
                 state,
