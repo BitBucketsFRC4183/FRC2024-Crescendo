@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
@@ -87,8 +88,8 @@ public class RobotContainer {
     public RobotContainer() {
 
         //DO SETTINGS BEFORE PRE INIT
-        MattlibSettings.USE_LOGGING = false;
-        MattlibSettings.ROBOT = MattlibSettings.Robot.CARY;
+        MattlibSettings.USE_LOGGING = true;
+        MattlibSettings.ROBOT = MattlibSettings.Robot.MCR;
 
         //THIS HAS TO RUN FIRST
         Mattlib.LOOPER.runPreInit();
@@ -127,7 +128,17 @@ public class RobotContainer {
 
 
     public void autonomousInit() {
+        operatorInput.actuallyIsTeleop = false;
+
         chooser.getSelected().schedule();
+    }
+
+    public void disabledInit() {
+        operatorInput.actuallyIsTeleop = false;
+    }
+
+    public void teleopInit() {
+        operatorInput.actuallyIsTeleop = true;
     }
 
     public void testInit() {
@@ -143,24 +154,67 @@ public class RobotContainer {
 
     }
 
-    public Command followTrajectory(String name) {
-        ChoreoTrajectory trajectory = Choreo.getTrajectory(name);
+    public Command followTrajectory(String routine, String name) {
+        ChoreoTrajectory trajectory = TrajLoadingUtil.getTrajectory(routine, name);
         return Choreo.choreoSwerveCommand(
                 trajectory,
                 odometrySubsystem::getRobotCentroidPosition,
-                xController,
-                yController,
-                thetaController,
+                Choreo.choreoSwerveController(xController, yController, thetaController),
                 driveSubsystem::driveUsingChassisSpeed,
-                false
+                DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) != DriverStation.Alliance.Blue
+        ).andThen(
+                Commands.runOnce(driveSubsystem::commandWheelsToZero)
         );
     }
+
 
     SendableChooser<Command> loadAutonomous() {
         xController = new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant());
         yController = new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant());
         thetaController = new PIDController(DRIVE_T_PID.pConstant(), DRIVE_T_PID.iConstant(), DRIVE_T_PID.dConstant());
+
+        ChoreoTrajectory startingTrajectory = TrajLoadingUtil.getTrajectory("4note", "pt1");
+
+        var fourNoteTest = new SequentialCommandGroup(
+                Commands.runOnce(
+                        () -> odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(startingTrajectory.getInitialPose()) )
+                ),
+                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                Commands.waitSeconds(1),
+                followTrajectory("4note","pt1"),
+                followTrajectory("4note","pt2"),
+                Commands.waitSeconds(1),
+                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
+                followTrajectory("4note","pt3"),
+                Commands.waitSeconds(1),
+                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                followTrajectory("4note","pt4"),
+                followTrajectory("4note", "pt5"),
+                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
+                followTrajectory("4note", "pt6"),
+                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                followTrajectory("4note", "pt7"),
+                followTrajectory("4note", "pt8"),
+                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
+                followTrajectory("4note", "pt9"),
+                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1))
+                //Commands.runOnce(() -> odometrySubsystem.debugGyroToPosition(o))
+        );
+
 /*
+
+
+        var backwardsFollow = new SequentialCommandGroup(
+                Commands.runOnce(() -> SWERVE.logEndpoint(trajectory.getFinalPose())),
+                Commands.runOnce(() -> odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(trajectory.getInitialPose()))),
+                follow,
+                Commands.waitSeconds(1),
+                follow2,
+                Commands.runOnce(() -> System.out.println("FINISHED")),
+                Commands.runOnce(driveSubsystem::commandWheelsToZero)
+        );
+
+
 
         var backwardsFollow = new SequentialCommandGroup(
                 Commands.runOnce(() -> SWERVE.logEndpoint(trajectory.getFinalPose())),
@@ -172,9 +226,8 @@ public class RobotContainer {
                 Commands.runOnce(driveSubsystem::commandWheelsToZero)
         );
 */
-
         SendableChooser<Command> chooser = new SendableChooser<>();
-        chooser.setDefaultOption("backwards", null); //TODO later
+        chooser.setDefaultOption("backwards", fourNoteTest); //TODO later
 
         SmartDashboard.putData("firstPath", chooser);
 
@@ -204,7 +257,7 @@ public class RobotContainer {
                 new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant()),
                 new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant()),
                 new ProfiledPIDController(DRIVE_T_PID.pConstant(), DRIVE_T_PID.iConstant(), DRIVE_T_PID.dConstant(),
-                        new TrapezoidProfile.Constraints(1,2)) //TODO
+                        new TrapezoidProfile.Constraints(2,2)) //TODO
         );
 
         operatorInput.autoAlignHold.whileTrue(new MoveToAlignCommand(driveSubsystem, visionSubsystem, holonomicDriveController, odometrySubsystem, operatorInput));

@@ -79,7 +79,6 @@ public class SwerveModule implements IMattlibHooked {
         steerController.setToVoltage(0);
     }
 
-
     public void setToMoveAt(SwerveModuleState state) {
 
         SwerveModuleState optimizedState = SwerveModuleState.optimize(
@@ -93,7 +92,7 @@ public class SwerveModule implements IMattlibHooked {
         }
 
         steerController.controlToNormalizedReference(
-                AngleUtil.normalizeRotations(optimizedState.angle.getRotations())
+                optimizedState.angle.getRotations()
         );
 
 
