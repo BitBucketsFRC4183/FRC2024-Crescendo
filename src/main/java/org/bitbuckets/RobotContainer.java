@@ -22,7 +22,6 @@ import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
 import org.bitbuckets.commands.drive.AugmentedDriveCommand;
-import org.bitbuckets.commands.drive.AwaitThetaCommand;
 import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
 import org.bitbuckets.commands.groundIntake.GroundIntakeCommand;
@@ -47,11 +46,10 @@ import org.photonvision.PhotonPoseEstimator;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
 import xyz.auriium.mattlib2.auto.ff.GenerateFFComponent;
-import xyz.auriium.mattlib2.hardware.ILinearController;
-import xyz.auriium.mattlib2.hardware.ILinearMotor;
-import xyz.auriium.mattlib2.hardware.IRotationEncoder;
-import xyz.auriium.mattlib2.hardware.IRotationalController;
+import xyz.auriium.mattlib2.auto.ff.LinearFFGenRoutine;
+import xyz.auriium.mattlib2.hardware.*;
 import xyz.auriium.mattlib2.hardware.config.*;
+import xyz.auriium.mattlib2.loop.CTowerCommands;
 import xyz.auriium.mattlib2.rev.HardwareREV;
 import xyz.auriium.mattlib2.sim.HardwareSIM;
 import xyz.auriium.mattlib2.utils.MockingUtil;
@@ -113,8 +111,6 @@ public class RobotContainer {
 
         //THIS HAS TO RUN AT THE END
         Mattlib.LOOPER.runPostInit();
-
-        System.out.println(STEER_COMMON.encoderToMechanismCoefficient() + " THE PLACE");
     }
 
     public void simulationPeriodic() {
@@ -155,7 +151,7 @@ public class RobotContainer {
         Command[] commands = new Command[4];
         for (int i = 0; i < 4; i++) {
             var motorWeAreTesting = driveSubsystem.modules[i].driveMotor;
-            LinearFFGenRoutine driveFFRoutine = new LinearFFGenRoutine(LINEAR_ROUTINE_FFGEN[i],motorWeAreTesting, motorWeAreTesting);
+            LinearFFGenRoutine driveFFRoutine = new LinearFFGenRoutine(DRIVE_MOTORS_FFGEN[i],motorWeAreTesting, motorWeAreTesting);
             commands[i]= CTowerCommands.wrapRoutine(driveFFRoutine);
         }
 
@@ -297,22 +293,22 @@ public class RobotContainer {
 
         for (int i = 0; i < modules.length; i++) {
             SimpleMotorFeedforward ff = new SimpleMotorFeedforward(FF_SWERVE[i].ff_ks(), FF_SWERVE[i].ff_kv());
-            ILinearMotor driveMotor;
+            ILinearVelocityController driveMotor;
             IRotationalController steerController;
             IRotationEncoder absoluteEncoder;
 
             if (DISABLER.drive_disabled()) {
-                driveMotor = HardwareDisabled.linearMotor_disabled();
+                driveMotor = HardwareDisabled.linearMotor_velocityPID();
                 steerController = HardwareDisabled.rotationalController_disabled();
                 absoluteEncoder = HardwareDisabled.rotationEncoder_disabled();
             }
             else if (Robot.isSimulation()) {
-                driveMotor = HardwareSIM.linearSIM_noPID(DRIVES[i], DCMotor.getNEO(1));
-                steerController = HardwareSIM.rotationalSIM_pid(STEERS[i], PIDS[i], DCMotor.getNEO(1));
+                driveMotor = HardwareSIM.linearSIM_velocityPid(DRIVES[i], DRIVE_PIDS[i], DCMotor.getNEO(1));
+                steerController = HardwareSIM.rotationalSIM_pid(STEERS[i], STEER_PIDS[i], DCMotor.getNEO(1));
                 absoluteEncoder = steerController; //TODO silly hack wtf this is not a hack i have spent two hours on this and i have not found a solution
             } else {
-                driveMotor = HardwareREV.linearSpark_noPID(DRIVES[i]);
-                steerController = HardwareREV.rotationalSpark_builtInPID(STEERS[i], PIDS[i]);
+                driveMotor = HardwareREV.linearSpark_builtInVelocityPID(DRIVES[i], DRIVE_PIDS[i]);
+                steerController = HardwareREV.rotationalSpark_builtInPID(STEERS[i], STEER_PIDS[i]);
                 absoluteEncoder = HardwareUtil.thriftyEncoder(STEER_ABS_ENCODERS[i]);
             }
             /*
@@ -529,8 +525,10 @@ public class RobotContainer {
 
     //Components MUST be created in the Robot class (because of how static bs works)
 
+
     //generator stuff
     public static final GenerateFFComponent SHOOTER_WHEEL_2_FFGEN = LOG.load(GenerateFFComponent.class, "shooter/wheel_2_ffgen");
+    public static final GenerateFFComponent[] DRIVE_MOTORS_FFGEN = LOG.loadRange(GenerateFFComponent.class, "swerve/ffgen",4, Util.RENAMER);
 
     //config stuff
     public static final VisionComponent VISION = LOG.load(VisionComponent.class, "vision");
@@ -559,15 +557,17 @@ public class RobotContainer {
     public static final MotorComponent NMS_TOPCOMPONENT = LOG.load(MotorComponent.class, "nms/top");
     public static final MotorComponent NMS_BOTTOMCOMPONENT = LOG.load(MotorComponent.class, "nms/bottom");
 
-    public static final FFComponent[] FF_SWERVE = LOG.loadRange(FFComponent.class, "swerve/feedforward", 4, Util.RENAMER);
+    public static final FFComponent[] FF_SWERVE = LOG.loadRange(FFComponent.class, "swerve/ff", 4, Util.RENAMER);
     public static final SwerveComponent SWERVE = LOG.load(SwerveComponent.class, "swerve");
     public static final OdometrySubsystem.Component ODO = LOG.load(OdometrySubsystem.Component.class, "odometry");
     public static final CommonMotorComponent STEER_COMMON = LOG.load(CommonMotorComponent.class, "swerve/steer_common");
-    public static final CommonPIDComponent PID_COMMON = LOG.load(CommonPIDComponent.class, "swerve/steer_pid_common");
+    public static final CommonPIDComponent STEER_PID_COMMON = LOG.load(CommonPIDComponent.class, "swerve/steer_pid_common");
+    public static final CommonPIDComponent DRIVE_PID_COMMON = LOG.load(CommonPIDComponent.class, "swerve/drive_pid_common");
+
     public static final MotorComponent[] DRIVES = LOG.loadRange(MotorComponent.class, "swerve/drive", 4, Util.RENAMER);
     public static final MotorComponent[] STEERS = MotorComponent.ofRange(STEER_COMMON, LOG.loadRange(IndividualMotorComponent.class, "swerve/steer", 4, Util.RENAMER));
-    public static final PIDComponent[] PIDS = PIDComponent.ofRange(PID_COMMON, LOG.loadRange(IndividualPIDComponent.class, "swerve/pid", 4, Util.RENAMER));
-    public static final FFGenComponent[] LINEAR_ROUTINE_FFGEN = LOG.loadRange(FFGenComponent.class, "swerve/ffroutine",4, Util.RENAMER);
+    public static final PIDComponent[] STEER_PIDS = PIDComponent.ofRange(STEER_PID_COMMON, LOG.loadRange(IndividualPIDComponent.class, "swerve/steer_pid", 4, Util.RENAMER));
+    public static final PIDComponent[] DRIVE_PIDS = PIDComponent.ofRange(DRIVE_PID_COMMON, LOG.loadRange(IndividualPIDComponent.class, "swerve/drive_pid", 4, Util.RENAMER));
 
     public static final AbsoluteEncoderComponent[] STEER_ABS_ENCODERS = LOG.loadRange(AbsoluteEncoderComponent.class, "swerve/abs", 4, Util.RENAMER);
 
