@@ -29,9 +29,8 @@ import org.bitbuckets.commands.drive.AwaitThetaCommand;
 import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
 import org.bitbuckets.commands.groundIntake.FinishGroundIntakeCommand;
-import org.bitbuckets.commands.groundIntake.GroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
-import org.bitbuckets.commands.noteManagement.NMSIntakeCommand;
+import org.bitbuckets.commands.noteManagement.AwaitNoteInManagerCommand;
 import org.bitbuckets.commands.shooter.*;
 import org.bitbuckets.disabled.DisablerComponent;
 import org.bitbuckets.disabled.KinematicGyro;
@@ -90,7 +89,7 @@ public class RobotContainer {
 
         //DO SETTINGS BEFORE PRE INIT
         MattlibSettings.USE_LOGGING = true;
-        MattlibSettings.ROBOT = MattlibSettings.Robot.CARY;
+        MattlibSettings.ROBOT = MattlibSettings.Robot.MCR;
 
         //THIS HAS TO RUN FIRST
         Mattlib.LOOPER.runPreInit();

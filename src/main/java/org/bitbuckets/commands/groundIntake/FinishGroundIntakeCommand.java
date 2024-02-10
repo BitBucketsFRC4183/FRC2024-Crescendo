@@ -2,11 +2,9 @@ package org.bitbuckets.commands.groundIntake;
 
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
-import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
 import org.bitbuckets.commands.noteManagement.AwaitNoteInManagerCommand;
 import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
 import org.bitbuckets.noteManagement.NoteManagementSubsystem;
-import org.bitbuckets.shooter.ShooterSubsystem;
 
 public class FinishGroundIntakeCommand extends ParallelRaceGroup { //this finishes when awaitNoteInManager finishes
 

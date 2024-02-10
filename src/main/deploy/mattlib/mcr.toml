@@ -7,6 +7,11 @@ fr_pos_offset = {x = 0.2318, y = -0.26035}
 bl_pos_offset = {x = -0.2318, y = 0.26035}
 br_pos_offset = {x = -0.2318, y = -0.26035}
 
+[swerve]
+x_holonomic_pid = {p = 1.2, i = 0, d = 0}
+y_holonomic_pid = {p = 1.2, i = 0, d = 0}
+t_holonomic_pid = {p = 3.2, i = 0, d = 0.4}
+
 
 [swerve.steer_common]
 encoderToMechanismCoef = 0.04666666666 # (14.0 / 50.0) * (10.0 / 60.0) mk4i reduction

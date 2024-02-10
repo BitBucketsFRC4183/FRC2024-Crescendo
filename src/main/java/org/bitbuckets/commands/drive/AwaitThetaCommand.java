@@ -51,5 +51,14 @@ public class AwaitThetaCommand extends Command {
 
         pidComponent.reportState(state);
         pidComponent.reportReference(reference);
+
+        if (Math.abs(state-reference) <0.1) {
+            driveSubsystem.commandWheelsToZero();
+        }
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        driveSubsystem.commandWheelsToZero();
     }
 }
