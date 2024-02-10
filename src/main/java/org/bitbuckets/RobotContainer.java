@@ -1,6 +1,5 @@
 package org.bitbuckets;
 
-import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.apriltag.AprilTagDetector;
@@ -51,13 +50,11 @@ import org.photonvision.PhotonPoseEstimator;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
 import xyz.auriium.mattlib2.auto.ff.GenerateFFComponent;
-import xyz.auriium.mattlib2.auto.ff.RotationFFGenRoutine;
 import xyz.auriium.mattlib2.hardware.ILinearController;
 import xyz.auriium.mattlib2.hardware.ILinearMotor;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.hardware.IRotationalController;
 import xyz.auriium.mattlib2.hardware.config.*;
-import xyz.auriium.mattlib2.loop.CTowerCommands;
 import xyz.auriium.mattlib2.rev.HardwareREV;
 import xyz.auriium.mattlib2.sim.HardwareSIM;
 import xyz.auriium.mattlib2.utils.MockingUtil;
@@ -145,7 +142,7 @@ public class RobotContainer {
 
     public void testInit() {
 
-        new AwaitThetaCommand(driveSubsystem, odometrySubsystem, thetaController, Rotation2d.fromDegrees(90).getRadians()).schedule();
+        new AwaitThetaCommand(driveSubsystem, odometrySubsystem, thetaController, DRIVE_T_PID, Rotation2d.fromDegrees(90).getRadians()).schedule();
 
         //LinearFFGenRoutine groundTopFFRoutine = new LinearFFGenRoutine(TOP_GROUND_FFGEN, groundIntakeSubsystem.topMotor, groundIntakeSubsystem.topMotor);
         //LinearFFGenRoutine groundBottomFFRoutine = new LinearFFGenRoutine(BOTTOM_GROUND_FFGEN, groundIntakeSubsystem.bottomMotor, groundIntakeSubsystem.bottomMotor);
@@ -359,7 +356,7 @@ public class RobotContainer {
         else if (Robot.isSimulation()){
             leftMotor = HardwareSIM.rotationalSIM_pid(SHOOTER_WHEEL_1, SHOOTER_PID_1, DCMotor.getNEO(1) );
             rightMotor = HardwareSIM.rotationalSIM_pid(SHOOTER_WHEEL_2, SHOOTER_PID_2,DCMotor.getNEO(1));
-            angleMotor = HardwareSIM.rotationalSIM_pid(ANGLE_SHOOTER_MOTOR,ANGLE_PID,DCMotor.getNEO(1) );
+            angleMotor = HardwareSIM.rotationalSIM_pid(PIVOT, PIVOT_PID,DCMotor.getNEO(1) );
             absoluteEncoder = angleMotor;
             velocityEncoder = leftMotor; //TODO switch out leftMotor with actual velocity encoder
 
@@ -367,7 +364,7 @@ public class RobotContainer {
         else {
             leftMotor = HardwareREV.rotationalSpark_builtInPID(SHOOTER_WHEEL_1,SHOOTER_PID_1);
             rightMotor = HardwareREV.rotationalSpark_builtInPID(SHOOTER_WHEEL_2,SHOOTER_PID_2);
-            angleMotor = HardwareREV.rotationalSpark_builtInPID(ANGLE_SHOOTER_MOTOR, ANGLE_PID);
+            angleMotor = HardwareREV.rotationalSpark_builtInPID(PIVOT, PIVOT_PID);
             absoluteEncoder = new ThriftyAbsoluteEncoder(new AnalogInput(SHOOTER.channel()), SHOOTER_ABSOLUTE);
             velocityEncoder = new ThroughBoreEncoder(
                     new Encoder(2,3), VELOCITY_ENCODER
@@ -568,8 +565,8 @@ public class RobotContainer {
     public static final PIDComponent SHOOTER_PID_2 = LOG.load(PIDComponent.class, "shooter/wheel_2/pid");
     public static final AbsoluteEncoderComponent SHOOTER_ABSOLUTE = LOG.load(AbsoluteEncoderComponent.class, "shooter/absolute");
     public static final AbsoluteEncoderComponent VELOCITY_ENCODER = LOG.load(AbsoluteEncoderComponent.class, "shooter/velocity");
-    public static final MotorComponent ANGLE_SHOOTER_MOTOR = LOG.load(MotorComponent.class,"shooter/angle_motor");
-    public static final PIDComponent ANGLE_PID = LOG.load(PIDComponent.class,"shooter/angle/pid");
+    public static final MotorComponent PIVOT = LOG.load(MotorComponent.class,"shooter/pivot");
+    public static final PIDComponent PIVOT_PID = LOG.load(PIDComponent.class,"shooter/pivot/pid");
 
     public static final NoteManagementComponent NMS = LOG.load(NoteManagementComponent.class, "nms");
     public static final MotorComponent NMS_TOPCOMPONENT = LOG.load(MotorComponent.class, "nms/top");

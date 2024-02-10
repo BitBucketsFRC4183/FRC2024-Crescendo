@@ -64,17 +64,13 @@ analogChannel = 0
 encoderToMechanismCoef = 1
 offset = 0.0
 
-[shooter.angle.pid]
-p = 0
-d = 0
-i = 0
-
-[shooter.angle_motor]
+[shooter.pivot]
 encoderToMechanismCoef = 1
 id = 11
 rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
+pid = {p = 0, i = 0, d = 0}
 
 [shooter.calculator]
 mass = 0.25 #kg
