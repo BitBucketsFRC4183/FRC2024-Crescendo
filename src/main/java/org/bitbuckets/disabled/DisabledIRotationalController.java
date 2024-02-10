@@ -69,8 +69,7 @@ public class DisabledIRotationalController implements IRotationalController {
 
     }
 
-    @Override
-    public void controlToNormalizedReference(double setpoint_mechanismNormalizedRotations, double measurement_mechanismNormalizedRotations) {
+    @Override public void controlToNormalizedReferenceArbitrary(double v, double v1) {
 
     }
 
@@ -79,8 +78,8 @@ public class DisabledIRotationalController implements IRotationalController {
 
     }
 
-    @Override
-    public void controlToInfiniteReference(double setpoint_mechanismRotations, double measurement_mechanismRotations) {
+    @Override public void controlToInfiniteReferenceArbitrary(double v, double v1) {
 
     }
+
 }

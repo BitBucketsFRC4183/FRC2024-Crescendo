@@ -2,14 +2,10 @@ package org.bitbuckets.groundIntake;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import org.bitbuckets.RobotContainer;
-import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.mattlib2.hardware.ILinearController;
-import xyz.auriium.mattlib2.hardware.ILinearMotor;
+import xyz.auriium.mattlib2.loop.IMattlibHooked;
 
-import java.util.Optional;
-
-public class GroundIntakeSubsystem implements Subsystem, IPeriodicLooped {
+public class GroundIntakeSubsystem implements Subsystem, IMattlibHooked {
 
     public final ILinearController topMotor;
     public final ILinearController bottomMotor;
@@ -32,14 +28,10 @@ public class GroundIntakeSubsystem implements Subsystem, IPeriodicLooped {
 
         topMotor.setToVoltage(leftVoltage);
         topMotor.setToVoltage(rightVoltage);
-
-        bottomMotor.linearVelocity_mechanismMetersPerSecond();
-        bottomMotor.linearVelocity_mechanismMetersPerSecond();
     }
     public void setToVoltage(double voltage) {
         topMotor.setToVoltage(voltage);
-        bottomMotor.setToVoltage(-voltage);
-         //TODO add inversion to bottom in conf
+        bottomMotor.setToVoltage(voltage);
     }
 
     public void setMotorsZero() {

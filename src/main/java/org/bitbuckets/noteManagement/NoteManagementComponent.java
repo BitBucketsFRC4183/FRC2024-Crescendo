@@ -6,5 +6,4 @@ import xyz.auriium.mattlib2.log.annote.Conf;
 public interface NoteManagementComponent extends INetworkedComponent {
     @Conf("channel") int channel();
     @Conf("deadband") double deadband_mechanismRotations();
-
 }

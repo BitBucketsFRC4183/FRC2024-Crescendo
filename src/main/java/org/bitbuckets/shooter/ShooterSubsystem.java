@@ -1,21 +1,17 @@
 package org.bitbuckets.shooter;
 
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import org.bitbuckets.Robot;
-import org.bitbuckets.RobotContainer;
 import org.bitbuckets.util.AbsoluteEncoderComponent;
-import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.hardware.IRotationalController;
-import xyz.auriium.mattlib2.hardware.IRotationalMotor;
+import xyz.auriium.mattlib2.loop.IMattlibHooked;
 import xyz.auriium.yuukonstants.exception.ExplainedException;
 
 import java.util.Optional;
 
-public class ShooterSubsystem implements Subsystem, IPeriodicLooped {
+public class ShooterSubsystem implements Subsystem, IMattlibHooked {
 
     // converts desired velocity into voltage
     final SimpleMotorFeedforward feedforward;

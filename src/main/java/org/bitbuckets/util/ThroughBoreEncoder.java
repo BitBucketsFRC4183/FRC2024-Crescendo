@@ -7,12 +7,13 @@ import com.revrobotics.SparkRelativeEncoder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import net.bytebuddy.implementation.bytecode.Throw;
-import xyz.auriium.mattlib2.IPeriodicLooped;
+
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
+import xyz.auriium.mattlib2.loop.IMattlibHooked;
 import xyz.auriium.mattlib2.utils.AngleUtil;
 
 
-public class ThroughBoreEncoder implements IRotationEncoder, IPeriodicLooped {
+public class ThroughBoreEncoder implements IRotationEncoder, IMattlibHooked {
 
     Encoder encoder;
     AbsoluteEncoderComponent encoderComponent;

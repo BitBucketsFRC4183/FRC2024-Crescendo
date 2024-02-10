@@ -8,13 +8,13 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.Robot;
 import org.bitbuckets.RobotContainer;
 import org.bitbuckets.vision.VisionSubsystem;
-import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.mattlib2.log.INetworkedComponent;
 import xyz.auriium.mattlib2.log.annote.Conf;
+import xyz.auriium.mattlib2.loop.IMattlibHooked;
 
 import java.util.Optional;
 
-public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
+public class OdometrySubsystem implements Subsystem, IMattlibHooked {
 
     final DriveSubsystem driveSubsystem;
     final VisionSubsystem visionSubsystem;
@@ -26,8 +26,6 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
 
     public interface Component extends INetworkedComponent {
         @Conf("centroid_height") double robotCentroidHeightWrtGround_meters();
-
-
         @Conf("camera_centroid_offset") Translation3d cameraCentroidOffset();
 
         @Conf("fr_pos_offset") Translation2d fr_offset();
@@ -69,7 +67,6 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
 
     @Override
     public void logPeriodic() {
-        RobotContainer.SWERVE.logGyroRotation(gyro.initializationRelativeRotation().getDegrees());
         RobotContainer.SWERVE.logPosition(odometry.getEstimatedPosition());
     }
 

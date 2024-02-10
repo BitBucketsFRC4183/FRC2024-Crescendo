@@ -11,16 +11,15 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.*;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
@@ -30,8 +29,8 @@ import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.groundIntake.GroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
 import org.bitbuckets.commands.shooter.*;
-import org.bitbuckets.disabled.KinematicGyro;
 import org.bitbuckets.disabled.DisablerComponent;
+import org.bitbuckets.disabled.KinematicGyro;
 import org.bitbuckets.drive.*;
 import org.bitbuckets.groundIntake.GroundIntakeComponent;
 import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
@@ -46,14 +45,16 @@ import org.bitbuckets.vision.VisionSimContainer;
 import org.bitbuckets.vision.VisionSubsystem;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
-import xyz.auriium.mattlib2.CTowerCommands;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
-import xyz.auriium.mattlib2.auto.controls.ff.FFGenComponent;
-import xyz.auriium.mattlib2.auto.controls.ff.LinearFFGenRoutine;
-import xyz.auriium.mattlib2.auto.controls.ff.RotationFFGenRoutine;
-import xyz.auriium.mattlib2.hardware.*;
+import xyz.auriium.mattlib2.auto.ff.GenerateFFComponent;
+import xyz.auriium.mattlib2.auto.ff.RotationFFGenRoutine;
+import xyz.auriium.mattlib2.hardware.ILinearController;
+import xyz.auriium.mattlib2.hardware.ILinearMotor;
+import xyz.auriium.mattlib2.hardware.IRotationEncoder;
+import xyz.auriium.mattlib2.hardware.IRotationalController;
 import xyz.auriium.mattlib2.hardware.config.*;
+import xyz.auriium.mattlib2.loop.CTowerCommands;
 import xyz.auriium.mattlib2.rev.HardwareREV;
 import xyz.auriium.mattlib2.sim.HardwareSIM;
 import xyz.auriium.mattlib2.utils.MockingUtil;
@@ -79,6 +80,9 @@ public class RobotContainer {
     public final SendableChooser<Command> chooser;
 
 
+    public PIDController xController;
+    public PIDController yController;
+    public PIDController thetaController;
 
     public RobotContainer() {
 
@@ -88,8 +92,6 @@ public class RobotContainer {
 
         //THIS HAS TO RUN FIRST
         Mattlib.LOOPER.runPreInit();
-
-
         CommandScheduler.getInstance().enable();
 
         // load order matters!!!!!
@@ -125,11 +127,7 @@ public class RobotContainer {
 
 
     public void autonomousInit() {
-
-
-
         chooser.getSelected().schedule();
-
     }
 
     public void testInit() {
@@ -145,116 +143,24 @@ public class RobotContainer {
 
     }
 
-    //TODO rename trajectory names to be more useful/strategic/descriptive/less bad
-    SendableChooser<Command> loadAutonomous() {
-        ChoreoTrajectory trajectory = Choreo.getTrajectory("pt1");
-        ChoreoTrajectory trajectory2 = Choreo.getTrajectory("pt2");
-        ChoreoTrajectory trajectory3 = Choreo.getTrajectory("pt3");
-        ChoreoTrajectory trajectory4 = Choreo.getTrajectory("pt4");
-        ChoreoTrajectory trajectory5 = Choreo.getTrajectory("pt5");
-        ChoreoTrajectory trajectory6 = Choreo.getTrajectory("pt6");
-        ChoreoTrajectory trajectory7 = Choreo.getTrajectory("pt7");
-        ChoreoTrajectory trajectory8 = Choreo.getTrajectory("pt8");
-        ChoreoTrajectory trajectory9 = Choreo.getTrajectory("pt9");
-
-
-        var pidx = new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant());
-        var pidy = new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant());
-        var pidtheta = new PIDController(DRIVE_T_PID.pConstant(), DRIVE_T_PID.iConstant(), DRIVE_T_PID.dConstant());
-
-        /*new SequentialCommandGroup(
-                new SetSpeakerShootingAngleCommand(shooterSubsystem),
-                new ShootNoteCommand(shooterSubsystem),
-                new FollowTrajectoryCommand(trajectory, driveSubsystem, odometrySubsystem, holonomicDriveController)
-        ).schedule();*/
-
-
-        Command follow = Choreo.choreoSwerveCommand(
+    public Command followTrajectory(String name) {
+        ChoreoTrajectory trajectory = Choreo.getTrajectory(name);
+        return Choreo.choreoSwerveCommand(
                 trajectory,
                 odometrySubsystem::getRobotCentroidPosition,
-                pidx,
-                pidy,
-                pidtheta,
+                xController,
+                yController,
+                thetaController,
                 driveSubsystem::driveUsingChassisSpeed,
                 false
         );
-        Command follow2 = Choreo.choreoSwerveCommand(
-                trajectory2,
-                odometrySubsystem::getRobotCentroidPosition,
-                pidx,
-                pidy,
-                pidtheta,
-                driveSubsystem::driveUsingChassisSpeed,
-                false
-        );
-        Command follow3 = Choreo.choreoSwerveCommand(
-                trajectory3,
-                odometrySubsystem::getRobotCentroidPosition,
-                pidx,
-                pidy,
-                pidtheta,
-                driveSubsystem::driveUsingChassisSpeed,
-                false
-        );
-        Command follow4 = Choreo.choreoSwerveCommand(
-                trajectory4,
-                odometrySubsystem::getRobotCentroidPosition,
-                pidx,
-                pidy,
-                pidtheta,
-                (driveSubsystem::driveUsingChassisSpeed),
-                false
-        );
-        Command follow5 = Choreo.choreoSwerveCommand(
-                trajectory5,
-                odometrySubsystem::getRobotCentroidPosition,
-                pidx,
-                pidy,
-                pidtheta,
-                (driveSubsystem::driveUsingChassisSpeed),
-                false
-        );
-        Command follow6 = Choreo.choreoSwerveCommand(
-                trajectory6,
-                odometrySubsystem::getRobotCentroidPosition,
-                pidx,
-                pidy,
-                pidtheta,
-                (driveSubsystem::driveUsingChassisSpeed),
-                false
-        );
-        Command follow7 = Choreo.choreoSwerveCommand(
-                trajectory7,
-                odometrySubsystem::getRobotCentroidPosition,
-                pidx,
-                pidy,
-                pidtheta,
-                (driveSubsystem::driveUsingChassisSpeed),
-                false
-        );
-        Command follow8 = Choreo.choreoSwerveCommand(
-                trajectory8,
-                odometrySubsystem::getRobotCentroidPosition,
-                pidx,
-                pidy,
-                pidtheta,
-                (driveSubsystem::driveUsingChassisSpeed),
-                false
-        );
-        Command follow9 = Choreo.choreoSwerveCommand(
-                trajectory9,
-                odometrySubsystem::getRobotCentroidPosition,
-                pidx,
-                pidy,
-                pidtheta,
-                (driveSubsystem::driveUsingChassisSpeed),
-                false
-        );
+    }
 
-
-
-
-
+    SendableChooser<Command> loadAutonomous() {
+        xController = new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant());
+        yController = new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant());
+        thetaController = new PIDController(DRIVE_T_PID.pConstant(), DRIVE_T_PID.iConstant(), DRIVE_T_PID.dConstant());
+/*
 
 
         var backwardsFollow = new SequentialCommandGroup(
@@ -286,8 +192,20 @@ public class RobotContainer {
                 Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1))
         );
 
+        var backwardsFollow = new SequentialCommandGroup(
+                Commands.runOnce(() -> SWERVE.logEndpoint(trajectory.getFinalPose())),
+                Commands.runOnce(() -> odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(trajectory.getInitialPose()))),
+                follow,
+                Commands.waitSeconds(1),
+                follow2,
+                Commands.runOnce(() -> System.out.println("FINISHED")),
+                Commands.runOnce(driveSubsystem::commandWheelsToZero)
+        );
+*/
         SendableChooser<Command> chooser = new SendableChooser<>();
-        chooser.setDefaultOption("fourNoteTest", fourNoteTest);
+        chooser.setDefaultOption("backwards", null); //TODO later
+
+        SmartDashboard.putData("firstPath", chooser);
 
         return chooser;
     }
@@ -582,8 +500,11 @@ public class RobotContainer {
 
 
     //Components MUST be created in the Robot class (because of how static bs works)
-    //config shit
 
+    //generator stuff
+    public static final GenerateFFComponent SHOOTER_WHEEL_2_FFGEN = LOG.load(GenerateFFComponent.class, "shooter/wheel_2_ffgen");
+
+    //config stuff
     public static final VisionComponent VISION = LOG.load(VisionComponent.class, "vision");
 
     public static final ClimberComponent CLIMBER = LOG.load(ClimberComponent.class, "climber");
@@ -595,18 +516,12 @@ public class RobotContainer {
     public static final MotorComponent GROUND_INTAKE_TOP = LOG.load(MotorComponent.class,"ground_intake/top");
     public static final MotorComponent GROUND_INTAKE_BOTTOM = LOG.load(MotorComponent.class, "ground_intake/bottom");
     public static final PIDComponent GROUND_INTAKE_PID = LOG.load(PIDComponent.class, "ground_intake/pid");
-    public static final FFGenComponent TOP_GROUND_FFGEN = LOG.load(FFGenComponent.class, "ground_intake/ff_top");
-
-    public static final FFGenComponent SHOOTER_WHEEL_1_FFGEN = LOG.load(FFGenComponent.class,"shooter/wheel_1_ffgen");
-    public static final FFGenComponent SHOOTER_WHEEL_2_FFGEN = LOG.load(FFGenComponent.class, "shooter/wheel_2_ffgen");
-    public static final PIDComponent SHOOTER_PID_1 = LOG.load(PIDComponent.class, "shooter/pid_1");
-    public static final PIDComponent SHOOTER_PID_2 = LOG.load(PIDComponent.class, "shooter/pid_2");
-
-    //public static final ShooterComponent SHOOTER_TUNING = LOG.load(ShooterComponent.class,"shooter/tuning");
 
     public static final ShooterComponent SHOOTER = LOG.load(ShooterComponent.class, "shooter");
     public static final MotorComponent SHOOTER_WHEEL_1 = LOG.load(MotorComponent.class, "shooter/wheel_1");
     public static final MotorComponent SHOOTER_WHEEL_2 = LOG.load(MotorComponent.class, "shooter/wheel_2");
+    public static final PIDComponent SHOOTER_PID_1 = LOG.load(PIDComponent.class, "shooter/wheel_1/pid");
+    public static final PIDComponent SHOOTER_PID_2 = LOG.load(PIDComponent.class, "shooter/wheel_2/pid");
     public static final AbsoluteEncoderComponent SHOOTER_ABSOLUTE = LOG.load(AbsoluteEncoderComponent.class, "shooter/absolute");
     public static final AbsoluteEncoderComponent VELOCITY_ENCODER = LOG.load(AbsoluteEncoderComponent.class, "shooter/velocity");
     public static final MotorComponent ANGLE_SHOOTER_MOTOR = LOG.load(MotorComponent.class,"shooter/angle_motor");
