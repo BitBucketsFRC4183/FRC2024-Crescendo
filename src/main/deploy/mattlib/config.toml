@@ -113,6 +113,8 @@ br_pos_offset = {x = -0.3556, y = -0.3429}
 encoderToMechanismCoef = 0.078125 # (14.0 / 50.0) * (10.0 / 60.0) mk4i reduction
 rotationalInertia = 0.002
 inverted = false
+breakModeEnabled = false
+
 
 [swerve.steer_fr]
 id = 16
