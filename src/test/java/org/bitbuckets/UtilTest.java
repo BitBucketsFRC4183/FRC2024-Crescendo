@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 
 public class UtilTest {
 
-    @Disabled
     @Test
     public void renamerShouldWork() {
 
@@ -15,7 +14,7 @@ public class UtilTest {
 
         String out = Util.RENAMER.apply(myTestString, 0);
 
-        Assertions.assertEquals("hi/fl/game/", out);
+        Assertions.assertEquals("hi/game_fl", out);
 
     }
 

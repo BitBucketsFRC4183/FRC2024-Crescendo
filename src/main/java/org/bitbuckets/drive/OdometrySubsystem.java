@@ -12,10 +12,11 @@ import org.photonvision.EstimatedRobotPose;
 import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.mattlib2.log.INetworkedComponent;
 import xyz.auriium.mattlib2.log.annote.Conf;
+import xyz.auriium.mattlib2.loop.IMattlibHooked;
 
 import java.util.Optional;
 
-public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
+public class OdometrySubsystem implements Subsystem, IMattlibHooked {
 
     final DriveSubsystem driveSubsystem;
     final VisionSubsystem visionSubsystem;
@@ -69,7 +70,6 @@ public class OdometrySubsystem implements Subsystem, IPeriodicLooped {
 
     @Override
     public void logPeriodic() {
-        RobotContainer.SWERVE.logGyroRotation(gyro.initializationRelativeRotation().getDegrees());
         RobotContainer.SWERVE.logPosition(odometry.getEstimatedPosition());
     }
 

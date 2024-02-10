@@ -12,7 +12,8 @@ import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonTargetSortMode;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
-import xyz.auriium.mattlib2.IPeriodicLooped;
+
+import xyz.auriium.mattlib2.loop.IMattlibHooked;
 import xyz.auriium.yuukonstants.exception.ExplainedException;
 
 import java.util.*;
@@ -20,7 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.bitbuckets.vision.VisionUtil.lookingAt;
 
-public class VisionSubsystem  implements Subsystem, IPeriodicLooped {
+public class VisionSubsystem  implements Subsystem, IMattlibHooked {
 
     DoubleSubscriber xSub;
     DoubleSubscriber ySub;

@@ -1,3 +1,9 @@
+# startup stuff
+[shooter.wheel_1_ffgen]
+[shooter.wheel_2_ffgen]
+
+
+
 # Base Robot Stuff
 
 [ground_intake.top]
@@ -27,6 +33,9 @@ pid = {p = 0, i = 0, d = 0}
 dio_channel = 0
 deadband = 0.0
 channel = 0
+pid = {p = 0, i = 0, d = 0}
+ff_ks = 0.4895168812659137
+ff_kv = 0.12869522412846462
 
 
 [shooter.wheel_1]
@@ -35,6 +44,7 @@ encoderToMechanismCoef = 1
 rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
+pid = {p = 1, i = 0, d = 0}
 
 [shooter.wheel_2]
 id = 13
@@ -42,16 +52,7 @@ encoderToMechanismCoef = 1
 rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
-
-[shooter.wheel_1_ffgen]
-startDelay_ms = 20
-endVoltage = 12
-rampRate_vPerMs = 0.001
-
-[shooter.wheel_2_ffgen]
-startDelay_ms = 20
-endVoltage = 12
-rampRate_vPerMs = 0.001
+pid = {p = 1, i = 0, d = 0}
 
 [shooter.absolute]
 analogChannel = 0
@@ -62,11 +63,6 @@ offset = 0.0
 analogChannel = 0
 encoderToMechanismCoef = 1
 offset = 0.0
-
-[shooter.pid]
-p = 0
-d = 0
-i = 0
 
 [shooter.angle.pid]
 p = 0
@@ -80,8 +76,6 @@ rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
 
-
-
 [shooter.calculator]
 mass = 0.25 #kg
 area_cross_section = 0.4 #m;
@@ -89,7 +83,6 @@ note_radius = 17.78 #cm
 air_density = 1.225 #kg/m^3
 drag_coefficient = 1.3 #guess
 magnus_coefficient = 0.2 #guess
-
 Vx = 10 #m/s
 Vy = 5 #m/s
 
@@ -99,7 +92,6 @@ Vy = 5 #m/s
 pigeonId = 5
 ff_ks = 0.65292
 ff_kv = 2.3053
-ff_ka = 0.37626
 magnitudeFWLim = 3.3
 fieldOriented = true
 x_holonomic_pid = {p = 1.2, i = 0, d = 0}
@@ -135,8 +127,8 @@ id = 20
 rotationToMeterCoef = 0.31519599093
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
-inverted = true
-breakModeEnabled = false
+inverted = false
+breakModeEnabled = true
 
 [swerve.drive_fl]
 id = 15
@@ -144,7 +136,7 @@ rotationToMeterCoef = 0.31519599093
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
 inverted = true
-breakModeEnabled = false
+breakModeEnabled = true
 
 
 [swerve.drive_br]
@@ -153,7 +145,7 @@ rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
 inverted = true
-breakModeEnabled = false
+breakModeEnabled = true
 
 
 [swerve.drive_bl]
@@ -162,7 +154,7 @@ rotationToMeterCoef = 0.31519599093
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
 inverted = false
-breakModeEnabled = false
+breakModeEnabled = true
 
 
 
@@ -175,22 +167,22 @@ d = 0.3
 
 [swerve.abs_fr]
 analogChannel = 0
-offset = 0.379
+offset = 0.8810658462072642
 encoderToMechanismCoef = 1
 
 [swerve.abs_fl]
 analogChannel = 3
-offset = 0.3375
+offset = 0.3437554295215841
 encoderToMechanismCoef = 1
 
 [swerve.abs_br]
 analogChannel = 1
-offset = 0.845
+offset = 0.8487552760398386
 encoderToMechanismCoef = 1
 
 [swerve.abs_bl]
 analogChannel = 2
-offset = 0.0798
+offset = 0.07165493027641628
 encoderToMechanismCoef = 1
 
 
@@ -234,19 +226,10 @@ rotationalInertia = 1.0
 camera1Name = "arducam1"
 camera2Name = "arducam2"
 
-[NMS]
-mechPerEncoderRotation = 0.0
-metersPerRotation = 1
-rotationalInertia = 0
-id = 0
-type = "BRUSHLESS"
-
-
-
 # Disabler
 
 [disabler]
-vision_disabled = false
+vision_disabled = true
 drive_disabled = false
 shooter_disabled = true
 odometry_disabled = false
