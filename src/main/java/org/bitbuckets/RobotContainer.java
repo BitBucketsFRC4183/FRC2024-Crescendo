@@ -83,7 +83,7 @@ public class RobotContainer {
 
     public PIDController xController;
     public PIDController yController;
-    public PIDController thetaController;
+    public ProfiledPIDController thetaController;
 
     public RobotContainer() {
 
@@ -159,9 +159,7 @@ public class RobotContainer {
         return Choreo.choreoSwerveCommand(
                 trajectory,
                 odometrySubsystem::getRobotCentroidPosition,
-                xController,
-                yController,
-                thetaController,
+                TrajLoadingUtil.choreoSwerveController(xController, yController, thetaController),
                 driveSubsystem::driveUsingChassisSpeed,
                 false
         ).andThen(
@@ -173,7 +171,7 @@ public class RobotContainer {
     SendableChooser<Command> loadAutonomous() {
         xController = new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant());
         yController = new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant());
-        thetaController = new PIDController(DRIVE_T_PID.pConstant(), DRIVE_T_PID.iConstant(), DRIVE_T_PID.dConstant());
+        thetaController = new ProfiledPIDController(DRIVE_T_PID.pConstant(), DRIVE_T_PID.iConstant(), DRIVE_T_PID.dConstant(), new TrapezoidProfile.Constraints(3,3));
 
         ChoreoTrajectory startingTrajectory = TrajLoadingUtil.getTrajectory("4note", "pt1");
 
@@ -249,7 +247,7 @@ public class RobotContainer {
                 new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant()),
                 new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant()),
                 new ProfiledPIDController(DRIVE_T_PID.pConstant(), DRIVE_T_PID.iConstant(), DRIVE_T_PID.dConstant(),
-                        new TrapezoidProfile.Constraints(1,2)) //TODO
+                        new TrapezoidProfile.Constraints(2,2)) //TODO
         );
 
         operatorInput.autoAlignHold.whileTrue(new MoveToAlignCommand(driveSubsystem, visionSubsystem, holonomicDriveController, odometrySubsystem, operatorInput));
