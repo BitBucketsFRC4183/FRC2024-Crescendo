@@ -66,17 +66,13 @@ analogChannel = 0
 encoderToMechanismCoef = 1
 offset = 0.0
 
-[shooter.angle.pid]
-p = 0
-d = 0
-i = 0
-
-[shooter.angle_motor]
+[shooter.pivot]
 encoderToMechanismCoef = 1
 id = 11
 rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
+pid = {p = 0, i = 0, d = 0}
 
 [shooter.calculator]
 mass = 0.25 #kg
@@ -139,7 +135,7 @@ id = 15
 rotationToMeterCoef = 0.31519599093
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
-inverted = true
+inverted = false
 breakModeEnabled = true
 
 
@@ -148,7 +144,7 @@ id = 19
 rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
-inverted = true
+inverted = false
 breakModeEnabled = true
 
 
@@ -168,25 +164,25 @@ i = 0
 d = 0.3
 
 # hypothesis: non offset zero is tangent to the absolute encoders?
-
+# ALWAYS LOW BALL THESE OFFSETS (if its fluctuating between 0.8 and 0.9 go for 0.8
 [swerve.abs_fr]
 analogChannel = 0
-offset = 0.8810658462072642
+offset = 0.880
 encoderToMechanismCoef = 1
 
 [swerve.abs_fl]
 analogChannel = 3
-offset = 0.3437554295215841
+offset = 0.842
 encoderToMechanismCoef = 1
 
 [swerve.abs_br]
 analogChannel = 1
-offset = 0.8487552760398386
+offset = 0.345
 encoderToMechanismCoef = 1
 
 [swerve.abs_bl]
 analogChannel = 2
-offset = 0.07165493027641628
+offset = 0.071
 encoderToMechanismCoef = 1
 
 
