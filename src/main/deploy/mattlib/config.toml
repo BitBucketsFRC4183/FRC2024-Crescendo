@@ -133,7 +133,7 @@ id = 9
 
 #Drive (mk4 l2 is same as mk4i)
 [swerve.drive_fr]
-id = 20
+id = 2
 rotationToMeterCoef = 0.31519599093
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
@@ -142,7 +142,7 @@ breakModeEnabled = true
 currentLimit = 70
 
 [swerve.drive_fl]
-id = 15
+id = 1
 rotationToMeterCoef = 0.31519599093
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
@@ -153,7 +153,7 @@ currentLimit = 70
 
 
 [swerve.drive_br]
-id = 19
+id = 3
 rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
@@ -164,7 +164,7 @@ currentLimit = 70
 
 
 [swerve.drive_bl]
-id = 14
+id = 0
 rotationToMeterCoef = 0.31519599093
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
