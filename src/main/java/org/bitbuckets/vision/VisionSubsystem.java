@@ -89,6 +89,19 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
         mattRegister();
     }
 
+    @Override
+    public void logPeriodic() {
+        Optional<PhotonTrackedTarget> optionalPhotonTrackedTarget = getBestVisionTarget();
+        if (optionalPhotonTrackedTarget.isPresent()) {
+            PhotonTrackedTarget ptt = optionalPhotonTrackedTarget.get();
+            RobotContainer.VISION.log_best_target_name(lookingAt(ptt.getFiducialId()).toString());
+            RobotContainer.VISION.log_best_target_id(ptt.getFiducialId());
+            RobotContainer.VISION.log_best_target_pose(layout.getTagPose(ptt.getFiducialId()).get().toPose2d());
+            RobotContainer.VISION.log_best_target_ambiguity(ptt.getPoseAmbiguity());
+        }
+
+    }
+
     public enum VisionPriority {
         AMP,
         SPEAKER,
@@ -181,8 +194,6 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
             bestTargetElement = lookingAt(bestTarget.getFiducialId());
             }
 
-        RobotContainer.VISION.log_best_target(bestTargetElement.toString());
-        RobotContainer.VISION.log_best_target_id(bestTarget.getFiducialId());
         return Optional.of(bestTarget);
     }
 
@@ -206,6 +217,9 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
             EstimatedRobotPose estimatedRobotPose2 = optEstimatedRobotPose2.get();
             double avgPoseAmbiguity1 = estimatedRobotPose1.targetsUsed.stream().mapToDouble(PhotonTrackedTarget::getPoseAmbiguity).sum() / estimatedRobotPose1.targetsUsed.size();
             double avgPoseAmbiguity2 = estimatedRobotPose2.targetsUsed.stream().mapToDouble(PhotonTrackedTarget::getPoseAmbiguity).sum() / estimatedRobotPose2.targetsUsed.size();
+
+            RobotContainer.VISION.log_avgPoseAmbiguity1(avgPoseAmbiguity1);
+            RobotContainer.VISION.log_avgPoseAmbiguity2(avgPoseAmbiguity2);
 
             // avgPoseAmbiguity should be between 0 and 1, less value has more weight
             double weight1 = 1 / (avgPoseAmbiguity1 / avgPoseAmbiguity2);

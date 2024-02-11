@@ -2,12 +2,12 @@ package org.bitbuckets.led;
 
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import xyz.auriium.mattlib2.IPeriodicLooped;
+import xyz.auriium.mattlib2.loop.IMattlibHooked;
 
 import java.util.Map;
 
 
-public class ledSubsystem implements Subsystem, IPeriodicLooped {
+public class ledSubsystem implements Subsystem, IMattlibHooked {
 
     // Rev blinkin led driver uses pwm, pretend it is a spark motor
     public final Spark ledController;

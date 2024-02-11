@@ -9,7 +9,6 @@ import org.bitbuckets.Robot;
 import org.bitbuckets.RobotContainer;
 import org.bitbuckets.vision.VisionSubsystem;
 import org.photonvision.EstimatedRobotPose;
-import xyz.auriium.mattlib2.IPeriodicLooped;
 import xyz.auriium.mattlib2.log.INetworkedComponent;
 import xyz.auriium.mattlib2.log.annote.Conf;
 import xyz.auriium.mattlib2.loop.IMattlibHooked;
@@ -58,10 +57,13 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
             Optional<EstimatedRobotPose> optVisionPose = visionSubsystem.estimateVisionRobotPose();
             if (optVisionPose.isPresent()) {
                 Pose2d visionPose = optVisionPose.get().estimatedPose.toPose2d();
+                RobotContainer.VISION.log_final_pose(visionPose);
                 odometry.addVisionMeasurement(visionPose, optVisionPose.get().timestampSeconds);
             }
         } else {
-            visionSubsystem.estimateVisionRobotPose();
+
+            Optional<EstimatedRobotPose> optEsmPose = visionSubsystem.estimateVisionRobotPose();
+            optEsmPose.ifPresent(esmPose -> RobotContainer.VISION.log_final_pose(esmPose.estimatedPose.toPose2d()));
         }
 
     }

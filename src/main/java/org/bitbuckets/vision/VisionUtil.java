@@ -82,12 +82,12 @@ public class VisionUtil {
         Translation3d translation = new Translation3d(
                 (pose1.getX()*poseWeight1 + pose2.getX()*poseWeight2) / (poseWeight1 + poseWeight2),
                 (pose1.getY()*poseWeight1 + pose2.getY()*poseWeight2) / (poseWeight1 + poseWeight2),
-                (pose1.getY()*poseWeight1 + pose2.getY()*poseWeight2) / (poseWeight1 + poseWeight2)
+                (pose1.getZ()*poseWeight1 + pose2.getZ()*poseWeight2) / (poseWeight1 + poseWeight2)
         );
         Rotation3d rotation = new Rotation3d(
                 (pose1.getRotation().getX()*poseWeight1 + pose2.getRotation().getX()*poseWeight2) / (poseWeight1 + poseWeight2),
                 (pose1.getRotation().getY()*poseWeight1 + pose2.getRotation().getY()*poseWeight2) / (poseWeight1 + poseWeight2),
-                (pose1.getRotation().getY()*poseWeight1 + pose2.getRotation().getY()*poseWeight2) / (poseWeight1 + poseWeight2)
+                (pose1.getRotation().getZ()*poseWeight1 + pose2.getRotation().getZ()*poseWeight2) / (poseWeight1 + poseWeight2)
         );
 
         return new Pose3d(translation, rotation);

@@ -45,11 +45,11 @@ public class VisionSimContainer {
         // Set the camera image capture frame rate (Note: this is limited by robot loop rate).
         cameraProp.setFPS(20);
         // The average and standard deviation in milliseconds of image data latency.
-        cameraProp.setAvgLatencyMs(35);
+        cameraProp.setAvgLatencyMs(20);
         cameraProp.setLatencyStdDevMs(5);
 
-        PhotonCameraSim camera1Sim = new PhotonCameraSim(camera_1, cameraProp);
-        PhotonCameraSim camera2Sim = new PhotonCameraSim(camera_2, cameraProp);
+        PhotonCameraSim camera1Sim = new PhotonCameraSim(camera_1, cameraProp, 0, 4);
+        PhotonCameraSim camera2Sim = new PhotonCameraSim(camera_2, cameraProp, 0, 4);
 
         visionSystemSim.addCamera(camera1Sim, new Transform3d(RobotContainer.CAMERAS.camera1TranslationOffset(), RobotContainer.CAMERAS.camera1RotationOffset()));
 
