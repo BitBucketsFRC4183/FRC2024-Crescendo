@@ -81,16 +81,6 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
         return Optional.ofNullable(target);
     }
 
-    @Override
-    public Optional<ExplainedException> verifyInit() {
-        // if (RobotContainer.DISABLER.vision_disabled()) return Optional.empty();
-        //frc using 36h11 fam this year
-        // aprilTagDetector.addFamily("36h11");
-
-
-        return Optional.empty();
-    }
-
 
     // field relative pose
     // desired transform to move the robot to the desired final position

@@ -47,6 +47,7 @@ import org.bitbuckets.vision.VisionSimContainer;
 import org.bitbuckets.vision.VisionSubsystem;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import xyz.auriium.mattlib2.MattConsole;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
 import xyz.auriium.mattlib2.auto.ff.GenerateFFComponent;
@@ -55,6 +56,7 @@ import xyz.auriium.mattlib2.hardware.ILinearMotor;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.hardware.IRotationalController;
 import xyz.auriium.mattlib2.hardware.config.*;
+import xyz.auriium.mattlib2.log.ConsoleComponent;
 import xyz.auriium.mattlib2.rev.HardwareREV;
 import xyz.auriium.mattlib2.sim.HardwareSIM;
 import xyz.auriium.mattlib2.utils.MockingUtil;
@@ -83,6 +85,8 @@ public class RobotContainer {
     public PIDController xController;
     public PIDController yController;
     public ProfiledPIDController thetaController;
+
+    public final MattConsole mainConsole;
 
     public RobotContainer() {
 
@@ -113,9 +117,12 @@ public class RobotContainer {
 
         loadCommands();
         chooser = loadAutonomous();
+        mainConsole = new MattConsole(CONSOLE);
 
         //THIS HAS TO RUN AT THE END
-        Mattlib.LOOPER.runPostInit();
+        var ee = Mattlib.LOOPER.runPostInit();
+        mainConsole.reportExceptions(ee);
+
 
         // disable the annoying driverstation joystick warning
         DriverStation.silenceJoystickConnectionWarning(true);
@@ -244,9 +251,7 @@ public class RobotContainer {
 */
         SendableChooser<Command> chooser = new SendableChooser<>();
         chooser.setDefaultOption("backwards", fourNoteTest); //TODO later
-
         SmartDashboard.putData("firstPath", chooser);
-
         return chooser;
     }
 
@@ -542,6 +547,7 @@ public class RobotContainer {
     //Components MUST be created in the Robot class (because of how static bs works)
 
     //generator stuff
+    public static final ConsoleComponent CONSOLE = LOG.load(ConsoleComponent.class, "console");
     public static final GenerateFFComponent SHOOTER_WHEEL_2_FFGEN = LOG.load(GenerateFFComponent.class, "shooter/wheel_2_ffgen");
 
     //config stuff
@@ -586,7 +592,6 @@ public class RobotContainer {
     public static final PIDComponent DRIVE_T_PID = LOG.load(PIDComponent.class, "swerve/t_holonomic_pid");
 
     public static final CamerasComponent CAMERAS = LOG.load(CamerasComponent.class, "cameras");
-
     public static final DisablerComponent DISABLER = LOG.load(DisablerComponent.class, "disabler");
 
 

@@ -41,7 +41,7 @@ public class ShooterSubsystem implements Subsystem, IMattlibHooked {
     }
 
     @Override
-    public Optional<ExplainedException> verifyInit() {
+    public ExplainedException[] verifyInit() {
         absoluteEncoder.forceRotationalOffset(
                 encoderComponent.offset_mechanismRotations()
         );
@@ -50,7 +50,7 @@ public class ShooterSubsystem implements Subsystem, IMattlibHooked {
                 absoluteEncoder.angularPosition_normalizedMechanismRotations()
         );
 
-        return Optional.empty();
+        return new ExplainedException[0];
     }
 
 
