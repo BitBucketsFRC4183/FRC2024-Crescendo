@@ -1,6 +1,5 @@
 package org.bitbuckets;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import xyz.auriium.mattlib2.Mattlib;
@@ -13,8 +12,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotInit() {
-        DriverStation.silenceJoystickConnectionWarning(true);
-
         container = new RobotContainer();
         if (isSimulation()) {
             System.out.println("we in the matrix baby");
