@@ -19,7 +19,6 @@ public class MoveToAlignCommand extends Command {
     final VisionSubsystem visionSubsystem;
     final HolonomicDriveController holoController;
     final OdometrySubsystem odometrySubsystem;
-    final OperatorInput operatorInput;
 
     Pose3d targetPose;
 
@@ -28,12 +27,11 @@ public class MoveToAlignCommand extends Command {
     final double angleThreshold = 5;
 
 
-    public MoveToAlignCommand(DriveSubsystem driveSubsystem, VisionSubsystem visionSubsystem, HolonomicDriveController holoController, OdometrySubsystem odometrySubsystem, OperatorInput operatorInput) {
+    public MoveToAlignCommand(DriveSubsystem driveSubsystem, VisionSubsystem visionSubsystem, HolonomicDriveController holoController, OdometrySubsystem odometrySubsystem) {
         this.driveSubsystem = driveSubsystem;
         this.visionSubsystem = visionSubsystem;
         this.holoController = holoController;
         this.odometrySubsystem = odometrySubsystem;
-        this.operatorInput = operatorInput;
 
         // change this with visiontarget implementation later
         Optional<Transform3d> optionalTagTransform = visionSubsystem.getDesiredTargetAlignTransform();

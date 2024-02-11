@@ -13,11 +13,13 @@
 id = 17
 rotationToMeterCoef = 1
 encoderToMechanismCoef = 1
+rotationalInertia = 1
 
 [ground_intake.bottom]
 id = 9
 rotationToMeterCoef = 1
 encoderToMechanismCoef = 1
+rotationalInertia = 1
 inverted = true
 
 [ground_intake.ff_top]
@@ -42,12 +44,13 @@ ff_kv = 0.12869522412846462
 
 
 [shooter.wheel_1]
-id = 14
+id = 12
 encoderToMechanismCoef = 1
 rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
 pid = {p = 1, i = 0, d = 0}
+inverted = true
 
 [shooter.wheel_2]
 id = 13
@@ -56,6 +59,7 @@ rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
 pid = {p = 1, i = 0, d = 0}
+inverted = false
 
 [shooter.absolute]
 analogChannel = 0
@@ -93,7 +97,7 @@ magnitudeFWLim = 3.3
 fieldOriented = true
 x_holonomic_pid = {p = 1.2, i = 0, d = 0}
 y_holonomic_pid = {p = 1.2, i = 0, d = 0}
-t_holonomic_pid = {p = 1, i = 0, d = 1.2}
+t_holonomic_pid = {p = 3.2, i = 0, d = 0.4} #need to be redone (current mcr values)
 steer_pid_common = {p = 3, i = 0, d = 0.3}
 drive_pid_common = {p = 0.03, i = 0, d = 0}
 ff_fl = {ks = 0.241, kv = 2.709}
@@ -204,20 +208,21 @@ rotationalInertia = 0.0
 
 # NMS NOTE MANAGEMENT SUBSYSTEM
 [nms]
-channel = 0
+channel = 2
 deadband = 0 # FIX LATER
 
 [nms.top]
-id = 0
+id = 4
 rotationToMeterCoef = 1 #WRONG
 encoderToMechanismCoef = 1 #WRONG
 rotationalInertia = 1.0
 
 [nms.bottom]
-id = 0
+id = 7
 rotationToMeterCoef = 1 #WRONG
 encoderToMechanismCoef = 1 #WRONG
 rotationalInertia = 1.0
+inverted = true
 
 # CAMERA
 

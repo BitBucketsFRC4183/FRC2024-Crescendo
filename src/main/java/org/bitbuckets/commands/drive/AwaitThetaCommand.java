@@ -29,7 +29,7 @@ public class AwaitThetaCommand extends Command {
     @Override
     public void initialize() {
         thetaPID.enableContinuousInput(-Math.PI, Math.PI);
-        thetaPID.setTolerance(Math.PI / 360); //0.5 deg
+        thetaPID.setTolerance(Math.PI / 360 / 5); //0.1 deg
     }
 
     @Override
@@ -51,5 +51,11 @@ public class AwaitThetaCommand extends Command {
 
         pidComponent.reportState(state);
         pidComponent.reportReference(reference);
+
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        driveSubsystem.commandWheelsToZero();
     }
 }
