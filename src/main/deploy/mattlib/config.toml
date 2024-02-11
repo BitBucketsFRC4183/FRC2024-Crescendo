@@ -7,13 +7,13 @@
 # Base Robot Stuff
 
 [ground_intake.top]
-id = 12
+id = 1
 rotationToMeterCoef = 1
 encoderToMechanismCoef = 1
 rotationalInertia = 1
 
 [ground_intake.bottom]
-id = 13
+id = 2
 rotationToMeterCoef = 1
 encoderToMechanismCoef = 1
 rotationalInertia = 1

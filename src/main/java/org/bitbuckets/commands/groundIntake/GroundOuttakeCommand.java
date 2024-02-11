@@ -18,8 +18,8 @@ public class GroundOuttakeCommand extends Command {
 
     @Override
     public void execute() {
-        groundIntakeSubsystem.setToVoltage(4);
-        noteManagementSubsystem.setAllToVoltage(4); //TODO FLIP
+        groundIntakeSubsystem.setToVoltage(-7);
+        noteManagementSubsystem.setAllToVoltage(-3); //TODO FLIP
     }
 
     @Override
