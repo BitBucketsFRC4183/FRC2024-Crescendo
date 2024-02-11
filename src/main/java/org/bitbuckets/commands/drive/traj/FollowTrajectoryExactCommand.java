@@ -55,7 +55,7 @@ public class FollowTrajectoryExactCommand extends Command {
         if (reZeroOdometry) odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(initialState.getPose()));
 
         thetaPid.enableContinuousInput(-Math.PI, Math.PI);
-        thetaPid.setTolerance(0.1); //0.5 deg
+        thetaPid.setTolerance(Math.PI / 360 / 4.5); //0.5 deg
         timer.restart();
     }
 
@@ -86,7 +86,8 @@ public class FollowTrajectoryExactCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return timer.hasElapsed(trajectory.getTotalTime()) && thetaPid.atSetpoint() || timer.hasElapsed(trajectory.getTotalTime() + 2);
+         //
+        return (timer.hasElapsed(trajectory.getTotalTime()) && thetaPid.atSetpoint()) || timer.hasElapsed(trajectory.getTotalTime() + 2);
     }
 
     @Override

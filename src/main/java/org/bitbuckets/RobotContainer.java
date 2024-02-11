@@ -22,6 +22,7 @@ import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
 import org.bitbuckets.commands.drive.AugmentedDriveCommand;
+import org.bitbuckets.commands.drive.AwaitThetaCommand;
 import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
@@ -163,7 +164,7 @@ public class RobotContainer {
             commands[i]= CTowerCommands.wrapRoutine(driveFFRoutine);
         }
 
-        new ParallelCommandGroup(commands).schedule();
+        //new ParallelCommandGroup(commands).schedule();
     }
 
     public Command followTrajectory(String routine, String name) {
@@ -207,21 +208,21 @@ public class RobotContainer {
                 Commands.waitSeconds(1),
                 followFirstTrajectory("4note", "pt1"),
                 followTrajectory("4note", "pt2"),
-                Commands.waitSeconds(1),
-                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
+                //Commands.waitSeconds(1),
+                //Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
                 followTrajectory("4note", "pt3"),
-                Commands.waitSeconds(1),
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                //Commands.waitSeconds(1),
+                //Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
                 followTrajectory("4note", "pt4"),
                 followTrajectory("4note", "pt5"),
-                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
+                //Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
                 followTrajectory("4note", "pt6"),
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                //Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
                 followTrajectory("4note", "pt7"),
                 followTrajectory("4note", "pt8"),
-                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
-                followTrajectory("4note", "pt9"),
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1))
+                //Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
+                followTrajectory("4note", "pt9")
+                //Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1))
                 //Commands.runOnce(() -> odometrySubsystem.debugGyroToPosition(o))
         );
 

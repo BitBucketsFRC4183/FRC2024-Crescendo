@@ -97,7 +97,7 @@ magnitudeFWLim = 3.3
 fieldOriented = true
 x_holonomic_pid = {p = 1.2, i = 0, d = 0}
 y_holonomic_pid = {p = 1.2, i = 0, d = 0}
-t_holonomic_pid = {p = 3.2, i = 0, d = 0.4} #need to be redone (current mcr values)
+t_holonomic_pid = {p = 4.4, i = 0, d = 0.4} #need to be redone (current mcr values)
 steer_pid_common = {p = 3, i = 0, d = 0.3}
 drive_pid_common = {p = 0.03, i = 0, d = 0}
 ff_fl = {ks = 0.241, kv = 2.709}
@@ -119,6 +119,7 @@ encoderToMechanismCoef = 0.078125 # (14.0 / 50.0) * (10.0 / 60.0) mk4i reduction
 rotationalInertia = 0.002
 inverted = false
 breakModeEnabled = false
+currentLimit = 30
 
 
 [swerve.steer_fr]
@@ -138,6 +139,7 @@ encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
 inverted = false
 breakModeEnabled = true
+currentLimit = 70
 
 [swerve.drive_fl]
 id = 15
@@ -146,6 +148,8 @@ encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
 inverted = false
 breakModeEnabled = true
+currentLimit = 70
+
 
 
 [swerve.drive_br]
@@ -155,6 +159,8 @@ encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
 inverted = false
 breakModeEnabled = true
+currentLimit = 70
+
 
 
 [swerve.drive_bl]
@@ -164,6 +170,8 @@ encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
 inverted = false
 breakModeEnabled = true
+currentLimit = 70
+
 
 
 # hypothesis: non offset zero is tangent to the absolute encoders?
