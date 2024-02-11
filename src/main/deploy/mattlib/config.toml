@@ -7,14 +7,16 @@
 # Base Robot Stuff
 
 [ground_intake.top]
-id = 17
+id = 1
 rotationToMeterCoef = 1
 encoderToMechanismCoef = 1
+rotationalInertia = 1
 
 [ground_intake.bottom]
-id = 9
+id = 2
 rotationToMeterCoef = 1
 encoderToMechanismCoef = 1
+rotationalInertia = 1
 inverted = true
 
 [ground_intake.ff_top]
@@ -205,20 +207,21 @@ rotationalInertia = 0.0
 
 # NMS NOTE MANAGEMENT SUBSYSTEM
 [nms]
-channel = 0
+channel = 2
 deadband = 0 # FIX LATER
 
 [nms.top]
-id = 0
+id = 4
 rotationToMeterCoef = 1 #WRONG
 encoderToMechanismCoef = 1 #WRONG
 rotationalInertia = 1.0
 
 [nms.bottom]
-id = 0
+id = 7
 rotationToMeterCoef = 1 #WRONG
 encoderToMechanismCoef = 1 #WRONG
 rotationalInertia = 1.0
+inverted = true
 
 # CAMERA
 
@@ -230,9 +233,9 @@ camera2Name = "arducam2"
 
 [disabler]
 vision_disabled = true
-drive_disabled = false
+drive_disabled = true
 shooter_disabled = true
-odometry_disabled = false
+odometry_disabled = true
 climber_disabled = true
-groundIntake_disabled = true
-nms_disabled = true
+groundIntake_disabled = false
+nms_disabled = false
