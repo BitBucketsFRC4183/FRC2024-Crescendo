@@ -49,6 +49,10 @@ public class KinematicGyro implements IGyro {
         tare = tare.plus(userZeroRelativeRotation());
     }
 
+    @Override public void userForceOffset(Rotation2d beAt) {
+
+    }
+
 
     static SwerveModulePosition[] delta(SwerveModulePosition[] now, SwerveModulePosition[] last) {
         SwerveModulePosition[] positions = new SwerveModulePosition[now.length];

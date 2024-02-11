@@ -67,15 +67,21 @@ public class AugmentedDriveCommand extends Command {
 
         ChassisSpeeds speeds =
                 new ChassisSpeeds(
-                        linearVelocity.getX() * 3d,
-                        linearVelocity.getY() * 3d,
-                        theta * Math.PI / 2 );
+                        linearVelocity.getX() * 10d,
+                        linearVelocity.getY() * 10d,
+                        theta *  2 * Math.PI );
 
         if (RobotContainer.SWERVE.fieldOriented()) {
             speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, odometrySubsystem.getGyroAngle());
         }
 
-        speeds = ChassisSpeeds.discretize(speeds, dt); //second order comp
+        var desiredDeltaPose =
+            new Pose2d(
+                speeds.vxMetersPerSecond * dt,
+                speeds.vyMetersPerSecond * dt,
+                new Rotation2d(speeds.omegaRadiansPerSecond * dt));
+        var twist = new Pose2d().log(desiredDeltaPose);
+        speeds = new ChassisSpeeds(twist.dx / dt, twist.dy / dt, twist.dtheta / dt); //second order comp
         driveSubsystem.driveUsingChassisSpeed(speeds);
 
         lastTime = now;

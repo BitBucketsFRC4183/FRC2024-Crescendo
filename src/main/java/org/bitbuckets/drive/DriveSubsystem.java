@@ -13,7 +13,7 @@ import xyz.auriium.mattlib2.loop.IMattlibHooked;
 
 public class DriveSubsystem implements Subsystem, IMattlibHooked {
 
-    final SwerveModule[] modules;
+    public final SwerveModule[] modules;
     final SwerveDriveKinematics kinematics;
 
 

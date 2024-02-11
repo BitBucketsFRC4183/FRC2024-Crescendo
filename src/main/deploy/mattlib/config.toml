@@ -2,7 +2,10 @@
 [shooter.wheel_1_ffgen]
 [shooter.wheel_2_ffgen]
 
-
+[swerve.ffgen_fr]
+[swerve.ffgen_fl]
+[swerve.ffgen_br]
+[swerve.ffgen_bl]
 
 # Base Robot Stuff
 
@@ -10,11 +13,13 @@
 id = 17
 rotationToMeterCoef = 1
 encoderToMechanismCoef = 1
+rotationalInertia = 1
 
 [ground_intake.bottom]
 id = 9
 rotationToMeterCoef = 1
 encoderToMechanismCoef = 1
+rotationalInertia = 1
 inverted = true
 
 [ground_intake.ff_top]
@@ -39,12 +44,13 @@ ff_kv = 0.12869522412846462
 
 
 [shooter.wheel_1]
-id = 14
+id = 12
 encoderToMechanismCoef = 1
 rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
 pid = {p = 1, i = 0, d = 0}
+inverted = true
 
 [shooter.wheel_2]
 id = 13
@@ -53,6 +59,7 @@ rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
 pid = {p = 1, i = 0, d = 0}
+inverted = false
 
 [shooter.absolute]
 analogChannel = 0
@@ -64,17 +71,13 @@ analogChannel = 0
 encoderToMechanismCoef = 1
 offset = 0.0
 
-[shooter.angle.pid]
-p = 0
-d = 0
-i = 0
-
-[shooter.angle_motor]
+[shooter.pivot]
 encoderToMechanismCoef = 1
 id = 11
 rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
+pid = {p = 0, i = 0, d = 0}
 
 [shooter.calculator]
 mass = 0.25 #kg
@@ -90,13 +93,17 @@ Vy = 5 #m/s
 
 [swerve]
 pigeonId = 5
-ff_ks = 0.65292
-ff_kv = 2.3053
 magnitudeFWLim = 3.3
 fieldOriented = true
 x_holonomic_pid = {p = 1.2, i = 0, d = 0}
 y_holonomic_pid = {p = 1.2, i = 0, d = 0}
-t_holonomic_pid = {p = 1, i = 0, d = 0}
+t_holonomic_pid = {p = 4.4, i = 0, d = 0.4} #need to be redone (current mcr values)
+steer_pid_common = {p = 3, i = 0, d = 0.3}
+drive_pid_common = {p = 0.03, i = 0, d = 0}
+ff_fl = {ks = 0.241, kv = 2.709}
+ff_fr = {ks = 0.26, kv = 2.764}
+ff_br = {ks = 0.228, kv = 2.665}
+ff_bl = {ks = 0.272, kv = 2.653}
 
 [odometry]
 centroid_height = 0 #TODO
@@ -110,6 +117,9 @@ br_pos_offset = {x = -0.3556, y = -0.3429}
 encoderToMechanismCoef = 0.078125 # (14.0 / 50.0) * (10.0 / 60.0) mk4i reduction
 rotationalInertia = 0.002
 inverted = false
+breakModeEnabled = false
+currentLimit = 30
+
 
 [swerve.steer_fr]
 id = 16
@@ -122,66 +132,67 @@ id = 9
 
 #Drive (mk4 l2 is same as mk4i)
 [swerve.drive_fr]
-id = 20
+id = 2
 rotationToMeterCoef = 0.31519599093
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
 inverted = false
 breakModeEnabled = true
+currentLimit = 70
 
 [swerve.drive_fl]
-id = 15
+id = 1
 rotationToMeterCoef = 0.31519599093
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
-inverted = true
+inverted = false
 breakModeEnabled = true
+currentLimit = 70
+
 
 
 [swerve.drive_br]
-id = 19
+id = 3
 rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
-inverted = true
+inverted = false
 breakModeEnabled = true
+currentLimit = 70
+
 
 
 [swerve.drive_bl]
-id = 14
+id = 0
 rotationToMeterCoef = 0.31519599093
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
 inverted = false
 breakModeEnabled = true
+currentLimit = 70
 
 
-
-[swerve.steer_pid_common]
-p = 3
-i = 0
-d = 0.3
 
 # hypothesis: non offset zero is tangent to the absolute encoders?
-
+# ALWAYS LOW BALL THESE OFFSETS (if its fluctuating between 0.8 and 0.9 go for 0.8
 [swerve.abs_fr]
 analogChannel = 0
-offset = 0.8810658462072642
+offset = 0.880
 encoderToMechanismCoef = 1
 
 [swerve.abs_fl]
 analogChannel = 3
-offset = 0.3437554295215841
+offset = 0.842
 encoderToMechanismCoef = 1
 
 [swerve.abs_br]
 analogChannel = 1
-offset = 0.8487552760398386
+offset = 0.345
 encoderToMechanismCoef = 1
 
 [swerve.abs_bl]
 analogChannel = 2
-offset = 0.07165493027641628
+offset = 0.071
 encoderToMechanismCoef = 1
 
 
@@ -204,20 +215,21 @@ rotationalInertia = 0.0
 
 # NMS NOTE MANAGEMENT SUBSYSTEM
 [nms]
-channel = 0
+channel = 2
 deadband = 0 # FIX LATER
 
 [nms.top]
-id = 0
+id = 4
 rotationToMeterCoef = 1 #WRONG
 encoderToMechanismCoef = 1 #WRONG
 rotationalInertia = 1.0
 
 [nms.bottom]
-id = 0
+id = 7
 rotationToMeterCoef = 1 #WRONG
 encoderToMechanismCoef = 1 #WRONG
 rotationalInertia = 1.0
+inverted = true
 
 # CAMERA
 

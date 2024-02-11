@@ -5,6 +5,10 @@ import xyz.auriium.mattlib2.hardware.*;
 
 public class HardwareDisabled {
 
+    public static ILinearVelocityController linearMotor_velocityPID() {
+        return new DisabledLinearVelocityController();
+    }
+
     public static ILinearMotor linearMotor_disabled() {
         return new DisabledILinearMotor();
     }

@@ -97,11 +97,13 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
 
 
     @Override
-    public Optional<ExplainedException> verifyInit() {
+    public ExplainedException[] verifyInit() {
         // if (RobotContainer.DISABLER.vision_disabled()) return Optional.empty();
         //frc using 36h11 fam this year
         // aprilTagDetector.addFamily("36h11");
-        return Optional.empty();
+
+
+        return new ExplainedException[0];
     }
 
     // returns the vision target based on priorities

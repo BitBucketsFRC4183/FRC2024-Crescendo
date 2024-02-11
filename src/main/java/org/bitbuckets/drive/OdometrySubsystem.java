@@ -108,6 +108,10 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
         gyro.userZero();
    }
 
+   public void debugGyroToPosition(Rotation2d beat) {
+        gyro.userForceOffset(beat);
+   }
+
    public Translation2d robotVelocity_metersPerSecond() {
         return null; //TODO
    }
