@@ -8,19 +8,19 @@ public class AchieveFlatShotSpeedCommand extends Command {
     final ShooterSubsystem shooterSubsystem;
 
 
-    public AchieveFlatShotSpeedCommand(ShooterSubsystem shooterSubsystem) {
+    public AchieveFlatShotSpeedCommand(ShooterSubsystem shooterSubsystem, NoteManagementSubsystem noteManagementSubsystem) {
         this.shooterSubsystem = shooterSubsystem;
     }
 
     @Override
     public void execute() {
-        shooterSubsystem.setMotorRotationalSpeeds(100,100);
+        shooterSubsystem.setMotorRotationalSpeeds(500, 500);
         //shooterSubsystem.setMotorRotationalSpeeds(1,1);
     }
 
     @Override
     public boolean isFinished() {
-        return shooterSubsystem.hasReachedSpeeds(100,100);
+        return shooterSubsystem.hasReachedSpeeds(500,500);
     }
 
     @Override

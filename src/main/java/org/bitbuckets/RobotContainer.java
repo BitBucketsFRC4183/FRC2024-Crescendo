@@ -51,6 +51,8 @@ import org.photonvision.PhotonPoseEstimator;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
 import xyz.auriium.mattlib2.auto.ff.GenerateFFComponent;
+import xyz.auriium.mattlib2.auto.ff.LinearFFGenRoutine;
+import xyz.auriium.mattlib2.auto.ff.RotationFFGenRoutine;
 import xyz.auriium.mattlib2.hardware.ILinearController;
 import xyz.auriium.mattlib2.hardware.ILinearMotor;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
@@ -263,7 +265,7 @@ public class RobotContainer {
         operatorInput.ampSetpoint_hold.whileTrue(new SetAmpShootingAngleCommand(shooterSubsystem).andThen(new AchieveFlatShotSpeedCommand(shooterSubsystem)));
         operatorInput.speakerSetpoint_hold.whileTrue(new SetSpeakerShootingAngleCommand(shooterSubsystem));
         // .andThen(new ShootNoteCommand(shooterSubsystem))
-        operatorInput.shootManually.whileTrue(new AchieveFlatShotSpeedCommand(shooterSubsystem));
+        operatorInput.shootManually.whileTrue(new ShootCommandGroup(shooterSubsystem, noteManagementSubsystem));
         operatorInput.sourceIntake_hold.whileTrue(new AwaitShooterIntakeCommand(noteManagementSubsystem, shooterSubsystem));
         operatorInput.setShooterAngleManually.onTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));
 
@@ -282,7 +284,7 @@ public class RobotContainer {
         operatorInput.isTeleop.and(climberThreshold).whileTrue(new MoveClimberCommand(climberSubsystem, operatorInput));
 
         operatorInput.groundIntakeHold.whileTrue(new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem));
-        operatorInput.groundOuttakeHold.whileTrue(new GroundOuttakeCommand(groundIntakeSubsystem));
+        operatorInput.groundOuttakeHold.whileTrue(new GroundOuttakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
 
         operatorInput.resetGyroPress.onTrue(Commands.runOnce(() -> {
             odometrySubsystem.debugZero();
@@ -393,6 +395,7 @@ public class RobotContainer {
         ILinearMotor nms_bottomMotor;
         ILinearMotor nms_topMotor;
         DigitalInput beamBreak = new DigitalInput(NMS.channel());
+        System.out.println("THE CHANNEL IS " + NMS.channel() + " AND VALIDATION");
 
         if (DISABLER.nms_disabled()) {
             nms_bottomMotor = HardwareDisabled.linearController_disabled();
@@ -408,8 +411,8 @@ public class RobotContainer {
         }
 
         return new NoteManagementSubsystem(
-                nms_bottomMotor, nms_topMotor, beamBreak
-        );
+                nms_bottomMotor, nms_topMotor, beamBreak,
+                NMS);
 
     }
 

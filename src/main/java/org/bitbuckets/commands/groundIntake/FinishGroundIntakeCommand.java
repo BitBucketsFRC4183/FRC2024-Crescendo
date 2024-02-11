@@ -13,10 +13,10 @@ public class FinishGroundIntakeCommand extends ParallelRaceGroup { //this finish
         super(
                 new AwaitNoteInManagerCommand(noteManagementSubsystem), //race these two
                 Commands.runEnd(
-                        () -> { //run these during the command
+                        () -> {noteManagementSubsystem.setAllToVoltage(12);
                             groundIntakeSubsystem.setToVoltage(7);
+                            },
 
-                        },
                         () -> groundIntakeSubsystem.setToVoltage(0) //run this at the end
                 )
 
