@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import org.bitbuckets.Robot;
 import org.bitbuckets.util.Util;
 import xyz.auriium.mattlib2.hardware.ILinearMotor;
+import xyz.auriium.mattlib2.hardware.ILinearVelocityController;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.hardware.IRotationalController;
 import xyz.auriium.mattlib2.loop.IMattlibHooked;
@@ -20,12 +21,12 @@ import java.util.Optional;
 
 public class SwerveModule implements IMattlibHooked {
 
-    final ILinearMotor driveMotor;
+    public final ILinearVelocityController driveMotor;
     final IRotationalController steerController;
     final IRotationEncoder absoluteEncoder;
     final SimpleMotorFeedforward ff;
 
-    public SwerveModule(ILinearMotor driveMotor, IRotationalController steerController, IRotationEncoder absoluteEncoder, SimpleMotorFeedforward ff) {
+    public SwerveModule(ILinearVelocityController driveMotor, IRotationalController steerController, IRotationEncoder absoluteEncoder, SimpleMotorFeedforward ff) {
         this.driveMotor = driveMotor;
         this.steerController = steerController;
         this.absoluteEncoder = absoluteEncoder;
@@ -46,9 +47,9 @@ public class SwerveModule implements IMattlibHooked {
     }
 
     @Override
-    public Optional<ExplainedException> verifyInit() {
+    public ExplainedException[] verifyInit() {
         resetToAbsolute();
-        return Optional.empty();
+        return new ExplainedException[0];
     }
 
     int resetIteration = 0;
@@ -81,6 +82,8 @@ public class SwerveModule implements IMattlibHooked {
 
     public void setToMoveAt(SwerveModuleState state) {
 
+
+
         SwerveModuleState optimizedState = SwerveModuleState.optimize(
                 state,
                 Rotation2d.fromRotations(steerController.angularPosition_normalizedMechanismRotations())
@@ -95,10 +98,10 @@ public class SwerveModule implements IMattlibHooked {
                 optimizedState.angle.getRotations()
         );
 
-
         double feedforwardVoltage = ff.calculate(optimizedState.speedMetersPerSecond);
         feedforwardVoltage = MathUtil.clamp(feedforwardVoltage, -Util.MAX_VOLTAGE, Util.MAX_VOLTAGE);
-        driveMotor.setToVoltage(feedforwardVoltage);
+
+        driveMotor.controlToLinearVelocityReferenceArbitrary(optimizedState.speedMetersPerSecond, feedforwardVoltage);
     }
 
 

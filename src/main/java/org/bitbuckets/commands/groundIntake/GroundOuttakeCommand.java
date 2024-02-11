@@ -1,24 +1,25 @@
 package org.bitbuckets.commands.groundIntake;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import org.bitbuckets.OperatorInput;
 import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
+import org.bitbuckets.noteManagement.NoteManagementSubsystem;
 
 public class GroundOuttakeCommand extends Command {
 
     final GroundIntakeSubsystem groundIntakeSubsystem;
-    final OperatorInput operatorInput;
+    final NoteManagementSubsystem noteManagementSubsystem;
 
 
-    public GroundOuttakeCommand(GroundIntakeSubsystem groundIntakeSubsystem, OperatorInput operatorInput) {
+    public GroundOuttakeCommand(GroundIntakeSubsystem groundIntakeSubsystem, NoteManagementSubsystem noteManagementSubsystem) {
         this.groundIntakeSubsystem = groundIntakeSubsystem;
-        this.operatorInput = operatorInput;
+        this.noteManagementSubsystem = noteManagementSubsystem;
     }
 
 
     @Override
     public void execute() {
-        groundIntakeSubsystem.setToVoltage(-6); //TODO tune voltage for intake
+        groundIntakeSubsystem.setToVoltage(-7);
+        noteManagementSubsystem.setAllToVoltage(-3); //TODO FLIP
     }
 
     @Override
