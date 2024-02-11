@@ -201,6 +201,44 @@ public class RobotContainer {
                 //Commands.runOnce(() -> odometrySubsystem.debugGyroToPosition(o))
         );
 
+        //if hypothetically during comp drive is broken but we still need to be on the field
+        //this command would shoot and not move, so we can at least earn a few pts
+        var shootOnce = new SequentialCommandGroup(
+                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1))
+        );
+
+        var oneNoteCollect = new SequentialCommandGroup(
+                Commands.runOnce(
+                        () -> odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(startingTrajectory.getInitialPose()) )
+                ),
+                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                followTrajectory("oneNote-collect", "pt1"),
+                followTrajectory("oneNote-collect", "pt2"),
+                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1))
+        );
+
+        var twoNote = new SequentialCommandGroup(
+                Commands.runOnce(
+                        () -> odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(startingTrajectory.getInitialPose()) )
+                ),
+                followTrajectory("twoNote", "pt1"),
+                followTrajectory("twoNote", "pt2"),
+                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
+                followTrajectory("twoNote", "pt3"),
+                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1))
+        );
+
+        var shootLeave = new SequentialCommandGroup(
+                Commands.runOnce(
+                        () -> odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(startingTrajectory.getInitialPose()) )
+                ),
+                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                followTrajectory("shoot-leave", "pt1")
+        );
+
+
+
+
 /*
 
 
