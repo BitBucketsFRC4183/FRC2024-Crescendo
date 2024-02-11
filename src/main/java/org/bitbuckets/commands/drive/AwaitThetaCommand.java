@@ -54,6 +54,10 @@ public class AwaitThetaCommand extends Command {
 
     }
 
+    @Override public boolean isFinished() {
+        return thetaPID.atSetpoint();
+    }
+
     @Override
     public void end(boolean interrupted) {
         driveSubsystem.commandWheelsToZero();

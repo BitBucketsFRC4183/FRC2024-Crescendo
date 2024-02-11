@@ -8,9 +8,12 @@ bl_pos_offset = {x = -0.2318, y = 0.26035}
 br_pos_offset = {x = -0.2318, y = -0.26035}
 
 [swerve]
-x_holonomic_pid = {p = 1.2, i = 0, d = 0}
-y_holonomic_pid = {p = 1.2, i = 0, d = 0}
-t_holonomic_pid = {p = 3.2, i = 0, d = 0.4}
+
+[swerve.feedforward]
+ff_fl = {ks = 0.29395385148144837, kv = 2.67740377965345}
+ff_fr = {ks = 0.30298737626486094, kv = 2.679283275889407}
+ff_br = {ks = 0.2893733358396296, kv = 2.6887382376152447}
+ff_bl = {ks = 0.2728205422285554, kv = 2.6601675794181032}
 
 
 [swerve.steer_common]
@@ -35,7 +38,7 @@ inverted = false
 [swerve.drive_fl]
 id = 5
 rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
-inverted = true
+inverted = false
 
 [swerve.drive_br]
 id = 1
@@ -50,16 +53,16 @@ inverted = false
 
 [swerve.abs_fr]
 analogChannel = 3
-offset = 0.262
+offset = 0.26
 
 [swerve.abs_fl]
 analogChannel = 2
-offset = 0.709
+offset = 0.209
 
 [swerve.abs_br]
 analogChannel = 0
-offset = 0.323
+offset = 0.328
 
 [swerve.abs_bl]
 analogChannel = 1
-offset = 0.011#0.0352701817
+offset = 0.0#0.0352701817
