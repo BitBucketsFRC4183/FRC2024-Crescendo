@@ -1,6 +1,7 @@
 package org.bitbuckets.vision;
 
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import xyz.auriium.mattlib2.log.annote.Conf;
@@ -16,8 +17,9 @@ public interface VisionComponent extends INetworkedComponent {
         @Log("between_transformation_3d") void log_between_transformation(double distance);
 
         @Log("current_priority") void  log_current_priority(String priority);
-      @Log("vision_robot_pose_1") void log_vision_robot_pose_1(Pose3d p1);
-      @Log("vision_robot_pose_2") void log_vision_robot_pose_2(Pose3d p2);
+      @Log("vision_robot_pose_1") void log_vision_robot_pose_1(Pose2d p1);
+      @Log("vision_robot_pose_2") void log_vision_robot_pose_2(Pose2d p2);
 
-      @Log("combined_vision_robot_pose") void log_combined_vision_robot_pose(Pose3d p);
+      @Log("combined_vision_robot_pose") void log_combined_vision_robot_pose(Pose2d p);
+
 }

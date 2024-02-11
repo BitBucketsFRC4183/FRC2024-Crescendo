@@ -188,8 +188,8 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
     public Optional<EstimatedRobotPose> estimateVisionRobotPose() {
         Optional<EstimatedRobotPose> optEstimatedRobotPose1 = estimator1.update(camera_1.getLatestResult());
         Optional<EstimatedRobotPose> optEstimatedRobotPose2 = estimator2.update(camera_2.getLatestResult());
-        optEstimatedRobotPose1.ifPresent(esmPose1 -> RobotContainer.VISION.log_vision_robot_pose_1(esmPose1.estimatedPose));
-        optEstimatedRobotPose2.ifPresent(esmPose2 -> RobotContainer.VISION.log_vision_robot_pose_2(esmPose2.estimatedPose));
+        optEstimatedRobotPose1.ifPresent(esmPose1 -> RobotContainer.VISION.log_vision_robot_pose_1(esmPose1.estimatedPose.toPose2d()));
+        optEstimatedRobotPose2.ifPresent(esmPose2 -> RobotContainer.VISION.log_vision_robot_pose_2(esmPose2.estimatedPose.toPose2d()));
 
         if (optEstimatedRobotPose1.isEmpty() && optEstimatedRobotPose2.isEmpty()) {
             return Optional.empty();
@@ -222,7 +222,7 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
             }
 
             Pose3d combinedWeightedPose = VisionUtil.combineTwoPoses(estimatedRobotPose1.estimatedPose, estimatedRobotPose2.estimatedPose, weight1, weight2);
-            RobotContainer.VISION.log_combined_vision_robot_pose(combinedWeightedPose);
+            RobotContainer.VISION.log_combined_vision_robot_pose(combinedWeightedPose.toPose2d());
 
             List<PhotonTrackedTarget> allTargets = new ArrayList<>(estimatedRobotPose1.targetsUsed);
             allTargets.addAll(estimatedRobotPose2.targetsUsed);
