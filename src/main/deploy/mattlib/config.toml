@@ -10,11 +10,13 @@
 id = 12
 rotationToMeterCoef = 1
 encoderToMechanismCoef = 1
+rotationalInertia = 1
 
 [ground_intake.bottom]
 id = 13
 rotationToMeterCoef = 1
 encoderToMechanismCoef = 1
+rotationalInertia = 1
 inverted = true
 
 [ground_intake.ff_top]
