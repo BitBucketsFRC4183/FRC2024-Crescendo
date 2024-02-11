@@ -19,6 +19,8 @@ public interface VisionComponent extends INetworkedComponent {
         @Log("current_priority") void  log_current_priority(String priority);
       @Log("vision_robot_pose_1") void log_vision_robot_pose_1(Pose2d p1);
       @Log("vision_robot_pose_2") void log_vision_robot_pose_2(Pose2d p2);
+      @Log("pose1Weight") void log_pose1_weight(double w);
+        @Log("pose2Weight") void log_pose2_weight(double w);
 
       @Log("combined_vision_robot_pose") void log_combined_vision_robot_pose(Pose2d p);
 

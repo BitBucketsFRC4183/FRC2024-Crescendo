@@ -227,10 +227,10 @@ camera2Name = "arducam2"
 
 # actually get these values lmfao TODO
 camera1TranslationOffset = {x = 0, y = 0.127, z = 0.254}
-camera1RotationOffset = {x = 0, y = 0, z = 0, w = 0}
+camera1RotationOffset = {x = 0, y = 0, z = 0, w = 1}
 
 camera2TranslationOffset = {x = 0, y = -0.127, z = 0.254}
-camera2RotationOffset = {x = 0, y = 0, z = 0, w = 0}
+camera2RotationOffset = {x = 0, y = 0, z = 0, w = 1}
 
 [NMS]
 mechPerEncoderRotation = 0.0

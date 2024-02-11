@@ -221,6 +221,8 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
                 weight2 *= (estimatedRobotPose2.targetsUsed.size() * multiTagWeightConstant);
             }
 
+            RobotContainer.VISION.log_pose1_weight(weight1);
+            RobotContainer.VISION.log_pose2_weight(weight1);
             Pose3d combinedWeightedPose = VisionUtil.combineTwoPoses(estimatedRobotPose1.estimatedPose, estimatedRobotPose2.estimatedPose, weight1, weight2);
             RobotContainer.VISION.log_combined_vision_robot_pose(combinedWeightedPose.toPose2d());
 
