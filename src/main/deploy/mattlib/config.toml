@@ -100,7 +100,6 @@ t_holonomic_pid = {p = 1, i = 0, d = 0}
 
 [odometry]
 centroid_height = 0 #TODO
-camera_centroid_offset = {x = 0, y = 0, z = 0} #TODO
 fl_pos_offset = {x = 0.2286, y = 0.3429}
 fr_pos_offset = {x = 0.2286, y = -0.3429}
 bl_pos_offset = {x = -0.3556, y = 0.3429}
@@ -225,6 +224,22 @@ rotationalInertia = 1.0
 [cameras]
 camera1Name = "arducam1"
 camera2Name = "arducam2"
+
+# actually get these values lmfao TODO
+camera1TranslationOffset = {x = 0, y = 0.127, z = 0.254}
+camera1RotationOffset = {x = 0, y = 0, z = 0, w = 0}
+
+camera2TranslationOffset = {x = 0, y = -0.127, z = 0.254}
+camera2RotationOffset = {x = 0, y = 0, z = 0, w = 0}
+
+[NMS]
+mechPerEncoderRotation = 0.0
+metersPerRotation = 1
+rotationalInertia = 0
+id = 0
+type = "BRUSHLESS"
+
+
 
 # Disabler
 

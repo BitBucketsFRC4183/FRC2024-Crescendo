@@ -29,9 +29,6 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
     public interface Component extends INetworkedComponent {
         @Conf("centroid_height") double robotCentroidHeightWrtGround_meters();
 
-
-        @Conf("camera_centroid_offset") Translation3d cameraCentroidOffset();
-
         @Conf("fr_pos_offset") Translation2d fr_offset();
         @Conf("fl_pos_offset") Translation2d fl_offset();
         @Conf("br_pos_offset") Translation2d br_offset();
@@ -63,6 +60,8 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
                 Pose2d visionPose = optVisionPose.get().estimatedPose.toPose2d();
                 odometry.addVisionMeasurement(visionPose, optVisionPose.get().timestampSeconds);
             }
+        } else {
+            visionSubsystem.estimateVisionRobotPose();
         }
 
     }
@@ -93,14 +92,6 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
         );
    }
 
-   public Pose3d getCameraPositionVert() {
-        return getRobotCentroidPositionVert().plus(
-                new Transform3d(
-                        odometryComponent.cameraCentroidOffset(),
-                        new Rotation3d()
-                )
-        );
-   }
 
    public Pose3d getShooterCentroidPositionVert() {
         //TODO someone needs to do this

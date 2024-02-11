@@ -188,14 +188,14 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
     public Optional<EstimatedRobotPose> estimateVisionRobotPose() {
         Optional<EstimatedRobotPose> optEstimatedRobotPose1 = estimator1.update(camera_1.getLatestResult());
         Optional<EstimatedRobotPose> optEstimatedRobotPose2 = estimator2.update(camera_2.getLatestResult());
+        optEstimatedRobotPose1.ifPresent(esmPose1 -> RobotContainer.VISION.log_vision_robot_pose_1(esmPose1.estimatedPose));
+        optEstimatedRobotPose2.ifPresent(esmPose2 -> RobotContainer.VISION.log_vision_robot_pose_2(esmPose2.estimatedPose));
 
         if (optEstimatedRobotPose1.isEmpty() && optEstimatedRobotPose2.isEmpty()) {
             return Optional.empty();
         } else if (optEstimatedRobotPose1.isEmpty()) {
-            RobotContainer.VISION.log_vision_robot_pose_2(optEstimatedRobotPose2.get().estimatedPose);
             return optEstimatedRobotPose2;
         } else if (optEstimatedRobotPose2.isEmpty()) {
-            RobotContainer.VISION.log_vision_robot_pose_1(optEstimatedRobotPose1.get().estimatedPose);
             return optEstimatedRobotPose1;
         } else {
             // weighting is done by least pose ambiguity
@@ -203,7 +203,6 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
             EstimatedRobotPose estimatedRobotPose1 = optEstimatedRobotPose1.get();
             EstimatedRobotPose estimatedRobotPose2 = optEstimatedRobotPose2.get();
             double avgPoseAmbiguity1 = estimatedRobotPose1.targetsUsed.stream().mapToDouble(PhotonTrackedTarget::getPoseAmbiguity).sum() / estimatedRobotPose1.targetsUsed.size();
-            ;
             double avgPoseAmbiguity2 = estimatedRobotPose2.targetsUsed.stream().mapToDouble(PhotonTrackedTarget::getPoseAmbiguity).sum() / estimatedRobotPose2.targetsUsed.size();
 
             // avgPoseAmbiguity should be between 0 and 1, less value has more weight

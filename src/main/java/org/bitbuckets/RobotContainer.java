@@ -402,8 +402,7 @@ public class RobotContainer {
             throw new IllegalStateException(e.getMessage() + " here is why");
         }
 
-        // USE MATTLIB FOR CONSTANTS HERE IM JUST LAZY TODO
-        Transform3d robotToCam1 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0,0,0));
+        Transform3d robotToCam1 = new Transform3d(CAMERAS.camera1TranslationOffset(), CAMERAS.camera1RotationOffset());
         // using multi tag localization
         PhotonPoseEstimator photonPoseEstimator1 = new PhotonPoseEstimator(
                 aprilTagFieldLayout,
@@ -413,7 +412,7 @@ public class RobotContainer {
         );
 
 
-        Transform3d robotToCam2 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0,0,0));
+        Transform3d robotToCam2 = new Transform3d(CAMERAS.camera2TranslationOffset(), CAMERAS.camera2RotationOffset());
         PhotonPoseEstimator photonPoseEstimator2 = new PhotonPoseEstimator(
                 aprilTagFieldLayout,
                 PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
