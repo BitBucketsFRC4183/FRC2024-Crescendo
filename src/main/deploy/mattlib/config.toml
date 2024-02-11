@@ -242,9 +242,9 @@ camera2Name = "arducam2"
 
 [disabler]
 vision_disabled = true
-drive_disabled = false
+drive_disabled = true
 shooter_disabled = true
-odometry_disabled = false
+odometry_disabled = true
 climber_disabled = true
 groundIntake_disabled = true
 nms_disabled = true
