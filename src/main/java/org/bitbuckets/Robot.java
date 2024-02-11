@@ -1,7 +1,7 @@
 package org.bitbuckets;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import xyz.auriium.mattlib2.Mattlib;
 
@@ -13,7 +13,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotInit() {
-
+        DriverStation.silenceJoystickConnectionWarning(true);
 
         container = new RobotContainer();
         if (isSimulation()) {
@@ -33,11 +33,13 @@ public class Robot extends TimedRobot {
         container.autonomousInit();
     }
 
-    @Override public void disabledInit() {
+    @Override
+    public void disabledInit() {
         container.disabledInit();
     }
 
-    @Override public void teleopInit() {
+    @Override
+    public void teleopInit() {
         container.teleopInit();
     }
 
