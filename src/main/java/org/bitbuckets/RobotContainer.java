@@ -83,7 +83,7 @@ public class RobotContainer {
 
         //DO SETTINGS BEFORE PRE INIT
         MattlibSettings.USE_LOGGING = true;
-        MattlibSettings.ROBOT = MattlibSettings.Robot.CARY;
+        MattlibSettings.ROBOT = MattlibSettings.Robot.MCR;
 
         //THIS HAS TO RUN FIRST
         Mattlib.LOOPER.runPreInit();

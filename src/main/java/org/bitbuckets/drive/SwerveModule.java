@@ -47,9 +47,9 @@ public class SwerveModule implements IMattlibHooked {
     }
 
     @Override
-    public Optional<ExplainedException> verifyInit() {
+    public ExplainedException[] verifyInit() {
         resetToAbsolute();
-        return Optional.empty();
+        return new ExplainedException[0];
     }
 
     int resetIteration = 0;
