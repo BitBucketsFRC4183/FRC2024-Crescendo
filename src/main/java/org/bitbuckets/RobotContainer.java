@@ -30,7 +30,6 @@ import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
 import org.bitbuckets.commands.groundIntake.FinishGroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
-import org.bitbuckets.commands.noteManagement.AwaitNoteInManagerCommand;
 import org.bitbuckets.commands.shooter.*;
 import org.bitbuckets.disabled.DisablerComponent;
 import org.bitbuckets.disabled.KinematicGyro;
@@ -111,7 +110,7 @@ public class RobotContainer {
         if (!DISABLER.vision_disabled() && Robot.isSimulation()) {
             PhotonCamera[] cameras = visionSubsystem.getCameras();
             this.visionSimContainer = new VisionSimContainer(visionSubsystem, odometrySubsystem,
-                                                            cameras[0], cameras[1], visionSubsystem.layout);
+                    cameras[0], cameras[1], visionSubsystem.layout);
         } else this.visionSimContainer = null;
 
         loadCommands();
@@ -119,6 +118,9 @@ public class RobotContainer {
 
         //THIS HAS TO RUN AT THE END
         Mattlib.LOOPER.runPostInit();
+
+        // disable the annoying driverstation joystick warning
+        DriverStation.silenceJoystickConnectionWarning(true);
 
         System.out.println(STEER_COMMON.encoderToMechanismCoefficient() + " THE PLACE");
     }
@@ -169,6 +171,7 @@ public class RobotContainer {
                 false
         ).andThen(Commands.runOnce(driveSubsystem::commandWheelsToZero));
     }
+
     public Command followFirstTrajectory(String routine, String name) {
         ChoreoTrajectory trajectory = TrajLoadingUtil.getTrajectory(routine, name);
         return new FollowTrajectoryExactCommand(
@@ -183,28 +186,27 @@ public class RobotContainer {
     }
 
 
-
     SendableChooser<Command> loadAutonomous() {
-        xController = new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant());
+        xController = new PIDController(DRIVE_X_PID.pConstant(), DRIVE_X_PID.iConstant(), DRIVE_X_PID.dConstant());
         yController = new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant());
         thetaController = new ProfiledPIDController(
                 DRIVE_T_PID.pConstant(),
                 DRIVE_T_PID.iConstant(),
                 DRIVE_T_PID.dConstant(),
-                new TrapezoidProfile.Constraints(3,3)
+                new TrapezoidProfile.Constraints(3, 3)
         );
 
         var fourNoteTest = new SequentialCommandGroup(
                 Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
                 Commands.waitSeconds(1),
-                followFirstTrajectory("4note","pt1"),
-                followTrajectory("4note","pt2"),
+                followFirstTrajectory("4note", "pt1"),
+                followTrajectory("4note", "pt2"),
                 Commands.waitSeconds(1),
                 Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
-                followTrajectory("4note","pt3"),
+                followTrajectory("4note", "pt3"),
                 Commands.waitSeconds(1),
                 Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
-                followTrajectory("4note","pt4"),
+                followTrajectory("4note", "pt4"),
                 followTrajectory("4note", "pt5"),
                 Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
                 followTrajectory("4note", "pt6"),
@@ -270,13 +272,13 @@ public class RobotContainer {
         operatorInput.setShooterAngleManually.onTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));
 
         HolonomicDriveController holonomicDriveController = new HolonomicDriveController(
-                new PIDController(DRIVE_X_PID.pConstant(),DRIVE_X_PID.iConstant(),DRIVE_X_PID.dConstant()),
+                new PIDController(DRIVE_X_PID.pConstant(), DRIVE_X_PID.iConstant(), DRIVE_X_PID.dConstant()),
                 new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant()),
                 new ProfiledPIDController(
                         DRIVE_T_PID.pConstant(),
                         DRIVE_T_PID.iConstant(),
                         DRIVE_T_PID.dConstant(),
-                        new TrapezoidProfile.Constraints(2,2)
+                        new TrapezoidProfile.Constraints(2, 2)
                 ) //TODO
         );
 
@@ -288,7 +290,7 @@ public class RobotContainer {
 
         operatorInput.resetGyroPress.onTrue(Commands.runOnce(() -> {
             odometrySubsystem.debugZero();
-            odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(new Pose2d(0,0, new Rotation2d())));
+            odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(new Pose2d(0, 0, new Rotation2d())));
         }));
 
     }
@@ -306,7 +308,7 @@ public class RobotContainer {
     DriveSubsystem loadDriveSubsystem() {
         SwerveModule[] modules = loadSwerveModules();
 
-        return new DriveSubsystem(modules,kinematics);
+        return new DriveSubsystem(modules, kinematics);
     }
 
     SwerveModule[] loadSwerveModules() {
@@ -321,8 +323,7 @@ public class RobotContainer {
                 driveMotor = HardwareDisabled.linearMotor_disabled();
                 steerController = HardwareDisabled.rotationalController_disabled();
                 absoluteEncoder = HardwareDisabled.rotationEncoder_disabled();
-            }
-            else if (Robot.isSimulation()) {
+            } else if (Robot.isSimulation()) {
                 driveMotor = HardwareSIM.linearSIM_noPID(DRIVES[i], DCMotor.getNEO(1));
                 steerController = HardwareSIM.rotationalSIM_pid(STEERS[i], PIDS[i], DCMotor.getNEO(1));
                 absoluteEncoder = steerController; //TODO silly hack wtf this is not a hack i have spent two hours on this and i have not found a solution
@@ -355,35 +356,33 @@ public class RobotContainer {
             angleMotor = HardwareDisabled.rotationalController_disabled();
             absoluteEncoder = HardwareDisabled.rotationEncoder_disabled();
             velocityEncoder = HardwareDisabled.rotationEncoder_disabled();
-        }
-        else if (Robot.isSimulation()){
-            leftMotor = HardwareSIM.rotationalSIM_pid(SHOOTER_WHEEL_1, SHOOTER_PID_1, DCMotor.getNEO(1) );
-            rightMotor = HardwareSIM.rotationalSIM_pid(SHOOTER_WHEEL_2, SHOOTER_PID_2,DCMotor.getNEO(1));
-            angleMotor = HardwareSIM.rotationalSIM_pid(PIVOT, PIVOT_PID,DCMotor.getNEO(1) );
+        } else if (Robot.isSimulation()) {
+            leftMotor = HardwareSIM.rotationalSIM_pid(SHOOTER_WHEEL_1, SHOOTER_PID_1, DCMotor.getNEO(1));
+            rightMotor = HardwareSIM.rotationalSIM_pid(SHOOTER_WHEEL_2, SHOOTER_PID_2, DCMotor.getNEO(1));
+            angleMotor = HardwareSIM.rotationalSIM_pid(PIVOT, PIVOT_PID, DCMotor.getNEO(1));
             absoluteEncoder = angleMotor;
             velocityEncoder = leftMotor; //TODO switch out leftMotor with actual velocity encoder
 
-        }
-        else {
-            leftMotor = HardwareREV.rotationalSpark_builtInPID(SHOOTER_WHEEL_1,SHOOTER_PID_1);
-            rightMotor = HardwareREV.rotationalSpark_builtInPID(SHOOTER_WHEEL_2,SHOOTER_PID_2);
+        } else {
+            leftMotor = HardwareREV.rotationalSpark_builtInPID(SHOOTER_WHEEL_1, SHOOTER_PID_1);
+            rightMotor = HardwareREV.rotationalSpark_builtInPID(SHOOTER_WHEEL_2, SHOOTER_PID_2);
             angleMotor = HardwareREV.rotationalSpark_builtInPID(PIVOT, PIVOT_PID);
             absoluteEncoder = new ThriftyAbsoluteEncoder(new AnalogInput(SHOOTER.channel()), SHOOTER_ABSOLUTE);
             velocityEncoder = new ThroughBoreEncoder(
-                    new Encoder(2,3), VELOCITY_ENCODER
+                    new Encoder(2, 3), VELOCITY_ENCODER
             );
         }
 
 
-       return new ShooterSubsystem(
-               leftMotor,
-               rightMotor,
-               angleMotor,
-               absoluteEncoder,
-               SHOOTER,
-               SHOOTER_ABSOLUTE,
+        return new ShooterSubsystem(
+                leftMotor,
+                rightMotor,
+                angleMotor,
+                absoluteEncoder,
+                SHOOTER,
+                SHOOTER_ABSOLUTE,
                 velocityEncoder
-       );
+        );
 
     }
 
@@ -403,9 +402,7 @@ public class RobotContainer {
         } else if (Robot.isSimulation()) {
             nms_bottomMotor = HardwareSIM.linearSIM_noPID(NMS_BOTTOMCOMPONENT, DCMotor.getNEO(1));
             nms_topMotor = HardwareSIM.linearSIM_noPID(NMS_TOPCOMPONENT, DCMotor.getNEO(1));
-        }
-
-        else {
+        } else {
             nms_bottomMotor = HardwareREV.linearSpark_noPID(NMS_BOTTOMCOMPONENT);
             nms_topMotor = HardwareREV.linearSpark_noPID(NMS_TOPCOMPONENT);
         }
@@ -444,6 +441,7 @@ public class RobotContainer {
                 ODO
         ); //TODO
     }
+
     VisionSubsystem loadVisionSubsystem() {
         if (DISABLER.vision_disabled()) {
             return MockingUtil.buddy(VisionSubsystem.class);
@@ -465,7 +463,7 @@ public class RobotContainer {
         }
 
         // USE MATTLIB FOR CONSTANTS HERE IM JUST LAZY TODO
-        Transform3d robotToCam1 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0,0,0));
+        Transform3d robotToCam1 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0, 0, 0));
         // using multi tag localization
         PhotonPoseEstimator photonPoseEstimator1 = new PhotonPoseEstimator(
                 aprilTagFieldLayout,
@@ -475,7 +473,7 @@ public class RobotContainer {
         );
 
 
-        Transform3d robotToCam2 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0,0,0));
+        Transform3d robotToCam2 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0, 0, 0));
         PhotonPoseEstimator photonPoseEstimator2 = new PhotonPoseEstimator(
                 aprilTagFieldLayout,
                 PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
@@ -558,7 +556,7 @@ public class RobotContainer {
     public static final MotorComponent RIGHT_CLIMBER = LOG.load(MotorComponent.class, "climber/right");
 
     public static final GroundIntakeComponent GROUND_INTAKE = LOG.load(GroundIntakeComponent.class, "ground_intake");
-    public static final MotorComponent GROUND_INTAKE_TOP = LOG.load(MotorComponent.class,"ground_intake/top");
+    public static final MotorComponent GROUND_INTAKE_TOP = LOG.load(MotorComponent.class, "ground_intake/top");
     public static final MotorComponent GROUND_INTAKE_BOTTOM = LOG.load(MotorComponent.class, "ground_intake/bottom");
     public static final PIDComponent GROUND_INTAKE_PID = LOG.load(PIDComponent.class, "ground_intake/pid");
 
@@ -569,8 +567,8 @@ public class RobotContainer {
     public static final PIDComponent SHOOTER_PID_2 = LOG.load(PIDComponent.class, "shooter/wheel_2/pid");
     public static final AbsoluteEncoderComponent SHOOTER_ABSOLUTE = LOG.load(AbsoluteEncoderComponent.class, "shooter/absolute");
     public static final AbsoluteEncoderComponent VELOCITY_ENCODER = LOG.load(AbsoluteEncoderComponent.class, "shooter/velocity");
-    public static final MotorComponent PIVOT = LOG.load(MotorComponent.class,"shooter/pivot");
-    public static final PIDComponent PIVOT_PID = LOG.load(PIDComponent.class,"shooter/pivot/pid");
+    public static final MotorComponent PIVOT = LOG.load(MotorComponent.class, "shooter/pivot");
+    public static final PIDComponent PIVOT_PID = LOG.load(PIDComponent.class, "shooter/pivot/pid");
 
     public static final NoteManagementComponent NMS = LOG.load(NoteManagementComponent.class, "nms");
     public static final MotorComponent NMS_TOPCOMPONENT = LOG.load(MotorComponent.class, "nms/top");
