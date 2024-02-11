@@ -99,11 +99,11 @@ x_holonomic_pid = {p = 1.2, i = 0, d = 0}
 y_holonomic_pid = {p = 1.2, i = 0, d = 0}
 t_holonomic_pid = {p = 4.4, i = 0, d = 0.4} #need to be redone (current mcr values)
 steer_pid_common = {p = 3, i = 0, d = 0.3}
-drive_pid_common = {p = 0.03, i = 0, d = 0}
-ff_fl = {ks = 0.241, kv = 2.709}
-ff_fr = {ks = 0.26, kv = 2.764}
-ff_br = {ks = 0.228, kv = 2.665}
-ff_bl = {ks = 0.272, kv = 2.653}
+drive_pid_common = {p = 0.05, i = 0, d = 0.01}
+ff_fl = {ks = 0.045, kv = 2.505}
+ff_fr = {ks = 0.056, kv = 2.532}
+ff_br = {ks = 0.044, kv = 2.496}
+ff_bl = {ks = 0.044, kv = 2.516}
 
 [odometry]
 centroid_height = 0 #TODO
@@ -178,22 +178,22 @@ currentLimit = 70
 # ALWAYS LOW BALL THESE OFFSETS (if its fluctuating between 0.8 and 0.9 go for 0.8
 [swerve.abs_fr]
 analogChannel = 0
-offset = 0.880
+offset = 0.371
 encoderToMechanismCoef = 1
 
 [swerve.abs_fl]
 analogChannel = 3
-offset = 0.842
+offset = 0.341
 encoderToMechanismCoef = 1
 
 [swerve.abs_br]
 analogChannel = 1
-offset = 0.345
+offset = 0.854
 encoderToMechanismCoef = 1
 
 [swerve.abs_bl]
 analogChannel = 2
-offset = 0.071
+offset = 0.572
 encoderToMechanismCoef = 1
 
 

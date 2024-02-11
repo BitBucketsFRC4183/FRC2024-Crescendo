@@ -11,6 +11,7 @@ import org.bitbuckets.vision.VisionSubsystem;
 import xyz.auriium.mattlib2.log.INetworkedComponent;
 import xyz.auriium.mattlib2.log.annote.Conf;
 import xyz.auriium.mattlib2.loop.IMattlibHooked;
+import xyz.auriium.yuukonstants.exception.ExplainedException;
 
 import java.util.Optional;
 
@@ -46,6 +47,13 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
 
         mattRegister();
         register();
+    }
+
+    @Override
+    public ExplainedException[] verifyInit() {
+        odometry.resetPosition(gyro.initializationRelativeRotation(), driveSubsystem.currentPositions(), new Pose2d());
+
+        return new ExplainedException[0];
     }
 
     @Override

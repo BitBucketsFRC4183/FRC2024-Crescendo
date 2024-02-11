@@ -70,11 +70,11 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:4.11.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.0.0'
 
-    implementation 'xyz.auriium:mattlib2-log-nt:1.6.0-SNAPSHOT'
-    implementation 'xyz.auriium:mattlib2-rev:1.6.0-SNAPSHOT'
-    implementation 'xyz.auriium:mattlib2-ctre:1.6.0-SNAPSHOT'
-    implementation 'xyz.auriium:mattlib2-sim:1.6.0-SNAPSHOT'
-    implementation 'xyz.auriium:mattlib2-auto:1.6.0-SNAPSHOT'
+    implementation 'xyz.auriium:mattlib2-log-nt:1.6.3-SNAPSHOT'
+    implementation 'xyz.auriium:mattlib2-rev:1.6.3-SNAPSHOT'
+    implementation 'xyz.auriium:mattlib2-ctre:1.6.3-SNAPSHOT'
+    implementation 'xyz.auriium:mattlib2-sim:1.6.3-SNAPSHOT'
+    implementation 'xyz.auriium:mattlib2-auto:1.6.3-SNAPSHOT'
 
 
 }
