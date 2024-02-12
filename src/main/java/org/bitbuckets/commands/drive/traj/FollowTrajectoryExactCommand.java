@@ -55,7 +55,7 @@ public class FollowTrajectoryExactCommand extends Command {
         if (reZeroOdometry) odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(initialState.getPose()));
 
         thetaPid.enableContinuousInput(-Math.PI, Math.PI);
-        thetaPid.setTolerance(Math.PI / 360 / 4.5); //0.5 deg
+        thetaPid.setTolerance(Math.PI / 360 ); //0.5 deg
         timer.restart();
     }
 
