@@ -55,7 +55,7 @@ public class MoveToAlignCommand extends Command {
     @Override
     public void execute() {
         // this must be updated every as frequently as possible
-        Optional<PhotonTrackedTarget> optTarget = visionSubsystem.getBestVisionTarget();
+        Optional<PhotonTrackedTarget> optTarget = visionSubsystem.getBestVisionTarget(true);
 
 
         if (optTarget.isPresent()) {

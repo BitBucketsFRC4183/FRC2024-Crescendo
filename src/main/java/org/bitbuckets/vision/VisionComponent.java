@@ -12,6 +12,7 @@ import java.util.Optional;
 
 public interface VisionComponent extends INetworkedComponent {
 
+        @Log("last_target") void log_last_target_name(String target);
         @Log("best_target") void log_best_target_name(String target);
         @Log("best_target_id") void log_best_target_id(double id);
         @Log("best_target_ambiguity") void log_best_target_ambiguity(double ambiguity);

@@ -5,9 +5,13 @@ import edu.wpi.first.math.util.Units;
 import org.bitbuckets.RobotContainer;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 public class VisionUtil {
+    static List<VisionFieldTarget> SPEAKERS = Arrays.asList(VisionFieldTarget.SPEAKER_CENTER, VisionFieldTarget.SPEAKER_LEFT, VisionFieldTarget.SPEAKER_RIGHT);
+    static List<VisionFieldTarget> SOURCES = Arrays.asList(VisionFieldTarget.SOURCE_LEFT, VisionFieldTarget.SOURCE_RIGHT);
 
     // converts apriltag ID to an element of the target enum
     public static VisionFieldTarget lookingAt(int fiducialID) {
