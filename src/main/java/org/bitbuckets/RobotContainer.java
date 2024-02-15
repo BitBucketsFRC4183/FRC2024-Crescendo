@@ -312,6 +312,11 @@ public class RobotContainer {
         var shootOnly = new SequentialCommandGroup(
                 Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1))
         );
+
+        var rotationTest = new SequentialCommandGroup(
+                followFirstTrajectory("rotation-Neo", "rotation-1"),
+                followFirstTrajectory("rotation-Neo", "rotation-2")
+        );
 /*
 
 
