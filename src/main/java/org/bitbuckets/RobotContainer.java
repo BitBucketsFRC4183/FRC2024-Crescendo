@@ -11,6 +11,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.*;
@@ -91,7 +92,7 @@ public class RobotContainer {
 
         //DO SETTINGS BEFORE PRE INIT
         MattlibSettings.USE_LOGGING = true;
-        MattlibSettings.ROBOT = MattlibSettings.Robot.CARY;
+        MattlibSettings.ROBOT = WhichRobotUtil.loadRobot();
 
         //THIS HAS TO RUN FIRST
         Mattlib.LOOPER.runPreInit();
@@ -112,8 +113,13 @@ public class RobotContainer {
 
         if (!DISABLER.vision_disabled() && Robot.isSimulation()) {
             PhotonCamera[] cameras = visionSubsystem.getCameras();
-            this.visionSimContainer = new VisionSimContainer(visionSubsystem, odometrySubsystem,
-                                                            cameras[0], cameras[1], visionSubsystem.layout);
+            this.visionSimContainer = new VisionSimContainer(
+                    visionSubsystem,
+                    odometrySubsystem,
+                    cameras[0],
+                    cameras[1],
+                    visionSubsystem.layout
+            );
         } else this.visionSimContainer = null;
 
         loadCommands();
@@ -133,6 +139,11 @@ public class RobotContainer {
 
         // disable the annoying driverstation joystick warning
         DriverStation.silenceJoystickConnectionWarning(true);
+    }
+
+
+    public void robotPeriodic() {
+
     }
 
     public void simulationPeriodic() {
@@ -439,7 +450,7 @@ public class RobotContainer {
                 new SwerveDrivePoseEstimator( //The auto path will reset all of this data anyways
                         kinematics,
                         new Rotation2d(),
-                        driveSubsystem.currentPositions(),
+                        new SwerveModulePosition[] { new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition()},
                         new Pose2d()
                 ),
                 gyro,

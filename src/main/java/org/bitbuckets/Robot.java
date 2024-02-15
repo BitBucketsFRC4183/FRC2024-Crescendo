@@ -23,6 +23,11 @@ public class Robot extends TimedRobot {
         Mattlib.LOOPER.runPeriodicLoop();
 
         CommandScheduler.getInstance().run();
+        container.robotPeriodic();
+    }
+
+    @Override
+    public void teleopPeriodic() {
     }
 
     @Override

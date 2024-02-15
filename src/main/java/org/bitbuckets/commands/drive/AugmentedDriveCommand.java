@@ -67,8 +67,8 @@ public class AugmentedDriveCommand extends Command {
 
         ChassisSpeeds speeds =
                 new ChassisSpeeds(
-                        linearVelocity.getX() * 10d,
-                        linearVelocity.getY() * 10d,
+                        linearVelocity.getX() * 4.5, //experimentally determined max velocity
+                        linearVelocity.getY() * 4.5,
                         theta *  2 * Math.PI );
 
         if (RobotContainer.SWERVE.fieldOriented()) {
