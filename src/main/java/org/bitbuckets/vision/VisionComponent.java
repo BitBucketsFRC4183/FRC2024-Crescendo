@@ -18,7 +18,8 @@ public interface VisionComponent extends INetworkedComponent {
         @Log("best_target_ambiguity") void log_best_target_ambiguity(double ambiguity);
         @Log("best_target_pose") void log_best_target_pose(Pose2d pose);
 
-        @Log("between_transformation_3d") void log_between_transformation(double distance);
+        @Log("best_cameraToTag_pose") void log_best_cameraToTag_pose(Pose2d pose);
+        @Log("desired_transform_pose") void log_desired_transform_pose(Pose2d pose);
 
         @Log("current_priority") void  log_current_priority(String priority);
       @Log("vision_robot_pose_1") void log_vision_robot_pose_1(Pose2d p1);

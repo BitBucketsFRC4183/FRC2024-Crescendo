@@ -39,7 +39,7 @@ public class VisionUtil {
                 cameraToTagTransform.getTranslation().minus(tagTransform.getTranslation()),
                 cameraToTagTransform.getRotation().minus(tagTransform.getRotation())
         );
-        RobotContainer.VISION.log_between_transformation(robotTransform.getTranslation().toTranslation2d().getDistance(new Translation2d(0, 0)));
+
         return robotTransform;
 
     }
@@ -49,7 +49,7 @@ public class VisionUtil {
         // translations are in inches
         return switch (target) {
             case SPEAKER_CENTER ->
-                    new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(80)), new Rotation3d(0d, 0d, 0));
+                    new Transform3d(0d, 0d, 0d, new Rotation3d(0d, 0d, 0d));
             case SPEAKER_LEFT ->
                     new Transform3d(new Translation3d(Units.inchesToMeters(24), 0d, Units.inchesToMeters(80)), new Rotation3d(0d, 0d, 0));
             case SPEAKER_RIGHT ->

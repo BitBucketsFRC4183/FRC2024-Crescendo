@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.bitbuckets.OperatorInput;
+import org.bitbuckets.RobotContainer;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.OdometrySubsystem;
 import org.bitbuckets.vision.VisionSubsystem;
@@ -55,12 +56,13 @@ public class MoveToAlignCommand extends Command {
     @Override
     public void execute() {
         // this must be updated every as frequently as possible
-        Optional<PhotonTrackedTarget> optTarget = visionSubsystem.getBestVisionTarget(true);
+        Optional<PhotonTrackedTarget> optTarget = visionSubsystem.getBestVisionTarget(false);
 
 
         if (optTarget.isPresent()) {
             Transform3d tagTransform = VisionUtil.getDesiredTargetAlignTransform(optTarget.get());
             this.targetPose = odometrySubsystem.getRobotCentroidPositionVert().plus(tagTransform);
+
         }
 
         moveToAlign();

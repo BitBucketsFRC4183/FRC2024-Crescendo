@@ -4,6 +4,7 @@ import com.choreo.lib.ChoreoTrajectory;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.apriltag.AprilTagDetector;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.WPIMathJNI;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -14,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -479,7 +481,8 @@ public class RobotContainer {
             throw new IllegalStateException(e.getMessage() + " here is why");
         }
 
-        Transform3d robotToCam1 = new Transform3d(CAMERAS.camera1TranslationOffset(), CAMERAS.camera1RotationOffset());
+        // replace later when lil maddie makes a mattlib deserializer TODO
+        Transform3d robotToCam1 = new Transform3d(CAMERAS.camera1TranslationOffset(), new Rotation3d(0, Units.degreesToRadians(39),0 ));
         // using multi tag localization
         PhotonPoseEstimator photonPoseEstimator1 = new PhotonPoseEstimator(
                 aprilTagFieldLayout,

@@ -109,9 +109,14 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
         this.cam1_result = camera_1.getLatestResult();
         this.cam2_result = camera_2.getLatestResult();
 
+
         Optional<PhotonTrackedTarget> optionalPhotonTrackedTarget = determineBestVisionTarget();
         if (optionalPhotonTrackedTarget.isPresent()) {
             PhotonTrackedTarget ptt = optionalPhotonTrackedTarget.get();
+            System.out.print(ptt.getBestCameraToTarget());
+            RobotContainer.VISION.log_desired_transform_pose(layout.getTagPose(ptt.getFiducialId()).orElseThrow().
+                            plus(ptt.getBestCameraToTarget()).toPose2d());
+
             logBT(ptt);
         }
 

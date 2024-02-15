@@ -234,11 +234,11 @@ inverted = true
 # CAMERA
 
 [cameras]
-camera1Name = "arducam1"
+camera1Name = "Second_OV9281_Camera"
 camera2Name = "arducam2"
 
 # actually get these values lmfao TODO
-camera1TranslationOffset = {x = 0, y = 0, z = 1}
+camera1TranslationOffset = {x = 0.127, y = 0.254, z = 0.381}
 camera1RotationOffset = {x = 0, y = 0, z = 0, w = 0}
 
 camera2TranslationOffset = {x = 0, y = 0, z = 1}
