@@ -69,7 +69,7 @@ public class AugmentedDriveCommand extends Command {
                 new ChassisSpeeds(
                         linearVelocity.getX() * 4.5, //experimentally determined max velocity
                         linearVelocity.getY() * 4.5,
-                        theta *  2 * Math.PI );
+                        theta *  1 * Math.PI );
 
         if (RobotContainer.SWERVE.fieldOriented()) {
             speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, odometrySubsystem.getGyroAngle());

@@ -97,7 +97,7 @@ magnitudeFWLim = 3.3
 fieldOriented = true
 x_holonomic_pid = {p = 1.2, i = 0, d = 0}
 y_holonomic_pid = {p = 1.2, i = 0, d = 0}
-t_holonomic_pid = {p = 4.4, i = 0, d = 0.4} #need to be redone (current mcr values)
+t_holonomic_pid = {p = 7.9, i = 0, d = 0.7} #need to be redone (current mcr values)
 steer_pid_common = {p = 3, i = 0, d = 0.3}
 drive_pid_common = {p = 0.05, i = 0, d = 0.01}
 ff_fl = {ks = 0.045, kv = 2.505}
@@ -242,9 +242,9 @@ camera2Name = "arducam2"
 
 [disabler]
 vision_disabled = true
-drive_disabled = true
+drive_disabled = false
 shooter_disabled = true
-odometry_disabled = true
+odometry_disabled = false
 climber_disabled = true
 groundIntake_disabled = true
 nms_disabled = true
