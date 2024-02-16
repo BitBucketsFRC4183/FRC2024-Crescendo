@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.util.WPIUtilJNI;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.bitbuckets.OperatorInput;
 import org.bitbuckets.RobotContainer;
@@ -42,6 +43,8 @@ public class AugmentedDriveCommand extends Command {
     @Override
     public void execute() {
 
+        boolean shouldFlip = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
+
         double now = WPIUtilJNI.now() * 1e-6;
         double dt = now - lastTime;
 
@@ -71,8 +74,14 @@ public class AugmentedDriveCommand extends Command {
                         linearVelocity.getY() * 4.5,
                         theta *  1 * Math.PI );
 
+
         if (RobotContainer.SWERVE.fieldOriented()) {
-            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, odometrySubsystem.getGyroAngle());
+            Rotation2d gyroAngle = odometrySubsystem.getGyroAngle();
+            if (shouldFlip) {
+                gyroAngle = gyroAngle.plus(Rotation2d.fromDegrees(180));
+            }
+
+            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds,gyroAngle);
         }
 
         var desiredDeltaPose =
@@ -81,6 +90,8 @@ public class AugmentedDriveCommand extends Command {
                 speeds.vyMetersPerSecond * dt,
                 new Rotation2d(speeds.omegaRadiansPerSecond * dt));
         var twist = new Pose2d().log(desiredDeltaPose);
+
+
         speeds = new ChassisSpeeds(twist.dx / dt, twist.dy / dt, twist.dtheta / dt); //second order comp
         driveSubsystem.driveUsingChassisSpeed(speeds);
 

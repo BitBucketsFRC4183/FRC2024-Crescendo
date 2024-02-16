@@ -1,10 +1,11 @@
 package org.bitbuckets;
 
+import edu.wpi.first.wpilibj.CachingTimedRobot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import xyz.auriium.mattlib2.Mattlib;
 
-public class Robot extends TimedRobot {
+public class Robot extends CachingTimedRobot {
 
 
     RobotContainer container;
