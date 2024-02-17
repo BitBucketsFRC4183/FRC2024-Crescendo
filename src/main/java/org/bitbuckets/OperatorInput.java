@@ -38,9 +38,9 @@ public class OperatorInput {
     final Trigger autoAlignHold = driver.a();
     final Trigger xButtonToggle = driver.x();
     final Trigger groundIntakeHold = driver.rightBumper();
-    final Trigger groundOuttakeHold = driver.leftBumper(); //TODO Assign ground outtake to another button besides left bumper (left bumper already used for ground intake)
+    final Trigger groundOuttakeHold = driver.leftBumper();
     final Trigger groundIntakeHoldOp = operatorControl.rightBumper();
-    final Trigger groundOuttakeHoldOp = operatorControl.leftBumper(); //TODO Assign ground outtake to another button besides left bumper (left bumper already used for ground intake)
+    final Trigger groundOuttakeHoldOp = operatorControl.b();
     final Trigger resetGyroPress = driver.start();
 
 
