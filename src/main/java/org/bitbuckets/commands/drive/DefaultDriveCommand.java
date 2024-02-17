@@ -37,10 +37,16 @@ public class DefaultDriveCommand extends Command {
 
     @Override
     public void execute() {
+        double speedMultiplier = 3d;
+        double turboSpeedMultiplier = 6d;
+        if (operatorInput.getTurboModeHeld())
+        {
+            speedMultiplier = turboSpeedMultiplier;
+        }
         ChassisSpeeds speeds = new ChassisSpeeds(
-                3d*operatorInput.getRobotForwardComponent(),
-                3d*operatorInput.getDriverRightComponent(),
-                3 * operatorInput.getDriverRightStickX()
+                speedMultiplier*operatorInput.getRobotForwardComponent(),
+                speedMultiplier*operatorInput.getDriverRightComponent(),
+                speedMultiplier * operatorInput.getDriverRightStickX()
         );
 
         if (RobotContainer.SWERVE.fieldOriented()) {
