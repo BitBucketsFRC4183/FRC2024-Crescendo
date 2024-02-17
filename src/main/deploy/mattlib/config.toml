@@ -217,7 +217,7 @@ rotationalInertia = 0.0
 
 # NMS NOTE MANAGEMENT SUBSYSTEM
 [nms]
-channel = 2
+channel = 6
 deadband = 0 # FIX LATER
 
 [nms.top]
@@ -225,12 +225,15 @@ id = 19
 rotationToMeterCoef = 1 #WRONG
 encoderToMechanismCoef = 1 #WRONG
 rotationalInertia = 1.0
+breakModeEnabled = true
 
 [nms.bottom]
 id = 9
 rotationToMeterCoef = 1 #WRONG
 encoderToMechanismCoef = 1 #WRONG
 rotationalInertia = 1.0
+breakModeEnabled = true
+
 
 # CAMERA
 
