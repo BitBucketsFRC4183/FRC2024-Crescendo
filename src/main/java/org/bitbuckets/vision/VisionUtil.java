@@ -32,6 +32,7 @@ public class VisionUtil {
 
         VisionFieldTarget target = lookingAt(trackedTarget.getFiducialId()); //field element
         Transform3d tagTransform = lookupRobotTransformFromTarget(target);
+
         Transform3d cameraToTagTransform = trackedTarget.getBestCameraToTarget();
 
         // subtract transforms for final robot transform
@@ -49,7 +50,7 @@ public class VisionUtil {
         // translations are in inches
         return switch (target) {
             case SPEAKER_CENTER ->
-                    new Transform3d(0d, 0d, 0d, new Rotation3d(0d, 0d, 0d));
+                    new Transform3d(Units.inchesToMeters(-24), 0d, 0d, new Rotation3d(0d, 0d, Units.degreesToRadians(-180)));
             case SPEAKER_LEFT ->
                     new Transform3d(new Translation3d(Units.inchesToMeters(24), 0d, Units.inchesToMeters(80)), new Rotation3d(0d, 0d, 0));
             case SPEAKER_RIGHT ->

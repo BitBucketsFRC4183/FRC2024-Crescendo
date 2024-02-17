@@ -75,6 +75,13 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
         RobotContainer.VISION.log_best_target_id(bt.getFiducialId());
         RobotContainer.VISION.log_best_target_pose(layout.getTagPose(bt.getFiducialId()).orElseThrow().toPose2d());
         RobotContainer.VISION.log_best_target_ambiguity(bt.getPoseAmbiguity());
+
+
+        Pose2d bt_camera_to_tag = layout.getTagPose(bt.getFiducialId()).orElseThrow().
+                plus(bt.getBestCameraToTarget()).toPose2d();
+
+        RobotContainer.VISION.log_best_cameraToTag_pose(bt_camera_to_tag);
+
     }
 
     @Override
@@ -87,8 +94,7 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
         if (optionalPhotonTrackedTarget.isPresent()) {
             PhotonTrackedTarget ptt = optionalPhotonTrackedTarget.get();
             System.out.print(ptt.getBestCameraToTarget());
-            RobotContainer.VISION.log_desired_transform_pose(layout.getTagPose(ptt.getFiducialId()).orElseThrow().
-                            plus(ptt.getBestCameraToTarget()).toPose2d());
+
 
             logBT(ptt);
         }

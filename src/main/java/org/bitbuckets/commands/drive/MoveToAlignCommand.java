@@ -64,7 +64,7 @@ public class MoveToAlignCommand extends Command {
             this.targetPose = odometrySubsystem.getRobotCentroidPositionVert().plus(tagTransform);
 
         }
-
+        RobotContainer.VISION.log_desired_transform_pose(this.targetPose.toPose2d());
         moveToAlign();
     }
     public ChassisSpeeds calculateTagSpeeds(Pose2d target, Rotation2d holonomicRotation, double desiredVelocity) {
@@ -77,9 +77,9 @@ public class MoveToAlignCommand extends Command {
     }
 
     public void moveToAlign() {
-
+        // todo rotation based on team
         ChassisSpeeds speeds = calculateTagSpeeds(this.targetPose.toPose2d(),
-                this.targetPose.toPose2d().getRotation().plus(Rotation2d.fromDegrees(180)),
+                this.targetPose.toPose2d().getRotation(),
                 1);
         driveSubsystem.driveUsingChassisSpeed(speeds);
 
