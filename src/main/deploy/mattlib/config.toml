@@ -10,13 +10,14 @@
 # Base Robot Stuff
 
 [ground_intake.top]
-id = 17
+id = 14
 rotationToMeterCoef = 1
 encoderToMechanismCoef = 1
 rotationalInertia = 1
+inverted = true
 
 [ground_intake.bottom]
-id = 9
+id = 21
 rotationToMeterCoef = 1
 encoderToMechanismCoef = 1
 rotationalInertia = 1
@@ -220,17 +221,16 @@ channel = 2
 deadband = 0 # FIX LATER
 
 [nms.top]
-id = 4
+id = 19
 rotationToMeterCoef = 1 #WRONG
 encoderToMechanismCoef = 1 #WRONG
 rotationalInertia = 1.0
 
 [nms.bottom]
-id = 7
+id = 9
 rotationToMeterCoef = 1 #WRONG
 encoderToMechanismCoef = 1 #WRONG
 rotationalInertia = 1.0
-inverted = true
 
 # CAMERA
 
@@ -242,9 +242,9 @@ camera2Name = "arducam2"
 
 [disabler]
 vision_disabled = true
-drive_disabled = false
+drive_disabled = true
 shooter_disabled = true
-odometry_disabled = false
+odometry_disabled = true
 climber_disabled = true
-groundIntake_disabled = true
-nms_disabled = true
+groundIntake_disabled = false
+nms_disabled = false

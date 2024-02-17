@@ -335,7 +335,7 @@ public class RobotContainer {
         operatorInput.speakerSetpoint_hold.whileTrue(new SetSpeakerShootingAngleCommand(shooterSubsystem));
         // .andThen(new ShootNoteCommand(shooterSubsystem))
         operatorInput.shootManually.whileTrue(new ShootCommandGroup(shooterSubsystem, noteManagementSubsystem));
-        operatorInput.sourceIntake_hold.whileTrue(new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem));
+        //operatorInput.sourceIntake_hold.whileTrue(new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem));
         operatorInput.setShooterAngleManually.onTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));
 
         HolonomicDriveController holonomicDriveController = new HolonomicDriveController(
@@ -482,8 +482,8 @@ public class RobotContainer {
             nms_bottomMotor = HardwareSIM.linearSIM_noPID(NMS_BOTTOMCOMPONENT, DCMotor.getNEO(1));
             nms_topMotor = HardwareSIM.linearSIM_noPID(NMS_TOPCOMPONENT, DCMotor.getNEO(1));
         } else {
-            nms_bottomMotor = HardwareDisabled.linearMotor_disabled();//HardwareREV.linearSpark_noPID(NMS_BOTTOMCOMPONENT);
-            nms_topMotor = HardwareDisabled.linearMotor_disabled();//HardwareREV.linearSpark_noPID(NMS_TOPCOMPONENT);
+            nms_bottomMotor = HardwareREV.linearSpark_noPID(NMS_BOTTOMCOMPONENT);
+            nms_topMotor = HardwareREV.linearSpark_noPID(NMS_TOPCOMPONENT);
         }
 
         return new NoteManagementSubsystem(
