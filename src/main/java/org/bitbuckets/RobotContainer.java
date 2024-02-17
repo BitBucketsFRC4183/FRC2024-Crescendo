@@ -479,7 +479,7 @@ public class RobotContainer {
         }
 
         // replace later when lil maddie makes a mattlib deserializer TODO
-        Transform3d robotToCam1 = new Transform3d(CAMERAS.camera1TranslationOffset(), new Rotation3d(0, Units.degreesToRadians(39),0 ));
+        Transform3d robotToCam1 = new Transform3d(CAMERAS.camera1TranslationOffset(), new Rotation3d(0, Units.degreesToRadians(39),Units.degreesToRadians(-180) ));
         // using multi tag localization
         PhotonPoseEstimator photonPoseEstimator1 = new PhotonPoseEstimator(
                 aprilTagFieldLayout,
