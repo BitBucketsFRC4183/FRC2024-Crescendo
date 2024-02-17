@@ -23,19 +23,9 @@ import static org.bitbuckets.vision.VisionUtil.*;
 
 public class VisionSubsystem  implements Subsystem, IMattlibHooked {
 
-    DoubleSubscriber xSub;
-    DoubleSubscriber ySub;
-    BooleanSubscriber detectedSub;
-
-    // use an AtomicReference to make updating the value thread-safe
-    final AtomicReference<Double> xValue = new AtomicReference<Double>();
-    final AtomicReference<Double> yValue = new AtomicReference<Double>();
-    final AtomicReference<Boolean> detectedValue = new AtomicReference<Boolean>();
-
-    // retain listener handles for later removal
-    int xValueListenerHandle;
-    int yValueListenerHandle;
-    int detectedValueListenerHandle;
+    final DoubleSubscriber xSub;
+    final DoubleSubscriber ySub;
+    final BooleanSubscriber detectedSub;
 
     final PhotonCamera camera_1;
     final PhotonCamera camera_2;
@@ -45,13 +35,11 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
     final AprilTagDetector aprilTagDetector;
 
     public VisionPriority priority;
-
-    private Optional<PhotonTrackedTarget> lastTarget;
-    private Optional<PhotonTrackedTarget> bestTarget;
+    Optional<PhotonTrackedTarget> lastTarget;
+    Optional<PhotonTrackedTarget> bestTarget;
 
     PhotonPipelineResult cam1_result;
     PhotonPipelineResult cam2_result;
-
 
     public VisionSubsystem(PhotonCamera camera_1, PhotonCamera camera_2, AprilTagFieldLayout layout,
                            PhotonPoseEstimator estimator1, PhotonPoseEstimator estimator2,
@@ -67,35 +55,19 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
         this.lastTarget = Optional.empty();
         this.bestTarget = Optional.empty();
 
-        NetworkTableInstance inst = NetworkTableInstance.getDefault();
+        var table = NetworkTableInstance.getDefault().getTable("vision");
 
-        xSub = inst.getDefault().getDoubleTopic("vision/x").subscribe(0.0);
-        ySub = inst.getDefault().getDoubleTopic("vision/y").subscribe(0.0);
-        detectedSub = inst.getDefault().getBooleanTopic("vision/detected").subscribe(false);
-
-        xValueListenerHandle = inst.addListener(
-                xSub,
-                EnumSet.of(NetworkTableEvent.Kind.kValueAll),
-                event -> {
-                    xValue.set(event.valueData.value.getDouble());
-                });
-
-        yValueListenerHandle = inst.addListener(
-                ySub,
-                EnumSet.of(NetworkTableEvent.Kind.kValueAll),
-                event -> {
-                    yValue.set(event.valueData.value.getDouble());
-                });
-
-        detectedValueListenerHandle = inst.addListener(
-                detectedSub,
-                EnumSet.of(NetworkTableEvent.Kind.kValueAll),
-                event -> {
-                    detectedValue.set(event.valueData.value.getBoolean());
-                });
+        this.xSub = table.getDoubleTopic("x").subscribe(0.0);
+        this.ySub = table.getDoubleTopic("y").subscribe(0.0);
+        this.detectedSub = table.getBooleanTopic("detected").subscribe(false);
 
         register();
         mattRegister();
+    }
+
+    @Override
+    public void logPeriodic() {
+
     }
 
     private void logBT(PhotonTrackedTarget bt) {
@@ -104,6 +76,7 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
         RobotContainer.VISION.log_best_target_pose(layout.getTagPose(bt.getFiducialId()).orElseThrow().toPose2d());
         RobotContainer.VISION.log_best_target_ambiguity(bt.getPoseAmbiguity());
     }
+
     @Override
     public void periodic() {
         this.cam1_result = camera_1.getLatestResult();
@@ -136,9 +109,6 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
 
     @Override
     public ExplainedException[] verifyInit() {
-        // if (RobotContainer.DISABLER.vision_disabled()) return Optional.empty();
-        //frc using 36h11 fam this year
-        // aprilTagDetector.addFamily("36h11");
         return new ExplainedException[0];
     }
 
@@ -315,45 +285,14 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
     }
 
 
-
-
-    public synchronized void acceptSpaceData(double data) {
-
-    }
-
-
-
-    public double getNoteX() {
-        double xPos = 0d;
-
-        Double x = xValue.getAndSet(null);
-        if (x != null) {
-            xPos = x;
+    public Optional<Pose2d> getClosestNotePose() {
+        if (!detectedSub.get()) {
+            return Optional.empty();
         }
+        double x = xSub.get();
+        double y = ySub.get();
 
-        return xPos;
-    }
-
-    public double getNoteY() {
-        double yPos = 0d;
-
-        Double y = xValue.getAndSet(null);
-        if (y != null) {
-            yPos = y;
-        }
-
-        return yPos;
-    }
-
-    public boolean getNoteState() {
-        boolean noteState = false;
-
-        Boolean state = detectedValue.getAndSet(null);
-        if (state != null) {
-            noteState = state;
-        }
-
-        return noteState;
+        return Optional.of(new Pose2d(x, y, new Rotation2d()));
     }
 
     public PhotonCamera[] getCameras() {

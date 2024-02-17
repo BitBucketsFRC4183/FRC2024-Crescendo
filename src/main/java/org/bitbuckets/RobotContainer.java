@@ -4,7 +4,6 @@ import com.choreo.lib.ChoreoTrajectory;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.apriltag.AprilTagDetector;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.math.WPIMathJNI;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -25,15 +24,13 @@ import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
 import org.bitbuckets.commands.drive.AugmentedDriveCommand;
-import org.bitbuckets.commands.drive.AwaitThetaCommand;
 import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
 import org.bitbuckets.commands.shooter.*;
-import org.bitbuckets.commands.vision.SetPriority;
+import org.bitbuckets.commands.vision.SetPriorityCommand;
 import org.bitbuckets.disabled.KinematicGyro;
 import org.bitbuckets.disabled.DisablerComponent;
-import org.bitbuckets.disabled.KinematicGyro;
 import org.bitbuckets.drive.*;
 import org.bitbuckets.groundIntake.GroundIntakeComponent;
 import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
@@ -299,9 +296,9 @@ public class RobotContainer {
             odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(new Pose2d(0, 0, new Rotation2d())));
         }));
 
-        operatorInput.ampVisionPriority_toggle.onTrue(new SetPriority(visionSubsystem, VisionSubsystem.VisionPriority.AMP));
-        operatorInput.speakerVisionPriority_toggle.onTrue(new SetPriority(visionSubsystem, VisionSubsystem.VisionPriority.SPEAKER));
-        operatorInput.resetVisionPriority_toggle.onTrue(new SetPriority(visionSubsystem, VisionSubsystem.VisionPriority.NONE));
+        operatorInput.ampVisionPriority_toggle.onTrue(new SetPriorityCommand(visionSubsystem, VisionSubsystem.VisionPriority.AMP));
+        operatorInput.speakerVisionPriority_toggle.onTrue(new SetPriorityCommand(visionSubsystem, VisionSubsystem.VisionPriority.SPEAKER));
+        operatorInput.resetVisionPriority_toggle.onTrue(new SetPriorityCommand(visionSubsystem, VisionSubsystem.VisionPriority.NONE));
 
     }
 
@@ -449,7 +446,7 @@ public class RobotContainer {
         return new OdometrySubsystem(
                 driveSubsystem,
                 visionSubsystem,
-                new SwerveDrivePoseEstimator( //The auto path will reset all of this data anyways
+                new CustomSwervePoseEstimator( //The auto path will reset all of this data anyways
                         kinematics,
                         new Rotation2d(),
                         new SwerveModulePosition[] { new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition()},
