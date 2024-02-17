@@ -186,8 +186,10 @@ public class RobotContainer {
 //        new ParallelCommandGroup(commands).schedule();
     }
 
-    public Command followTrajectory(String routine, String name) {
-        ChoreoTrajectory trajectory = TrajLoadingUtil.getTrajectory(routine, name);
+    public Command followTrajectory(String routine, String name, boolean isNeo) {
+        String toAppend = isNeo ? "-neo" : "";
+
+        ChoreoTrajectory trajectory = TrajLoadingUtil.getTrajectory(routine + toAppend, name + toAppend);
         return new FollowTrajectoryExactCommand(
                 trajectory,
                 odometrySubsystem,
@@ -198,8 +200,10 @@ public class RobotContainer {
                 false
         ).andThen(Commands.runOnce(driveSubsystem::commandWheelsToZero));
     }
-    public Command followFirstTrajectory(String routine, String name) {
-        ChoreoTrajectory trajectory = TrajLoadingUtil.getTrajectory(routine, name);
+    public Command followFirstTrajectory(String routine, String name, boolean isNeo) {
+        String toAppend = isNeo ? "-neo" : "";
+
+        ChoreoTrajectory trajectory = TrajLoadingUtil.getTrajectory(routine, name + toAppend);
         return new FollowTrajectoryExactCommand(
                 trajectory,
                 odometrySubsystem,
@@ -222,90 +226,70 @@ public class RobotContainer {
                 new TrapezoidProfile.Constraints(3, 3)
         );
 
-        /*var fourNoteTest = new SequentialCommandGroup(
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
-                Commands.waitSeconds(1),
-                followFirstTrajectory("4note", "pt1"),
-                followTrajectory("4note", "pt2"),
-                //Commands.waitSeconds(1),
-                //Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
-                followTrajectory("4note", "pt3"),
-                //Commands.waitSeconds(1),
-                //Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
-                followTrajectory("4note", "pt4"),
-                followTrajectory("4note", "pt5"),
-                //Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
-                followTrajectory("4note", "pt6"),
-                //Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
-                followTrajectory("4note", "pt7"),
-                followTrajectory("4note", "pt8"),
-                //Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
-                followTrajectory("4note", "pt9")
-                //Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1))
-                //Commands.runOnce(() -> odometrySubsystem.debugGyroToPosition(o))
-        );*/
+        //TODO this is laggy
 
+        boolean isNeo = MattlibSettings.ROBOT == MattlibSettings.Robot.MCR;
 
         var oneNoteCollect = new SequentialCommandGroup(
                 Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
-                followFirstTrajectory("oneNote-collect-neo", "oneNoteCollect-1"),
+                followFirstTrajectory("oneNoteCollect", "oneNoteCollect-1", isNeo),
                 Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1))
         );
 
         var twoNote = new SequentialCommandGroup(
                 Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
-                followFirstTrajectory("twoNote-neo", "twoNote-1"),
+                followFirstTrajectory("twoNote", "twoNote-1", isNeo),
                 Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
-                followTrajectory("twoNote-neo", "twoNote-2"),
+                followTrajectory("twoNote", "twoNote-2", isNeo),
                 Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1))
         );
 
         var shootLeave = new SequentialCommandGroup(
                 Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
-                followFirstTrajectory("shoot-leave-neo", "shoot-leave")
+                followFirstTrajectory("shootLeave", "shootLeave", isNeo)
         );
 
         var twoNoteCollect = new SequentialCommandGroup(
                 Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
-                followFirstTrajectory("twoNoteCollect-neo", "twoNoteCollect-1"),
+                followFirstTrajectory("twoNoteCollect", "twoNoteCollect-1", isNeo),
                 Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
-                followTrajectory("twoNoteCollect-neo", "twoNoteCollect-2"),
+                followTrajectory("twoNoteCollect", "twoNoteCollect-2", isNeo),
                 Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
-                followTrajectory("twoNoteCollect-neo", "twoNoteCollect-3"),
+                followTrajectory("twoNoteCollect", "twoNoteCollect-3", isNeo),
                 Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1))
         );
 
         var threeNote = new SequentialCommandGroup(
                 Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
-                followFirstTrajectory("threeNote-neo", "threeNote-1"),
+                followFirstTrajectory("threeNote", "threeNote-1", isNeo),
                 Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
-                followTrajectory("threeNote-neo", "threeNote-2"),
+                followTrajectory("threeNote", "threeNote-2", isNeo),
                 Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
-                followTrajectory("threeNote-neo", "threeNote-3"),
+                followTrajectory("threeNote", "threeNote-3", isNeo),
                 Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
-                followTrajectory("threeNote-neo", "threeNote-4"),
+                followTrajectory("threeNote", "threeNote-4", isNeo),
                 Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1))
         );
 
         var fourNote = new SequentialCommandGroup(
                 Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
-                followFirstTrajectory("fourNoteNeo", "fourNote-1-neo"),
+                followFirstTrajectory("fourNote", "fourNote-1", isNeo),
                 Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
-                followTrajectory("fourNoteNeo", "fourNote-2-neo"),
+                followTrajectory("fourNote", "fourNote-2", isNeo),
                 Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
-                followTrajectory("fourNoteNeo", "fourNote-3-neo"),
+                followTrajectory("fourNote", "fourNote-3", isNeo),
                 Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
-                followTrajectory("fourNoteNeo", "fourNote-4-neo"),
+                followTrajectory("fourNote", "fourNote-4", isNeo),
                 Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
-                followTrajectory("fourNoteNeo", "fourNote-5-neo"),
+                followTrajectory("fourNote", "fourNote-5", isNeo),
                 Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
-                followTrajectory("fourNoteNeo", "fourNote-6-neo"),
+                followTrajectory("fourNote", "fourNote-6", isNeo),
                 Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1))
         );
 
         var mvpTaxi = new SequentialCommandGroup(
                 Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
-                followFirstTrajectory("mvp_taxi-neo", "mvp_taxi-neo")
+                followFirstTrajectory("mvp_taxi", "mvp_taxi", isNeo)
         );
 
         //this is if drive isn't working for some reason and we just need to shoot during auto
@@ -314,36 +298,23 @@ public class RobotContainer {
         );
 
         var rotationTest = new SequentialCommandGroup(
-                followFirstTrajectory("rotation-Neo", "rotation-1"),
-                followFirstTrajectory("rotation-Neo", "rotation-2")
-        );
-/*
-
-
-        var backwardsFollow = new SequentialCommandGroup(
-                Commands.runOnce(() -> SWERVE.logEndpoint(trajectory.getFinalPose())),
-                Commands.runOnce(() -> odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(trajectory.getInitialPose()))),
-                follow,
-                Commands.waitSeconds(1),
-                follow2,
-                Commands.runOnce(() -> System.out.println("FINISHED")),
-                Commands.runOnce(driveSubsystem::commandWheelsToZero)
+                followFirstTrajectory("rotation", "rotation-1", isNeo),
+                followFirstTrajectory("rotation", "rotation-2", isNeo)
         );
 
-
-
-        var backwardsFollow = new SequentialCommandGroup(
-                Commands.runOnce(() -> SWERVE.logEndpoint(trajectory.getFinalPose())),
-                Commands.runOnce(() -> odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(trajectory.getInitialPose()))),
-                follow,
-                Commands.waitSeconds(1),
-                follow2,
-                Commands.runOnce(() -> System.out.println("FINISHED")),
-                Commands.runOnce(driveSubsystem::commandWheelsToZero)
-        );
-*/
         SendableChooser<Command> chooser = new SendableChooser<>();
         chooser.setDefaultOption("fourNote", fourNote); //TODO later
+        chooser.addOption("oneNoteCollect", oneNoteCollect);
+        chooser.addOption("twoNote", twoNote);
+        chooser.addOption("shootLeave", shootLeave);
+        chooser.addOption("twoNoteCollect", twoNoteCollect);
+        chooser.addOption("threeNote", threeNote);
+        chooser.addOption("fourNote", fourNote);
+        chooser.addOption("mvpTaxi", mvpTaxi);
+        chooser.addOption("shootOnly", shootOnly);
+        chooser.addOption("rotationTest", rotationTest);
+
+
         SmartDashboard.putData("firstPath", chooser);
         return chooser;
     }
@@ -381,8 +352,12 @@ public class RobotContainer {
         operatorInput.autoAlignHold.whileTrue(new MoveToAlignCommand(driveSubsystem, visionSubsystem, holonomicDriveController, odometrySubsystem));
         operatorInput.isTeleop.and(climberThreshold).whileTrue(new MoveClimberCommand(climberSubsystem, operatorInput));
 
-        operatorInput.groundIntakeHold.whileTrue(new org.bitbuckets.commands.groundIntake.FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem));
+        operatorInput.groundIntakeHold.whileTrue(new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem));
         operatorInput.groundOuttakeHold.whileTrue(new GroundOuttakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
+
+        operatorInput.groundIntakeHoldOp.whileTrue(new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem));
+        operatorInput.groundOuttakeHoldOp.whileTrue(new GroundOuttakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
+
 
         operatorInput.resetGyroPress.onTrue(Commands.runOnce(() -> {
             odometrySubsystem.debugZero();
