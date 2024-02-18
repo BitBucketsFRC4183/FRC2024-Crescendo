@@ -231,75 +231,91 @@ public class RobotContainer {
         boolean isNeo = MattlibSettings.ROBOT == MattlibSettings.Robot.MCR;
 
         var oneNoteCollect = new SequentialCommandGroup(
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
                 followFirstTrajectory("oneNoteCollect", "oneNoteCollect-1", isNeo),
-                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1))
+                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem)
         );
 
         var twoNote = new SequentialCommandGroup(
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
                 followFirstTrajectory("twoNote", "twoNote-1", isNeo),
-                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
+                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem),
                 followTrajectory("twoNote", "twoNote-2", isNeo),
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1))
+                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem)
         );
 
         var shootLeave = new SequentialCommandGroup(
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
                 followFirstTrajectory("shootLeave", "shootLeave", isNeo)
         );
 
         var twoNoteCollect = new SequentialCommandGroup(
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
                 followFirstTrajectory("twoNoteCollect", "twoNoteCollect-1", isNeo),
-                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
+                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem),
                 followTrajectory("twoNoteCollect", "twoNoteCollect-2", isNeo),
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
                 followTrajectory("twoNoteCollect", "twoNoteCollect-3", isNeo),
-                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1))
+                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem)
         );
 
         var threeNote = new SequentialCommandGroup(
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
                 followFirstTrajectory("threeNote", "threeNote-1", isNeo),
-                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
+                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem),
                 followTrajectory("threeNote", "threeNote-2", isNeo),
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
                 followTrajectory("threeNote", "threeNote-3", isNeo),
-                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
+                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem),
                 followTrajectory("threeNote", "threeNote-4", isNeo),
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1))
+                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem)
         );
 
         var fourNote = new SequentialCommandGroup(
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
                 followFirstTrajectory("fourNote", "fourNote-1", isNeo),
-                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
+                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem),
                 followTrajectory("fourNote", "fourNote-2", isNeo),
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
                 followTrajectory("fourNote", "fourNote-3", isNeo),
-                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
+                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem),
                 followTrajectory("fourNote", "fourNote-4", isNeo),
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
                 followTrajectory("fourNote", "fourNote-5", isNeo),
-                Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
+                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem),
                 followTrajectory("fourNote", "fourNote-6", isNeo),
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1))
+                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem)
         );
 
         var mvpTaxi = new SequentialCommandGroup(
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
-                followFirstTrajectory("mvp_taxi", "mvp_taxi", isNeo)
+                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
+                followFirstTrajectory("mvpTaxi", "mvpTaxi", isNeo)
         );
 
         //this is if drive isn't working for some reason and we just need to shoot during auto
         var shootOnly = new SequentialCommandGroup(
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1))
+                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem)
         );
 
         var rotationTest = new SequentialCommandGroup(
                 followFirstTrajectory("rotation", "rotation-1", isNeo),
                 followFirstTrajectory("rotation", "rotation-2", isNeo)
+        );
+
+        var twoNoteContested = new SequentialCommandGroup(
+                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
+                followFirstTrajectory("twoNoteContested", "twoNoteContested-1", isNeo),
+                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem),
+                followFirstTrajectory("twoNoteContested", "twoNoteContested-2", isNeo),
+                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem)
+        );
+
+        var twoNoteContestedAlt = new SequentialCommandGroup(
+                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
+                followFirstTrajectory("twoNoteContestedAlt", "twoNoteContestedAlt-1", isNeo),
+                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem),
+                followFirstTrajectory("twoNoteContestedAlt", "twoNoteContestedAlt-2", isNeo),
+                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem)
         );
 
         SendableChooser<Command> chooser = new SendableChooser<>();
@@ -315,7 +331,7 @@ public class RobotContainer {
         chooser.addOption("rotationTest", rotationTest);
 
 
-        SmartDashboard.putData("firstPath", chooser);
+        SmartDashboard.putData("Path", chooser);
         return chooser;
     }
 
