@@ -66,7 +66,7 @@ public class OperatorInput {
 
 
 
-    public boolean getSlowModeState() {
+    public boolean getSlowModeHeld() {
         return slowModeHold.getAsBoolean();
     }
 
