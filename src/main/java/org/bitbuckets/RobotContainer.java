@@ -230,70 +230,70 @@ public class RobotContainer {
         boolean isNeo = MattlibSettings.ROBOT == MattlibSettings.Robot.MCR;
 
         var oneNoteCollect = new SequentialCommandGroup(
-                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
+                new SpinFlywheelCommand(shooterSubsystem, false, 100),
                 followFirstTrajectory("oneNoteCollect", "oneNoteCollect-1", isNeo),
-                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem)
+                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
         );
 
         var twoNote = new SequentialCommandGroup(
-                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
+                new SpinFlywheelCommand(shooterSubsystem, false, 100),
                 followFirstTrajectory("twoNote", "twoNote-1", isNeo),
-                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem),
+                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem),
                 followTrajectory("twoNote", "twoNote-2", isNeo),
-                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem)
+                new SpinFlywheelCommand(shooterSubsystem, false, 100)
         );
 
         var shootLeave = new SequentialCommandGroup(
-                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
+                new SpinFlywheelCommand(shooterSubsystem, false, 100),
                 followFirstTrajectory("shootLeave", "shootLeave", isNeo)
         );
 
         var twoNoteCollect = new SequentialCommandGroup(
-                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
+                new SpinFlywheelCommand(shooterSubsystem, false, 100),
                 followFirstTrajectory("twoNoteCollect", "twoNoteCollect-1", isNeo),
-                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem),
+                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem),
                 followTrajectory("twoNoteCollect", "twoNoteCollect-2", isNeo),
-                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
+                new SpinFlywheelCommand(shooterSubsystem, false, 100),
                 followTrajectory("twoNoteCollect", "twoNoteCollect-3", isNeo),
-                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem)
+                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
         );
 
         var threeNote = new SequentialCommandGroup(
-                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
+                new SpinFlywheelCommand(shooterSubsystem, false, 100),
                 followFirstTrajectory("threeNote", "threeNote-1", isNeo),
-                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem),
+                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem),
                 followTrajectory("threeNote", "threeNote-2", isNeo),
-                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
+                new SpinFlywheelCommand(shooterSubsystem, false, 100),
                 followTrajectory("threeNote", "threeNote-3", isNeo),
-                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem),
+                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem),
                 followTrajectory("threeNote", "threeNote-4", isNeo),
-                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem)
+                new SpinFlywheelCommand(shooterSubsystem, false, 100)
         );
 
         var fourNote = new SequentialCommandGroup(
-                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
+                new SpinFlywheelCommand(shooterSubsystem, false, 100),
                 followFirstTrajectory("fourNote", "fourNote-1", isNeo),
-                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem),
+                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem),
                 followTrajectory("fourNote", "fourNote-2", isNeo),
-                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
+                new SpinFlywheelCommand(shooterSubsystem, false, 100),
                 followTrajectory("fourNote", "fourNote-3", isNeo),
-                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem),
+                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem),
                 followTrajectory("fourNote", "fourNote-4", isNeo),
-                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
+                new SpinFlywheelCommand(shooterSubsystem, false, 100),
                 followTrajectory("fourNote", "fourNote-5", isNeo),
-                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem),
+                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem),
                 followTrajectory("fourNote", "fourNote-6", isNeo),
-                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem)
+                new SpinFlywheelCommand(shooterSubsystem, false, 100)
         );
 
         var mvpTaxi = new SequentialCommandGroup(
-                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
+                new SpinFlywheelCommand(shooterSubsystem, false, 100),
                 followFirstTrajectory("mvpTaxi", "mvpTaxi", isNeo)
         );
 
         //this is if drive isn't working for some reason and we just need to shoot during auto
         var shootOnly = new SequentialCommandGroup(
-                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem)
+                new SpinFlywheelCommand(shooterSubsystem, false, 100)
         );
 
         var rotationTest = new SequentialCommandGroup(
@@ -302,31 +302,31 @@ public class RobotContainer {
         );
 
         var twoNoteContested = new SequentialCommandGroup(
-                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
+                new SpinFlywheelCommand(shooterSubsystem, false, 100),
                 followFirstTrajectory("twoNoteContested", "twoNoteContested-1", isNeo),
-                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem),
+                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem),
                 followFirstTrajectory("twoNoteContested", "twoNoteContested-2", isNeo),
-                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem)
+                new SpinFlywheelCommand(shooterSubsystem, false, 100)
         );
 
         var twoNoteContestedAlt = new SequentialCommandGroup(
-                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
+                new SpinFlywheelCommand(shooterSubsystem, false, 100),
                 followFirstTrajectory("twoNoteContestedAlt", "twoNoteContestedAlt-1", isNeo),
-                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem),
+                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem),
                 followFirstTrajectory("twoNoteContestedAlt", "twoNoteContestedAlt-2", isNeo),
-                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem)
+                new SpinFlywheelCommand(shooterSubsystem, false, 100)
         );
 
         var threeNoteContested = new SequentialCommandGroup(
-                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
+                new SpinFlywheelCommand(shooterSubsystem, false, 100),
                 followFirstTrajectory("threeNoteContested", "threeNoteContested-1", isNeo),
-                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem),
+                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem),
                 followFirstTrajectory("threeNoteContested", "threeNoteContested-2", isNeo),
-                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
+                new SpinFlywheelCommand(shooterSubsystem, false, 100),
                 followFirstTrajectory("threeNoteContested", "threeNoteContested-3", isNeo),
-                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem),
+                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem),
                 followFirstTrajectory("threeNoteContested", "threeNoteContested-4", isNeo),
-                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem)
+                new SpinFlywheelCommand(shooterSubsystem, false, 100)
         );
 
         SendableChooser<Command> chooser = new SendableChooser<>();
