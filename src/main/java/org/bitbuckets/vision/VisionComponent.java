@@ -21,6 +21,7 @@ public interface VisionComponent extends INetworkedComponent {
     @Log("best_cameraToTag_pose") void log_best_cameraToTag_pose(Pose2d pose);
     @Log("desired_transform_pose") void log_desired_transform_pose(Pose2d pose);
 
+    @Log("lookup_pose_from_tag") void log_lookup_pose_from_tag(Pose2d pose);
     @Log("current_priority") void  log_current_priority(String priority);
     @Log("vision_robot_pose_1") void log_vision_robot_pose_1(Pose2d p1);
     @Log("vision_robot_pose_2") void log_vision_robot_pose_2(Pose2d p2);

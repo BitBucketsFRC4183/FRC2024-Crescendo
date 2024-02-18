@@ -16,7 +16,7 @@ public class FinishGroundIntakeCommand extends ParallelRaceGroup { //this finish
                 Commands.runEnd(
                         () -> { //run these during the command
                             groundIntakeSubsystem.setToVoltage(7);
-                            noteManagementSubsystem.setAllToVoltage(12);
+                            noteManagementSubsystem.setAllToVoltage(2);
                         },
                         () -> {
                             groundIntakeSubsystem.setToVoltage(0);

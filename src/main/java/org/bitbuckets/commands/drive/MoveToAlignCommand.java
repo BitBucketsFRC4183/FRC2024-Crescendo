@@ -10,8 +10,11 @@ import org.bitbuckets.vision.VisionSubsystem;
 import org.bitbuckets.vision.VisionUtil;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import javax.swing.*;
 import java.util.Optional;
 
+
+// if it aint broke dont fix it
 public class MoveToAlignCommand extends Command {
 
     final DriveSubsystem driveSubsystem;
@@ -31,41 +34,36 @@ public class MoveToAlignCommand extends Command {
         this.visionSubsystem = visionSubsystem;
         this.holoController = holoController;
         this.odometrySubsystem = odometrySubsystem;
-
-        // change this with visiontarget implementation later
-        Optional<PhotonTrackedTarget> optTarget = visionSubsystem.getBestVisionTarget();
-        if (optTarget.isPresent()) {
-            Transform3d tagTransform = VisionUtil.getDesiredTargetAlignTransform(optTarget.get());
-            this.targetPose = odometrySubsystem.getRobotCentroidPositionVert().plus(tagTransform);
-        } else {
-            this.targetPose = odometrySubsystem.getRobotCentroidPositionVert();
-        }
-
     }
 
     @Override
-    public void execute() {
-        // this must be updated every as frequently as possible
-        Optional<PhotonTrackedTarget> optTarget = visionSubsystem.getBestVisionTarget(false);
-
-        if (optTarget.isPresent()) {
-            Transform3d tagTransform = VisionUtil.getDesiredTargetAlignTransform(optTarget.get());
-            targetPose = odometrySubsystem.getRobotCentroidPositionVert().plus(tagTransform);
-        }
-
-        ChassisSpeeds speeds = calculateTagSpeeds(this.targetPose.toPose2d(),
-                targetPose.toPose2d().getRotation().plus(Rotation2d.fromDegrees(180)),
-                1);
-        driveSubsystem.driveUsingChassisSpeed(speeds);
-
+    public void initialize() {
+        setTarget();
     }
-    public ChassisSpeeds calculateTagSpeeds(Pose2d target, Rotation2d holonomicRotation, double desiredVelocity) {
-        return holoController.calculate(
-                odometrySubsystem.getRobotCentroidPosition(),
-                target,
-                desiredVelocity,
-                holonomicRotation
-        );
+
+    private void setTarget() {
+        Optional<PhotonTrackedTarget> optTarget = visionSubsystem.getBestVisionTarget(true);
+        if (optTarget.isPresent()) {
+            this.targetPose = VisionUtil.getDesiredTargetAlignPose(optTarget.get());
+            RobotContainer.VISION.log_desired_transform_pose(this.targetPose.toPose2d());
+        }
+    }
+    @Override
+    public void execute() {
+        if (this.targetPose != null) {
+            setTarget();
+
+            double desiredVelocity = 5;
+
+            ChassisSpeeds speeds = this.holoController.calculate(
+                    this.odometrySubsystem.getRobotCentroidPosition(),
+                    this.targetPose.toPose2d(),
+                    desiredVelocity,
+                    this.targetPose.toPose2d().getRotation()
+            );
+
+            driveSubsystem.driveUsingChassisSpeed(speeds);
+        }
     }
 
     @Override
@@ -75,10 +73,18 @@ public class MoveToAlignCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        Pose2d currentPose = odometrySubsystem.getRobotCentroidPosition();
+        if (this.targetPose != null) {
+            Pose2d currentPose = odometrySubsystem.getRobotCentroidPosition();
 
-        return Math.abs(currentPose.getX() - targetPose.getX()) < xThreshold &&
-                Math.abs(currentPose.getY() - targetPose.getY()) < yThreshold &&
-                (currentPose.getRotation().getDegrees() - targetPose.getRotation().getAngle()) < angleThreshold;
-    }
+            boolean finished =  Math.abs(currentPose.getX() - this.targetPose.getX()) < xThreshold &&
+                    Math.abs(currentPose.getY() - this.targetPose.getY()) < yThreshold &&
+                    (currentPose.getRotation().getDegrees() - this.targetPose.getRotation().getAngle()) < angleThreshold;
+
+            if (finished) {
+                System.out.println("ho ho ho");
+            }
+
+            return finished;
+        } else return true;
+    };
 }

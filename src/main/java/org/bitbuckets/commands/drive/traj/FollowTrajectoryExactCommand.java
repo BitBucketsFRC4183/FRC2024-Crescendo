@@ -43,12 +43,10 @@ public class FollowTrajectoryExactCommand extends Command {
         addRequirements(driveSubsystem, autoSubsystem);
     }
 
-
     boolean shouldMirror() {
         DriverStation.Alliance alliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue);
         return alliance == DriverStation.Alliance.Red;
     }
-
 
     @Override
     public void initialize() {
