@@ -38,13 +38,19 @@ IMG_SIZE = (640, 640)
 OBJ_THRESH = 0.25
 NMS_THRESH = 0.45
 
-# calibration camera data
+# calibration camera data for Microsoft® LifeCam HD-3000, cx and cy rescaled to (640, 640)
 CAM_MATRIX = np.array([
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0]
+    [1135.3910661264101, 0, 333.331134567], # fx, 0, cx
+    [0, 1132.4782732619462, 280.854904434], # 0, fy, cy
+    [0, 0, 1]
 ])
-DIST_COEFFS = None
+DIST_COEFFS = np.array([
+    0.12638832197955957,
+    -0.9622506244021928,
+    -0.0031641394668092838,
+    0.000391140290407239,
+    1.5777235084108012])
+CAM_OFFSET = (0, 12) # 2d offset of camera and robot centroid in inches
 
 def filter_boxes(boxes, box_confidences, box_class_probs):
     """Filter boxes with object threshold.
@@ -274,7 +280,7 @@ if __name__ == '__main__':
         boxes, classes, scores = post_process(outputs)
         detected = boxes is not None
 
-        # 2d pose of the robot
+        # 2d pose of the robot, y is axis from robot towards note in front, x is side to side
         x, y = 0, 0
 
         if detected:
@@ -308,12 +314,13 @@ if __name__ == '__main__':
                 x = camera_position[0]
                 y = camera_position[1]
 
+                print(f"Camera pose: {x}, {y}")
+
 
         # publish data using networktables
         nt.periodic(x, y, detected)
 
-        # printing for testing
-        print_outputs(boxes, classes, scores)
+        # print_outputs(boxes, classes, scores)
 
         # draw the boxes and make video
         # if boxes is not None:
@@ -324,19 +331,19 @@ if __name__ == '__main__':
         # calculate average fps every 30 frames
         if frames % 30 == 0:
             fps = 30 / (time.time() - loopTime)
-            print(f"FPS: {fps: .3f}")
+            # print(f"FPS: {fps: .3f}")
             loopTime = time.time()
 
-        # stop condition
+        # TODO - remove this in prod
         if frames > 300:
             break
 
     # Overall average fps
     fps = frames / (time.time() - initTime)
-    print(f"Overall fps: {fps: .3f}")
+    # print(f"Overall fps: {fps: .3f}")
 
     nt.close()
     cam.release()
-    video.release()
+    #video.release()
     rknn_lite.release()
     print('done')
