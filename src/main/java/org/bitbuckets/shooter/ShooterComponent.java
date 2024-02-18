@@ -2,7 +2,6 @@ package org.bitbuckets.shooter;
 
 import xyz.auriium.mattlib2.log.INetworkedComponent;
 import xyz.auriium.mattlib2.log.annote.Conf;
-import xyz.auriium.mattlib2.log.annote.Log;
 
 public interface ShooterComponent extends INetworkedComponent {
 
@@ -12,9 +11,11 @@ public interface ShooterComponent extends INetworkedComponent {
    @Conf("ff_kv") double kv();
 
 
-   @Conf("channel") int channel();
+   @Conf("pivotChannel_dio") int pivotChannel_dio();
+   @Conf("velocityChannelA_dio") int velocityChannelA_dio();
+   @Conf("velocityChannelB_dio") int velocityChannelB_dio();
    @Conf("deadband") double deadband_mechanismRotations();
-   @Conf("dio_channel") int dio();
+
 
 
 }

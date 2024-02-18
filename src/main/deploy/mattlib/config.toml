@@ -10,13 +10,14 @@
 # Base Robot Stuff
 
 [ground_intake.top]
-id = 17
+id = 14
 rotationToMeterCoef = 1
 encoderToMechanismCoef = 1
 rotationalInertia = 1
+inverted = true
 
 [ground_intake.bottom]
-id = 9
+id = 21
 rotationToMeterCoef = 1
 encoderToMechanismCoef = 1
 rotationalInertia = 1
@@ -35,10 +36,10 @@ pid = {p = 0, i = 0, d = 0}
 # SHOOTER
 
 [shooter]
-dio_channel = 0
+pivotChannel_dio = 0
+velocityChannelA_dio = 3
+velocityChannelB_dio = 4
 deadband = 0.0
-channel = 0
-pid = {p = 0, i = 0, d = 0}
 ff_ks = 0.4895168812659137
 ff_kv = 0.12869522412846462
 
@@ -72,12 +73,12 @@ encoderToMechanismCoef = 1
 offset = 0.0
 
 [shooter.pivot]
-encoderToMechanismCoef = 1
+encoderToMechanismCoef = 1666.666666666666666666666666666666666666666666 # 100:1 * 15:18 * 20:1
 id = 11
 rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
-pid = {p = 0, i = 0, d = 0}
+pid = {p = 1, i = 0, d = 0}
 
 [shooter.calculator]
 mass = 0.25 #kg
@@ -216,21 +217,23 @@ rotationalInertia = 0.0
 
 # NMS NOTE MANAGEMENT SUBSYSTEM
 [nms]
-channel = 2
+channel = 6
 deadband = 0 # FIX LATER
 
 [nms.top]
-id = 4
+id = 19
 rotationToMeterCoef = 1 #WRONG
 encoderToMechanismCoef = 1 #WRONG
 rotationalInertia = 1.0
+breakModeEnabled = true
 
 [nms.bottom]
-id = 7
+id = 9
 rotationToMeterCoef = 1 #WRONG
 encoderToMechanismCoef = 1 #WRONG
 rotationalInertia = 1.0
-inverted = true
+breakModeEnabled = true
+
 
 # CAMERA
 
@@ -242,9 +245,9 @@ camera2Name = "arducam2"
 
 [disabler]
 vision_disabled = true
-drive_disabled = false
+drive_disabled = true
 shooter_disabled = true
-odometry_disabled = false
+odometry_disabled = true
 climber_disabled = true
-groundIntake_disabled = true
-nms_disabled = true
+groundIntake_disabled = false
+nms_disabled = false

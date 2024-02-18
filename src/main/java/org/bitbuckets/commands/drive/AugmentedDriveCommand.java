@@ -64,10 +64,16 @@ public class AugmentedDriveCommand extends Command {
                         .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
                         .getTranslation();
 
+        double speedMultiplier = 3d;
+        double turboSpeedMultiplier = 4.5;
+        if (operatorInput.getTurboModeHeld())
+        {
+            speedMultiplier = turboSpeedMultiplier;
+        }
         ChassisSpeeds speeds =
                 new ChassisSpeeds(
-                        linearVelocity.getX() * 4.5, //experimentally determined max velocity
-                        linearVelocity.getY() * 4.5,
+                        linearVelocity.getX() * speedMultiplier, //4.5 is the experimentally determined max velocity
+                        linearVelocity.getY() * speedMultiplier,
                         theta * 1 * Math.PI );
 
 

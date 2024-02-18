@@ -24,6 +24,7 @@ public class GroundOuttakeCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
+        noteManagementSubsystem.setAllToVoltage(0);
         groundIntakeSubsystem.setToVoltage(0);
     }
 

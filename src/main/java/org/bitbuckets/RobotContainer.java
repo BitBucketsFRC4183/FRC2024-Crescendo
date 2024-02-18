@@ -26,6 +26,7 @@ import org.bitbuckets.commands.drive.AugmentedDriveCommand;
 import org.bitbuckets.commands.drive.AwaitThetaCommand;
 import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
+import org.bitbuckets.commands.groundIntake.FeedGroundIntakeGroup;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
 import org.bitbuckets.commands.shooter.*;
 import org.bitbuckets.disabled.DisablerComponent;
@@ -49,10 +50,8 @@ import xyz.auriium.mattlib2.MattConsole;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
 import xyz.auriium.mattlib2.auto.ff.GenerateFFComponent;
-import xyz.auriium.mattlib2.auto.ff.LinearFFGenRoutine;
 import xyz.auriium.mattlib2.hardware.*;
 import xyz.auriium.mattlib2.hardware.config.*;
-import xyz.auriium.mattlib2.loop.CTowerCommands;
 import xyz.auriium.mattlib2.log.ConsoleComponent;
 import xyz.auriium.mattlib2.rev.HardwareREV;
 import xyz.auriium.mattlib2.sim.HardwareSIM;
@@ -352,7 +351,6 @@ public class RobotContainer {
 
     void loadCommands() {
 
-
         //When driver
         Trigger xGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftX.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kLeftX.value, -0.1));
         Trigger yGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kLeftY.value, -0.1));
@@ -362,12 +360,16 @@ public class RobotContainer {
         operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(new AugmentedDriveCommand(SWERVE, driveSubsystem, odometrySubsystem, operatorInput));
 
         // Trigger thingsA
-        operatorInput.ampSetpoint_hold.whileTrue(new SetAmpShootingAngleCommand(shooterSubsystem).andThen(new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem)));
-        operatorInput.speakerSetpoint_hold.whileTrue(new SetSpeakerShootingAngleCommand(shooterSubsystem));
-        // .andThen(new ShootNoteCommand(shooterSubsystem))
-        operatorInput.shootManually.whileTrue(new ShootCommandGroup(shooterSubsystem, noteManagementSubsystem));
-        operatorInput.sourceIntake_hold.whileTrue(new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem));
+        operatorInput.ampSetpoint_hold.whileTrue(new PivotToAmpFireGroup(shooterSubsystem, noteManagementSubsystem, 100));
+        operatorInput.speakerSetpoint_hold.whileTrue(new PivotToSpeakerFireGroup(shooterSubsystem, noteManagementSubsystem, 100));
+        operatorInput.shootManually.whileTrue(new FeedFlywheelAndFireGroup(shooterSubsystem, noteManagementSubsystem, 100));
         operatorInput.setShooterAngleManually.onTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));
+
+        operatorInput.sourceIntake_hold.whileTrue(new PivotToSourceConsumeGroup(shooterSubsystem, noteManagementSubsystem, 100));
+        operatorInput.groundIntakeHold.or(operatorInput.groundIntakeHoldOp).and(operatorInput.groundOuttakeHold.negate())
+                .whileTrue(new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem));
+        operatorInput.groundOuttakeHold.or(operatorInput.groundOuttakeHoldOp).and(operatorInput.groundIntakeHold.negate())
+                .whileTrue(new GroundOuttakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
 
         HolonomicDriveController holonomicDriveController = new HolonomicDriveController(
                 new PIDController(DRIVE_X_PID.pConstant(), DRIVE_X_PID.iConstant(), DRIVE_X_PID.dConstant()),
@@ -382,12 +384,6 @@ public class RobotContainer {
 
         operatorInput.autoAlignHold.whileTrue(new MoveToAlignCommand(driveSubsystem, visionSubsystem, holonomicDriveController, odometrySubsystem));
         operatorInput.isTeleop.and(climberThreshold).whileTrue(new MoveClimberCommand(climberSubsystem, operatorInput));
-
-        operatorInput.groundIntakeHold.whileTrue(new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem));
-        operatorInput.groundOuttakeHold.whileTrue(new GroundOuttakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
-
-        operatorInput.groundIntakeHoldOp.whileTrue(new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem));
-        operatorInput.groundOuttakeHoldOp.whileTrue(new GroundOuttakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
 
 
         operatorInput.resetGyroPress.onTrue(Commands.runOnce(() -> {
@@ -459,29 +455,30 @@ public class RobotContainer {
         IRotationalController leftMotor;
         IRotationalController rightMotor;
         IRotationalController angleMotor;
-        IRotationEncoder absoluteEncoder;
+        IRotationEncoder pivotEncoder;
         IRotationEncoder velocityEncoder;
 
         if (DISABLER.shooter_disabled()) {
             leftMotor = HardwareDisabled.rotationalController_disabled();
             rightMotor = HardwareDisabled.rotationalController_disabled();
             angleMotor = HardwareDisabled.rotationalController_disabled();
-            absoluteEncoder = HardwareDisabled.rotationEncoder_disabled();
+            pivotEncoder = HardwareDisabled.rotationEncoder_disabled();
             velocityEncoder = HardwareDisabled.rotationEncoder_disabled();
         } else if (Robot.isSimulation()) {
             leftMotor = HardwareSIM.rotationalSIM_pid(SHOOTER_WHEEL_1, SHOOTER_PID_1, DCMotor.getNEO(1));
             rightMotor = HardwareSIM.rotationalSIM_pid(SHOOTER_WHEEL_2, SHOOTER_PID_2, DCMotor.getNEO(1));
             angleMotor = HardwareSIM.rotationalSIM_pid(PIVOT, PIVOT_PID, DCMotor.getNEO(1));
-            absoluteEncoder = angleMotor;
+            pivotEncoder = angleMotor;
             velocityEncoder = leftMotor; //TODO switch out leftMotor with actual velocity encoder
 
         } else {
             leftMotor = HardwareREV.rotationalSpark_builtInPID(SHOOTER_WHEEL_1, SHOOTER_PID_1);
             rightMotor = HardwareREV.rotationalSpark_builtInPID(SHOOTER_WHEEL_2, SHOOTER_PID_2);
             angleMotor = HardwareREV.rotationalSpark_builtInPID(PIVOT, PIVOT_PID);
-            absoluteEncoder = new ThriftyAbsoluteEncoder(new AnalogInput(SHOOTER.channel()), SHOOTER_ABSOLUTE);
+            pivotEncoder = new ThriftyAbsoluteEncoder(
+                    new AnalogInput(SHOOTER.pivotChannel_dio()), SHOOTER_ABSOLUTE);
             velocityEncoder = new ThroughBoreEncoder(
-                    new Encoder(2, 3), VELOCITY_ENCODER
+                    new Encoder(SHOOTER.velocityChannelA_dio(), SHOOTER.velocityChannelB_dio()), VELOCITY_ENCODER
             );
         }
 
@@ -490,7 +487,7 @@ public class RobotContainer {
                 leftMotor,
                 rightMotor,
                 angleMotor,
-                absoluteEncoder,
+                pivotEncoder,
                 SHOOTER,
                 SHOOTER_ABSOLUTE,
                 velocityEncoder
@@ -514,8 +511,8 @@ public class RobotContainer {
             nms_bottomMotor = HardwareSIM.linearSIM_noPID(NMS_BOTTOMCOMPONENT, DCMotor.getNEO(1));
             nms_topMotor = HardwareSIM.linearSIM_noPID(NMS_TOPCOMPONENT, DCMotor.getNEO(1));
         } else {
-            nms_bottomMotor = HardwareDisabled.linearMotor_disabled();//HardwareREV.linearSpark_noPID(NMS_BOTTOMCOMPONENT);
-            nms_topMotor = HardwareDisabled.linearMotor_disabled();//HardwareREV.linearSpark_noPID(NMS_TOPCOMPONENT);
+            nms_bottomMotor = HardwareREV.linearSpark_noPID(NMS_BOTTOMCOMPONENT);
+            nms_topMotor = HardwareREV.linearSpark_noPID(NMS_TOPCOMPONENT);
         }
 
         return new NoteManagementSubsystem(

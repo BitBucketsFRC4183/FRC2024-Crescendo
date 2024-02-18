@@ -3,11 +3,11 @@ package org.bitbuckets.commands.noteManagement;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.bitbuckets.noteManagement.NoteManagementSubsystem;
 
-public class PushNoteFromNMSToShooterCommand extends Command {
+public class FeedNMSCommand extends Command {
 
     final NoteManagementSubsystem noteManagementSubsystem;
 
-    public PushNoteFromNMSToShooterCommand(NoteManagementSubsystem noteManagementSubsystem) {
+    public FeedNMSCommand(NoteManagementSubsystem noteManagementSubsystem) {
         this.noteManagementSubsystem = noteManagementSubsystem;
     }
 
@@ -16,11 +16,9 @@ public class PushNoteFromNMSToShooterCommand extends Command {
         noteManagementSubsystem.setAllToVoltage(12);
     }
 
-
-
     @Override
     public boolean isFinished() {
-        return !noteManagementSubsystem.isNoteIn() && noteManagementSubsystem.motorsAtVelocity(50);
+        return !noteManagementSubsystem.isNoteIn();
     }
 
     @Override

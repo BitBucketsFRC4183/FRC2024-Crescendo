@@ -1,7 +1,6 @@
 package org.bitbuckets;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -35,12 +34,12 @@ public class OperatorInput {
 
     final Trigger slowModeHold = driver.leftTrigger();
     final Trigger turboModeHold = driver.rightTrigger();
-    final Trigger autoAlignHold = driver.a();
-    final Trigger xButtonToggle = driver.x();
+    final Trigger autoAlignHold = driver.x();
+    final Trigger xButtonToggle = driver.a();
     final Trigger groundIntakeHold = driver.rightBumper();
-    final Trigger groundOuttakeHold = driver.leftBumper(); //TODO Assign ground outtake to another button besides left bumper (left bumper already used for ground intake)
+    final Trigger groundOuttakeHold = driver.leftBumper();
     final Trigger groundIntakeHoldOp = operatorControl.rightBumper();
-    final Trigger groundOuttakeHoldOp = operatorControl.leftBumper(); //TODO Assign ground outtake to another button besides left bumper (left bumper already used for ground intake)
+    final Trigger groundOuttakeHoldOp = operatorControl.b();
     final Trigger resetGyroPress = driver.start();
 
 
@@ -71,7 +70,7 @@ public class OperatorInput {
         return slowModeHold.getAsBoolean();
     }
 
-    public boolean getTurboModeState() {
+    public boolean getTurboModeHeld() {
         return turboModeHold.getAsBoolean();
     }
 
