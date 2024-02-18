@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.util.WPIUtilJNI;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.bitbuckets.OperatorInput;
 import org.bitbuckets.RobotContainer;
@@ -42,37 +43,47 @@ public class AugmentedDriveCommand extends Command {
     @Override
     public void execute() {
 
+        boolean shouldFlip = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red;
+
         double now = WPIUtilJNI.now() * 1e-6;
         double dt = now - lastTime;
 
-        double x = operatorInput.getRobotForwardComponentRaw();
-        double y = operatorInput.getDriverRightComponentRaw();
+        double x = operatorInput.getRobotForwardComponentRaw(); //[-1, 1]
+        double y = operatorInput.getDriverRightComponentRaw(); //[-1, 1]
         double theta = operatorInput.getDriverRightStickX();
 
-        double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), 0.1);
+        double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), 0.05);
         Rotation2d linearDirection = new Rotation2d(x, y);
         theta = MathUtil.applyDeadband(theta, 0.1);
 
-        // Square values
-        linearMagnitude = linearMagnitude * linearMagnitude; //TODO slew this again
+        linearMagnitude = linearMagnitude * linearMagnitude;
         theta = Math.copySign(theta * theta, theta);
-
-        //TODO limiter
-        //linearMagnitude = magnitudeChange.calculate(linearMagnitude);
 
         Translation2d linearVelocity =
                 new Pose2d(new Translation2d(), linearDirection)
                         .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
                         .getTranslation();
 
+        double speedMultiplier = 3d;
+        double turboSpeedMultiplier = 4.5;
+        if (operatorInput.getTurboModeHeld())
+        {
+            speedMultiplier = turboSpeedMultiplier;
+        }
         ChassisSpeeds speeds =
                 new ChassisSpeeds(
-                        linearVelocity.getX() * 4.5, //experimentally determined max velocity
-                        linearVelocity.getY() * 4.5,
-                        theta *  2 * Math.PI );
+                        linearVelocity.getX() * speedMultiplier, //4.5 is the experimentally determined max velocity
+                        linearVelocity.getY() * speedMultiplier,
+                        theta * 1 * Math.PI );
+
 
         if (RobotContainer.SWERVE.fieldOriented()) {
-            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, odometrySubsystem.getGyroAngle());
+            Rotation2d gyroAngle = odometrySubsystem.getGyroAngle();
+            if (shouldFlip) {
+                gyroAngle = gyroAngle.plus(Rotation2d.fromDegrees(180));
+            }
+
+            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds,gyroAngle);
         }
 
         var desiredDeltaPose =
@@ -81,6 +92,8 @@ public class AugmentedDriveCommand extends Command {
                 speeds.vyMetersPerSecond * dt,
                 new Rotation2d(speeds.omegaRadiansPerSecond * dt));
         var twist = new Pose2d().log(desiredDeltaPose);
+
+
         speeds = new ChassisSpeeds(twist.dx / dt, twist.dy / dt, twist.dtheta / dt); //second order comp
         driveSubsystem.driveUsingChassisSpeed(speeds);
 

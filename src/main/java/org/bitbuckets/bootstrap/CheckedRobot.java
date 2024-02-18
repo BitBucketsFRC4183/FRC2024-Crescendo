@@ -1,5 +1,9 @@
 package org.bitbuckets.bootstrap;
 
+import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.math.system.LinearSystem;
+import edu.wpi.first.math.system.LinearSystemLoop;
+import edu.wpi.first.wpilibj.CachingTimedRobot;
 import edu.wpi.first.wpilibj.RuntimeType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import xyz.auriium.yuukonstants.exception.ExceptionUtil;
@@ -9,12 +13,12 @@ import java.util.Optional;
 /**
  * Forces all functions through exceptionutil
  */
-public class CheckedRobot extends TimedRobot {
+public class CheckedRobot extends CachingTimedRobot {
 
 
-    final TimedRobot delegate;
+    final CachingTimedRobot delegate;
 
-    public CheckedRobot(TimedRobot delegate) {
+    public CheckedRobot(CachingTimedRobot delegate) {
         this.delegate = delegate;
     }
 

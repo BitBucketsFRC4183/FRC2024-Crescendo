@@ -9,6 +9,8 @@ public class AwaitNoteInManagerCommand extends Command {
 
     public AwaitNoteInManagerCommand(NoteManagementSubsystem nms) {
         this.nms = nms;
+
+        addRequirements(nms);
     }
 
     @Override

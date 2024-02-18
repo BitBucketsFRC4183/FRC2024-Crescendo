@@ -10,13 +10,14 @@
 # Base Robot Stuff
 
 [ground_intake.top]
-id = 17
+id = 14
 rotationToMeterCoef = 1
 encoderToMechanismCoef = 1
 rotationalInertia = 1
+inverted = true
 
 [ground_intake.bottom]
-id = 9
+id = 21
 rotationToMeterCoef = 1
 encoderToMechanismCoef = 1
 rotationalInertia = 1
@@ -97,7 +98,7 @@ magnitudeFWLim = 3.3
 fieldOriented = true
 x_holonomic_pid = {p = 1.2, i = 0, d = 0}
 y_holonomic_pid = {p = 1.2, i = 0, d = 0}
-t_holonomic_pid = {p = 4.4, i = 0, d = 0.4} #need to be redone (current mcr values)
+t_holonomic_pid = {p = 7.9, i = 0, d = 0.7} #need to be redone (current mcr values)
 steer_pid_common = {p = 3, i = 0, d = 0.3}
 drive_pid_common = {p = 0.05, i = 0, d = 0.01}
 ff_fl = {ks = 0.045, kv = 2.505}
@@ -215,21 +216,23 @@ rotationalInertia = 0.0
 
 # NMS NOTE MANAGEMENT SUBSYSTEM
 [nms]
-channel = 2
+channel = 6
 deadband = 0 # FIX LATER
 
 [nms.top]
-id = 4
+id = 19
 rotationToMeterCoef = 1 #WRONG
 encoderToMechanismCoef = 1 #WRONG
 rotationalInertia = 1.0
+breakModeEnabled = true
 
 [nms.bottom]
-id = 7
+id = 9
 rotationToMeterCoef = 1 #WRONG
 encoderToMechanismCoef = 1 #WRONG
 rotationalInertia = 1.0
-inverted = true
+breakModeEnabled = true
+
 
 # CAMERA
 
@@ -261,5 +264,5 @@ drive_disabled = false
 shooter_disabled = true
 odometry_disabled = true
 climber_disabled = true
-groundIntake_disabled = true
-nms_disabled = true
+groundIntake_disabled = false
+nms_disabled = false

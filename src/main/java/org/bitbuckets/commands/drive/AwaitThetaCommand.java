@@ -29,7 +29,7 @@ public class AwaitThetaCommand extends Command {
     @Override
     public void initialize() {
         thetaPID.enableContinuousInput(-Math.PI, Math.PI);
-        thetaPID.setTolerance(Math.PI / 360 / 5); //0.1 deg
+        thetaPID.setTolerance(Math.PI / 90); //1 deg
     }
 
     @Override
