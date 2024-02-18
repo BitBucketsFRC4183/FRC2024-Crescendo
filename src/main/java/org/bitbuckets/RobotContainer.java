@@ -24,6 +24,7 @@ import org.bitbuckets.climber.ClimberSubsystem;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
 import org.bitbuckets.commands.drive.AugmentedDriveCommand;
 import org.bitbuckets.commands.drive.AwaitThetaCommand;
+import org.bitbuckets.commands.drive.DefaultDriveCommand;
 import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
 import org.bitbuckets.commands.groundIntake.FeedGroundIntakeGroup;
@@ -332,7 +333,7 @@ public class RobotContainer {
         // Trigger thingsA
         //operatorInput.ampSetpoint_hold.whileTrue(new PivotToAmpFireGroup(shooterSubsystem, noteManagementSubsystem, 100));
         //operatorInput.speakerSetpoint_hold.whileTrue(new PivotToSpeakerFireGroup(shooterSubsystem, noteManagementSubsystem, 100));
-        operatorInput.shootManually.whileTrue(new FeedFlywheelAndFireGroup(shooterSubsystem, noteManagementSubsystem, 100));
+        operatorInput.shootManually.whileTrue(new FeedFlywheelAndFireGroup(shooterSubsystem, noteManagementSubsystem, groundIntakeSubsystem,65).andThen(new DefaultShooterCommand(shooterSubsystem)));
         operatorInput.isTeleop.and(pivotThreshold).whileTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));
         //operatorInput.setShooterAngleManually.onTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));
 
@@ -452,13 +453,10 @@ public class RobotContainer {
         } else {
             leftMotor = HardwareREV.rotationalSpark_builtInPID(SHOOTER_WHEEL_1, SHOOTER_PID_1);
             rightMotor = HardwareREV.rotationalSpark_builtInPID(SHOOTER_WHEEL_2, SHOOTER_PID_2);
-            leftAngleMotor = HardwareREV.rotationalSpark_builtInPID(LEFT_PIVOT, LEFT_PIVOT_PID);
-            rightAngleMotor = HardwareREV.rotationalSpark_builtInPID(RIGHT_PIVOT, RIGHT_PIVOT_PID);
-            leftPivotEncoder = new ThriftyAbsoluteEncoder(
-                    new AnalogInput(SHOOTER.pivotChannel_dio()), SHOOTER_ABSOLUTE);
-            velocityEncoder = new ThroughBoreEncoder(
-                    new Encoder(SHOOTER.velocityChannelA_dio(), SHOOTER.velocityChannelB_dio()), VELOCITY_ENCODER
-            );
+            leftAngleMotor = HardwareCTRE.rotationalFX_builtInPID(LEFT_PIVOT, LEFT_PIVOT_PID);
+            rightAngleMotor = HardwareCTRE.rotationalFX_builtInPID(RIGHT_PIVOT, RIGHT_PIVOT_PID);
+            leftPivotEncoder = HardwareDisabled.rotationEncoder_disabled();//new ThroughBoreEncoder(new Encoder(SHOOTER.pivotChannel_dio(), SHOOTER.pivotChannel_dio()), SHOOTER_ABSOLUTE);
+            velocityEncoder = HardwareDisabled.rotationEncoder_disabled();//new ThroughBoreEncoder(new Encoder(SHOOTER.velocityChannelA_dio(), SHOOTER.velocityChannelB_dio()), VELOCITY_ENCODER);
         }
 
 

@@ -63,12 +63,12 @@ pid = {p = 1, i = 0, d = 0}
 inverted = false
 
 [shooter.absolute]
-analogChannel = 0
+analogChannel = 4
 encoderToMechanismCoef = 1
 offset = 0.0
 
 [shooter.velocity]
-analogChannel = 0
+analogChannel = 5
 encoderToMechanismCoef = 1
 offset = 0.0
 
@@ -80,6 +80,7 @@ velocityStdv = 0.001
 positionStdv = 0.001
 pid = {p = 1, i = 0, d = 0}
 currentLimit = 20
+inverted = true
 
 [shooter.pivot.right]
 encoderToMechanismCoef = 1666.666666666666666666666666666666666666666666 # 100:1 * 15:18 * 20:1
@@ -89,7 +90,7 @@ velocityStdv = 0.001
 positionStdv = 0.001
 pid = {p = 1, i = 0, d = 0}
 currentLimit = 20
-inverted = true
+inverted = false
 
 [shooter.calculator]
 mass = 0.25 #kg
@@ -111,7 +112,7 @@ x_holonomic_pid = {p = 1.2, i = 0, d = 0}
 y_holonomic_pid = {p = 1.2, i = 0, d = 0}
 t_holonomic_pid = {p = 7.9, i = 0, d = 0.7} #need to be redone (current mcr values)
 steer_pid_common = {p = 3, i = 0, d = 0.3}
-drive_pid_common = {p = 0.05, i = 0, d = 0.01}
+drive_pid_common = {p = 0.005, i = 0, d = 0.0}
 ff_fl = {ks = 0.045, kv = 2.505}
 ff_fr = {ks = 0.056, kv = 2.532}
 ff_br = {ks = 0.044, kv = 2.496}
@@ -126,6 +127,7 @@ bl_pos_offset = {x = -0.3556, y = 0.3429}
 br_pos_offset = {x = -0.3556, y = -0.3429}
 
 # Steer
+
 [swerve.steer_common]
 encoderToMechanismCoef = 0.078125 # (14.0 / 50.0) * (10.0 / 60.0) mk4i reduction
 rotationalInertia = 0.002
@@ -256,7 +258,7 @@ camera2Name = "arducam2"
 
 [disabler]
 vision_disabled = true
-drive_disabled = true
+drive_disabled = false
 shooter_disabled = false
 odometry_disabled = false
 climber_disabled = true

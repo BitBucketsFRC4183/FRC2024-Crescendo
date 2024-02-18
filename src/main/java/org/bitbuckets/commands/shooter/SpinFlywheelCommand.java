@@ -28,12 +28,11 @@ public class SpinFlywheelCommand extends Command {
     @Override
     public boolean isFinished() {
         double invertedCoef = inverted ? -1 : 1;
-        return shooterSubsystem.hasReachedSpeeds(flatShotFlywheelSpeed_metersPerSecondOfFlywheel * invertedCoef,flatShotFlywheelSpeed_metersPerSecondOfFlywheel * invertedCoef);
+        return shooterSubsystem.hasReachedSpeeds(-flatShotFlywheelSpeed_metersPerSecondOfFlywheel * invertedCoef,-flatShotFlywheelSpeed_metersPerSecondOfFlywheel * invertedCoef);
     }
 
     @Override
     public void end(boolean interrupted) {
-        shooterSubsystem.setAllMotorsToVoltage(0);
     }
 
 }
