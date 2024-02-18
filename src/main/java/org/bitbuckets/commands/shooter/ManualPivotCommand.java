@@ -18,6 +18,7 @@ public class ManualPivotCommand extends Command {
     }
 
 
+
     @Override
     public void execute() {
         double angleVoltageConstant = 1d;

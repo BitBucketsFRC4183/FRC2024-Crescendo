@@ -22,6 +22,7 @@ public class GroundOuttakeCommand extends Command {
         noteManagementSubsystem.setAllToVoltage(-3); //TODO FLIP
     }
 
+
     @Override
     public void end(boolean interrupted) {
         noteManagementSubsystem.setAllToVoltage(0);

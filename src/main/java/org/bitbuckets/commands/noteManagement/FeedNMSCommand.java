@@ -13,7 +13,7 @@ public class FeedNMSCommand extends Command {
 
     @Override
     public void execute() {
-        noteManagementSubsystem.setAllToVoltage(12);
+        noteManagementSubsystem.setAllToVoltage(2);
     }
 
     @Override

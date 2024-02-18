@@ -20,6 +20,8 @@ public class SpinFlywheelCommand extends Command {
     @Override
     public void execute() {
         double invertedCoef = inverted ? -1 : 1;
+        //shooterSubsystem.setAllMotorsToVoltage(10);
+        //TODO fix this
         shooterSubsystem.setMotorRotationalSpeeds(flatShotFlywheelSpeed_metersPerSecondOfFlywheel * invertedCoef, flatShotFlywheelSpeed_metersPerSecondOfFlywheel * invertedCoef);
     }
 
