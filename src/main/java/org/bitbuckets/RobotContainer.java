@@ -318,6 +318,18 @@ public class RobotContainer {
                 new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem)
         );
 
+        var threeNoteContested = new SequentialCommandGroup(
+                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
+                followFirstTrajectory("threeNoteContested", "threeNoteContested-1", isNeo),
+                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem),
+                followFirstTrajectory("threeNoteContested", "threeNoteContested-2", isNeo),
+                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem),
+                followFirstTrajectory("threeNoteContested", "threeNoteContested-3", isNeo),
+                new FinishGroundIntakeCommand(noteManagementSubsystem, groundIntakeSubsystem),
+                followFirstTrajectory("threeNoteContested", "threeNoteContested-4", isNeo),
+                new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem)
+        );
+
         SendableChooser<Command> chooser = new SendableChooser<>();
         chooser.setDefaultOption("fourNote", fourNote); //TODO later
         chooser.addOption("oneNoteCollect", oneNoteCollect);
@@ -329,6 +341,9 @@ public class RobotContainer {
         chooser.addOption("mvpTaxi", mvpTaxi);
         chooser.addOption("shootOnly", shootOnly);
         chooser.addOption("rotationTest", rotationTest);
+        chooser.addOption("twoNoteContested", twoNoteContested);
+        chooser.addOption("twoNoteContestedAlt", twoNoteContestedAlt);
+        chooser.addOption("threeNoteContested", threeNoteContested);
 
 
         SmartDashboard.putData("Path", chooser);
