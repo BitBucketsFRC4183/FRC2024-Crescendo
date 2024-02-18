@@ -120,6 +120,6 @@ public class OperatorInput {
         return deadband(-driver.getRightX());
     }
 
-    public double getOperatorLeftStickY(){return deadband(operatorControl.getRawAxis(XboxController.Axis.kLeftY.value));}
+    public double getOperatorLeftStickY(){return deadband(-operatorControl.getRawAxis(XboxController.Axis.kLeftY.value));}
 
 }

@@ -15,18 +15,20 @@ public class ShooterSubsystem implements Subsystem, IMattlibHooked {
     final SimpleMotorFeedforward feedforward;
     public final IRotationalController leftMotor; //TODO find a way to not use public here (linearFFGenRoutine)
     public final IRotationalController rightMotor;
-    final IRotationalController angleMotor;
-    final IRotationEncoder pivotEncoder;
+    final IRotationalController leftAngleMotor;
+    final IRotationEncoder leftPivotEncoder;
+    final IRotationalController rightAngleMotor;
     final IRotationEncoder shooterVelocityEncoder;
 
     final ShooterComponent shooterComponent;
     final AbsoluteEncoderComponent encoderComponent;
 
-    public ShooterSubsystem(IRotationalController leftMotor, IRotationalController rightMotor, IRotationalController angleMotor, IRotationEncoder pivotEncoder, ShooterComponent shooterComponent, AbsoluteEncoderComponent encoderComponent, IRotationEncoder shooterVelocityEncoder) {
+    public ShooterSubsystem(IRotationalController leftMotor, IRotationalController rightMotor, IRotationalController angleMotor, IRotationEncoder pivotEncoder, IRotationalController rightAngleMotor, ShooterComponent shooterComponent, AbsoluteEncoderComponent encoderComponent, IRotationEncoder shooterVelocityEncoder) {
         this.leftMotor = leftMotor;
         this.rightMotor = rightMotor;
-        this.angleMotor = angleMotor;
-        this.pivotEncoder = pivotEncoder;
+        this.leftAngleMotor = angleMotor;
+        this.leftPivotEncoder = pivotEncoder;
+        this.rightAngleMotor = rightAngleMotor;
         this.shooterComponent = shooterComponent;
         this.encoderComponent = encoderComponent;
         this.shooterVelocityEncoder = shooterVelocityEncoder;
@@ -39,12 +41,16 @@ public class ShooterSubsystem implements Subsystem, IMattlibHooked {
 
     @Override
     public ExplainedException[] verifyInit() {
-        pivotEncoder.forceRotationalOffset(
+        leftPivotEncoder.forceRotationalOffset(
                 encoderComponent.offset_mechanismRotations()
         );
 
-        angleMotor.forceRotationalOffset(
-                pivotEncoder.angularPosition_normalizedMechanismRotations()
+        leftAngleMotor.forceRotationalOffset(
+                leftPivotEncoder.angularPosition_normalizedMechanismRotations()
+        );
+
+        rightAngleMotor.forceRotationalOffset(
+                leftPivotEncoder.angularPosition_normalizedMechanismRotations()
         );
 
         return new ExplainedException[0];
@@ -81,18 +87,19 @@ public class ShooterSubsystem implements Subsystem, IMattlibHooked {
      */
 
     public void moveToRotation(double mechanism_rotations) {
-        angleMotor.controlToNormalizedReference(mechanism_rotations);
+        leftAngleMotor.controlToNormalizedReference(mechanism_rotations);
 
     }
 
     public void setPivotMotorToVoltage(double voltage) {
-        angleMotor.setToVoltage(voltage);
+        leftAngleMotor.setToVoltage(voltage);
+        rightAngleMotor.setToVoltage(voltage);
     }
 
     public void setZeroAngle() {
 
-        double offset = pivotEncoder.angularPosition_normalizedMechanismRotations();
-        angleMotor.forceRotationalOffset(offset);
+        double offset = leftPivotEncoder.angularPosition_normalizedMechanismRotations();
+        leftAngleMotor.forceRotationalOffset(offset);
     }
 
 
@@ -108,13 +115,13 @@ public class ShooterSubsystem implements Subsystem, IMattlibHooked {
     }
 
     public boolean hasReachedAngle(double angle_mechanismRotations) {
-        double currentPos_mechRot = angleMotor.angularPosition_normalizedMechanismRotations();
+        double currentPos_mechRot = leftAngleMotor.angularPosition_normalizedMechanismRotations();
 
         return isWithinDeadband(shooterComponent.deadband_mechanismRotations(), angle_mechanismRotations, currentPos_mechRot);
     }
 
     public double getPivotAnglePosition_normalizedMechanismRotations() {
-        return angleMotor.angularPosition_normalizedMechanismRotations();
+        return leftAngleMotor.angularPosition_normalizedMechanismRotations();
     }
 
     public double calculateMinimalAngleForSpeaker() {
