@@ -3,14 +3,10 @@ package org.bitbuckets.commands.shooter;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.bitbuckets.shooter.ShooterSubsystem;
 
-
-import edu.wpi.first.wpilibj2.command.Command;
-import org.bitbuckets.shooter.ShooterSubsystem;
-
-public class SetSpeakerShootingAngleCommand extends Command {
+public class PivotToSpeakerCommand extends Command {
         private final ShooterSubsystem shooterSubsystem;
 
-        public SetSpeakerShootingAngleCommand(ShooterSubsystem shooterSubsystem) {
+        public PivotToSpeakerCommand(ShooterSubsystem shooterSubsystem) {
             this.shooterSubsystem = shooterSubsystem;
         }
 

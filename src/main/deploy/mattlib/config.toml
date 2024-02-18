@@ -36,10 +36,10 @@ pid = {p = 0, i = 0, d = 0}
 # SHOOTER
 
 [shooter]
-dio_channel = 0
+pivotChannel_dio = 0
+velocityChannelA_dio = 3
+velocityChannelB_dio = 4
 deadband = 0.0
-channel = 0
-pid = {p = 0, i = 0, d = 0}
 ff_ks = 0.4895168812659137
 ff_kv = 0.12869522412846462
 

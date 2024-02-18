@@ -22,9 +22,6 @@ public class ShooterSubsystem implements Subsystem, IMattlibHooked {
     final ShooterComponent shooterComponent;
     final AbsoluteEncoderComponent encoderComponent;
 
-
-    
-
     public ShooterSubsystem(IRotationalController leftMotor, IRotationalController rightMotor, IRotationalController angleMotor, IRotationEncoder pivotEncoder, ShooterComponent shooterComponent, AbsoluteEncoderComponent encoderComponent, IRotationEncoder shooterVelocityEncoder) {
         this.leftMotor = leftMotor;
         this.rightMotor = rightMotor;

@@ -3,10 +3,10 @@ package org.bitbuckets.commands.shooter;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.bitbuckets.shooter.ShooterSubsystem;
 
-public class SetAmpShootingAngleCommand extends Command {
+public class PivotToAmpCommand extends Command {
     private final ShooterSubsystem shooterSubsystem;
 
-    public SetAmpShootingAngleCommand(ShooterSubsystem shooterSubsystem) {
+    public PivotToAmpCommand(ShooterSubsystem shooterSubsystem) {
         this.shooterSubsystem = shooterSubsystem;
     }
 
