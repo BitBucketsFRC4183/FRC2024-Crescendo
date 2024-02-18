@@ -15,7 +15,7 @@ def get_host():
     system = platform.system()
     machine = platform.machine()
     os_machine = system + '-' + machine
-    if os_machine == 'Linux-aarwwch64':
+    if os_machine == 'Linux-aarch64':
         try:
             with open(DEVICE_COMPATIBLE_NODE) as f:
                 device_compatible_str = f.read()
@@ -37,6 +37,14 @@ RK3588_RKNN_MODEL = 'models/note-model.rknn'
 IMG_SIZE = (640, 640)
 OBJ_THRESH = 0.25
 NMS_THRESH = 0.45
+
+# calibration camera data
+CAM_MATRIX = np.array([
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0]
+])
+DIST_COEFFS = None
 
 def filter_boxes(boxes, box_confidences, box_class_probs):
     """Filter boxes with object threshold.
@@ -170,7 +178,7 @@ def post_process(input_data):
     return boxes, classes, scores
 
 def draw(image, boxes, scores, classes):
-    
+
     for box, score, cl in zip(boxes, scores, classes):
         top, left, right, bottom = [int(_b) for _b in box]
 
@@ -191,13 +199,19 @@ def print_outputs(boxes, classes, scores):
         print("No notes detected")
 
 
+# returns coordinate of closest box
 def location_data(boxes):
+    left, top, right, bottom = [int(_b) for _b in boxes[0]]
+
     for box in boxes:
-        top, left, right, bottom = [int(_b) for _b in box]
-        x_mid = (top + right) / 2
-        y_mid = (left + bottom) / 2
-    return (x_mid, y_mid)
-            
+        new_left, new_top, new_right, new_bottom = [int(_b) for _b in box]
+
+        # find closest box to cam
+        if new_bottom < bottom:
+            left, top, right, bottom = new_left, new_top, new_right, new_bottom
+
+    return (left, top, right, bottom)
+
 
 if __name__ == '__main__':
 
@@ -206,9 +220,9 @@ if __name__ == '__main__':
 
     cam = cv2.VideoCapture(0)
     # create video output for testing
-    #fourcc = cv2.VideoWriter_fourcc(*'MP4V') 
+    #fourcc = cv2.VideoWriter_fourcc(*'MP4V')
     #video = cv2.VideoWriter('video.mp4', fourcc, 24, IMG_SIZE)
-    
+
     # Get device information
     host_name = get_host()
     if host_name == 'RK3588':
@@ -258,20 +272,41 @@ if __name__ == '__main__':
 
         # Show the classification results
         boxes, classes, scores = post_process(outputs)
-
         detected = boxes is not None
-        x, y = location_data(boxes)
 
-        imagePoints = cv2.UMat(2, 1, cv2.CV_64F, cv2.USAGE_DEFAULT)
-        objectPoints = cv2.UMat(3, 1, cv2.CV_64F, cv2.USAGE_DEFAULT)
-        cameraMat = cv2.UMat(3, 3, cv2.CV_64F, cv2.USAGE_DEFAULT)
-        cv2.UMat()
+        # 2d pose of the robot
+        x, y = 0, 0
 
+        if detected:
+            left, top, right, bottom = location_data(boxes) # middle of 2d
 
-        cv2.calibrateCamera()
+            # clockwise from bottom left, units are inches
+            object_points = np.array([
+                [0, 0, 0],
+                [0, 14, 0],
+                [14, 14, 0],
+                [14, 0, 0]
+            ], dtype=np.float64)
 
-        cv2.solvePnP(imagePoints, objectPoints, )
+            image_points = np.array([
+                [left, bottom],
+                [left, top],
+                [right, top],
+                [right, bottom]
+            ], dtype=np.float64)
 
+            # default initial values for rvec and tvec
+            rvec_init = np.zeros((3, 1), dtype=np.float64)
+            tvec_init = np.zeros((3, 1), dtype=np.float64)
+
+            success, rvec, tvec = cv2.solvePnP(object_points, image_points, CAM_MATRIX, DIST_COEFFS, rvec_init, tvec_init, False)
+
+            if (success):
+                rmat = cv2.Rodrigues(rvec)[0] # rotation matrix
+                camera_position = -np.dot(rmat.T, tvec)
+
+                x = camera_position[0]
+                y = camera_position[1]
 
 
         # publish data using networktables
@@ -299,7 +334,7 @@ if __name__ == '__main__':
     # Overall average fps
     fps = frames / (time.time() - initTime)
     print(f"Overall fps: {fps: .3f}")
-    
+
     nt.close()
     cam.release()
     video.release()
