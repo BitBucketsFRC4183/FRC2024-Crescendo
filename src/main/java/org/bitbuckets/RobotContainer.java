@@ -117,7 +117,7 @@ public class RobotContainer {
                     odometrySubsystem,
                     cameras[0],
                     cameras[1],
-                    visionSubsystem.layout
+                    VisionSubsystem.LAYOUT
             );
         } else this.visionSimContainer = null;
 
@@ -154,8 +154,11 @@ public class RobotContainer {
     public void autonomousInit() {
         operatorInput.actuallyIsTeleop = false;
 
-        chooser.getSelected().schedule();
+        // todo temp disabled in vision-sim branch
+        // chooser.getSelected().schedule();
 
+        odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(15.15, 5.55, 0, new Rotation3d(0, 0, 0)));
+        System.out.println("here");
     }
 
     public void disabledInit() {
@@ -281,7 +284,7 @@ public class RobotContainer {
                         DRIVE_T_PID.pConstant(),
                         DRIVE_T_PID.iConstant(),
                         DRIVE_T_PID.dConstant(),
-                        new TrapezoidProfile.Constraints(2, 2)
+                        new TrapezoidProfile.Constraints(5, 5)
                 ) //TODO
         );
 
@@ -468,21 +471,13 @@ public class RobotContainer {
         camera1 = new PhotonCamera(CAMERAS.camera1Name());
         camera2 = new PhotonCamera(CAMERAS.camera2Name());
 
-        AprilTagFieldLayout aprilTagFieldLayout;
-        String filepath = Filesystem.getDeployDirectory().getPath() + "/2024-crescendo.json";
 
-        // better error catching later ig
-        try {
-            aprilTagFieldLayout = new AprilTagFieldLayout(filepath);
-        } catch (IOException e) {
-            throw new IllegalStateException(e.getMessage() + " here is why");
-        }
 
         // replace later when lil maddie makes a mattlib deserializer TODO
         Transform3d robotToCam1 = new Transform3d(CAMERAS.camera1TranslationOffset(), new Rotation3d(0, Units.degreesToRadians(39),Units.degreesToRadians(-180) ));
         // using multi tag localization
         PhotonPoseEstimator photonPoseEstimator1 = new PhotonPoseEstimator(
-                aprilTagFieldLayout,
+                VisionSubsystem.LAYOUT,
                 PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                 camera1,
                 robotToCam1
@@ -491,7 +486,7 @@ public class RobotContainer {
 
         Transform3d robotToCam2 = new Transform3d(CAMERAS.camera2TranslationOffset(), CAMERAS.camera2RotationOffset());
         PhotonPoseEstimator photonPoseEstimator2 = new PhotonPoseEstimator(
-                aprilTagFieldLayout,
+                VisionSubsystem.LAYOUT,
                 PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                 camera2,
                 robotToCam2
@@ -505,7 +500,6 @@ public class RobotContainer {
         return new VisionSubsystem(
                 camera1,
                 camera2,
-                aprilTagFieldLayout,
                 photonPoseEstimator1,
                 photonPoseEstimator2,
                 new AprilTagDetector()

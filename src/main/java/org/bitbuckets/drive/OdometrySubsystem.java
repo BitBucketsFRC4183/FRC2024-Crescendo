@@ -74,7 +74,7 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
             if (optVisionPose.isPresent()) {
                 Pose2d visionPose = optVisionPose.get().estimatedPose.toPose2d();
                 RobotContainer.VISION.log_final_pose(visionPose);
-                odometry.addVisionMeasurement(visionPose, optVisionPose.get().timestampSeconds);
+                // odometry.addVisionMeasurement(visionPose, optVisionPose.get().timestampSeconds);
             }
         } else {
 

@@ -4,6 +4,7 @@ import edu.wpi.first.apriltag.AprilTagDetector;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.networktables.*;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.RobotContainer;
 import org.photonvision.EstimatedRobotPose;
@@ -16,6 +17,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import xyz.auriium.mattlib2.loop.IMattlibHooked;
 import xyz.auriium.yuukonstants.exception.ExplainedException;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -29,7 +31,6 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
 
     final PhotonCamera camera_1;
     final PhotonCamera camera_2;
-    public final AprilTagFieldLayout layout;
     final PhotonPoseEstimator estimator1;
     final PhotonPoseEstimator estimator2;
     final AprilTagDetector aprilTagDetector;
@@ -41,17 +42,26 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
     PhotonPipelineResult cam1_result;
     PhotonPipelineResult cam2_result;
 
-    public VisionSubsystem(PhotonCamera camera_1, PhotonCamera camera_2, AprilTagFieldLayout layout,
+    static final String filepath = Filesystem.getDeployDirectory().getPath() + "/2024-crescendo.json";
+    public static final AprilTagFieldLayout LAYOUT;
+    static {
+        try {
+            LAYOUT = new AprilTagFieldLayout(filepath);
+        } catch (IOException e) {
+            throw new IllegalStateException(e.getMessage() + " here is why");
+        }
+    }
+
+    public VisionSubsystem(PhotonCamera camera_1, PhotonCamera camera_2,
                            PhotonPoseEstimator estimator1, PhotonPoseEstimator estimator2,
                            AprilTagDetector aprilTagDetector) {
 
         this.camera_1 = camera_1;
         this.camera_2 = camera_2;
-        this.layout = layout;
         this.estimator1 = estimator1;
         this.estimator2 = estimator2;
         this.aprilTagDetector = aprilTagDetector;
-        this.priority = VisionPriority.AMP;
+        this.priority = VisionPriority.SPEAKER;
         this.lastTarget = Optional.empty();
         this.bestTarget = Optional.empty();
 
@@ -73,11 +83,11 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
     private void logBT(PhotonTrackedTarget bt) {
         RobotContainer.VISION.log_best_target_name(lookingAt(bt.getFiducialId()).toString());
         RobotContainer.VISION.log_best_target_id(bt.getFiducialId());
-        RobotContainer.VISION.log_best_target_pose(layout.getTagPose(bt.getFiducialId()).orElseThrow().toPose2d());
+        RobotContainer.VISION.log_best_target_pose(LAYOUT.getTagPose(bt.getFiducialId()).orElseThrow().toPose2d());
         RobotContainer.VISION.log_best_target_ambiguity(bt.getPoseAmbiguity());
 
 
-        Pose2d bt_camera_to_tag = layout.getTagPose(bt.getFiducialId()).orElseThrow().
+        Pose2d bt_camera_to_tag = LAYOUT.getTagPose(bt.getFiducialId()).orElseThrow().
                 plus(bt.getBestCameraToTarget()).toPose2d();
 
         RobotContainer.VISION.log_best_cameraToTag_pose(bt_camera_to_tag);
@@ -93,7 +103,6 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
         Optional<PhotonTrackedTarget> optionalPhotonTrackedTarget = determineBestVisionTarget();
         if (optionalPhotonTrackedTarget.isPresent()) {
             PhotonTrackedTarget ptt = optionalPhotonTrackedTarget.get();
-            System.out.print(ptt.getBestCameraToTarget());
 
 
             logBT(ptt);
