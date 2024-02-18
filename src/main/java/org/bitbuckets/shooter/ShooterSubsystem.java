@@ -9,8 +9,6 @@ import xyz.auriium.mattlib2.hardware.IRotationalController;
 import xyz.auriium.mattlib2.loop.IMattlibHooked;
 import xyz.auriium.yuukonstants.exception.ExplainedException;
 
-import java.util.Optional;
-
 public class ShooterSubsystem implements Subsystem, IMattlibHooked {
 
     // converts desired velocity into voltage
@@ -18,21 +16,23 @@ public class ShooterSubsystem implements Subsystem, IMattlibHooked {
     public final IRotationalController leftMotor; //TODO find a way to not use public here (linearFFGenRoutine)
     public final IRotationalController rightMotor;
     final IRotationalController angleMotor;
-    final IRotationEncoder absoluteEncoder;
+    final IRotationEncoder pivotEncoder;
+    final IRotationEncoder shooterVelocityEncoder;
+
     final ShooterComponent shooterComponent;
     final AbsoluteEncoderComponent encoderComponent;
-    final IRotationEncoder velocityEncoder;
+
 
     
 
-    public ShooterSubsystem(IRotationalController leftMotor, IRotationalController rightMotor, IRotationalController angleMotor, IRotationEncoder absoluteEncoder, ShooterComponent shooterComponent, AbsoluteEncoderComponent encoderComponent, IRotationEncoder velocityEncoder) {
+    public ShooterSubsystem(IRotationalController leftMotor, IRotationalController rightMotor, IRotationalController angleMotor, IRotationEncoder pivotEncoder, ShooterComponent shooterComponent, AbsoluteEncoderComponent encoderComponent, IRotationEncoder shooterVelocityEncoder) {
         this.leftMotor = leftMotor;
         this.rightMotor = rightMotor;
         this.angleMotor = angleMotor;
-        this.absoluteEncoder = absoluteEncoder;
+        this.pivotEncoder = pivotEncoder;
         this.shooterComponent = shooterComponent;
         this.encoderComponent = encoderComponent;
-        this.velocityEncoder = velocityEncoder;
+        this.shooterVelocityEncoder = shooterVelocityEncoder;
 
         feedforward = new SimpleMotorFeedforward(shooterComponent.ks(),shooterComponent.kv());
 
@@ -42,12 +42,12 @@ public class ShooterSubsystem implements Subsystem, IMattlibHooked {
 
     @Override
     public ExplainedException[] verifyInit() {
-        absoluteEncoder.forceRotationalOffset(
+        pivotEncoder.forceRotationalOffset(
                 encoderComponent.offset_mechanismRotations()
         );
 
         angleMotor.forceRotationalOffset(
-                absoluteEncoder.angularPosition_normalizedMechanismRotations()
+                pivotEncoder.angularPosition_normalizedMechanismRotations()
         );
 
         return new ExplainedException[0];
@@ -94,7 +94,7 @@ public class ShooterSubsystem implements Subsystem, IMattlibHooked {
 
     public void setZeroAngle() {
 
-        double offset = absoluteEncoder.angularPosition_normalizedMechanismRotations();
+        double offset = pivotEncoder.angularPosition_normalizedMechanismRotations();
         angleMotor.forceRotationalOffset(offset);
     }
 

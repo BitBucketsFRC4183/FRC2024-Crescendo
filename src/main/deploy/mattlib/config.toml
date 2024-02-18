@@ -73,12 +73,12 @@ encoderToMechanismCoef = 1
 offset = 0.0
 
 [shooter.pivot]
-encoderToMechanismCoef = 1
+encoderToMechanismCoef = 1666.666666666666666666666666666666666666666666 # 100:1 * 15:18 * 20:1
 id = 11
 rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
-pid = {p = 0, i = 0, d = 0}
+pid = {p = 1, i = 0, d = 0}
 
 [shooter.calculator]
 mass = 0.25 #kg
