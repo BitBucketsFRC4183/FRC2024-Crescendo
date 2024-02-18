@@ -13,14 +13,14 @@ public class PushNoteFromNMSToShooterCommand extends Command {
 
     @Override
     public void execute() {
-        noteManagementSubsystem.setAllToVoltage(12);
+        noteManagementSubsystem.setAllToVoltage(7);
     }
 
 
 
     @Override
     public boolean isFinished() {
-        return !noteManagementSubsystem.isNoteIn() && noteManagementSubsystem.motorsAtVelocity(50);
+        return !noteManagementSubsystem.isNoteIn();
     }
 
     @Override

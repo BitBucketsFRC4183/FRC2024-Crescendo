@@ -2,14 +2,18 @@ package org.bitbuckets;
 
 import com.choreo.lib.ChoreoTrajectory;
 import com.ctre.phoenix6.hardware.Pigeon2;
+import com.pathplanner.lib.commands.PathfindingCommand;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.pathfinding.LocalADStar;
+import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.apriltag.AprilTagDetector;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -24,7 +28,10 @@ import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
 import org.bitbuckets.commands.drive.AugmentedDriveCommand;
+import org.bitbuckets.commands.drive.AwaitThetaCommand;
+import org.bitbuckets.commands.drive.DefaultDriveCommand;
 import org.bitbuckets.commands.drive.MoveToAlignCommand;
+import org.bitbuckets.commands.drive.traj.FollowAStarToNoteCommand;
 import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
 import org.bitbuckets.commands.shooter.*;
@@ -76,14 +83,10 @@ public class RobotContainer {
     public final ClimberSubsystem climberSubsystem;
     public final GroundIntakeSubsystem groundIntakeSubsystem;
     public final NoteManagementSubsystem noteManagementSubsystem;
+    public final AutoSubsystem autoSubsystem;
     public final SwerveDriveKinematics kinematics;
 
     public final SendableChooser<Command> chooser;
-
-
-    public PIDController xController;
-    public PIDController yController;
-    public ProfiledPIDController thetaController;
 
     public final MattConsole mainConsole;
 
@@ -109,6 +112,7 @@ public class RobotContainer {
         this.climberSubsystem = loadClimberSubsystem();
         this.groundIntakeSubsystem = loadGroundIntakeSubsystem();
         this.noteManagementSubsystem = loadNoteManagementSubsystem();
+        this.autoSubsystem = loadAutosubsystem();
 
         if (!DISABLER.vision_disabled() && Robot.isSimulation()) {
             PhotonCamera[] cameras = visionSubsystem.getCameras();
@@ -195,9 +199,7 @@ public class RobotContainer {
                 trajectory,
                 odometrySubsystem,
                 driveSubsystem,
-                xController,
-                yController,
-                thetaController,
+                autoSubsystem,
                 false
         ).andThen(Commands.runOnce(driveSubsystem::commandWheelsToZero));
     }
@@ -207,24 +209,13 @@ public class RobotContainer {
                 trajectory,
                 odometrySubsystem,
                 driveSubsystem,
-                xController,
-                yController,
-                thetaController,
+                autoSubsystem,
                 true
         );
     }
 
 
     SendableChooser<Command> loadAutonomous() {
-        xController = new PIDController(DRIVE_X_PID.pConstant(), DRIVE_X_PID.iConstant(), DRIVE_X_PID.dConstant());
-        yController = new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant());
-        thetaController = new ProfiledPIDController(
-                DRIVE_T_PID.pConstant(),
-                DRIVE_T_PID.iConstant(),
-                DRIVE_T_PID.dConstant(),
-                new TrapezoidProfile.Constraints(3, 3)
-        );
-
         var fourNoteTest = new SequentialCommandGroup(
                 Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
                 Commands.waitSeconds(1),
@@ -246,7 +237,7 @@ public class RobotContainer {
                 followTrajectory("4note", "pt9")
                 //Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1))
                 //Commands.runOnce(() -> odometrySubsystem.debugGyroToPosition(o))
-        );
+        ).withInterruptBehavior(Command.InterruptionBehavior.kCancelSelf);
 
 
         SendableChooser<Command> chooser = new SendableChooser<>();
@@ -265,6 +256,8 @@ public class RobotContainer {
         Trigger climberThreshold = operatorInput.operatorControl.axisGreaterThan(XboxController.Axis.kRightY.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kRightY.value, -0.1));
 
         operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(new AugmentedDriveCommand(SWERVE, driveSubsystem, odometrySubsystem, operatorInput));
+
+        operatorInput.rotateTest.whileTrue(new AwaitThetaCommand(driveSubsystem, odometrySubsystem, autoSubsystem, DRIVE_T_PID, operatorInput::getDriverRightAsAngle));
 
         // Trigger thingsA
         operatorInput.ampSetpoint_hold.whileTrue(new SetAmpShootingAngleCommand(shooterSubsystem).andThen(new AchieveFlatShotSpeedCommand(shooterSubsystem, noteManagementSubsystem)));
@@ -300,6 +293,34 @@ public class RobotContainer {
         operatorInput.speakerVisionPriority_toggle.onTrue(new SetPriorityCommand(visionSubsystem, VisionSubsystem.VisionPriority.SPEAKER));
         operatorInput.resetVisionPriority_toggle.onTrue(new SetPriorityCommand(visionSubsystem, VisionSubsystem.VisionPriority.NONE));
 
+        var ofc = new FollowAStarToNoteCommand(
+                odometrySubsystem,
+                driveSubsystem,
+                visionSubsystem,
+                autoSubsystem,
+                new PathConstraints(
+                        4.5,
+                        6,
+                        2,
+                        3
+                ), new LocalADStar()
+        );
+
+        operatorInput.noteMagnetModeHold.whileTrue(
+                ofc
+        );
+
+        SmartDashboard.putNumberArray("traj", ConversionUtil.fromPoseArray(
+                new Pose2d(0,0, new Rotation2d()),
+                new Pose2d(1,1, new Rotation2d()),
+                new Pose2d(2,2, new Rotation2d())
+        ));
+
+
+    }
+
+    AutoSubsystem loadAutosubsystem() {
+        return new AutoSubsystem(odometrySubsystem, DRIVE_X_PID, DRIVE_Y_PID, DRIVE_T_PID, null);
     }
 
 

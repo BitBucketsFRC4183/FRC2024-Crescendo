@@ -15,7 +15,7 @@ def get_host():
     system = platform.system()
     machine = platform.machine()
     os_machine = system + '-' + machine
-    if os_machine == 'Linux-aarch64':
+    if os_machine == 'Linux-aarwwch64':
         try:
             with open(DEVICE_COMPATIBLE_NODE) as f:
                 device_compatible_str = f.read()
@@ -261,6 +261,18 @@ if __name__ == '__main__':
 
         detected = boxes is not None
         x, y = location_data(boxes)
+
+        imagePoints = cv2.UMat(2, 1, cv2.CV_64F, cv2.USAGE_DEFAULT)
+        objectPoints = cv2.UMat(3, 1, cv2.CV_64F, cv2.USAGE_DEFAULT)
+        cameraMat = cv2.UMat(3, 3, cv2.CV_64F, cv2.USAGE_DEFAULT)
+        cv2.UMat()
+
+
+        cv2.calibrateCamera()
+
+        cv2.solvePnP(imagePoints, objectPoints, )
+
+
 
         # publish data using networktables
         nt.periodic(x, y, detected)

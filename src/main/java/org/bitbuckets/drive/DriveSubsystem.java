@@ -9,6 +9,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.RobotContainer;
+import xyz.auriium.mattlib2.log.INetworkedComponent;
 import xyz.auriium.mattlib2.loop.IMattlibHooked;
 
 public class DriveSubsystem implements Subsystem, IMattlibHooked {
@@ -16,6 +17,9 @@ public class DriveSubsystem implements Subsystem, IMattlibHooked {
     public final SwerveModule[] modules;
     final SwerveDriveKinematics kinematics;
 
+    public interface Component extends INetworkedComponent {
+
+    }
 
     public DriveSubsystem(SwerveModule[] modules, SwerveDriveKinematics kinematics) {
         this.modules = modules;

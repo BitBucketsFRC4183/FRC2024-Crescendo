@@ -36,14 +36,11 @@ public class AugmentedDriveCommand extends Command {
     }
 
     final SlewRateLimiter magnitudeChange;
-    double lastTime = WPIUtilJNI.now() * 1e-6;
 
     //copy pasted shit
     @Override
     public void execute() {
 
-        double now = WPIUtilJNI.now() * 1e-6;
-        double dt = now - lastTime;
 
         double x = operatorInput.getRobotForwardComponentRaw();
         double y = operatorInput.getDriverRightComponentRaw();
@@ -75,16 +72,10 @@ public class AugmentedDriveCommand extends Command {
             speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, odometrySubsystem.getGyroAngle());
         }
 
-        var desiredDeltaPose =
-            new Pose2d(
-                speeds.vxMetersPerSecond * dt,
-                speeds.vyMetersPerSecond * dt,
-                new Rotation2d(speeds.omegaRadiansPerSecond * dt));
-        var twist = new Pose2d().log(desiredDeltaPose);
-        speeds = new ChassisSpeeds(twist.dx / dt, twist.dy / dt, twist.dtheta / dt); //second order comp
+
         driveSubsystem.driveUsingChassisSpeed(speeds);
 
-        lastTime = now;
+
     }
 
     @Override

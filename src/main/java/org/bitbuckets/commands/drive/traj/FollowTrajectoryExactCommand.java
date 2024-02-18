@@ -2,6 +2,7 @@ package org.bitbuckets.commands.drive.traj;
 
 import com.choreo.lib.ChoreoTrajectory;
 import com.choreo.lib.ChoreoTrajectoryState;
+import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -10,6 +11,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import org.bitbuckets.drive.AutoSubsystem;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.OdometrySubsystem;
 
@@ -27,35 +29,32 @@ public class FollowTrajectoryExactCommand extends Command {
     final ChoreoTrajectory trajectory;
     final OdometrySubsystem odometrySubsystem;
     final DriveSubsystem driveSubsystem;
-
-    final PIDController xPid;
-    final PIDController yPid;
-    final ProfiledPIDController thetaPid;
+    final AutoSubsystem autoSubsystem;
     final boolean reZeroOdometry;
 
-    public FollowTrajectoryExactCommand(ChoreoTrajectory trajectory, OdometrySubsystem odometrySubsystem, DriveSubsystem driveSubsystem, PIDController xPid, PIDController yPid, ProfiledPIDController thetaPid, boolean reZeroOdometry) {
+    public FollowTrajectoryExactCommand(ChoreoTrajectory trajectory, OdometrySubsystem odometrySubsystem, DriveSubsystem driveSubsystem, AutoSubsystem autoSubsystem, boolean reZeroOdometry) {
         this.trajectory = trajectory;
         this.odometrySubsystem = odometrySubsystem;
         this.driveSubsystem = driveSubsystem;
+        this.autoSubsystem = autoSubsystem;
 
-        this.xPid = xPid;
-        this.yPid = yPid;
-        this.thetaPid = thetaPid;
         this.reZeroOdometry = reZeroOdometry;
+
+        addRequirements(driveSubsystem, autoSubsystem);
     }
+
 
     boolean shouldMirror() {
         DriverStation.Alliance alliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue);
         return alliance == DriverStation.Alliance.Red;
     }
 
+
     @Override
     public void initialize() {
         ChoreoTrajectoryState initialState =trajectory.sample(0, shouldMirror());
         if (reZeroOdometry) odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(initialState.getPose()));
 
-        thetaPid.enableContinuousInput(-Math.PI, Math.PI);
-        thetaPid.setTolerance(Math.PI / 360 / 4.5); //0.5 deg
         timer.restart();
     }
 
@@ -65,19 +64,12 @@ public class FollowTrajectoryExactCommand extends Command {
         double time = timer.get();
         ChoreoTrajectoryState trajectoryReference = trajectory.sample(time, shouldMirror());
         Pose2d robotState = odometrySubsystem.getRobotCentroidPosition();
-
-        double xFF = trajectoryReference.velocityX;
-        double yFF = trajectoryReference.velocityY;
-        double rotationFF = trajectoryReference.angularVelocity;
-
-        double xFeedback = xPid.calculate(robotState.getX(), trajectoryReference.x);
-        double yFeedback = yPid.calculate(robotState.getY(), trajectoryReference.y);
-        double rotationFeedback = thetaPid.calculate(robotState.getRotation().getRadians(), trajectoryReference.heading);
+        ChassisSpeeds velocityFeedback = autoSubsystem.calculateFeedbackSpeeds(trajectoryReference.getPose());
 
         ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                xFF + xFeedback,
-                yFF + yFeedback,
-                rotationFF + rotationFeedback,
+                trajectoryReference.velocityX + velocityFeedback.vxMetersPerSecond,
+                trajectoryReference.velocityY + velocityFeedback.vyMetersPerSecond,
+                trajectoryReference.angularVelocity + velocityFeedback.omegaRadiansPerSecond,
                 robotState.getRotation()
         );
 
@@ -87,7 +79,8 @@ public class FollowTrajectoryExactCommand extends Command {
     @Override
     public boolean isFinished() {
          //
-        return (timer.hasElapsed(trajectory.getTotalTime()) && thetaPid.atSetpoint()) || timer.hasElapsed(trajectory.getTotalTime() + 2);
+        return (timer.hasElapsed(trajectory.getTotalTime()) && autoSubsystem.isThetaAtSetpoint())
+                || timer.hasElapsed(trajectory.getTotalTime() + 2);
     }
 
     @Override

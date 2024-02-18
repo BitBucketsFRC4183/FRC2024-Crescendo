@@ -4,13 +4,10 @@ import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
-import org.bitbuckets.OperatorInput;
-import org.bitbuckets.RobotContainer;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.OdometrySubsystem;
 import org.bitbuckets.vision.VisionSubsystem;
 import org.bitbuckets.vision.VisionUtil;
-import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import java.util.Optional;
@@ -37,8 +34,6 @@ public class MoveToAlignCommand extends Command {
 
         // change this with visiontarget implementation later
         Optional<PhotonTrackedTarget> optTarget = visionSubsystem.getBestVisionTarget();
-
-
         if (optTarget.isPresent()) {
             Transform3d tagTransform = VisionUtil.getDesiredTargetAlignTransform(optTarget.get());
             this.targetPose = odometrySubsystem.getRobotCentroidPositionVert().plus(tagTransform);
@@ -49,23 +44,20 @@ public class MoveToAlignCommand extends Command {
     }
 
     @Override
-    public void initialize() {
-
-    }
-
-    @Override
     public void execute() {
         // this must be updated every as frequently as possible
         Optional<PhotonTrackedTarget> optTarget = visionSubsystem.getBestVisionTarget(false);
 
-
         if (optTarget.isPresent()) {
             Transform3d tagTransform = VisionUtil.getDesiredTargetAlignTransform(optTarget.get());
-            this.targetPose = odometrySubsystem.getRobotCentroidPositionVert().plus(tagTransform);
-
+            targetPose = odometrySubsystem.getRobotCentroidPositionVert().plus(tagTransform);
         }
 
-        moveToAlign();
+        ChassisSpeeds speeds = calculateTagSpeeds(this.targetPose.toPose2d(),
+                targetPose.toPose2d().getRotation().plus(Rotation2d.fromDegrees(180)),
+                1);
+        driveSubsystem.driveUsingChassisSpeed(speeds);
+
     }
     public ChassisSpeeds calculateTagSpeeds(Pose2d target, Rotation2d holonomicRotation, double desiredVelocity) {
         return holoController.calculate(
@@ -74,15 +66,6 @@ public class MoveToAlignCommand extends Command {
                 desiredVelocity,
                 holonomicRotation
         );
-    }
-
-    public void moveToAlign() {
-
-        ChassisSpeeds speeds = calculateTagSpeeds(this.targetPose.toPose2d(),
-                this.targetPose.toPose2d().getRotation().plus(Rotation2d.fromDegrees(180)),
-                1);
-        driveSubsystem.driveUsingChassisSpeed(speeds);
-
     }
 
     @Override

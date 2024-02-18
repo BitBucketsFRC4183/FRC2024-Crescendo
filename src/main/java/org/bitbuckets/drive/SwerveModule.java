@@ -59,8 +59,6 @@ public class SwerveModule implements IMattlibHooked {
      */
     @Override
     public void logicPeriodic() {
-
-
         if (steerController.angularVelocity_mechanismRotationsPerSecond() * 10 >= 0.5) {
             resetIteration = 0;
             return;
@@ -84,9 +82,7 @@ public class SwerveModule implements IMattlibHooked {
 
     public void setToMoveAt(SwerveModuleState state) {
 
-       //SwerveModuleState optimizedState = state;
-
-
+        //SwerveModuleState optimizedState = state;
 
         SwerveModuleState optimizedState = SwerveModuleState.optimize(
                 state,

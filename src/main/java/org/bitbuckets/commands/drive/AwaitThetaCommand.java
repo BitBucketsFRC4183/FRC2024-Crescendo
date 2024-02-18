@@ -1,11 +1,15 @@
 package org.bitbuckets.commands.drive;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import org.bitbuckets.drive.AutoSubsystem;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.OdometrySubsystem;
 import xyz.auriium.mattlib2.hardware.config.PIDComponent;
+
+import java.util.function.Supplier;
 
 /**
  * Testing theta command
@@ -14,30 +18,24 @@ public class AwaitThetaCommand extends Command {
 
     final DriveSubsystem driveSubsystem;
     final OdometrySubsystem odometrySubsystem;
-    final ProfiledPIDController thetaPID;
+    final AutoSubsystem autoSubsystem;
     final PIDComponent pidComponent;
-    final double desiredHeadingTheta;
+    final Supplier<Rotation2d> desiredHeadingTheta;
 
-    public AwaitThetaCommand(DriveSubsystem driveSubsystem, OdometrySubsystem odometrySubsystem, ProfiledPIDController thetaPID, PIDComponent pidComponent, double desiredHeadingTheta) {
+    public AwaitThetaCommand(DriveSubsystem driveSubsystem, OdometrySubsystem odometrySubsystem, AutoSubsystem autoSubsystem, PIDComponent pidComponent, Supplier<Rotation2d> desiredHeadingTheta) {
         this.driveSubsystem = driveSubsystem;
         this.odometrySubsystem = odometrySubsystem;
-        this.thetaPID = thetaPID;
+        this.autoSubsystem = autoSubsystem;
         this.pidComponent = pidComponent;
         this.desiredHeadingTheta = desiredHeadingTheta;
     }
 
     @Override
-    public void initialize() {
-        thetaPID.enableContinuousInput(-Math.PI, Math.PI);
-        thetaPID.setTolerance(Math.PI / 360 / 5); //0.1 deg
-    }
-
-    @Override
     public void execute() {
         double state = odometrySubsystem.getRobotCentroidPosition().getRotation().getRadians();
-        double reference = desiredHeadingTheta;
+        double reference = desiredHeadingTheta.get().getRadians();
 
-        double rotationFeedback = thetaPID.calculate(state, reference);
+        double rotationFeedback = autoSubsystem.thetaPid_radians.calculate(state, reference);
 
 
         driveSubsystem.driveUsingChassisSpeed(
@@ -54,8 +52,9 @@ public class AwaitThetaCommand extends Command {
 
     }
 
-    @Override public boolean isFinished() {
-        return thetaPID.atSetpoint();
+    @Override
+    public boolean isFinished() {
+        return autoSubsystem.thetaPid_radians.atSetpoint();
     }
 
     @Override

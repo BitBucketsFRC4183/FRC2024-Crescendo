@@ -2,6 +2,7 @@ package org.bitbuckets.vision;
 
 import edu.wpi.first.apriltag.AprilTagDetector;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.MathSharedStore;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.networktables.*;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -83,7 +84,7 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
         this.cam2_result = camera_2.getLatestResult();
 
 
-        Optional<PhotonTrackedTarget> optionalPhotonTrackedTarget = determineBestVisionTarget();
+        Optional<PhotonTrackedTarget> optionalPhotonTrackedTarget = determineBestVisionTargetFromList(getAllTargets());
         if (optionalPhotonTrackedTarget.isPresent()) {
             PhotonTrackedTarget ptt = optionalPhotonTrackedTarget.get();
             System.out.print(ptt.getBestCameraToTarget());
@@ -112,7 +113,7 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
         return new ExplainedException[0];
     }
 
-    public Optional<List<PhotonTrackedTarget>> getAllTargets() {
+    public PhotonTrackedTarget[] getAllTargets() {
         List<PhotonTrackedTarget> allTargets = new ArrayList<>();
 
         if (this.cam1_result.hasTargets()) {
@@ -123,16 +124,18 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
             allTargets.addAll(this.cam2_result.getTargets());
         }
 
-        if (allTargets.isEmpty()) {return Optional.empty();}
-        return Optional.of(allTargets);
+        return allTargets.toArray(PhotonTrackedTarget[]::new);
 
     }
 
-    private Optional<PhotonTrackedTarget> determineBestVisionTarget() {
-        Optional<List<PhotonTrackedTarget>> optAllTargets = getAllTargets();
-        return optAllTargets.map(this::determineBestVisionTargetFromList);
-    }
-    private PhotonTrackedTarget determineBestVisionTargetFromList(List<PhotonTrackedTarget> targets) {
+
+
+
+    Optional<PhotonTrackedTarget> determineBestVisionTargetFromList(PhotonTrackedTarget[] targets) {
+
+        if (targets.length == 0) {
+            return Optional.empty();
+        }
 
         // default priorities, lower index represents high priority
         List<VisionFieldTarget> priorities = List.of(
@@ -145,7 +148,7 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
                 VisionFieldTarget.STAGE
         );
 
-        PhotonTrackedTarget bestTarget = targets.get(0);
+        PhotonTrackedTarget bestTarget = targets[0]; //bruh
         VisionFieldTarget bestTargetElement = lookingAt(bestTarget.getFiducialId());
 
         VisionUtil.TargetPriority targetPriority = VisionUtil.TargetPriority.AREA;
@@ -189,7 +192,7 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
             bestTargetElement = lookingAt(bestTarget.getFiducialId());
         }
 
-        return bestTarget;
+        return Optional.of(bestTarget);
     }
 
 
@@ -197,34 +200,43 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
         return getBestVisionTarget(false);
     }
 
+    /**
+     *
+     * @param objectTargetLock When this is true the vision system will lock onto the same target as the last target if it can still see it
+     * @return
+     */
     public Optional<PhotonTrackedTarget> getBestVisionTarget(boolean objectTargetLock) {
+
+        if (!objectTargetLock) return this.bestTarget;
+
         // techincally sets too
         // kind of fixed switching between speaker center / speaker side
-        if (objectTargetLock && bestTarget.isPresent() && lastTarget.isPresent()) {
-            PhotonTrackedTarget bt = bestTarget.get();
-            PhotonTrackedTarget lt = lastTarget.get();
-            VisionFieldTarget bt_obj = lookingAt(bt.getFiducialId());
-            VisionFieldTarget lt_obj = lookingAt(lt.getFiducialId());
+        PhotonTrackedTarget bt = bestTarget.get();
+        PhotonTrackedTarget lt = lastTarget.get();
+        VisionFieldTarget bt_obj = lookingAt( bt.getFiducialId() );
+        VisionFieldTarget lt_obj = lookingAt( lt.getFiducialId() );
 
-            if ((SPEAKERS.contains(bt_obj) && SPEAKERS.contains(lt_obj) || (SOURCES.contains(bt_obj) && SOURCES.contains(lt_obj)))) {
-                if (lt_obj == bt_obj) {
-                    return this.bestTarget;
+        if ((SPEAKERS.contains(bt_obj) && SPEAKERS.contains(lt_obj) || (SOURCES.contains(bt_obj) && SOURCES.contains(lt_obj)))) {
+            if (lt_obj == bt_obj) {
+                return this.bestTarget;
+            } else {
+                PhotonTrackedTarget[] allTargets = getAllTargets();
+                PhotonTrackedTarget[] prevObjectTargets = Arrays
+                        .stream(allTargets)
+                        .filter(trackedTarget -> lookingAt(trackedTarget.getFiducialId()).equals(lt_obj)).toArray(PhotonTrackedTarget[]::new);
+                // if none of the current targets are of the samme type as the previous ones, just return the best target
+                if (prevObjectTargets.length == 0) {
+                    return Optional.empty();
                 } else {
-                    List<PhotonTrackedTarget> allTargets = getAllTargets().orElseThrow();
-                    List<PhotonTrackedTarget> prevObjectTargets = allTargets.stream().filter(trackedTarget -> lookingAt(trackedTarget.getFiducialId()).equals(lt_obj)).toList();
-                    // if none of the current targets are of the samme type as the previous ones, just return the best target
-                    if (prevObjectTargets.isEmpty()) {
-                        return Optional.empty();
-                    } else {
-                        this.bestTarget = Optional.of(determineBestVisionTargetFromList(prevObjectTargets));
-                        logBT(this.bestTarget.get());
-                        return this.bestTarget;
-                    }
+                    this.bestTarget = determineBestVisionTargetFromList(prevObjectTargets);
+                    logBT(this.bestTarget.get());
+                    return this.bestTarget;
                 }
+            }
 
-            } else return this.bestTarget;
-
-        } else return this.bestTarget;
+        } else {
+            return this.bestTarget;
+        }
     }
 
     // estimated robot pose using cam 1
@@ -286,14 +298,8 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
 
 
     public Optional<Pose2d> getClosestNotePose() {
-        if (!detectedSub.get()) {
-            return Optional.empty();
-        }
-        double x = xSub.get();
-        double y = ySub.get();
-
-        return Optional.of(new Pose2d(x, y, new Rotation2d()));
-    }
+        return Optional.of(new Pose2d(7,4, new Rotation2d()));
+}
 
     public PhotonCamera[] getCameras() {
         PhotonCamera[] cameras = new PhotonCamera[2];

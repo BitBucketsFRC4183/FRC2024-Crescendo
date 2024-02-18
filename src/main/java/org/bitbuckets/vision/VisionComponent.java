@@ -12,26 +12,26 @@ import java.util.Optional;
 
 public interface VisionComponent extends INetworkedComponent {
 
-        @Log("last_target") void log_last_target_name(String target);
-        @Log("best_target") void log_best_target_name(String target);
-        @Log("best_target_id") void log_best_target_id(double id);
-        @Log("best_target_ambiguity") void log_best_target_ambiguity(double ambiguity);
-        @Log("best_target_pose") void log_best_target_pose(Pose2d pose);
+    @Log("last_target") void log_last_target_name(String target);
+    @Log("best_target") void log_best_target_name(String target);
+    @Log("best_target_id") void log_best_target_id(double id);
+    @Log("best_target_ambiguity") void log_best_target_ambiguity(double ambiguity);
+    @Log("best_target_pose") void log_best_target_pose(Pose2d pose);
 
-        @Log("best_cameraToTag_pose") void log_best_cameraToTag_pose(Pose2d pose);
-        @Log("desired_transform_pose") void log_desired_transform_pose(Pose2d pose);
+    @Log("best_cameraToTag_pose") void log_best_cameraToTag_pose(Pose2d pose);
+    @Log("desired_transform_pose") void log_desired_transform_pose(Pose2d pose);
 
-        @Log("current_priority") void  log_current_priority(String priority);
-      @Log("vision_robot_pose_1") void log_vision_robot_pose_1(Pose2d p1);
-      @Log("vision_robot_pose_2") void log_vision_robot_pose_2(Pose2d p2);
-      @Log("pose1Weight") void log_pose1_weight(double w);
-        @Log("pose2Weight") void log_pose2_weight(double w);
+    @Log("current_priority") void  log_current_priority(String priority);
+    @Log("vision_robot_pose_1") void log_vision_robot_pose_1(Pose2d p1);
+    @Log("vision_robot_pose_2") void log_vision_robot_pose_2(Pose2d p2);
+    @Log("pose1Weight") void log_pose1_weight(double w);
+    @Log("pose2Weight") void log_pose2_weight(double w);
 
-        @Log("avgPoseAmbiguity1") void log_avgPoseAmbiguity1(double a);
+    @Log("avgPoseAmbiguity1") void log_avgPoseAmbiguity1(double a);
     @Log("avgPoseAmbiguity2") void log_avgPoseAmbiguity2(double a);
 
 
-      @Log("combined_vision_robot_pose") void log_combined_vision_robot_pose(Pose2d p);
-      @Log("final_pose") void log_final_pose(Pose2d p);
+    @Log("combined_vision_robot_pose") void log_combined_vision_robot_pose(Pose2d p);
+    @Log("final_pose") void log_final_pose(Pose2d p);
 
 }

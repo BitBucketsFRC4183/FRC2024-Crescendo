@@ -23,8 +23,6 @@ public class ShooterSubsystem implements Subsystem, IMattlibHooked {
     final AbsoluteEncoderComponent encoderComponent;
     final IRotationEncoder velocityEncoder;
 
-    
-
     public ShooterSubsystem(IRotationalController leftMotor, IRotationalController rightMotor, IRotationalController angleMotor, IRotationEncoder absoluteEncoder, ShooterComponent shooterComponent, AbsoluteEncoderComponent encoderComponent, IRotationEncoder velocityEncoder) {
         this.leftMotor = leftMotor;
         this.rightMotor = rightMotor;
@@ -56,6 +54,9 @@ public class ShooterSubsystem implements Subsystem, IMattlibHooked {
 
     @Override
     public void periodic() {
+        //if motor at limit switch, rezero
+
+
 
     }
 
@@ -63,8 +64,6 @@ public class ShooterSubsystem implements Subsystem, IMattlibHooked {
     public void setMotorRotationalSpeeds(double leftMotorSpeed_rotationsPerSecond, double rightMotorSpeed_rotationsPerSecond) {
         double leftVoltage = feedforward.calculate(leftMotorSpeed_rotationsPerSecond);
         double rightVoltage = feedforward.calculate(rightMotorSpeed_rotationsPerSecond);
-       //RobotContainer.SHOOTER_TUNING.voltage(leftVoltage);
-       //RobotContainer.SHOOTER_TUNING.voltage(rightVoltage);
 
         leftMotor.setToVoltage(leftVoltage);
         rightMotor.setToVoltage(rightVoltage);
@@ -74,14 +73,6 @@ public class ShooterSubsystem implements Subsystem, IMattlibHooked {
         leftMotor.setToVoltage(voltage);
         rightMotor.setToVoltage(voltage);
     }
-
-    /*
-    public void moveToAngle(double angle_degrees) {
-        double mechanism_rotations = angle_degrees/360d;
-        moveToRotation(mechanism_rotations);
-    }
-
-     */
 
     public void moveToRotation(double mechanism_rotations) {
         angleMotor.controlToNormalizedReference(mechanism_rotations);
