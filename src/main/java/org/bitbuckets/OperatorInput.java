@@ -25,9 +25,6 @@ public class OperatorInput {
     final Trigger sourceIntake_hold = operatorControl.leftBumper();
     final Trigger ampSetpoint_hold = operatorControl.leftTrigger();
     final Trigger speakerSetpoint_hold = operatorControl.rightTrigger();
-    final Trigger ampVisionPriority_toggle = operatorControl.povLeft();
-    final Trigger speakerVisionPriority_toggle = operatorControl.povRight();
-
     final Trigger setShooterAngleManually = operatorControl.leftStick();
 
 
@@ -41,6 +38,9 @@ public class OperatorInput {
     final Trigger groundIntakeHoldOp = operatorControl.rightBumper();
     final Trigger groundOuttakeHoldOp = operatorControl.b();
     final Trigger resetGyroPress = driver.start();
+
+    final Trigger ampVisionPriority_toggle = driver.povLeft();
+    final Trigger speakerVisionPriority_toggle = driver.povRight();
 
 
     /**
