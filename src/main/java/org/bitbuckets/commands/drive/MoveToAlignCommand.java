@@ -53,8 +53,9 @@ public class MoveToAlignCommand extends Command {
         if (this.targetPose != null) {
             setTarget();
 
-            double desiredVelocity = 5;
+            double desiredVelocity = 0;
 
+            System.out.println(this.targetPose.toPose2d());
             ChassisSpeeds speeds = this.holoController.calculate(
                     this.odometrySubsystem.getRobotCentroidPosition(),
                     this.targetPose.toPose2d(),

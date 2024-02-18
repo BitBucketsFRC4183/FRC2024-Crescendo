@@ -159,6 +159,8 @@ public class RobotContainer {
 
         chooser.getSelected().schedule();
 
+        odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(15.18, 5.55, 0, new Rotation3d(0, 0, 0)));
+        System.out.println("here");
     }
 
     public void disabledInit() {
@@ -350,7 +352,7 @@ public class RobotContainer {
                         DRIVE_T_PID.pConstant(),
                         DRIVE_T_PID.iConstant(),
                         DRIVE_T_PID.dConstant(),
-                        new TrapezoidProfile.Constraints(5, 5)
+                        new TrapezoidProfile.Constraints(3, 3)
                 ) //TODO
         );
 
