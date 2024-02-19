@@ -23,8 +23,8 @@ public class OperatorInput {
 
     final Trigger shootManually = operatorControl.x();
     final Trigger sourceIntake_hold = operatorControl.leftBumper();
-    final Trigger ampSetpoint_hold = operatorControl.leftTrigger();
-    final Trigger speakerSetpoint_hold = operatorControl.rightTrigger();
+    final Trigger intakeNoBeamBreak = operatorControl.rightTrigger(); // ampSetpoint_hold
+    final Trigger spinShooter = operatorControl.leftTrigger(); //(speakerSetpoint_hold)
     final Trigger ampVisionPriority_toggle = operatorControl.povLeft();
     final Trigger speakerVisionPriority_toggle = operatorControl.povRight();
 
