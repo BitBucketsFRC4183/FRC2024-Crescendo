@@ -14,23 +14,30 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.*;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
 import org.bitbuckets.commands.drive.AugmentedDriveCommand;
 import org.bitbuckets.commands.drive.AwaitThetaCommand;
-import org.bitbuckets.commands.drive.DefaultDriveCommand;
 import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
 import org.bitbuckets.commands.groundIntake.BasicGroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.FeedGroundIntakeGroup;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
-import org.bitbuckets.commands.shooter.*;
+import org.bitbuckets.commands.shooter.FeedFlywheelAndFireGroup;
+import org.bitbuckets.commands.shooter.SourceConsumerGroup;
+import org.bitbuckets.commands.shooter.SpinFlywheelCommand;
 import org.bitbuckets.disabled.DisablerComponent;
 import org.bitbuckets.disabled.KinematicGyro;
 import org.bitbuckets.drive.*;
@@ -166,7 +173,9 @@ public class RobotContainer {
     public void testInit() {
 
         new AwaitThetaCommand(driveSubsystem, odometrySubsystem, thetaController, DRIVE_T_PID, Rotation2d.fromDegrees(90).getRadians())
-                .andThen(Commands.runOnce(() -> {System.out.println("WE ARE DONE");})).schedule();
+                .andThen(Commands.runOnce(() -> {
+                    System.out.println("WE ARE DONE");
+                })).schedule();
 
         //LinearFFGenRoutine groundTopFFRoutine = new LinearFFGenRoutine(TOP_GROUND_FFGEN, groundIntakeSubsystem.topMotor, groundIntakeSubsystem.topMotor);
         //LinearFFGenRoutine groundBottomFFRoutine = new LinearFFGenRoutine(BOTTOM_GROUND_FFGEN, groundIntakeSubsystem.bottomMotor, groundIntakeSubsystem.bottomMotor);
@@ -201,6 +210,7 @@ public class RobotContainer {
                 false
         ).andThen(Commands.runOnce(driveSubsystem::commandWheelsToZero));
     }
+
     public Command followFirstTrajectory(String routine, String name, boolean isNeo) {
         String toAppend = isNeo ? "-neo" : "";
 
@@ -334,11 +344,12 @@ public class RobotContainer {
         // Trigger thingsA
         //operatorInput.ampSetpoint_hold.whileTrue(new PivotToAmpFireGroup(shooterSubsystem, noteManagementSubsystem, 100));
         //operatorInput.speakerSetpoint_hold.whileTrue(new PivotToSpeakerFireGroup(shooterSubsystem, noteManagementSubsystem, 100));
-        operatorInput.shootManually.whileTrue(new FeedFlywheelAndFireGroup(shooterSubsystem, noteManagementSubsystem, groundIntakeSubsystem,35));
+        operatorInput.shootManually.whileTrue(new FeedFlywheelAndFireGroup(shooterSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 35));
         operatorInput.spinShooter.whileTrue(new SpinFlywheelCommand(shooterSubsystem, false, 65));
         operatorInput.intakeNoBeamBreak.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
 
-        operatorInput.isTeleop.and(pivotThreshold).whileTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));
+        // disable manual pivot. Do not enable unless mechanical agrees
+//        operatorInput.isTeleop.and(pivotThreshold).whileTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));
         //operatorInput.setShooterAngleManually.onTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));
 
         operatorInput.sourceIntake_hold.whileTrue(new SourceConsumerGroup(noteManagementSubsystem, shooterSubsystem));
@@ -399,8 +410,7 @@ public class RobotContainer {
                 driveMotor = HardwareDisabled.linearMotor_velocityPID();
                 steerController = HardwareDisabled.rotationalController_disabled();
                 absoluteEncoder = HardwareDisabled.rotationEncoder_disabled();
-            }
-            else if (Robot.isSimulation()) {
+            } else if (Robot.isSimulation()) {
                 driveMotor = HardwareSIM.linearSIM_velocityPid(DRIVES[i], DRIVE_PIDS[i], DCMotor.getNEO(1));
                 steerController = HardwareSIM.rotationalSIM_pid(STEERS[i], STEER_PIDS[i], DCMotor.getNEO(1));
                 absoluteEncoder = steerController; //TODO silly hack wtf this is not a hack i have spent two hours on this and i have not found a solution
@@ -523,7 +533,7 @@ public class RobotContainer {
                 new SwerveDrivePoseEstimator( //The auto path will reset all of this data anyways
                         kinematics,
                         new Rotation2d(),
-                        new SwerveModulePosition[] { new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition()},
+                        new SwerveModulePosition[]{new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition()},
                         new Pose2d()
                 ),
                 gyro,
@@ -635,7 +645,7 @@ public class RobotContainer {
     //generator stuff
     public static final ConsoleComponent CONSOLE = LOG.load(ConsoleComponent.class, "console");
     public static final GenerateFFComponent SHOOTER_WHEEL_2_FFGEN = LOG.load(GenerateFFComponent.class, "shooter/wheel_2_ffgen");
-    public static final GenerateFFComponent[] DRIVE_MOTORS_FFGEN = LOG.loadRange(GenerateFFComponent.class, "swerve/ffgen",4, Util.RENAMER);
+    public static final GenerateFFComponent[] DRIVE_MOTORS_FFGEN = LOG.loadRange(GenerateFFComponent.class, "swerve/ffgen", 4, Util.RENAMER);
 
     //config stuff
     public static final VisionComponent VISION = LOG.load(VisionComponent.class, "vision");
