@@ -18,14 +18,10 @@ public class ManualPivotCommand extends Command {
     }
 
 
-
     @Override
     public void execute() {
         double angleVoltageConstant = 4d;
-        if (shooterSubsystem.getPivotAnglePosition_normalizedMechanismRotations() > 0.001) {
-            shooterSubsystem.setPivotMotorToVoltage(oi.getOperatorLeftStickY() * angleVoltageConstant);
-        }
-
+        shooterSubsystem.setPivotMotorToVoltage(oi.getOperatorLeftStickY() * angleVoltageConstant);
     }
 
     @Override
