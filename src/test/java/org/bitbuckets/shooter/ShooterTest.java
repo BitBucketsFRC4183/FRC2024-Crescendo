@@ -33,7 +33,7 @@ public class ShooterTest {
         var rightMotor = Mockito.mock(IRotationalMotor.class);
         var rotationalController = Mockito.mock(IRotationalController.class);
         var absoluteEncoder = Mockito.mock(IRotationEncoder.class);
-        var shooterComponent = Mockito.mock(ShooterComponent.class);
+        var shooterComponent = Mockito.mock(FlywheelSubsystem.ShooterComponent.class);
         var encoderComponent = Mockito.mock(AnalogEncoderComponent.class);
 
         Mockito.when(leftMotor.angularVelocity_mechanismRotationsPerSecond()).thenReturn(4000d);

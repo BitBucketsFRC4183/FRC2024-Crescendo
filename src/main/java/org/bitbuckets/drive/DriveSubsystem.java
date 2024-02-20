@@ -1,8 +1,5 @@
 package org.bitbuckets.drive;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -30,7 +27,8 @@ public class DriveSubsystem implements Subsystem, IMattlibHooked {
         if (desiredStates != null) {
             RobotContainer.SWERVE.logDesiredStates(desiredStates);
         }
-        RobotContainer.SWERVE.logSwerveStates(currentStates());
+        RobotContainer.SWERVE.logAbsoluteBasedStates(currentAbsoluteBasedState());
+        RobotContainer.SWERVE.logHallEncoderBasedStates(currentHallEffectStates());
     }
 
     /**
@@ -76,12 +74,21 @@ public class DriveSubsystem implements Subsystem, IMattlibHooked {
      *
      * @return The current state of the swerve drive as reported by each module
      */
-    public SwerveModuleState[] currentStates() {
+    public SwerveModuleState[] currentHallEffectStates() {
         return new SwerveModuleState[] {
-                modules[0].getState(),
-                modules[1].getState(),
-                modules[2].getState(),
-                modules[3].getState()
+                modules[0].getHallEffectBasedState(),
+                modules[1].getHallEffectBasedState(),
+                modules[2].getHallEffectBasedState(),
+                modules[3].getHallEffectBasedState()
+        };
+    }
+
+    public SwerveModuleState[] currentAbsoluteBasedState() {
+        return new SwerveModuleState[] {
+                modules[0].getAbsoluteBasedState(),
+                modules[1].getAbsoluteBasedState(),
+                modules[2].getAbsoluteBasedState(),
+                modules[3].getAbsoluteBasedState()
         };
     }
 

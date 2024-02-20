@@ -3,6 +3,7 @@ package org.bitbuckets.shooter;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import org.bitbuckets.util.RunningAverageBuffer;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.hardware.IRotationalController;
 import xyz.auriium.mattlib2.log.INetworkedComponent;
@@ -20,6 +21,8 @@ public class FlywheelSubsystem implements Subsystem, IMattlibHooked {
     final IRotationEncoder velocityEncoderLeft;
     final IRotationEncoder velocityEncoderRight;
     final ShooterComponent shooterComponent;
+
+    final RunningAverageBuffer atSpeeds = new RunningAverageBuffer(4);
 
     public FlywheelSubsystem(IRotationalController leftMotor, IRotationalController rightMotor, ShooterComponent shooterComponent, IRotationEncoder velocityEncoderLeft, IRotationEncoder velocityEncoderRight) {
         this.leftMotor = leftMotor;
@@ -41,8 +44,10 @@ public class FlywheelSubsystem implements Subsystem, IMattlibHooked {
         @Log("isReachedSpeeds") void reportReachedSpeeds(boolean reachedSpeeds);
     }
 
-
     boolean reachedSpeeds = false;
+
+    @Override public void logicPeriodic() {
+    }
 
     @Override public void logPeriodic() {
         shooterComponent.reportReachedSpeeds(reachedSpeeds);

@@ -342,8 +342,8 @@ public class RobotContainer {
         // Trigger thingsA
         //operatorInput.ampSetpoint_hold.whileTrue(new PivotToAmpFireGroup(shooterSubsystem, noteManagementSubsystem, 100));
         //operatorInput.speakerSetpoint_hold.whileTrue(new PivotToSpeakerFireGroup(shooterSubsystem, noteManagementSubsystem, 100));
-        operatorInput.shootManually.whileTrue(new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 50));
-        operatorInput.spinShooter.whileTrue(new SpinFlywheelCommand(flywheelSubsystem, false, 65));
+        operatorInput.shootManually.whileTrue(new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 60));
+        //operatorInput.spinShooter.whileTrue(new SpinFlywheelCommand(flywheelSubsystem, false, 65));
         operatorInput.intakeNoBeamBreak.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
 
         // disable manual pivot. Do not enable unless mechanical agrees

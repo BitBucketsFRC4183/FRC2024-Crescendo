@@ -106,7 +106,7 @@ Vy = 5 #m/s
 [swerve]
 pigeonId = 5
 magnitudeFWLim = 3.3
-fieldOriented = true
+fieldOriented = false
 x_holonomic_pid = {p = 1.2, i = 0, d = 0}
 y_holonomic_pid = {p = 1.2, i = 0, d = 0}
 t_holonomic_pid = {p = 7.9, i = 0, d = 0.7} #need to be redone (current mcr values)
