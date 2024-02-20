@@ -10,7 +10,7 @@ import xyz.auriium.mattlib2.hardware.config.PIDComponent;
 /**
  * Testing theta command
  */
-public class AwaitThetaCommand extends Command {
+public class MoveToThetaCommand extends Command {
 
     final DriveSubsystem driveSubsystem;
     final OdometrySubsystem odometrySubsystem;
@@ -18,12 +18,14 @@ public class AwaitThetaCommand extends Command {
     final PIDComponent pidComponent;
     final double desiredHeadingTheta;
 
-    public AwaitThetaCommand(DriveSubsystem driveSubsystem, OdometrySubsystem odometrySubsystem, ProfiledPIDController thetaPID, PIDComponent pidComponent, double desiredHeadingTheta) {
+    public MoveToThetaCommand(DriveSubsystem driveSubsystem, OdometrySubsystem odometrySubsystem, ProfiledPIDController thetaPID, PIDComponent pidComponent, double desiredHeadingTheta) {
         this.driveSubsystem = driveSubsystem;
         this.odometrySubsystem = odometrySubsystem;
         this.thetaPID = thetaPID;
         this.pidComponent = pidComponent;
         this.desiredHeadingTheta = desiredHeadingTheta;
+
+        addRequirements(driveSubsystem);
     }
 
     @Override
