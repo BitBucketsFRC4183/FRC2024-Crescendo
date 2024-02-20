@@ -1,14 +1,19 @@
 package org.bitbuckets.util;
 
+import xyz.auriium.mattlib2.hardware.config.CommonMotorComponent;
 import xyz.auriium.mattlib2.log.INetworkedComponent;
 import xyz.auriium.mattlib2.log.annote.Conf;
 import xyz.auriium.mattlib2.log.annote.Log;
 
-public interface AbsoluteEncoderComponent extends INetworkedComponent {
+import java.util.Optional;
 
-    @Conf("analogChannel") int analogChannel();
-    @Conf("offset") double offset_mechanismRotations();
+public interface DigitalEncoderComponent extends INetworkedComponent {
+
+
+    @Conf("dio_channelA") int dioChannelA();
+    @Conf("dio_channelB") int dioChannelB();
     @Conf("encoderToMechanismCoef") double encoderToMechanismCoefficient();
+    @Conf("offset") Optional<Double> offset_mechanismRotations();
 
     @Log("positionWithOffset") void logPositionWithOffset(double position_mechanismRotations);
     @Log("velocity") void logVelocity(double velocity_metersPerSecond);

@@ -1,6 +1,6 @@
 package org.bitbuckets.shooter;
 
-import org.bitbuckets.util.AbsoluteEncoderComponent;
+import org.bitbuckets.util.AnalogEncoderComponent;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -18,7 +18,7 @@ public class ShooterTest {
         double actualValue = 43;
 
 
-        boolean output = ShooterSubsystem.isWithinDeadband(deadband, target, actualValue);
+        boolean output = PivotSubsystem.isWithinDeadband(deadband, target, actualValue);
         Assertions.assertTrue(output);
 
     }
@@ -34,7 +34,7 @@ public class ShooterTest {
         var rotationalController = Mockito.mock(IRotationalController.class);
         var absoluteEncoder = Mockito.mock(IRotationEncoder.class);
         var shooterComponent = Mockito.mock(ShooterComponent.class);
-        var encoderComponent = Mockito.mock(AbsoluteEncoderComponent.class);
+        var encoderComponent = Mockito.mock(AnalogEncoderComponent.class);
 
         Mockito.when(leftMotor.angularVelocity_mechanismRotationsPerSecond()).thenReturn(4000d);
         Mockito.when(rightMotor.angularVelocity_mechanismRotationsPerSecond()).thenReturn(5000d);

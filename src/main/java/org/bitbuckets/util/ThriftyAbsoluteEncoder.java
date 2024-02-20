@@ -9,11 +9,11 @@ import xyz.auriium.mattlib2.utils.AngleUtil;
 public class ThriftyAbsoluteEncoder implements IRotationEncoder, IMattlibHooked {
 
     final AnalogInput input;
-    final AbsoluteEncoderComponent encoderComponent;
+    final AnalogEncoderComponent encoderComponent;
 
     double offset_mechanismRotations;
 
-    public ThriftyAbsoluteEncoder(AnalogInput input, AbsoluteEncoderComponent encoderComponent) {
+    public ThriftyAbsoluteEncoder(AnalogInput input, AnalogEncoderComponent encoderComponent) {
         this.input = input;
         this.encoderComponent = encoderComponent;
 

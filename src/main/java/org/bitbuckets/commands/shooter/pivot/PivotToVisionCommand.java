@@ -1,19 +1,19 @@
-package org.bitbuckets.commands.shooter;
+package org.bitbuckets.commands.shooter.pivot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import org.bitbuckets.drive.OdometrySubsystem;
-import org.bitbuckets.shooter.ShooterSubsystem;
+import org.bitbuckets.shooter.FlywheelSubsystem;
 import org.bitbuckets.vision.VisionSubsystem;
 
 public class PivotToVisionCommand extends Command {
 
     final VisionSubsystem visionSubsystem;
-    final ShooterSubsystem shooterSubsystem;
+    final FlywheelSubsystem flywheelSubsystem;
     final OdometrySubsystem odometrySubsystem;
 
-    public PivotToVisionCommand(VisionSubsystem visionSubsystem, ShooterSubsystem shooterSubsystem, OdometrySubsystem odometrySubsystem) {
+    public PivotToVisionCommand(VisionSubsystem visionSubsystem, FlywheelSubsystem flywheelSubsystem, OdometrySubsystem odometrySubsystem) {
         this.visionSubsystem = visionSubsystem;
-        this.shooterSubsystem = shooterSubsystem;
+        this.flywheelSubsystem = flywheelSubsystem;
         this.odometrySubsystem = odometrySubsystem;
     }
 

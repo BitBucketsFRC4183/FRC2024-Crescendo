@@ -1,13 +1,13 @@
-package org.bitbuckets.commands.shooter;
+package org.bitbuckets.commands.shooter.pivot;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import org.bitbuckets.shooter.ShooterSubsystem;
+import org.bitbuckets.shooter.PivotSubsystem;
 
 public class PivotToSpeakerCommand extends Command {
-        private final ShooterSubsystem shooterSubsystem;
+        private final PivotSubsystem flywheelSubsystem;
 
-        public PivotToSpeakerCommand(ShooterSubsystem shooterSubsystem) {
-            this.shooterSubsystem = shooterSubsystem;
+        public PivotToSpeakerCommand(PivotSubsystem flywheelSubsystem) {
+            this.flywheelSubsystem = flywheelSubsystem;
         }
 
         @Override
@@ -20,17 +20,17 @@ public class PivotToSpeakerCommand extends Command {
         public void execute() {
 
             double mechanism_rotations = 1/6;
-            shooterSubsystem.moveToRotation(mechanism_rotations);
+            flywheelSubsystem.moveToRotation(mechanism_rotations);
         }
 
         @Override
         public boolean isFinished() {
-            return shooterSubsystem.hasReachedAngle(1/6);
+            return flywheelSubsystem.hasReachedAngle(1/6);
         }
 
         @Override
         public void end(boolean interrupted) {
-            shooterSubsystem.moveToRotation(0);
+            flywheelSubsystem.moveToRotation(0);
         }
     }
 

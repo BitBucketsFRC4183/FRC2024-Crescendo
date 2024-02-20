@@ -14,10 +14,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,7 +26,6 @@ import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
 import org.bitbuckets.commands.drive.AugmentedDriveCommand;
-import org.bitbuckets.commands.drive.AwaitThetaCommand;
 import org.bitbuckets.commands.drive.MoveToAlignCommand;
 import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
 import org.bitbuckets.commands.groundIntake.BasicGroundIntakeCommand;
@@ -37,7 +33,7 @@ import org.bitbuckets.commands.groundIntake.FeedGroundIntakeGroup;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
 import org.bitbuckets.commands.shooter.FeedFlywheelAndFireGroup;
 import org.bitbuckets.commands.shooter.SourceConsumerGroup;
-import org.bitbuckets.commands.shooter.SpinFlywheelCommand;
+import org.bitbuckets.commands.shooter.flywheel.SpinFlywheelCommand;
 import org.bitbuckets.disabled.DisablerComponent;
 import org.bitbuckets.disabled.KinematicGyro;
 import org.bitbuckets.drive.*;
@@ -45,8 +41,8 @@ import org.bitbuckets.groundIntake.GroundIntakeComponent;
 import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
 import org.bitbuckets.noteManagement.NoteManagementComponent;
 import org.bitbuckets.noteManagement.NoteManagementSubsystem;
-import org.bitbuckets.shooter.ShooterComponent;
-import org.bitbuckets.shooter.ShooterSubsystem;
+import org.bitbuckets.shooter.FlywheelSubsystem;
+import org.bitbuckets.shooter.PivotSubsystem;
 import org.bitbuckets.util.*;
 import org.bitbuckets.vision.CamerasComponent;
 import org.bitbuckets.vision.VisionComponent;
@@ -59,6 +55,7 @@ import xyz.auriium.mattlib2.MattConsole;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
 import xyz.auriium.mattlib2.auto.ff.GenerateFFComponent;
+import xyz.auriium.mattlib2.auto.ff.RotationFFGenRoutine;
 import xyz.auriium.mattlib2.hardware.*;
 import xyz.auriium.mattlib2.hardware.config.*;
 import xyz.auriium.mattlib2.log.ConsoleComponent;
@@ -76,7 +73,8 @@ public class RobotContainer {
 
     public final DriveSubsystem driveSubsystem;
     public final OperatorInput operatorInput;
-    public final ShooterSubsystem shooterSubsystem;
+    public final FlywheelSubsystem flywheelSubsystem;
+    public final PivotSubsystem pivotSubsystem;
     public final OdometrySubsystem odometrySubsystem;
     public final VisionSubsystem visionSubsystem;
     public final VisionSimContainer visionSimContainer;
@@ -110,10 +108,12 @@ public class RobotContainer {
         this.driveSubsystem = loadDriveSubsystem();
         this.visionSubsystem = loadVisionSubsystem();
         this.odometrySubsystem = loadOdometrySubsystem();
-        this.shooterSubsystem = loadShooterSubsystem();
+        this.flywheelSubsystem = loadFlywheelSubsystem();
+        this.pivotSubsystem = loadPivotSubsystem();
         this.climberSubsystem = loadClimberSubsystem();
         this.groundIntakeSubsystem = loadGroundIntakeSubsystem();
         this.noteManagementSubsystem = loadNoteManagementSubsystem();
+
 
         if (!DISABLER.vision_disabled() && Robot.isSimulation()) {
             PhotonCamera[] cameras = visionSubsystem.getCameras();
@@ -171,21 +171,19 @@ public class RobotContainer {
     }
 
     public void testInit() {
+/*
 
         new AwaitThetaCommand(driveSubsystem, odometrySubsystem, thetaController, DRIVE_T_PID, Rotation2d.fromDegrees(90).getRadians())
                 .andThen(Commands.runOnce(() -> {
                     System.out.println("WE ARE DONE");
                 })).schedule();
+*/
 
         //LinearFFGenRoutine groundTopFFRoutine = new LinearFFGenRoutine(TOP_GROUND_FFGEN, groundIntakeSubsystem.topMotor, groundIntakeSubsystem.topMotor);
         //LinearFFGenRoutine groundBottomFFRoutine = new LinearFFGenRoutine(BOTTOM_GROUND_FFGEN, groundIntakeSubsystem.bottomMotor, groundIntakeSubsystem.bottomMotor);
         //CTowerCommands.wrapRoutine(groundTopFFRoutine).schedule();
         //CTowerCommands.wrapRoutine(groundBottomFFRoutine).schedule();
-      /*  RotationFFGenRoutine shooterFFRoutine = new RotationFFGenRoutine(SHOOTER_WHEEL_1_FFGEN, shooterSubsystem.leftMotor, shooterSubsystem.leftMotor );
-        CTowerCommands.wrapRoutine(shooterFFRoutine).schedule();
-        shooterFFRoutine = new RotationFFGenRoutine(SHOOTER_WHEEL_2_FFGEN, shooterSubsystem.rightMotor, shooterSubsystem.rightMotor);
-        CTowerCommands.wrapRoutine(shooterFFRoutine).schedule();
-*/
+
 //        Command[] commands = new Command[4];
 //        for (int i = 0; i < 4; i++) {
 //            var motorWeAreTesting = driveSubsystem.modules[i].driveMotor;
@@ -242,70 +240,70 @@ public class RobotContainer {
         boolean isNeo = MattlibSettings.ROBOT == MattlibSettings.Robot.MCR;
 
         var oneNoteCollect = new SequentialCommandGroup(
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                Commands.runOnce(() -> flywheelSubsystem.setFlywheelVoltage(1)),
                 followFirstTrajectory("oneNoteCollect", "oneNoteCollect-1", isNeo),
                 Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1))
         );
 
         var twoNote = new SequentialCommandGroup(
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                Commands.runOnce(() -> flywheelSubsystem.setFlywheelVoltage(1)),
                 followFirstTrajectory("twoNote", "twoNote-1", isNeo),
                 Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
                 followTrajectory("twoNote", "twoNote-2", isNeo),
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1))
+                Commands.runOnce(() -> flywheelSubsystem.setFlywheelVoltage(1))
         );
 
         var shootLeave = new SequentialCommandGroup(
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                Commands.runOnce(() -> flywheelSubsystem.setFlywheelVoltage(1)),
                 followFirstTrajectory("shootLeave", "shootLeave", isNeo)
         );
 
         var twoNoteCollect = new SequentialCommandGroup(
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                Commands.runOnce(() -> flywheelSubsystem.setFlywheelVoltage(1)),
                 followFirstTrajectory("twoNoteCollect", "twoNoteCollect-1", isNeo),
                 Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
                 followTrajectory("twoNoteCollect", "twoNoteCollect-2", isNeo),
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                Commands.runOnce(() -> flywheelSubsystem.setFlywheelVoltage(1)),
                 followTrajectory("twoNoteCollect", "twoNoteCollect-3", isNeo),
                 Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1))
         );
 
         var threeNote = new SequentialCommandGroup(
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                Commands.runOnce(() -> flywheelSubsystem.setFlywheelVoltage(1)),
                 followFirstTrajectory("threeNote", "threeNote-1", isNeo),
                 Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
                 followTrajectory("threeNote", "threeNote-2", isNeo),
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                Commands.runOnce(() -> flywheelSubsystem.setFlywheelVoltage(1)),
                 followTrajectory("threeNote", "threeNote-3", isNeo),
                 Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
                 followTrajectory("threeNote", "threeNote-4", isNeo),
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1))
+                Commands.runOnce(() -> flywheelSubsystem.setFlywheelVoltage(1))
         );
 
         var fourNote = new SequentialCommandGroup(
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                Commands.runOnce(() -> flywheelSubsystem.setFlywheelVoltage(1)),
                 followFirstTrajectory("fourNote", "fourNote-1", isNeo),
                 Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
                 followTrajectory("fourNote", "fourNote-2", isNeo),
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                Commands.runOnce(() -> flywheelSubsystem.setFlywheelVoltage(1)),
                 followTrajectory("fourNote", "fourNote-3", isNeo),
                 Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
                 followTrajectory("fourNote", "fourNote-4", isNeo),
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                Commands.runOnce(() -> flywheelSubsystem.setFlywheelVoltage(1)),
                 followTrajectory("fourNote", "fourNote-5", isNeo),
                 Commands.runOnce(() -> groundIntakeSubsystem.setToVoltage(1)),
                 followTrajectory("fourNote", "fourNote-6", isNeo),
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1))
+                Commands.runOnce(() -> flywheelSubsystem.setFlywheelVoltage(1))
         );
 
         var mvpTaxi = new SequentialCommandGroup(
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1)),
+                Commands.runOnce(() -> flywheelSubsystem.setFlywheelVoltage(1)),
                 followFirstTrajectory("mvp_taxi", "mvp_taxi", isNeo)
         );
 
         //this is if drive isn't working for some reason and we just need to shoot during auto
         var shootOnly = new SequentialCommandGroup(
-                Commands.runOnce(() -> shooterSubsystem.setAllMotorsToVoltage(1))
+                Commands.runOnce(() -> flywheelSubsystem.setFlywheelVoltage(1))
         );
 
         var rotationTest = new SequentialCommandGroup(
@@ -337,22 +335,22 @@ public class RobotContainer {
         Trigger yGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kLeftY.value, -0.1));
         Trigger rotGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kRightX.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kRightX.value, -0.1));
         Trigger climberThreshold = operatorInput.operatorControl.axisGreaterThan(XboxController.Axis.kRightY.value, 0.1).or(operatorInput.operatorControl.axisLessThan(XboxController.Axis.kRightY.value, -0.1));
-        Trigger pivotThreshold = operatorInput.operatorControl.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.1).or(operatorInput.operatorControl.axisLessThan(XboxController.Axis.kLeftY.value, -0.1));
+        //Trigger pivotThreshold = operatorInput.operatorControl.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.1).or(operatorInput.operatorControl.axisLessThan(XboxController.Axis.kLeftY.value, -0.1));
 
         operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(new AugmentedDriveCommand(SWERVE, driveSubsystem, odometrySubsystem, operatorInput));
 
         // Trigger thingsA
         //operatorInput.ampSetpoint_hold.whileTrue(new PivotToAmpFireGroup(shooterSubsystem, noteManagementSubsystem, 100));
         //operatorInput.speakerSetpoint_hold.whileTrue(new PivotToSpeakerFireGroup(shooterSubsystem, noteManagementSubsystem, 100));
-        operatorInput.shootManually.whileTrue(new FeedFlywheelAndFireGroup(shooterSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 35));
-        operatorInput.spinShooter.whileTrue(new SpinFlywheelCommand(shooterSubsystem, false, 65));
+        operatorInput.shootManually.whileTrue(new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 50));
+        operatorInput.spinShooter.whileTrue(new SpinFlywheelCommand(flywheelSubsystem, false, 65));
         operatorInput.intakeNoBeamBreak.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
 
         // disable manual pivot. Do not enable unless mechanical agrees
 //        operatorInput.isTeleop.and(pivotThreshold).whileTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));
         //operatorInput.setShooterAngleManually.onTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));
 
-        operatorInput.sourceIntake_hold.whileTrue(new SourceConsumerGroup(noteManagementSubsystem, shooterSubsystem));
+        operatorInput.sourceIntake_hold.whileTrue(new SourceConsumerGroup(noteManagementSubsystem, flywheelSubsystem));
         operatorInput.groundIntakeHold.or(operatorInput.groundIntakeHoldOp).and(operatorInput.groundOuttakeHold.negate())
                 .whileTrue(new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem));
         operatorInput.groundOuttakeHold.or(operatorInput.groundOuttakeHoldOp).and(operatorInput.groundIntakeHold.negate())
@@ -437,52 +435,62 @@ public class RobotContainer {
         return modules;
     }
 
-    ShooterSubsystem loadShooterSubsystem() {
-        IRotationalController leftMotor;
-        IRotationalController rightMotor;
+    PivotSubsystem loadPivotSubsystem() {
+
         IRotationalController leftAngleMotor;
         IRotationalController rightAngleMotor;
+        IRotationEncoder pivotEncoder;
 
-
-        IRotationEncoder leftPivotEncoder;
-
-
-        IRotationEncoder velocityEncoder;
-
-        if (DISABLER.shooter_disabled()) {
-            leftMotor = HardwareDisabled.rotationalController_disabled();
-            rightMotor = HardwareDisabled.rotationalController_disabled();
+        if (DISABLER.pivot_disabled()) {
             leftAngleMotor = HardwareDisabled.rotationalController_disabled();
             rightAngleMotor = HardwareDisabled.rotationalController_disabled();
-            leftPivotEncoder = HardwareDisabled.rotationEncoder_disabled();
-            velocityEncoder = HardwareDisabled.rotationEncoder_disabled();
+            pivotEncoder = HardwareDisabled.rotationEncoder_disabled();
         } else if (Robot.isSimulation()) {
-            leftMotor = HardwareSIM.rotationalSIM_pid(SHOOTER_WHEEL_1, SHOOTER_PID_1, DCMotor.getNEO(1));
-            rightMotor = HardwareSIM.rotationalSIM_pid(SHOOTER_WHEEL_2, SHOOTER_PID_2, DCMotor.getNEO(1));
-            leftAngleMotor = HardwareSIM.rotationalSIM_pid(LEFT_PIVOT, LEFT_PIVOT_PID, DCMotor.getKrakenX60(1));
-            rightAngleMotor = HardwareSIM.rotationalSIM_pid(RIGHT_PIVOT, LEFT_PIVOT_PID, DCMotor.getKrakenX60(1));
-            leftPivotEncoder = leftAngleMotor;
-            velocityEncoder = leftMotor; //TODO switch out leftMotor with actual velocity encoder
+            leftAngleMotor = HardwareSIM.rotationalSIM_pid(LEFT_PIVOT, PIVOT_PID, DCMotor.getKrakenX60(1));
+            rightAngleMotor = HardwareSIM.rotationalSIM_pid(RIGHT_PIVOT, PIVOT_PID, DCMotor.getKrakenX60(1));
+            pivotEncoder = leftAngleMotor;
+        } else {
+            leftAngleMotor = HardwareCTRE.rotationalFX_builtInPID(LEFT_PIVOT, PIVOT_PID);
+            rightAngleMotor = HardwareCTRE.rotationalFX_builtInPID(RIGHT_PIVOT, PIVOT_PID);
+            pivotEncoder = HardwareUtil.throughboreEncoder(SHOOTER_PIVOT_ENCODER);
+        }
+
+        return new PivotSubsystem(leftAngleMotor, rightAngleMotor, pivotEncoder);
+    }
+
+    FlywheelSubsystem loadFlywheelSubsystem() {
+        IRotationalController leftMotor;
+        IRotationalController rightMotor;
+
+        IRotationEncoder velocityEncoderRight;
+        IRotationEncoder velocityEncoderLeft;
+
+
+        if (DISABLER.flywheel_disabled()) {
+            leftMotor = HardwareDisabled.rotationalController_disabled();
+            rightMotor = HardwareDisabled.rotationalController_disabled();
+            velocityEncoderLeft = HardwareDisabled.rotationEncoder_disabled();
+            velocityEncoderRight = HardwareDisabled.rotationEncoder_disabled();
+        } else if (Robot.isSimulation()) {
+            leftMotor = HardwareSIM.rotationalSIM_pid(SHOOTER_FLYWHEEL_LEFT, FLYWHEEL_VELOCITY_PID, DCMotor.getNEO(1));
+            rightMotor = HardwareSIM.rotationalSIM_pid(SHOOTER_FLYWHEEL_RIGHT, FLYWHEEL_VELOCITY_PID, DCMotor.getNEO(1));
+            velocityEncoderLeft = leftMotor; //TODO switch out leftMotor with actual velocity encoder
+            velocityEncoderRight = rightMotor;
 
         } else {
-            leftMotor = HardwareREV.rotationalSpark_builtInPID(SHOOTER_WHEEL_1, SHOOTER_PID_1);
-            rightMotor = HardwareREV.rotationalSpark_builtInPID(SHOOTER_WHEEL_2, SHOOTER_PID_2);
-            leftAngleMotor = HardwareCTRE.rotationalFX_builtInPID(LEFT_PIVOT, LEFT_PIVOT_PID);
-            rightAngleMotor = HardwareCTRE.rotationalFX_builtInPID(RIGHT_PIVOT, RIGHT_PIVOT_PID);
-            leftPivotEncoder = HardwareDisabled.rotationEncoder_disabled();//new ThroughBoreEncoder(new Encoder(SHOOTER.pivotChannel_dio(), SHOOTER.pivotChannel_dio()), SHOOTER_ABSOLUTE);
-            velocityEncoder = HardwareDisabled.rotationEncoder_disabled();//new ThroughBoreEncoder(new Encoder(SHOOTER.velocityChannelA_dio(), SHOOTER.velocityChannelB_dio()), VELOCITY_ENCODER);
+            leftMotor = HardwareREV.rotationalSpark_builtInPID(SHOOTER_FLYWHEEL_LEFT, FLYWHEEL_VELOCITY_PID);
+            rightMotor = HardwareREV.rotationalSpark_builtInPID(SHOOTER_FLYWHEEL_RIGHT, FLYWHEEL_VELOCITY_PID);
+            velocityEncoderLeft = leftMotor;//HardwareUtil.throughboreEncoder(FLYWHEEL_ENCODER_LEFT);
+            velocityEncoderRight = rightMotor;//HardwareUtil.throughboreEncoder(FLYWHEEL_ENCODER_RIGHT);
         }
 
 
-        return new ShooterSubsystem(
+        return new FlywheelSubsystem(
                 leftMotor,
                 rightMotor,
-                leftAngleMotor,
-                leftPivotEncoder,
-                rightAngleMotor,
-                SHOOTER,
-                SHOOTER_ABSOLUTE,
-                velocityEncoder
+                FLYWHEEL,
+                velocityEncoderLeft,
+                velocityEncoderRight
         );
 
     }
@@ -645,37 +653,45 @@ public class RobotContainer {
     //generator stuff
     public static final ConsoleComponent CONSOLE = LOG.load(ConsoleComponent.class, "console");
     public static final GenerateFFComponent SHOOTER_WHEEL_2_FFGEN = LOG.load(GenerateFFComponent.class, "shooter/wheel_2_ffgen");
+    public static final GenerateFFComponent SHOOTER_WHEEL_1_FFGEN = LOG.load(GenerateFFComponent.class, "shooter/wheel_1_ffgen");
     public static final GenerateFFComponent[] DRIVE_MOTORS_FFGEN = LOG.loadRange(GenerateFFComponent.class, "swerve/ffgen", 4, Util.RENAMER);
 
-    //config stuff
+    //vision
     public static final VisionComponent VISION = LOG.load(VisionComponent.class, "vision");
 
+    //climber
     public static final ClimberComponent CLIMBER = LOG.load(ClimberComponent.class, "climber");
     public static final PIDComponent CLIMBER_PID = LOG.load(PIDComponent.class, "climber/climber_pid");
     public static final MotorComponent LEFT_CLIMBER = LOG.load(MotorComponent.class, "climber/left");
     public static final MotorComponent RIGHT_CLIMBER = LOG.load(MotorComponent.class, "climber/right");
 
+    //ground intake
     public static final GroundIntakeComponent GROUND_INTAKE = LOG.load(GroundIntakeComponent.class, "ground_intake");
     public static final MotorComponent GROUND_INTAKE_TOP = LOG.load(MotorComponent.class, "ground_intake/top");
     public static final MotorComponent GROUND_INTAKE_BOTTOM = LOG.load(MotorComponent.class, "ground_intake/bottom");
     public static final PIDComponent GROUND_INTAKE_PID = LOG.load(PIDComponent.class, "ground_intake/pid");
 
-    public static final ShooterComponent SHOOTER = LOG.load(ShooterComponent.class, "shooter");
-    public static final MotorComponent SHOOTER_WHEEL_1 = LOG.load(MotorComponent.class, "shooter/wheel_1");
-    public static final MotorComponent SHOOTER_WHEEL_2 = LOG.load(MotorComponent.class, "shooter/wheel_2");
-    public static final PIDComponent SHOOTER_PID_1 = LOG.load(PIDComponent.class, "shooter/wheel_1/pid");
-    public static final PIDComponent SHOOTER_PID_2 = LOG.load(PIDComponent.class, "shooter/wheel_2/pid");
-    public static final AbsoluteEncoderComponent SHOOTER_ABSOLUTE = LOG.load(AbsoluteEncoderComponent.class, "shooter/absolute");
-    public static final AbsoluteEncoderComponent VELOCITY_ENCODER = LOG.load(AbsoluteEncoderComponent.class, "shooter/velocity");
-    public static final MotorComponent LEFT_PIVOT = LOG.load(MotorComponent.class, "shooter/pivot/left");
-    public static final MotorComponent RIGHT_PIVOT = LOG.load(MotorComponent.class, "shooter/pivot/right");
-    public static final PIDComponent LEFT_PIVOT_PID = LOG.load(PIDComponent.class, "shooter/pivot/left/pid");
-    public static final PIDComponent RIGHT_PIVOT_PID = LOG.load(PIDComponent.class, "shooter/pivot/right/pid");
+    //flywheel
+    public static final FlywheelSubsystem.ShooterComponent FLYWHEEL = LOG.load(FlywheelSubsystem.ShooterComponent.class, "flywheel");
+    public static final MotorComponent SHOOTER_FLYWHEEL_LEFT = LOG.load(MotorComponent.class, "flywheel/left");
+    public static final MotorComponent SHOOTER_FLYWHEEL_RIGHT = LOG.load(MotorComponent.class, "flywheel/right");
+    public static final PIDComponent FLYWHEEL_VELOCITY_PID = LOG.load(PIDComponent.class, "flywheel/velocity_pid");
+    public static final DigitalEncoderComponent FLYWHEEL_ENCODER_LEFT = LOG.load(DigitalEncoderComponent.class, "flywheel/left/encoder");
+    public static final DigitalEncoderComponent FLYWHEEL_ENCODER_RIGHT = LOG.load(DigitalEncoderComponent.class, "flywheel/right/encoder");
 
+
+    //pivot
+    public static final DigitalEncoderComponent SHOOTER_PIVOT_ENCODER = LOG.load(DigitalEncoderComponent.class, "pivot/encoder");
+    public static final MotorComponent LEFT_PIVOT = LOG.load(MotorComponent.class, "pivot/left");
+    public static final MotorComponent RIGHT_PIVOT = LOG.load(MotorComponent.class, "pivot/right");
+    public static final PIDComponent PIVOT_PID = LOG.load(PIDComponent.class, "pivot/pid");
+
+    //note management
     public static final NoteManagementComponent NMS = LOG.load(NoteManagementComponent.class, "nms");
     public static final MotorComponent NMS_TOPCOMPONENT = LOG.load(MotorComponent.class, "nms/top");
     public static final MotorComponent NMS_BOTTOMCOMPONENT = LOG.load(MotorComponent.class, "nms/bottom");
 
+    //swerve
     public static final FFComponent[] FF_SWERVE = LOG.loadRange(FFComponent.class, "swerve/ff", 4, Util.RENAMER);
     public static final SwerveComponent SWERVE = LOG.load(SwerveComponent.class, "swerve");
     public static final OdometrySubsystem.Component ODO = LOG.load(OdometrySubsystem.Component.class, "odometry");
@@ -683,12 +699,13 @@ public class RobotContainer {
     public static final CommonPIDComponent STEER_PID_COMMON = LOG.load(CommonPIDComponent.class, "swerve/steer_pid_common");
     public static final CommonPIDComponent DRIVE_PID_COMMON = LOG.load(CommonPIDComponent.class, "swerve/drive_pid_common");
 
+    //swerve2
     public static final MotorComponent[] DRIVES = LOG.loadRange(MotorComponent.class, "swerve/drive", 4, Util.RENAMER);
     public static final MotorComponent[] STEERS = MotorComponent.ofRange(STEER_COMMON, LOG.loadRange(IndividualMotorComponent.class, "swerve/steer", 4, Util.RENAMER));
     public static final PIDComponent[] STEER_PIDS = PIDComponent.ofRange(STEER_PID_COMMON, LOG.loadRange(IndividualPIDComponent.class, "swerve/steer_pid", 4, Util.RENAMER));
     public static final PIDComponent[] DRIVE_PIDS = PIDComponent.ofRange(DRIVE_PID_COMMON, LOG.loadRange(IndividualPIDComponent.class, "swerve/drive_pid", 4, Util.RENAMER));
 
-    public static final AbsoluteEncoderComponent[] STEER_ABS_ENCODERS = LOG.loadRange(AbsoluteEncoderComponent.class, "swerve/abs", 4, Util.RENAMER);
+    public static final AnalogEncoderComponent[] STEER_ABS_ENCODERS = LOG.loadRange(AnalogEncoderComponent.class, "swerve/abs", 4, Util.RENAMER);
 
     public static final PIDComponent DRIVE_X_PID = LOG.load(PIDComponent.class, "swerve/x_holonomic_pid");
     public static final PIDComponent DRIVE_Y_PID = LOG.load(PIDComponent.class, "swerve/y_holonomic_pid");
