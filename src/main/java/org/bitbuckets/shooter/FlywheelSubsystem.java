@@ -66,6 +66,11 @@ public class FlywheelSubsystem implements Subsystem, IMattlibHooked {
         rightMotor.setToVoltage(voltage);
     }
 
+    public void setFlywheelToZero() {
+        leftMotor.setToVoltage(0);
+        rightMotor.setToVoltage(0);
+    }
+
     public boolean hasReachedSpeeds(double leftSpeeds_mechanismRotationsPerSecond, double rightSpeeds_mechanismRotationsPerSecond) {
         boolean leftAtSpeed = Math.abs(velocityEncoderLeft.angularVelocity_mechanismRotationsPerSecond()) >= leftSpeeds_mechanismRotationsPerSecond;
         boolean rightAtSpeed = Math.abs(velocityEncoderRight.angularVelocity_mechanismRotationsPerSecond()) >= rightSpeeds_mechanismRotationsPerSecond;

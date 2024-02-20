@@ -68,7 +68,7 @@ public class MoveToAlignCommand extends Command {
         ChassisSpeeds speeds = calculateTagSpeeds(this.targetPose.toPose2d(),
                 this.targetPose.toPose2d().getRotation().plus(Rotation2d.fromDegrees(180)),
                 1);
-        driveSubsystem.driveUsingChassisSpeed(speeds);
+        driveSubsystem.driveUsingChassisSpeed(speeds, false);
 
     }
 

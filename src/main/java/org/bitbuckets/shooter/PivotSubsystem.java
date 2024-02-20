@@ -1,5 +1,7 @@
 package org.bitbuckets.shooter;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.hardware.IRotationalController;
@@ -25,7 +27,8 @@ public class PivotSubsystem implements Subsystem, IMattlibHooked {
         return actual >= target - deadband || actual <= target + deadband;
     }
 
-    @Override public ExplainedException[] verifyInit() {
+    @Override
+    public ExplainedException[] verifyInit() {
         leftAngleMotor.forceRotationalOffset(
                 pivotEncoder.angularPosition_normalizedMechanismRotations()
         );
@@ -36,7 +39,6 @@ public class PivotSubsystem implements Subsystem, IMattlibHooked {
 
     public void moveToRotation(double mechanism_rotations) {
         leftAngleMotor.controlToNormalizedReference(mechanism_rotations);
-
     }
 
     public void setPivotMotorToVoltage(double voltage) {
@@ -58,6 +60,12 @@ public class PivotSubsystem implements Subsystem, IMattlibHooked {
     public double getPivotAnglePosition_normalizedMechanismRotations() {
         return leftAngleMotor.angularPosition_normalizedMechanismRotations();
     }
+
+    public void setPivotMotorToZero() {
+        leftAngleMotor.setToVoltage(0);
+        rightAngleMotor.setToVoltage(0);
+    }
+
 
 
 }

@@ -10,9 +10,10 @@ import xyz.auriium.mattlib2.log.annote.Tune;
 public interface SwerveComponent extends INetworkedComponent {
 
     @Conf("pigeonId") int pigeonCanId();
-
     @Conf("magnitudeFWLim") double magnitudeFwLimit();
-    @Tune("fieldOriented") boolean fieldOriented();
+
+    @Tune("field_oriented") boolean fieldOriented();
+    @Conf("use_velocity_pid") boolean useVelocityPID();
 
     //@Log("positions") void logSwervePositions(SwerveModulePosition[] positions);
     @Log("hall_based_states") void logHallEncoderBasedStates(SwerveModuleState[] states);

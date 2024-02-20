@@ -15,31 +15,30 @@ public class OperatorInput {
     final CommandXboxController operatorControl = new CommandXboxController(1);
     final CommandXboxController driver = new CommandXboxController(0);
 
-
     public boolean actuallyIsTeleop = false;
     final Trigger isTeleop = new Trigger(() -> actuallyIsTeleop); //TODO fill this out
 
+    //OPERATOR'S CONTROLS
     final Trigger shootByVision = operatorControl.a();
-
     final Trigger shootManually = operatorControl.x();
     final Trigger sourceIntake_hold = operatorControl.leftBumper();
-    final Trigger intakeNoBeamBreak = operatorControl.rightTrigger(); // ampSetpoint_hold
-    final Trigger spinShooter = operatorControl.leftTrigger(); //(speakerSetpoint_hold)
+    final Trigger ampSetpoint_hold = operatorControl.rightTrigger();
+    final Trigger speakerSetpoint_hold = operatorControl.leftTrigger();
+    final Trigger groundIntakeHoldOp = operatorControl.rightBumper();
+    final Trigger groundOuttakeHoldOp = operatorControl.b();
     final Trigger ampVisionPriority_toggle = operatorControl.povLeft();
     final Trigger speakerVisionPriority_toggle = operatorControl.povRight();
-
     final Trigger setShooterAngleManually = operatorControl.leftStick();
 
 
-
+    //DRIVER'S CONTROLS
     final Trigger slowModeHold = driver.leftTrigger();
     final Trigger turboModeHold = driver.rightTrigger();
     final Trigger autoAlignHold = driver.x();
     final Trigger xButtonToggle = driver.a();
+    final Trigger homeToOperatorHold = driver.y(); //y would you use this (this homes in on the operator's selected target visible in LEDs)
     final Trigger groundIntakeHold = driver.rightBumper();
     final Trigger groundOuttakeHold = driver.leftBumper();
-    final Trigger groundIntakeHoldOp = operatorControl.rightBumper();
-    final Trigger groundOuttakeHoldOp = operatorControl.b();
     final Trigger resetGyroPress = driver.start();
 
 

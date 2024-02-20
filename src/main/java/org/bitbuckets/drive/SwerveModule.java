@@ -73,7 +73,7 @@ public class SwerveModule implements IMattlibHooked {
         steerController.setToVoltage(0);
     }
 
-    public void setToMoveAt(SwerveModuleState state) {
+    public void setToMoveAt(SwerveModuleState state, boolean usePID) {
 
        //SwerveModuleState optimizedState = state;
 
@@ -96,7 +96,11 @@ public class SwerveModule implements IMattlibHooked {
         double feedforwardVoltage = ff.calculate(optimizedState.speedMetersPerSecond);
         feedforwardVoltage = MathUtil.clamp(feedforwardVoltage, -Util.MAX_VOLTAGE, Util.MAX_VOLTAGE);
 
-        driveMotor.controlToLinearVelocityReferenceArbitrary(optimizedState.speedMetersPerSecond, feedforwardVoltage);
+        if (usePID) {
+            driveMotor.controlToLinearVelocityReferenceArbitrary(optimizedState.speedMetersPerSecond, feedforwardVoltage);
+        } else {
+            driveMotor.setToVoltage(feedforwardVoltage);
+        }
     }
 
 

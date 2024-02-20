@@ -1,6 +1,8 @@
 package org.bitbuckets.commands.drive;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.OperatorInput;
@@ -11,14 +13,14 @@ import org.bitbuckets.drive.SwerveComponent;
 
 import java.util.Set;
 
-public class DefaultDriveCommand extends Command {
+public class SimpleDriveCommand extends Command {
 
     final SwerveComponent swerveComponent;
     final DriveSubsystem driveSubsystem;
     final OdometrySubsystem odometrySubsystem;
     final OperatorInput operatorInput;
 
-    public DefaultDriveCommand(SwerveComponent swerveComponent, DriveSubsystem driveSubsystem, OdometrySubsystem odometrySubsystem, OperatorInput operatorInput) {
+    public SimpleDriveCommand(SwerveComponent swerveComponent, DriveSubsystem driveSubsystem, OdometrySubsystem odometrySubsystem, OperatorInput operatorInput) {
         this.swerveComponent = swerveComponent;
         this.driveSubsystem = driveSubsystem;
         this.odometrySubsystem = odometrySubsystem;
@@ -28,15 +30,11 @@ public class DefaultDriveCommand extends Command {
 
     }
 
-
-
-    @Override
-    public void initialize() {
-
-    }
-
     @Override
     public void execute() {
+        boolean shouldFlip = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red;
+
+
         double speedMultiplier = 4d;
         double slowSpeedMultiplier = 1.5;
         double turboSpeedMultiplier = 6d;
@@ -55,10 +53,15 @@ public class DefaultDriveCommand extends Command {
         );
 
         if (RobotContainer.SWERVE.fieldOriented()) {
-            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, odometrySubsystem.getGyroAngle());
+            Rotation2d gyroAngle = odometrySubsystem.getGyroAngle();
+            if (shouldFlip) {
+                gyroAngle = gyroAngle.plus(Rotation2d.fromDegrees(180));
+            }
+
+            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds,gyroAngle);
         }
 
-        driveSubsystem.driveUsingChassisSpeed(speeds);
+        driveSubsystem.driveUsingChassisSpeed(speeds, false);
     }
 
     @Override

@@ -2,18 +2,19 @@ package org.bitbuckets.commands.shooter.flywheel;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import org.bitbuckets.shooter.FlywheelSubsystem;
-import org.bitbuckets.shooter.PivotSubsystem;
 
-public class FeedFlywheelReverseCommand extends Command {
+public class SpinFlywheelVoltageIndefinite extends Command {
 
     final FlywheelSubsystem flywheelSubsystem;
+    final double voltage;
 
-    public FeedFlywheelReverseCommand(FlywheelSubsystem flywheelSubsystem) {
+    public SpinFlywheelVoltageIndefinite(FlywheelSubsystem flywheelSubsystem, double voltage) {
         this.flywheelSubsystem = flywheelSubsystem;
+        this.voltage = voltage;
     }
 
     @Override public void execute() {
-        flywheelSubsystem.setFlywheelVoltage(-6);
+        flywheelSubsystem.setFlywheelVoltage(voltage);
     }
 
     @Override public void end(boolean interrupted) {

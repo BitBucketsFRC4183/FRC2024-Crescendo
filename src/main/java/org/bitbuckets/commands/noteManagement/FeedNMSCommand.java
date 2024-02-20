@@ -16,7 +16,7 @@ public class FeedNMSCommand extends Command {
 
     @Override
     public void execute() {
-        groundIntakeSubsystem.setToVoltage(7);
+        //groundIntakeSubsystem.setToVoltage(7); TODO can add it back if things perform poorly
         noteManagementSubsystem.setAllToVoltage(2);
     }
 
@@ -27,7 +27,7 @@ public class FeedNMSCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        groundIntakeSubsystem.setToVoltage(0);
+        //groundIntakeSubsystem.setToVoltage(0); TODO can add it back if things perform poorly
         noteManagementSubsystem.setAllToVoltage(0);
     }
 }

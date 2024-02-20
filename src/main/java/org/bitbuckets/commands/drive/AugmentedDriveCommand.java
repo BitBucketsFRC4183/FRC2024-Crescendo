@@ -100,7 +100,7 @@ public class AugmentedDriveCommand extends Command {
 
 
         speeds = new ChassisSpeeds(twist.dx / dt, twist.dy / dt, twist.dtheta / dt); //second order comp
-        driveSubsystem.driveUsingChassisSpeed(speeds);
+        driveSubsystem.driveUsingChassisSpeed(speeds, swerveComponent.useVelocityPID());
 
         lastTime = now;
     }

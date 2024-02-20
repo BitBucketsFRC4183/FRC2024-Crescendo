@@ -27,13 +27,14 @@ import org.bitbuckets.climber.ClimberSubsystem;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
 import org.bitbuckets.commands.drive.AugmentedDriveCommand;
 import org.bitbuckets.commands.drive.MoveToAlignCommand;
+import org.bitbuckets.commands.drive.SimpleDriveCommand;
 import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
 import org.bitbuckets.commands.groundIntake.BasicGroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.FeedGroundIntakeGroup;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
 import org.bitbuckets.commands.shooter.FeedFlywheelAndFireGroup;
+import org.bitbuckets.commands.shooter.PivotToPositionFireGroup;
 import org.bitbuckets.commands.shooter.SourceConsumerGroup;
-import org.bitbuckets.commands.shooter.flywheel.SpinFlywheelCommand;
 import org.bitbuckets.disabled.DisablerComponent;
 import org.bitbuckets.disabled.KinematicGyro;
 import org.bitbuckets.drive.*;
@@ -55,7 +56,6 @@ import xyz.auriium.mattlib2.MattConsole;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
 import xyz.auriium.mattlib2.auto.ff.GenerateFFComponent;
-import xyz.auriium.mattlib2.auto.ff.RotationFFGenRoutine;
 import xyz.auriium.mattlib2.hardware.*;
 import xyz.auriium.mattlib2.hardware.config.*;
 import xyz.auriium.mattlib2.log.ConsoleComponent;
@@ -330,32 +330,13 @@ public class RobotContainer {
 
     void loadCommands() {
 
-        //When driver
+        //DRIVER STUFF
         Trigger xGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftX.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kLeftX.value, -0.1));
         Trigger yGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kLeftY.value, -0.1));
         Trigger rotGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kRightX.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kRightX.value, -0.1));
         Trigger climberThreshold = operatorInput.operatorControl.axisGreaterThan(XboxController.Axis.kRightY.value, 0.1).or(operatorInput.operatorControl.axisLessThan(XboxController.Axis.kRightY.value, -0.1));
         //Trigger pivotThreshold = operatorInput.operatorControl.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.1).or(operatorInput.operatorControl.axisLessThan(XboxController.Axis.kLeftY.value, -0.1));
-
-        operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(new AugmentedDriveCommand(SWERVE, driveSubsystem, odometrySubsystem, operatorInput));
-
-        // Trigger thingsA
-        //operatorInput.ampSetpoint_hold.whileTrue(new PivotToAmpFireGroup(shooterSubsystem, noteManagementSubsystem, 100));
-        //operatorInput.speakerSetpoint_hold.whileTrue(new PivotToSpeakerFireGroup(shooterSubsystem, noteManagementSubsystem, 100));
-        operatorInput.shootManually.whileTrue(new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 60));
-        //operatorInput.spinShooter.whileTrue(new SpinFlywheelCommand(flywheelSubsystem, false, 65));
-        operatorInput.intakeNoBeamBreak.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
-
-        // disable manual pivot. Do not enable unless mechanical agrees
-//        operatorInput.isTeleop.and(pivotThreshold).whileTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));
-        //operatorInput.setShooterAngleManually.onTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));
-
-        operatorInput.sourceIntake_hold.whileTrue(new SourceConsumerGroup(noteManagementSubsystem, flywheelSubsystem));
-        operatorInput.groundIntakeHold.or(operatorInput.groundIntakeHoldOp).and(operatorInput.groundOuttakeHold.negate())
-                .whileTrue(new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem));
-        operatorInput.groundOuttakeHold.or(operatorInput.groundOuttakeHoldOp).and(operatorInput.groundIntakeHold.negate())
-                .whileTrue(new GroundOuttakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
-
+        operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(new SimpleDriveCommand(SWERVE, driveSubsystem, odometrySubsystem, operatorInput));
         HolonomicDriveController holonomicDriveController = new HolonomicDriveController(
                 new PIDController(DRIVE_X_PID.pConstant(), DRIVE_X_PID.iConstant(), DRIVE_X_PID.dConstant()),
                 new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant()),
@@ -367,9 +348,27 @@ public class RobotContainer {
                 ) //TODO
         );
 
+        //OPERATOR STUFF
         operatorInput.autoAlignHold.whileTrue(new MoveToAlignCommand(driveSubsystem, visionSubsystem, holonomicDriveController, odometrySubsystem));
         operatorInput.isTeleop.and(climberThreshold).whileTrue(new MoveClimberCommand(climberSubsystem, operatorInput));
 
+
+
+        //operatorInput.ampSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 100));
+        //operatorInput.speakerSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 60));
+        operatorInput.ampSetpoint_hold.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
+        operatorInput.shootManually.whileTrue(new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 60));
+
+
+        // disable manual pivot. Do not enable unless mechanical agrees
+//        operatorInput.isTeleop.and(pivotThreshold).whileTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));
+        //operatorInput.setShooterAngleManually.onTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));
+
+        operatorInput.sourceIntake_hold.whileTrue(new SourceConsumerGroup(noteManagementSubsystem, flywheelSubsystem));
+        operatorInput.groundIntakeHold.or(operatorInput.groundIntakeHoldOp).and(operatorInput.groundOuttakeHold.negate())
+                .whileTrue(new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem));
+        operatorInput.groundOuttakeHold.or(operatorInput.groundOuttakeHoldOp).and(operatorInput.groundIntakeHold.negate())
+                .whileTrue(new GroundOuttakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
 
         operatorInput.resetGyroPress.onTrue(Commands.runOnce(() -> {
             odometrySubsystem.debugZero();

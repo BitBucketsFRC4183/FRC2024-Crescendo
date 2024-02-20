@@ -35,21 +35,21 @@ public class DriveSubsystem implements Subsystem, IMattlibHooked {
      * Commands the motors to drive at some voltages, using a chassis speed reference
      * This will set them for the rest of time
      */
-    public void driveUsingChassisSpeed(ChassisSpeeds speeds_robotRelative) {
+    public void driveUsingChassisSpeed(ChassisSpeeds speeds_robotRelative, boolean usePID) {
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds_robotRelative);
-        driveUsingSwerveStates(states);
+        driveUsingSwerveStates(states, usePID);
     }
 
     /**
      * Commands each module in the module array to move using the swerve module states_robotRelative as reference
      * @param states_robotRelative states_robotRelative indexed by the IDs at the top of this class
      */
-    public void driveUsingSwerveStates(SwerveModuleState[] states_robotRelative) {
+    public void driveUsingSwerveStates(SwerveModuleState[] states_robotRelative, boolean usePID) {
         desiredStates = states_robotRelative;
 
 
         for (int i = 0; i < modules.length; i++) {
-            modules[i].setToMoveAt(states_robotRelative[i]);
+            modules[i].setToMoveAt(states_robotRelative[i], usePID);
         }
     }
 
@@ -97,6 +97,7 @@ public class DriveSubsystem implements Subsystem, IMattlibHooked {
             module.stopAllMotors();
         }
     }
+
 
 
 }
