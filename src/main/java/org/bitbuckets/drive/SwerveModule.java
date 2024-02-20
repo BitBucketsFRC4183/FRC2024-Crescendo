@@ -18,12 +18,14 @@ public class SwerveModule implements IMattlibHooked {
     final IRotationalController steerController;
     final IRotationEncoder absoluteEncoder;
     final SimpleMotorFeedforward ff;
+    final SwerveComponent parentSwerveComponent;
 
-    public SwerveModule(ILinearVelocityController driveMotor, IRotationalController steerController, IRotationEncoder absoluteEncoder, SimpleMotorFeedforward ff) {
+    public SwerveModule(ILinearVelocityController driveMotor, IRotationalController steerController, IRotationEncoder absoluteEncoder, SimpleMotorFeedforward ff, SwerveComponent parentSwerveComponent) {
         this.driveMotor = driveMotor;
         this.steerController = steerController;
         this.absoluteEncoder = absoluteEncoder;
         this.ff = ff;
+        this.parentSwerveComponent = parentSwerveComponent;
 
         mattRegister();
     }
@@ -75,14 +77,14 @@ public class SwerveModule implements IMattlibHooked {
 
     public void setToMoveAt(SwerveModuleState state, boolean usePID) {
 
-       //SwerveModuleState optimizedState = state;
-
-
-
         SwerveModuleState optimizedState = SwerveModuleState.optimize(
                 state,
                 Rotation2d.fromRotations(steerController.angularPosition_normalizedMechanismRotations())
         );
+
+        if (parentSwerveComponent.alignmentMode()) { //Don't use optimize when tuning
+            optimizedState = state;
+        }
 
         if (optimizedState.speedMetersPerSecond < 0.001 && Math.abs(optimizedState.angle.getRotations() - steerController.angularPosition_normalizedMechanismRotations()) < 0.01) {
             steerController.setToVoltage(0);

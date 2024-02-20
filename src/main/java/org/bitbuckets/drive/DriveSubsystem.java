@@ -1,22 +1,27 @@
 package org.bitbuckets.drive;
 
+import edu.wpi.first.math.MathSharedStore;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.RobotContainer;
+import xyz.auriium.mattlib2.auto.dynamics.UngodlyAbomination;
 import xyz.auriium.mattlib2.loop.IMattlibHooked;
 
 public class DriveSubsystem implements Subsystem, IMattlibHooked {
 
     public final SwerveModule[] modules;
     final SwerveDriveKinematics kinematics;
+    final UngodlyAbomination swerveGenerator;
 
 
-    public DriveSubsystem(SwerveModule[] modules, SwerveDriveKinematics kinematics) {
+    public DriveSubsystem(SwerveModule[] modules, SwerveDriveKinematics kinematics, UngodlyAbomination swerveGenerator) {
         this.modules = modules;
         this.kinematics = kinematics;
+        this.swerveGenerator = swerveGenerator;
 
         register();
         mattRegister();
@@ -31,13 +36,45 @@ public class DriveSubsystem implements Subsystem, IMattlibHooked {
         RobotContainer.SWERVE.logHallEncoderBasedStates(currentHallEffectStates());
     }
 
+    @Override public void logicPeriodic() {
+
+        lastSetpoint = swerveGenerator.generateSetpoint(
+                LIM,
+                lastSetpoint,
+                toFollow,
+                0.02
+        );
+
+        SwerveModuleState[] states = lastSetpoint.moduleStates();
+        driveUsingSwerveStates(states, false);
+    }
+
+    UngodlyAbomination.SwerveSetpoint lastSetpoint = new UngodlyAbomination.SwerveSetpoint(
+            new ChassisSpeeds(),
+            new SwerveModuleState[]{
+                    new SwerveModuleState(),
+                    new SwerveModuleState(),
+                    new SwerveModuleState(),
+                    new SwerveModuleState()
+            }
+    );
+
+
+    public static final UngodlyAbomination.ModuleLimits LIM =  new UngodlyAbomination.ModuleLimits(
+            4.4,
+            4.4 * 5,
+            Units.degreesToRadians(1080.0)
+    );
+
+    ChassisSpeeds toFollow = new ChassisSpeeds();
+
     /**
      * Commands the motors to drive at some voltages, using a chassis speed reference
      * This will set them for the rest of time
      */
     public void driveUsingChassisSpeed(ChassisSpeeds speeds_robotRelative, boolean usePID) {
-        SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds_robotRelative);
-        driveUsingSwerveStates(states, usePID);
+        toFollow = speeds_robotRelative;
+
     }
 
     /**

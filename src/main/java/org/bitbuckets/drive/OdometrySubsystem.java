@@ -10,6 +10,7 @@ import org.bitbuckets.RobotContainer;
 import org.bitbuckets.vision.VisionSubsystem;
 import xyz.auriium.mattlib2.log.INetworkedComponent;
 import xyz.auriium.mattlib2.log.annote.Conf;
+import xyz.auriium.mattlib2.log.annote.Log;
 import xyz.auriium.mattlib2.loop.IMattlibHooked;
 import xyz.auriium.yuukonstants.exception.ExplainedException;
 
@@ -33,6 +34,7 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
         @Conf("fl_pos_offset") Translation2d fl_offset();
         @Conf("br_pos_offset") Translation2d br_offset();
         @Conf("bl_pos_offset") Translation2d bl_offset();
+
     }
 
 
@@ -76,6 +78,7 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
     @Override
     public void logPeriodic() {
         RobotContainer.SWERVE.logPosition(odometry.getEstimatedPosition());
+
     }
 
 

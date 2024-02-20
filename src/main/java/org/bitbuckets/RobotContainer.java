@@ -26,9 +26,7 @@ import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
 import org.bitbuckets.commands.CommandComponent;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
-import org.bitbuckets.commands.drive.AugmentedDriveCommand;
-import org.bitbuckets.commands.drive.MoveToAlignCommand;
-import org.bitbuckets.commands.drive.SimpleDriveCommand;
+import org.bitbuckets.commands.drive.*;
 import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
 import org.bitbuckets.commands.groundIntake.BasicGroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.FeedGroundIntakeGroup;
@@ -56,6 +54,7 @@ import xyz.auriium.mattlib.ctre.HardwareCTRE;
 import xyz.auriium.mattlib2.MattConsole;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
+import xyz.auriium.mattlib2.auto.dynamics.UngodlyAbomination;
 import xyz.auriium.mattlib2.auto.ff.GenerateFFComponent;
 import xyz.auriium.mattlib2.hardware.*;
 import xyz.auriium.mattlib2.hardware.config.*;
@@ -74,6 +73,7 @@ public class RobotContainer {
 
     public final DriveSubsystem driveSubsystem;
     public final OperatorInput operatorInput;
+    public final Translation2d[] translation2ds;
     public final FlywheelSubsystem flywheelSubsystem;
     public final PivotSubsystem pivotSubsystem;
     public final OdometrySubsystem odometrySubsystem;
@@ -106,6 +106,7 @@ public class RobotContainer {
 
         // load order matters!!!!!
         this.operatorInput = new OperatorInput();
+        this.translation2ds = loadTranslations();
         this.kinematics = loadKinematics();
         this.driveSubsystem = loadDriveSubsystem();
         this.visionSubsystem = loadVisionSubsystem();
@@ -423,20 +424,29 @@ public class RobotContainer {
 
     }
 
-
-    SwerveDriveKinematics loadKinematics() {
-        return new SwerveDriveKinematics(
+    Translation2d[] loadTranslations() {
+        return new Translation2d[] {
                 ODO.fl_offset(),
                 ODO.fr_offset(),
                 ODO.bl_offset(),
                 ODO.br_offset()
+        };
+    }
+
+
+    SwerveDriveKinematics loadKinematics() {
+        return new SwerveDriveKinematics(
+                translation2ds
         );
     }
 
     DriveSubsystem loadDriveSubsystem() {
         SwerveModule[] modules = loadSwerveModules();
 
-        return new DriveSubsystem(modules, kinematics);
+        return new DriveSubsystem(modules, kinematics, new UngodlyAbomination(
+                kinematics,
+                translation2ds
+        ));
     }
 
     SwerveModule[] loadSwerveModules() {
@@ -474,7 +484,7 @@ public class RobotContainer {
                 driveMotor = HardwareDisabled.linearMotor_disabled();
             }
 */
-            modules[i] = new SwerveModule(driveMotor, steerController, absoluteEncoder, ff);
+            modules[i] = new SwerveModule(driveMotor, steerController, absoluteEncoder, ff, SWERVE);
         }
 
         return modules;

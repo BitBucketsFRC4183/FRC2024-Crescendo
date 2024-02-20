@@ -13,7 +13,9 @@ public interface SwerveComponent extends INetworkedComponent {
     @Conf("magnitudeFWLim") double magnitudeFwLimit();
 
     @Tune("field_oriented") boolean fieldOriented();
+    @Conf("alignment_mode") boolean alignmentMode();
     @Conf("use_velocity_pid") boolean useVelocityPID();
+    @Conf("theta_mode_pSeed") double thetaModePSeed();
 
     //@Log("positions") void logSwervePositions(SwerveModulePosition[] positions);
     @Log("hall_based_states") void logHallEncoderBasedStates(SwerveModuleState[] states);
