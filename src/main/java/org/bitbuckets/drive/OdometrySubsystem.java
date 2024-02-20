@@ -114,7 +114,11 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
    }
 
    public void forceOdometryToThinkWeAreAt(Pose3d position) {
-        odometry.resetPosition(gyro.initializationRelativeRotation(), driveSubsystem.currentPositions(), position.toPose2d());
+        odometry.resetPosition(
+                gyro.initializationRelativeRotation(),
+                driveSubsystem.currentPositions(),
+                position.toPose2d()
+        );
    }
 
    //i have no idea what this does dont use it
