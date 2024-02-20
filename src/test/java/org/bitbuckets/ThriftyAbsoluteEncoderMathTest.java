@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ThriftyAbsoluteEncoderMathTest {
 
 
-    
     @Disabled
     @Test
     public void checkThriftyAngularPosition_encoderRotations()
