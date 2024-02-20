@@ -3,21 +3,14 @@ package org.bitbuckets.drive;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import org.bitbuckets.Robot;
 import org.bitbuckets.util.Util;
-import xyz.auriium.mattlib2.hardware.ILinearMotor;
 import xyz.auriium.mattlib2.hardware.ILinearVelocityController;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.hardware.IRotationalController;
 import xyz.auriium.mattlib2.loop.IMattlibHooked;
-import xyz.auriium.mattlib2.utils.AngleUtil;
 import xyz.auriium.yuukonstants.exception.ExplainedException;
-
-import java.util.Optional;
 
 public class SwerveModule implements IMattlibHooked {
 
@@ -80,7 +73,7 @@ public class SwerveModule implements IMattlibHooked {
         steerController.setToVoltage(0);
     }
 
-    public void setToMoveAt(SwerveModuleState state) {
+    public void setToMoveAt(SwerveModuleState state, boolean usePID) {
 
        //SwerveModuleState optimizedState = state;
 
@@ -103,7 +96,11 @@ public class SwerveModule implements IMattlibHooked {
         double feedforwardVoltage = ff.calculate(optimizedState.speedMetersPerSecond);
         feedforwardVoltage = MathUtil.clamp(feedforwardVoltage, -Util.MAX_VOLTAGE, Util.MAX_VOLTAGE);
 
-        driveMotor.controlToLinearVelocityReferenceArbitrary(optimizedState.speedMetersPerSecond, feedforwardVoltage);
+        if (usePID) {
+            driveMotor.controlToLinearVelocityReferenceArbitrary(optimizedState.speedMetersPerSecond, feedforwardVoltage);
+        } else {
+            driveMotor.setToVoltage(feedforwardVoltage);
+        }
     }
 
 
@@ -118,11 +115,20 @@ public class SwerveModule implements IMattlibHooked {
         );
     }
 
-    public SwerveModuleState getState() {
+    public SwerveModuleState getHallEffectBasedState() {
         return new SwerveModuleState(
                 driveMotor.linearVelocity_mechanismMetersPerSecond(),
                 Rotation2d.fromRotations(
                         steerController.angularPosition_normalizedMechanismRotations()
+                )
+        );
+    }
+
+    public SwerveModuleState getAbsoluteBasedState() {
+        return new SwerveModuleState(
+                driveMotor.linearVelocity_mechanismMetersPerSecond(),
+                Rotation2d.fromRotations(
+                        absoluteEncoder.angularPosition_normalizedMechanismRotations()
                 )
         );
     }

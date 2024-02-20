@@ -81,7 +81,9 @@ public class FollowTrajectoryExactCommand extends Command {
                 robotState.getRotation()
         );
 
-        driveSubsystem.driveUsingChassisSpeed(robotRelativeSpeeds);
+
+
+        driveSubsystem.driveUsingChassisSpeed(robotRelativeSpeeds, true);
     }
 
     @Override
@@ -94,7 +96,7 @@ public class FollowTrajectoryExactCommand extends Command {
     public void end(boolean interrupted) {
         timer.stop();
         if (interrupted) {
-            driveSubsystem.driveUsingChassisSpeed(new ChassisSpeeds());
+            driveSubsystem.driveUsingChassisSpeed(new ChassisSpeeds(), false);
         }
     }
 }

@@ -65,10 +65,15 @@ public class AugmentedDriveCommand extends Command {
                         .getTranslation();
 
         double speedMultiplier = 3d;
+        double slowSpeedMultiplier = 1.5d;
         double turboSpeedMultiplier = 4.5;
         if (operatorInput.getTurboModeHeld())
         {
             speedMultiplier = turboSpeedMultiplier;
+        }
+        if (operatorInput.getSlowModeHeld())
+        {
+            speedMultiplier = slowSpeedMultiplier;
         }
         ChassisSpeeds speeds =
                 new ChassisSpeeds(
@@ -95,7 +100,7 @@ public class AugmentedDriveCommand extends Command {
 
 
         speeds = new ChassisSpeeds(twist.dx / dt, twist.dy / dt, twist.dtheta / dt); //second order comp
-        driveSubsystem.driveUsingChassisSpeed(speeds);
+        driveSubsystem.driveUsingChassisSpeed(speeds, swerveComponent.useVelocityPID());
 
         lastTime = now;
     }

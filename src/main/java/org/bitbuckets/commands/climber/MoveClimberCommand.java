@@ -22,7 +22,7 @@ public class MoveClimberCommand extends Command {
 
     @Override
     public void execute() {
-        climberSubsystem.setToVoltage(operatorInput.getClimberInput()*12); // TODO multiply by dampener
+        climberSubsystem.setToVoltage(operatorInput.getClimberInput() * 12); // TODO multiply by dampener
     }
 
     @Override

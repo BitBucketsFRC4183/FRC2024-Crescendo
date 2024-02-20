@@ -46,7 +46,8 @@ public class AwaitThetaCommand extends Command {
                         0,
                         rotationFeedback,
                         odometrySubsystem.getGyroAngle()
-                )
+                ),
+                true
         );
 
         pidComponent.reportState(state);

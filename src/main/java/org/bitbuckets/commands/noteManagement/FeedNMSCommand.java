@@ -1,19 +1,23 @@
 package org.bitbuckets.commands.noteManagement;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
 import org.bitbuckets.noteManagement.NoteManagementSubsystem;
 
 public class FeedNMSCommand extends Command {
 
     final NoteManagementSubsystem noteManagementSubsystem;
+    final GroundIntakeSubsystem groundIntakeSubsystem;
 
-    public FeedNMSCommand(NoteManagementSubsystem noteManagementSubsystem) {
+    public FeedNMSCommand(NoteManagementSubsystem noteManagementSubsystem, GroundIntakeSubsystem groundIntakeSubsystem) {
         this.noteManagementSubsystem = noteManagementSubsystem;
+        this.groundIntakeSubsystem = groundIntakeSubsystem;
     }
 
     @Override
     public void execute() {
-        noteManagementSubsystem.setAllToVoltage(12);
+        //groundIntakeSubsystem.setToVoltage(7); TODO can add it back if things perform poorly
+        noteManagementSubsystem.setAllToVoltage(2);
     }
 
     @Override
@@ -23,6 +27,7 @@ public class FeedNMSCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
+        //groundIntakeSubsystem.setToVoltage(0); TODO can add it back if things perform poorly
         noteManagementSubsystem.setAllToVoltage(0);
     }
 }
