@@ -2,7 +2,7 @@
 p = 30
 [swerve.steer_common]
 inverted = false
-[swerve.drive_fl] #irl motors in front are biased inverse, but sim ones arent
+[swerve.drive_fl] #idk
 inverted = false
 [swerve.drive_fr]
 inverted = false
