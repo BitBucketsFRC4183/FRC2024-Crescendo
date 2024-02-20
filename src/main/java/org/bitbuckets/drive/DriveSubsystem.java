@@ -8,20 +8,20 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.RobotContainer;
-import xyz.auriium.mattlib2.auto.dynamics.UngodlyAbomination;
+//import xyz.auriium.mattlib2.auto.dynamics.UngodlyAbomination;
 import xyz.auriium.mattlib2.loop.IMattlibHooked;
 
 public class DriveSubsystem implements Subsystem, IMattlibHooked {
 
     public final SwerveModule[] modules;
     final SwerveDriveKinematics kinematics;
-    final UngodlyAbomination swerveGenerator;
+    //final UngodlyAbomination swerveGenerator;
 
 
-    public DriveSubsystem(SwerveModule[] modules, SwerveDriveKinematics kinematics, UngodlyAbomination swerveGenerator) {
+    public DriveSubsystem(SwerveModule[] modules, SwerveDriveKinematics kinematics) {
         this.modules = modules;
         this.kinematics = kinematics;
-        this.swerveGenerator = swerveGenerator;
+        //this.swerveGenerator = swerveGenerator;
 
         register();
         mattRegister();
@@ -37,7 +37,7 @@ public class DriveSubsystem implements Subsystem, IMattlibHooked {
     }
 
     @Override public void logicPeriodic() {
-
+/*
         lastSetpoint = swerveGenerator.generateSetpoint(
                 LIM,
                 lastSetpoint,
@@ -46,9 +46,9 @@ public class DriveSubsystem implements Subsystem, IMattlibHooked {
         );
 
         SwerveModuleState[] states = lastSetpoint.moduleStates();
-        driveUsingSwerveStates(states, false);
+        driveUsingSwerveStates(states, false);*/
     }
-
+/*
     UngodlyAbomination.SwerveSetpoint lastSetpoint = new UngodlyAbomination.SwerveSetpoint(
             new ChassisSpeeds(),
             new SwerveModuleState[]{
@@ -64,7 +64,7 @@ public class DriveSubsystem implements Subsystem, IMattlibHooked {
             4.4,
             4.4 * 5,
             Units.degreesToRadians(1080.0)
-    );
+    );*/
 
     ChassisSpeeds toFollow = new ChassisSpeeds();
 

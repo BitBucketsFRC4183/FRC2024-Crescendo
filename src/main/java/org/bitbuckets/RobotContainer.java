@@ -443,10 +443,12 @@ public class RobotContainer {
     DriveSubsystem loadDriveSubsystem() {
         SwerveModule[] modules = loadSwerveModules();
 
-        return new DriveSubsystem(modules, kinematics, new UngodlyAbomination(
+       /* return new DriveSubsystem(modules, kinematics, new UngodlyAbomination(
                 kinematics,
                 translation2ds
-        ));
+        ));*/
+
+        return new DriveSubsystem(modules, kinematics);
     }
 
     SwerveModule[] loadSwerveModules() {
