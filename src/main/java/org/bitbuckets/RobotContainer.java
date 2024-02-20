@@ -54,7 +54,6 @@ import xyz.auriium.mattlib.ctre.HardwareCTRE;
 import xyz.auriium.mattlib2.MattConsole;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
-import xyz.auriium.mattlib2.auto.dynamics.UngodlyAbomination;
 import xyz.auriium.mattlib2.auto.ff.GenerateFFComponent;
 import xyz.auriium.mattlib2.hardware.*;
 import xyz.auriium.mattlib2.hardware.config.*;
