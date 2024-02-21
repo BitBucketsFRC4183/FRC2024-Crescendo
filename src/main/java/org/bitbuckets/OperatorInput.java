@@ -118,6 +118,9 @@ public class OperatorInput {
     public double getDriverRightStickX() {
         return deadband(-driver.getRightX());
     }
+    public double getDriverRightStickY() {
+        return deadband(-driver.getRightY());
+    }
 
     public double getOperatorLeftStickY(){return deadband(-operatorControl.getRawAxis(XboxController.Axis.kLeftY.value));}
 

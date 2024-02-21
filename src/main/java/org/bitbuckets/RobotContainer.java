@@ -23,9 +23,7 @@ import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
 import org.bitbuckets.commands.CommandComponent;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
-import org.bitbuckets.commands.drive.AugmentedDriveCommand;
-import org.bitbuckets.commands.drive.MoveToAlignCommand;
-import org.bitbuckets.commands.drive.SimpleDriveCommand;
+import org.bitbuckets.commands.drive.*;
 import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
 import org.bitbuckets.commands.groundIntake.BasicGroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.FeedGroundIntakeGroup;
@@ -72,6 +70,7 @@ public class RobotContainer {
 
     public final DriveSubsystem driveSubsystem;
     public final OperatorInput operatorInput;
+    public final Translation2d[] translation2ds;
     public final FlywheelSubsystem flywheelSubsystem;
     public final PivotSubsystem pivotSubsystem;
     public final OdometrySubsystem odometrySubsystem;
@@ -104,6 +103,7 @@ public class RobotContainer {
 
         // load order matters!!!!!
         this.operatorInput = new OperatorInput();
+        this.translation2ds = loadTranslations();
         this.kinematics = loadKinematics();
         this.driveSubsystem = loadDriveSubsystem();
         this.visionSubsystem = loadVisionSubsystem();
@@ -382,7 +382,7 @@ public class RobotContainer {
         Trigger rotGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kRightX.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kRightX.value, -0.1));
         Trigger climberThreshold = operatorInput.operatorControl.axisGreaterThan(XboxController.Axis.kRightY.value, 0.1).or(operatorInput.operatorControl.axisLessThan(XboxController.Axis.kRightY.value, -0.1));
         //Trigger pivotThreshold = operatorInput.operatorControl.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.1).or(operatorInput.operatorControl.axisLessThan(XboxController.Axis.kLeftY.value, -0.1));
-        operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(new SimpleDriveCommand(SWERVE, driveSubsystem, odometrySubsystem, operatorInput));
+        operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(new ThetaDriveCommand(SWERVE, driveSubsystem, odometrySubsystem, operatorInput));
         HolonomicDriveController holonomicDriveController = new HolonomicDriveController(
                 new PIDController(DRIVE_X_PID.pConstant(), DRIVE_X_PID.iConstant(), DRIVE_X_PID.dConstant()),
                 new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant()),
@@ -423,18 +423,29 @@ public class RobotContainer {
 
     }
 
-
-    SwerveDriveKinematics loadKinematics() {
-        return new SwerveDriveKinematics(
+    Translation2d[] loadTranslations() {
+        return new Translation2d[] {
                 ODO.fl_offset(),
                 ODO.fr_offset(),
                 ODO.bl_offset(),
                 ODO.br_offset()
+        };
+    }
+
+
+    SwerveDriveKinematics loadKinematics() {
+        return new SwerveDriveKinematics(
+                translation2ds
         );
     }
 
     DriveSubsystem loadDriveSubsystem() {
         SwerveModule[] modules = loadSwerveModules();
+
+       /* return new DriveSubsystem(modules, kinematics, new UngodlyAbomination(
+                kinematics,
+                translation2ds
+        ));*/
 
         return new DriveSubsystem(modules, kinematics);
     }
@@ -474,7 +485,7 @@ public class RobotContainer {
                 driveMotor = HardwareDisabled.linearMotor_disabled();
             }
 */
-            modules[i] = new SwerveModule(driveMotor, steerController, absoluteEncoder, ff);
+            modules[i] = new SwerveModule(driveMotor, steerController, absoluteEncoder, ff, SWERVE);
         }
 
         return modules;
