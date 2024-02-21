@@ -75,6 +75,8 @@ public class DriveSubsystem implements Subsystem, IMattlibHooked {
     public void driveUsingChassisSpeed(ChassisSpeeds speeds_robotRelative, boolean usePID) {
         toFollow = speeds_robotRelative;
 
+        driveUsingSwerveStates(kinematics.toSwerveModuleStates(speeds_robotRelative), usePID);
+
     }
 
     /**

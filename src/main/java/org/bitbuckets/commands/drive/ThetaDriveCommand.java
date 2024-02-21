@@ -74,6 +74,7 @@ public class ThetaDriveCommand extends Command {
 
         double fieldY = operatorInput.getDriverRightStickX();
         double fieldX = operatorInput.getDriverRightStickY();
+        System.out.println(fieldX);
 
         Rotation2d desiredHeading = new Rotation2d(fieldX, fieldY);
         Rotation2d currentHeading = odometrySubsystem.getGyroAngle();
