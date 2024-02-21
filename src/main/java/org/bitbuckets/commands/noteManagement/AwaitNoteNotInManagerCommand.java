@@ -14,6 +14,8 @@ public class AwaitNoteNotInManagerCommand extends Command {
         addRequirements(nms);
     }
 
+
+
     @Override
     public boolean isFinished() {
         //HACK TODO

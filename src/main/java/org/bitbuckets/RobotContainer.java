@@ -17,10 +17,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
@@ -31,6 +28,7 @@ import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
 import org.bitbuckets.commands.groundIntake.BasicGroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.FeedGroundIntakeGroup;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
+import org.bitbuckets.commands.groundIntake.LessAggressiveFeedGroundIntakeGroup;
 import org.bitbuckets.commands.shooter.FeedFlywheelAndFireGroup;
 import org.bitbuckets.commands.shooter.PivotToPositionFireGroup;
 import org.bitbuckets.commands.shooter.SourceConsumerGroup;
@@ -173,7 +171,7 @@ public class RobotContainer {
     }
 
     public void teleopInit() {
-        if (cachedCurrentlyRunningAutoCommand != null && cachedCurrentlyRunningAutoCommand.isScheduled()) {
+        if (cachedCurrentlyRunningAutoCommand != null) {
             cachedCurrentlyRunningAutoCommand.cancel();
         }
 
@@ -256,8 +254,10 @@ public class RobotContainer {
 
         var oneNoteCollect = new SequentialCommandGroup(
                 new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                followFirstTrajectory("oneNoteCollect", "oneNoteCollect-1", isNeo),
-                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
+                new ParallelCommandGroup(
+                    followFirstTrajectory("oneNoteCollect", "oneNoteCollect-1", isNeo),
+                    new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
+                )
         );
 
         var twoNote = new SequentialCommandGroup(
@@ -355,8 +355,8 @@ public class RobotContainer {
         );
 
         SendableChooser<Command> chooser = new SendableChooser<>();
-        chooser.setDefaultOption("fourNote", fourNote); //TODO later
-        chooser.addOption("oneNoteCollect", oneNoteCollect);
+        chooser.addOption("fourNote", fourNote); //TODO later
+        chooser.setDefaultOption("oneNoteCollect", oneNoteCollect);
         chooser.addOption("twoNote", twoNote);
         chooser.addOption("shootLeave", shootLeave);
         chooser.addOption("twoNoteCollect", twoNoteCollect);
