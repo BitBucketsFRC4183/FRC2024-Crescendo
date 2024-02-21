@@ -13,6 +13,10 @@ public class AwaitFlywheelSpeedsCommand extends Command {
         this.thresholdSpeeds = thresholdSpeeds;
     }
 
+    @Override public void initialize() {
+        System.out.println("speedsP " + thresholdSpeeds);
+    }
+
     @Override public boolean isFinished() {
         return flywheelSubsystem.hasReachedSpeeds(thresholdSpeeds, thresholdSpeeds);
     }
