@@ -7,14 +7,30 @@
 [swerve.ffgen_br]
 [swerve.ffgen_bl]
 
-# Base Robot Stuff
+# Disabler
+[disabler]
+vision_disabled = true
+drive_disabled = false
+flywheel_disabled = false
+odometry_disabled = false
+climber_disabled = true
+groundIntake_disabled = false
+nms_disabled = false
+pivot_disabled = true
 
+# Commands
+[commands]
+ram_fire_speed = 60
+skip_intermediates = false
+
+# Ground Intake
 [ground_intake.top]
-id = 14
+id = 15
 rotationToMeterCoef = 1
 encoderToMechanismCoef = 1
 rotationalInertia = 1
 inverted = true
+currentLimit = 40
 
 [ground_intake.bottom]
 id = 21
@@ -22,6 +38,7 @@ rotationToMeterCoef = 1
 encoderToMechanismCoef = 1
 rotationalInertia = 1
 inverted = true
+currentLimit = 40
 
 [ground_intake.ff_top]
 startDelay_ms = 1000
@@ -33,54 +50,31 @@ ff_ks = 0
 ff_kv = 0
 pid = {p = 0, i = 0, d = 0}
 
-# SHOOTER
+# flywheel
+[flywheel]
+ff_ks = 0.70516754605 #0.4895168812659137
+ff_kv = 0.13181832208 #0.12869522412846462
+velocity_pid = {p = 1, i = 0, d = 0}
 
-[shooter]
-pivotChannel_dio = 0
-velocityChannelA_dio = 3
-velocityChannelB_dio = 4
-deadband = 0.0
-ff_ks = 0.4895168812659137
-ff_kv = 0.12869522412846462
-
-
-[shooter.wheel_1]
-id = 12
+[flywheel.left]
+id = 4
 encoderToMechanismCoef = 1
 rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
-pid = {p = 1, i = 0, d = 0}
-inverted = true
-
-[shooter.wheel_2]
-id = 13
-encoderToMechanismCoef = 1
-rotationalInertia = 0.002
-velocityStdv = 0.001
-positionStdv = 0.001
-pid = {p = 1, i = 0, d = 0}
 inverted = false
+encoder = { dio_channelA = 0, dio_channelB = 1, encoderToMechanismCoef = 1 }
 
-[shooter.absolute]
-analogChannel = 0
+[flywheel.right]
+id = 7
 encoderToMechanismCoef = 1
-offset = 0.0
-
-[shooter.velocity]
-analogChannel = 0
-encoderToMechanismCoef = 1
-offset = 0.0
-
-[shooter.pivot]
-encoderToMechanismCoef = 1666.666666666666666666666666666666666666666666 # 100:1 * 15:18 * 20:1
-id = 11
 rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
-pid = {p = 1, i = 0, d = 0}
+inverted = true
+encoder = { dio_channelA = 7, dio_channelB = 8, encoderToMechanismCoef = 1 }
 
-[shooter.calculator]
+[flywheel.calculator]
 mass = 0.25 #kg
 area_cross_section = 0.4 #m;
 note_radius = 17.78 #cm
@@ -90,17 +84,45 @@ magnus_coefficient = 0.2 #guess
 Vx = 10 #m/s
 Vy = 5 #m/s
 
-# DRIVE STUFF GOES HERE
 
+# Pivot Stuff
+[pivot]
+encoder = { dio_channelA = 2, dio_channelB = 3, encoderToMechanismCoef = 1 }
+pid = {i = 0, p = 1, d = 0}
+
+[pivot.left]
+encoderToMechanismCoef = 1666.666666666666666666666666666666666666666666 # 100:1 * 15:18 * 20:1
+id = 5 #right = 8
+rotationalInertia = 0.002
+velocityStdv = 0.001
+positionStdv = 0.001
+currentLimit = 20
+inverted = true
+
+[pivot.right]
+encoderToMechanismCoef = 1666.666666666666666666666666666666666666666666 # 100:1 * 15:18 * 20:1
+id = 8
+rotationalInertia = 0.002
+velocityStdv = 0.001
+positionStdv = 0.001
+currentLimit = 20
+inverted = false
+
+
+# DRIVE STUFF GOES HERE
 [swerve]
 pigeonId = 5
 magnitudeFWLim = 3.3
-fieldOriented = true
+field_oriented = true
+alignment_mode = false
+theta_mode_pSeed = 3
+
+use_velocity_pid = false
 x_holonomic_pid = {p = 1.2, i = 0, d = 0}
 y_holonomic_pid = {p = 1.2, i = 0, d = 0}
 t_holonomic_pid = {p = 7.9, i = 0, d = 0.7} #need to be redone (current mcr values)
 steer_pid_common = {p = 3, i = 0, d = 0.3}
-drive_pid_common = {p = 0.05, i = 0, d = 0.01}
+drive_pid_common = {p = 0.005, i = 0, d = 0.0}
 ff_fl = {ks = 0.045, kv = 2.505}
 ff_fr = {ks = 0.056, kv = 2.532}
 ff_br = {ks = 0.044, kv = 2.496}
@@ -115,6 +137,7 @@ bl_pos_offset = {x = -0.3556, y = 0.3429}
 br_pos_offset = {x = -0.3556, y = -0.3429}
 
 # Steer
+
 [swerve.steer_common]
 encoderToMechanismCoef = 0.078125 # (14.0 / 50.0) * (10.0 / 60.0) mk4i reduction
 rotationalInertia = 0.002
@@ -122,17 +145,15 @@ inverted = false
 breakModeEnabled = false
 currentLimit = 30
 
-
 [swerve.steer_fr]
-id = 16
-[swerve.steer_fl]
-id = 17
-[swerve.steer_br]
-id = 21
-[swerve.steer_bl]
 id = 9
+[swerve.steer_fl]
+id = 20
+[swerve.steer_br]
+id = 14
+[swerve.steer_bl]
+id = 16
 
-#Drive (mk4 l2 is same as mk4i)
 [swerve.drive_fr]
 id = 2
 rotationToMeterCoef = 0.31519599093
@@ -151,8 +172,6 @@ inverted = false
 breakModeEnabled = true
 currentLimit = 70
 
-
-
 [swerve.drive_br]
 id = 3
 rotationToMeterCoef = 0.31519599093 # diameter of mk4i L2s * pi
@@ -162,10 +181,8 @@ inverted = false
 breakModeEnabled = true
 currentLimit = 70
 
-
-
 [swerve.drive_bl]
-id = 0
+id = 6
 rotationToMeterCoef = 0.31519599093
 encoderToMechanismCoef = 0.14823529411
 rotationalInertia = 0.025
@@ -173,33 +190,30 @@ inverted = false
 breakModeEnabled = true
 currentLimit = 70
 
-
-
 # hypothesis: non offset zero is tangent to the absolute encoders?
 # ALWAYS LOW BALL THESE OFFSETS (if its fluctuating between 0.8 and 0.9 go for 0.8
 [swerve.abs_fr]
-analogChannel = 0
+analog_channel = 0
 offset = 0.371
 encoderToMechanismCoef = 1
 
 [swerve.abs_fl]
-analogChannel = 3
+analog_channel = 3
 offset = 0.341
 encoderToMechanismCoef = 1
 
 [swerve.abs_br]
-analogChannel = 1
+analog_channel = 1
 offset = 0.854
 encoderToMechanismCoef = 1
 
 [swerve.abs_bl]
-analogChannel = 2
+analog_channel = 2
 offset = 0.572
 encoderToMechanismCoef = 1
 
 
 # CLIMBER STUFF GOES HERE
-
 [climber]
 climber_pid = {p = 0, i = 0, d = 0}
 ff_kv = 0.0
@@ -228,7 +242,7 @@ rotationalInertia = 1.0
 breakModeEnabled = true
 
 [nms.bottom]
-id = 9
+id = 17
 rotationToMeterCoef = 1 #WRONG
 encoderToMechanismCoef = 1 #WRONG
 rotationalInertia = 1.0
@@ -236,18 +250,7 @@ breakModeEnabled = true
 
 
 # CAMERA
-
 [cameras]
 camera1Name = "arducam1"
 camera2Name = "arducam2"
 
-# Disabler
-
-[disabler]
-vision_disabled = true
-drive_disabled = false
-shooter_disabled = false
-odometry_disabled = false
-climber_disabled = true
-groundIntake_disabled = false
-nms_disabled = false

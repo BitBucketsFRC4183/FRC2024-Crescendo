@@ -27,8 +27,7 @@ public class ClimberSubsystem {
 
 
 
-    public void setToVoltage(double voltage)
-    {
+    public void setToVoltage(double voltage) {
         leftMotor.setToVoltage(voltage);
         rightMotor.setToVoltage(voltage);
     }
@@ -36,6 +35,10 @@ public class ClimberSubsystem {
     public void setMotorsZero() {
         leftMotor.setToVoltage(0);
         rightMotor.setToVoltage(0);
+    }
+
+    public boolean isAtTopSetpoint() {
+        return false; //TODO
     }
 
 
