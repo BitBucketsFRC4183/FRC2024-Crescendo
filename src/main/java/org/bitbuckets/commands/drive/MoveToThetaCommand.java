@@ -20,9 +20,9 @@ public class MoveToThetaCommand extends Command {
     final OdometrySubsystem odometrySubsystem;
     final AutoSubsystem autoSubsystem;
     final PIDComponent pidComponent;
-    final Supplier<Rotation2d> desiredHeadingTheta;
+    final double desiredHeadingTheta;
 
-    public MoveToThetaCommand(DriveSubsystem driveSubsystem, OdometrySubsystem odometrySubsystem, ProfiledPIDController thetaPID, PIDComponent pidComponent, double desiredHeadingTheta) {
+    public MoveToThetaCommand(DriveSubsystem driveSubsystem, OdometrySubsystem odometrySubsystem, ProfiledPIDController thetaPID, PIDComponent pidComponent, double desiredHeadingTheta, AutoSubsystem autoSubsystem) {
         this.driveSubsystem = driveSubsystem;
         this.odometrySubsystem = odometrySubsystem;
         this.autoSubsystem = autoSubsystem;
@@ -35,7 +35,7 @@ public class MoveToThetaCommand extends Command {
     @Override
     public void execute() {
         double state = odometrySubsystem.getRobotCentroidPosition().getRotation().getRadians();
-        double reference = desiredHeadingTheta.get().getRadians();
+        double reference = desiredHeadingTheta;
 
         double rotationFeedback = autoSubsystem.thetaPid_radians.calculate(state, reference);
 

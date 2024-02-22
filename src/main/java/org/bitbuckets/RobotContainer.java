@@ -28,9 +28,8 @@ import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
 import org.bitbuckets.commands.CommandComponent;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
-import org.bitbuckets.commands.drive.AugmentedDriveCommand;
-import org.bitbuckets.commands.drive.AwaitThetaCommand;
-import org.bitbuckets.commands.drive.DefaultDriveCommand;
+import org.bitbuckets.commands.drive.MoveToAlignCommand;
+import org.bitbuckets.commands.drive.ThetaDriveCommand;
 import org.bitbuckets.commands.drive.traj.FollowAStarToNoteCommand;
 import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
 import org.bitbuckets.commands.groundIntake.BasicGroundIntakeCommand;
@@ -449,9 +448,9 @@ public class RobotContainer {
                 ), new LocalADStar()
         );
 
-        operatorInput.noteMagnetModeHold.whileTrue(
-                ofc
-        );
+//        operatorInput.noteMagnetModeHold.whileTrue(
+//                ofc
+//        );
 
         SmartDashboard.putNumberArray("traj", ConversionUtil.fromPoseArray(
                 new Pose2d(0,0, new Rotation2d()),

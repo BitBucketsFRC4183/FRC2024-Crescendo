@@ -151,7 +151,7 @@ public class FollowAStarToNoteCommand extends Command {
 
 
 
-            driveSubsystem.driveUsingChassisSpeed(robotRelativeFeedForward);
+            driveSubsystem.driveUsingChassisSpeed(robotRelativeFeedForward, false);
         }
 
 

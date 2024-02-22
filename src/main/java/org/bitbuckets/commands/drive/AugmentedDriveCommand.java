@@ -45,7 +45,7 @@ public class AugmentedDriveCommand extends Command {
         boolean shouldFlip = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red;
 
         double now = WPIUtilJNI.now() * 1e-6;
-        double dt = now - lastTime;
+//        double dt = now - lastTime;
 
         double x = operatorInput.getRobotForwardComponentRaw(); //[-1, 1]
         double y = operatorInput.getDriverRightComponentRaw(); //[-1, 1]

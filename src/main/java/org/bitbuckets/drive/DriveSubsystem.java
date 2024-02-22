@@ -17,9 +17,6 @@ public class DriveSubsystem implements Subsystem, IMattlibHooked {
     final SwerveDriveKinematics kinematics;
     //final UngodlyAbomination swerveGenerator;
 
-    public interface Component extends INetworkedComponent {
-
-    }
 
     public DriveSubsystem(SwerveModule[] modules, SwerveDriveKinematics kinematics) {
         this.modules = modules;
