@@ -1,25 +1,21 @@
 
 package org.bitbuckets.util;
 
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkAbsoluteEncoder;
-import com.revrobotics.SparkRelativeEncoder;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
-import net.bytebuddy.implementation.bytecode.Throw;
 
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.loop.IMattlibHooked;
 import xyz.auriium.mattlib2.utils.AngleUtil;
+import xyz.auriium.yuukonstants.exception.ExplainedException;
 
 
 public class ThroughBoreEncoder implements IRotationEncoder, IMattlibHooked {
 
     Encoder encoder;
-    AbsoluteEncoderComponent encoderComponent;
+    DigitalEncoderComponent encoderComponent;
 
 
-    public ThroughBoreEncoder(Encoder encoder, AbsoluteEncoderComponent encoderComponent) {
+    public ThroughBoreEncoder(Encoder encoder, DigitalEncoderComponent encoderComponent) {
         this.encoder = encoder;
         this.encoderComponent = encoderComponent;
         // setDistancePerPulse is 1/pulses per revolution
@@ -31,6 +27,14 @@ public class ThroughBoreEncoder implements IRotationEncoder, IMattlibHooked {
         encoder.setDistancePerPulse(pulsePerSecond); // TODO check this value please!
 
         mattRegister();
+    }
+
+    @Override
+    public ExplainedException[] verifyInit() {
+        encoderComponent.offset_mechanismRotations().ifPresent(this::forceRotationalOffset);
+
+
+        return new ExplainedException[0];
     }
 
     @Override

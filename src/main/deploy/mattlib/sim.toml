@@ -1,13 +1,6 @@
 [swerve.steer_pid_common]
 p = 30
-[swerve.steer_common]
-inverted = false
-[swerve.drive_fl] #irl motors in front are biased inverse, but sim ones arent
-inverted = false
-[swerve.drive_fr]
-inverted = false
-[swerve.drive_bl]
-inverted = false
-[swerve.drive_br]
-inverted = false
+
+[commands]
+skip_intermediates = true
 

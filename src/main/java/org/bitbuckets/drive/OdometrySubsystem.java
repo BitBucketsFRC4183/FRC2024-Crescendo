@@ -39,6 +39,7 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
         @Conf("fl_pos_offset") Translation2d fl_offset();
         @Conf("br_pos_offset") Translation2d br_offset();
         @Conf("bl_pos_offset") Translation2d bl_offset();
+
     }
 
     SwerveModulePosition[] lastPositions_dxdy = new SwerveModulePosition[] { new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition() };
@@ -90,8 +91,7 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
     @Override
     public void logPeriodic() {
         RobotContainer.SWERVE.logPosition(odometry.getEstimatedPosition());
-        odometryComponent.reportXVelocity(robotVelocity_metersPerSecond().vxMetersPerSecond);
-        odometryComponent.reportYVelocity(robotVelocity_metersPerSecond().vyMetersPerSecond);
+
     }
 
 
@@ -122,7 +122,11 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
    }
 
    public void forceOdometryToThinkWeAreAt(Pose3d position) {
-        odometry.resetPosition(gyro.initializationRelativeRotation(), driveSubsystem.currentPositions(), position.toPose2d());
+        odometry.resetPosition(
+                gyro.initializationRelativeRotation(),
+                driveSubsystem.currentPositions(),
+                position.toPose2d()
+        );
    }
 
    //i have no idea what this does dont use it

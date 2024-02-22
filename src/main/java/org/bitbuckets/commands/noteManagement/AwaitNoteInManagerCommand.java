@@ -1,6 +1,7 @@
 package org.bitbuckets.commands.noteManagement;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import org.bitbuckets.RobotContainer;
 import org.bitbuckets.noteManagement.NoteManagementSubsystem;
 
 public class AwaitNoteInManagerCommand extends Command {
@@ -15,6 +16,8 @@ public class AwaitNoteInManagerCommand extends Command {
 
     @Override
     public boolean isFinished() {
+        if (RobotContainer.COMMANDS.skipIntermediates()) return true;
+
         return nms.isNoteIn();
     }
 }

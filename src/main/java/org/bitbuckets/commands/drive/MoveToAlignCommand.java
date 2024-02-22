@@ -63,7 +63,7 @@ public class MoveToAlignCommand extends Command {
                     this.targetPose.toPose2d().getRotation().rotateBy(Rotation2d.fromDegrees(180))
             );
 
-            driveSubsystem.driveUsingChassisSpeed(speeds);
+        driveSubsystem.driveUsingChassisSpeed(speeds, false);
         }
     }
 
