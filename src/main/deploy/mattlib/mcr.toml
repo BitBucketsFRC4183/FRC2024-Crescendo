@@ -19,6 +19,8 @@ bl_pos_offset = {x = -0.2318, y = 0.26035}
 br_pos_offset = {x = -0.2318, y = -0.26035}
 
 [swerve]
+offset_tuning_mode = true
+steer_pid_common = {p = 10, i = 0, d = 0.3, tolerance = 0}
 theta_mode_pSeed = 3
 alignment_mode = false
 
@@ -66,16 +68,16 @@ inverted = false
 
 [swerve.abs_fr]
 analog_channel = 3
-offset = 0.7614402165653679
+offset = 0.750865193702362
 
 [swerve.abs_fl]
 analog_channel = 2
-offset = 0.9939743980985594
+offset = 0.9999500751750438
 
 [swerve.abs_br]
 analog_channel = 0
-offset = 0.8296417953667902
+offset = 0.8301210946743449
 
 [swerve.abs_bl]
 analog_channel = 1
-offset = 0.5194396121931422#0.0352701817
+offset = 0.5056283099267181#0.0352701817

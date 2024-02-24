@@ -13,7 +13,7 @@ public interface SwerveComponent extends INetworkedComponent {
     @Conf("magnitudeFWLim") double magnitudeFwLimit();
 
     @Tune("field_oriented") boolean fieldOriented();
-    @Conf("alignment_mode") boolean alignmentMode();
+    @Conf("offset_tuning_mode") boolean offsetTuningMode();
     @Conf("use_velocity_pid") boolean useVelocityPID();
     @Conf("theta_mode_pSeed") double thetaModePSeed();
 
