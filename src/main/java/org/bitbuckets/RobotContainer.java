@@ -32,6 +32,7 @@ import org.bitbuckets.commands.groundIntake.FeedGroundIntakeGroup;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
 import org.bitbuckets.commands.shooter.FireMakeReadyGroup;
 import org.bitbuckets.commands.shooter.SourceConsumerGroup;
+import org.bitbuckets.commands.shooter.flywheel.SpinFlywheelIndefinite;
 import org.bitbuckets.commands.shooter.pivot.ManualPivotCommand;
 import org.bitbuckets.disabled.DisablerComponent;
 import org.bitbuckets.disabled.KinematicGyro;
@@ -378,14 +379,12 @@ public class RobotContainer {
         //OPERATOR STUFF
        // operatorInput.autoAlignHold.whileTrue(new MoveToAlignCommand(driveSubsystem, visionSubsystem, holonomicDriveController, odometrySubsystem));
         operatorInput.isTeleop.and(climberThreshold).whileTrue(new MoveClimberCommand(climberSubsystem, operatorInput));
-
-
-
+        operatorInput.rev.whileTrue(new SpinFlywheelIndefinite(flywheelSubsystem, false, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond()));
         //operatorInput.ampSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 100));
         //operatorInput.speakerSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 60));
         //operatorInput.ampSetpoint_hold.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, COMMANDS.groundIntake_voltage(), COMMANDS.noteManagement_voltage()));
         operatorInput.groundIntakeNoBeamBreak.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, COMMANDS.groundIntake_voltage(), COMMANDS.noteManagement_voltage() ));
-        operatorInput.shootManually.whileTrue(new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 60));
+        operatorInput.shootManually.whileTrue(new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond()));
 
         operatorInput.isTeleop.and(pivotThreshold).whileTrue(new ManualPivotCommand(operatorInput, pivotSubsystem));
 

@@ -29,6 +29,7 @@ public class OperatorInput {
     final Trigger ampVisionPriority_toggle = operatorControl.povLeft();
     final Trigger speakerVisionPriority_toggle = operatorControl.povRight();
     final Trigger setShooterAngleManually = operatorControl.leftStick();
+    final Trigger rev = operatorControl.leftTrigger();
 
 
     //DRIVER'S CONTROLS
