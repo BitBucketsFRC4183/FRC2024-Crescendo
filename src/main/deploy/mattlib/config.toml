@@ -239,6 +239,7 @@ rotationToMeterCoef = 1 #WRONG
 encoderToMechanismCoef = 1 #WRONG
 rotationalInertia = 1.0
 breakModeEnabled = true
+currentLimit = 30
 
 [nms.bottom]
 id = 17
@@ -246,6 +247,7 @@ rotationToMeterCoef = 1 #WRONG
 encoderToMechanismCoef = 1 #WRONG
 rotationalInertia = 1.0
 breakModeEnabled = true
+currentLimit = 30
 
 
 # CAMERA

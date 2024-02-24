@@ -18,7 +18,7 @@ public class FeedGroundIntakeGroup extends ParallelRaceGroup { //this finishes w
                 Commands.runEnd(
                         () -> {//run these during the command
                             groundIntakeSubsystem.setToVoltage(10);
-                            noteManagementSubsystem.setAllToVoltage(2);
+                            noteManagementSubsystem.setAllToVoltage(5);
                         },
                         () -> {
                             groundIntakeSubsystem.setToVoltage(0);
