@@ -21,7 +21,7 @@ public class BasicGroundIntakeCommand extends Command {
 
     @Override
     public void execute() {
-        groundIntakeSubsystem.setToVoltage(7);
+        groundIntakeSubsystem.setToVoltage(10);
         noteManagementSubsystem.setAllToVoltage(2);
     }
 

@@ -43,7 +43,8 @@ public class SwerveModule implements IMattlibHooked {
 
     @Override
     public ExplainedException[] verifyInit() {
-        resetToAbsolute();
+        //resetToAbsolute();
+        steerController.forceRotationalOffset(0);
         return new ExplainedException[0];
     }
 
@@ -60,7 +61,7 @@ public class SwerveModule implements IMattlibHooked {
         }
         if (++resetIteration > 500) {
             resetIteration = 0;
-            resetToAbsolute();
+            //resetToAbsolute();
         }
     }
 
@@ -82,7 +83,7 @@ public class SwerveModule implements IMattlibHooked {
                 Rotation2d.fromRotations(steerController.angularPosition_normalizedMechanismRotations())
         );
 
-        if (parentSwerveComponent.alignmentMode()) { //Don't use optimize when tuning
+        if (parentSwerveComponent.offsetTuningMode()) { //Don't use optimize when tuning
             optimizedState = state;
         }
 
@@ -104,8 +105,6 @@ public class SwerveModule implements IMattlibHooked {
             driveMotor.setToVoltage(feedforwardVoltage);
         }
     }
-
-
     //getters
 
     public SwerveModulePosition getPosition() {
@@ -134,7 +133,5 @@ public class SwerveModule implements IMattlibHooked {
                 )
         );
     }
-
-
 
 }

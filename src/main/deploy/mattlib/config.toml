@@ -11,17 +11,17 @@
 [disabler]
 vision_disabled = true
 drive_disabled = false
-flywheel_disabled = false
+flywheel_disabled = true
 odometry_disabled = false
 climber_disabled = true
 groundIntake_disabled = false
 nms_disabled = false
-pivot_disabled = false
+pivot_disabled = true
 
 # Commands
 [commands]
 ram_fire_speed = 60
-skip_intermediates = false
+skip_intermediates = true
 
 # Ground Intake
 [ground_intake.top]
@@ -114,7 +114,7 @@ inverted = false
 pigeonId = 5
 magnitudeFWLim = 3.3
 field_oriented = true
-alignment_mode = false
+offset_tuning_mode = false
 theta_mode_pSeed = 3
 use_velocity_pid = false
 x_holonomic_pid = {p = 1.2, i = 0, d = 0, tolerance = 0}
