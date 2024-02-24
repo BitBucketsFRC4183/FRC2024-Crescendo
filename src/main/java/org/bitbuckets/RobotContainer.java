@@ -22,15 +22,15 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
 import org.bitbuckets.commands.CommandComponent;
+import org.bitbuckets.commands.ReadyWhileMovingGroundIntakeCommand;
+import org.bitbuckets.commands.ReadyWhileMovingShootCommand;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
 import org.bitbuckets.commands.drive.*;
 import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
 import org.bitbuckets.commands.groundIntake.BasicGroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.FeedGroundIntakeGroup;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
-import org.bitbuckets.commands.groundIntake.LessAggressiveFeedGroundIntakeGroup;
-import org.bitbuckets.commands.shooter.FeedFlywheelAndFireGroup;
-import org.bitbuckets.commands.shooter.PivotToPositionFireGroup;
+import org.bitbuckets.commands.shooter.FireMakeReadyGroup;
 import org.bitbuckets.commands.shooter.SourceConsumerGroup;
 import org.bitbuckets.commands.shooter.pivot.ManualPivotCommand;
 import org.bitbuckets.disabled.DisablerComponent;
@@ -209,34 +209,17 @@ public class RobotContainer {
 //        new ParallelCommandGroup(commands).schedule();
     }
 
-    public Command followTrajectory(String routine, String name, boolean isNeo) {
-        String toAppend = isNeo ? "-neo" : "";
-
-        ChoreoTrajectory trajectory = TrajLoadingUtil.getTrajectory(routine + toAppend, name + toAppend);
+    public Command followTrajectory(ChoreoTrajectory trajectory) {
         return new FollowTrajectoryExactCommand(
                 trajectory,
                 odometrySubsystem,
                 driveSubsystem,
                 xController,
                 yController,
-                thetaController,
-                false
+                thetaController
         ).andThen(Commands.runOnce(driveSubsystem::commandWheelsToZero));
     }
-    public Command followFirstTrajectory(String routine, String name, boolean isNeo) {
-        String toAppend = isNeo ? "-neo" : "";
 
-        ChoreoTrajectory trajectory = TrajLoadingUtil.getTrajectory(routine, name + toAppend);
-        return new FollowTrajectoryExactCommand(
-                trajectory,
-                odometrySubsystem,
-                driveSubsystem,
-                xController,
-                yController,
-                thetaController,
-                true
-        );
-    }
 
 
     SendableChooser<Command> loadAutonomous() {
@@ -249,151 +232,122 @@ public class RobotContainer {
                 new TrapezoidProfile.Constraints(3, 3)
         );
 
-        //TODO this is laggy
-        boolean isNeo = MattlibSettings.ROBOT == MattlibSettings.Robot.MCR;
         double ramFireSpeed = COMMANDS.ramFireSpeed_mechanismRotationsPerSecond();
+        double deadline_seconds = COMMANDS.groupDeadline_seconds();
 
-        var oneNoteCollect = new SequentialCommandGroup(
-                new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                new ParallelCommandGroup(
-                    followFirstTrajectory("oneNoteCollect", "oneNoteCollect-1", isNeo),
-                    new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
-                )
-        );
+        ChoreoTrajectory[] twoNoteArr = TrajLoadingUtil.getAllTrajectories("twoNote");
 
         var twoNote = new SequentialCommandGroup(
-                new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                new ParallelCommandGroup(
-                        followFirstTrajectory("twoNote", "twoNote-1", isNeo),
-                        new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
+                new PlaceOdometryCommand(twoNoteArr[0], odometrySubsystem),
+                new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
+                new ReadyWhileMovingGroundIntakeCommand(
+                        followTrajectory(twoNoteArr[0]),
+                        noteManagementSubsystem, groundIntakeSubsystem
                 ),
-                followTrajectory("twoNote", "twoNote-2", isNeo),
-                new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed)
-        );
-
-        var shootLeave = new SequentialCommandGroup(
-                new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                followFirstTrajectory("shootLeave", "shootLeave", isNeo)
-        );
-
-        var twoNoteCollect = new SequentialCommandGroup(
-                new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                new ParallelCommandGroup(
-                        followFirstTrajectory("twoNoteCollect", "twoNoteCollect-1", isNeo),
-                        new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
-                ),
-                followTrajectory("twoNoteCollect", "twoNoteCollect-2", isNeo),
-                new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                new ParallelCommandGroup(
-                        followTrajectory("twoNoteCollect", "twoNoteCollect-3", isNeo),
-                        new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
+                new ReadyWhileMovingShootCommand(
+                        followTrajectory(twoNoteArr[1]),
+                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 )
         );
 
+
+
+        ChoreoTrajectory[] shootLeaveArr = TrajLoadingUtil.getAllTrajectories("shootLeave");
+
+        var shootLeave = new SequentialCommandGroup(
+                new PlaceOdometryCommand(shootLeaveArr[0], odometrySubsystem),
+                new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
+                followTrajectory(shootLeaveArr[0])
+        );
+
+        ChoreoTrajectory[] twoNoteCollectArr = TrajLoadingUtil.getAllTrajectories("twoNoteCollect");
+
+        var twoNoteCollect = new SequentialCommandGroup(
+                new PlaceOdometryCommand(twoNoteCollectArr[0], odometrySubsystem),
+                new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
+                new ReadyWhileMovingGroundIntakeCommand(
+                        followTrajectory(twoNoteCollectArr[0]),
+                        noteManagementSubsystem, groundIntakeSubsystem
+                ),
+                new ReadyWhileMovingShootCommand(
+                        followTrajectory(twoNoteCollectArr[1]),
+                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
+                ),
+                new ReadyWhileMovingGroundIntakeCommand(
+                        followTrajectory(twoNoteCollectArr[2]),
+                        noteManagementSubsystem, groundIntakeSubsystem
+                )
+        );
+
+        ChoreoTrajectory[] threeNoteArr = TrajLoadingUtil.getAllTrajectories("threeNote");
+
+
         var threeNote = new SequentialCommandGroup(
-                new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                new ParallelCommandGroup(
-                        followFirstTrajectory("threeNote", "threeNote-1", isNeo),
-                        new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
+                new PlaceOdometryCommand(threeNoteArr[0], odometrySubsystem),
+                new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
+                new ReadyWhileMovingGroundIntakeCommand(
+                        followTrajectory(threeNoteArr[0]),
+                        noteManagementSubsystem, groundIntakeSubsystem
                 ),
-                followTrajectory("threeNote", "threeNote-2", isNeo),
-                new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                new ParallelCommandGroup(
-                        followTrajectory("threeNote", "threeNote-3", isNeo),
-                        new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
+                new ReadyWhileMovingShootCommand(
+                        followTrajectory(threeNoteArr[1]),
+                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 ),
-                followTrajectory("threeNote", "threeNote-4", isNeo),
-                new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed)
+                new ReadyWhileMovingGroundIntakeCommand(
+                        followTrajectory(threeNoteArr[2]),
+                        noteManagementSubsystem, groundIntakeSubsystem
+                ),
+                new ReadyWhileMovingShootCommand(
+                        followTrajectory(threeNoteArr[3]),
+                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
+                )
         );
 
-        var fourNote = new SequentialCommandGroup(
-                new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                new ParallelCommandGroup(
-                        followFirstTrajectory("fourNote", "fourNote-1", isNeo),
-                        new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
-                ),
-                followTrajectory("fourNote", "fourNote-2", isNeo),
-                new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                new ParallelCommandGroup(
-                        followTrajectory("fourNote", "fourNote-3", isNeo),
-                        new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
-                ),
-                followTrajectory("fourNote", "fourNote-4", isNeo),
-                new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                new ParallelCommandGroup(
-                        followTrajectory("fourNote", "fourNote-5", isNeo),
-                        new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
-                ),
-                followTrajectory("fourNote", "fourNote-6", isNeo),
-                new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed)
-        );
-
-        var mvpTaxi = new SequentialCommandGroup(
-                new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                followFirstTrajectory("mvpTaxi", "mvpTaxi", isNeo)
-        );
-
-        //this is if drive isn't working for some reason and we just need to shoot during auto
-        var shootOnly = new SequentialCommandGroup(
-                new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed)
-        );
-
-        var rotationTest = new SequentialCommandGroup(
-                followFirstTrajectory("rotation", "rotation-1", isNeo),
-                followTrajectory("rotation", "rotation-2", isNeo)
-        );
-
+        ChoreoTrajectory[] twoNoteContestedArr = TrajLoadingUtil.getAllTrajectories("twoNoteContested");
         var twoNoteContested = new SequentialCommandGroup(
-                new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                new ParallelCommandGroup(
-                        followFirstTrajectory("twoNoteContested", "twoNoteContested-1", isNeo),
-                        new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
+                new PlaceOdometryCommand(twoNoteContestedArr[0], odometrySubsystem),
+                new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
+                followTrajectory(twoNoteContestedArr[0]),
+                new ReadyWhileMovingGroundIntakeCommand(
+                        followTrajectory(twoNoteContestedArr[1]),
+                        noteManagementSubsystem, groundIntakeSubsystem
                 ),
-                followTrajectory("twoNoteContested", "twoNoteContested-2", isNeo),
-                new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed)
+                new ReadyWhileMovingShootCommand(
+                        followTrajectory(twoNoteContestedArr[2]),
+                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
+                )
         );
 
-        var twoNoteContestedAlt = new SequentialCommandGroup(
-                new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                new ParallelCommandGroup(
-                        followFirstTrajectory("twoNoteContestedAlt", "twoNoteContestedAlt-1", isNeo),
-                        new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
-                ),
-                followTrajectory("twoNoteContestedAlt", "twoNoteContestedAlt-2", isNeo),
-                new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed)
-        );
-
+        ChoreoTrajectory[] threeNoteContestedArr = TrajLoadingUtil.getAllTrajectories("threeNoteContested");
         var threeNoteContested = new SequentialCommandGroup(
-                new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                new ParallelCommandGroup(
-                        followFirstTrajectory("threeNoteContested", "threeNoteContested-1", isNeo),
-                        new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
+                new PlaceOdometryCommand(threeNoteContestedArr[0], odometrySubsystem),
+                new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
+                new ReadyWhileMovingGroundIntakeCommand(
+                        followTrajectory(threeNoteContestedArr[0]),
+                        noteManagementSubsystem, groundIntakeSubsystem
                 ),
-                followTrajectory("threeNoteContested", "threeNoteContested-2", isNeo),
-                new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                new ParallelCommandGroup(
-                        followTrajectory("threeNoteContested", "threeNoteContested-3", isNeo),
-                        new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
+                new ReadyWhileMovingShootCommand(
+                        followTrajectory(threeNoteContestedArr[1]),
+                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 ),
-                followTrajectory("threeNoteContested", "threeNoteContested-4", isNeo),
-                new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed)
+                followTrajectory(threeNoteContestedArr[2]),
+                new ReadyWhileMovingGroundIntakeCommand(
+                        followTrajectory(threeNoteContestedArr[3]),
+                        noteManagementSubsystem, groundIntakeSubsystem
+                ),
+                new ReadyWhileMovingShootCommand(
+                        followTrajectory(threeNoteContestedArr[4]),
+                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
+                )
         );
 
         SendableChooser<Command> chooser = new SendableChooser<>();
-        chooser.addOption("fourNote", fourNote);
-        chooser.setDefaultOption("oneNoteCollect", oneNoteCollect);
         chooser.addOption("twoNote", twoNote);
-        chooser.addOption("shootLeave", shootLeave);
         chooser.addOption("twoNoteCollect", twoNoteCollect);
+        chooser.addOption("shootLeave", shootLeave);
         chooser.addOption("threeNote", threeNote);
-        chooser.addOption("fourNote", fourNote);
-        chooser.addOption("mvpTaxi", mvpTaxi);
-        chooser.addOption("shootOnly", shootOnly);
-        chooser.addOption("rotationTest", rotationTest);
         chooser.addOption("twoNoteContested", twoNoteContested);
-        chooser.addOption("twoNoteContestedAlt", twoNoteContestedAlt);
         chooser.addOption("threeNoteContested", threeNoteContested);
-
 
         SmartDashboard.putData("Path", chooser);
         return chooser;
@@ -427,8 +381,8 @@ public class RobotContainer {
 
         //operatorInput.ampSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 100));
         //operatorInput.speakerSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 60));
-        operatorInput.ampSetpoint_hold.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
-        operatorInput.shootManually.whileTrue(new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 60));
+        operatorInput.ampSetpoint_hold.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, COMMANDS.groundIntake_voltage(), COMMANDS.noteManagement_voltage()));
+        operatorInput.shootManually.whileTrue(new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 60));
 
 
         // disable manual pivot. Do not enable unless mechanical agrees

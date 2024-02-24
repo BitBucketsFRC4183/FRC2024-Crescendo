@@ -20,7 +20,10 @@ pivot_disabled = false
 
 # Commands
 [commands]
-ram_fire_speed = 60
+ramFire_speed = 60
+groupDeadline_seconds = 4
+groundIntake_nominalVoltage = 9
+noteManagement_nominalVoltage = 2
 skip_intermediates = false
 
 # Ground Intake
