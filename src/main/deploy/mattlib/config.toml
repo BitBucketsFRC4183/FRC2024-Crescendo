@@ -48,13 +48,13 @@ rampRate_vPerMs = 0.0008
 [ground_intake]
 ff_ks = 0
 ff_kv = 0
-pid = {p = 0, i = 0, d = 0}
+pid = {p = 0, i = 0, d = 0, tolerance = 0}
 
 # flywheel
 [flywheel]
 ff_ks = 0.70516754605 #0.4895168812659137
 ff_kv = 0.13181832208 #0.12869522412846462
-velocity_pid = {p = 1, i = 0, d = 0}
+velocity_pid = {p = 1, i = 0, d = 0, tolerance = 0}
 
 [flywheel.left]
 id = 4
@@ -88,7 +88,7 @@ Vy = 5 #m/s
 # Pivot Stuff
 [pivot]
 encoder = { dio_channelA = 2, dio_channelB = 3, encoderToMechanismCoef = 1 }
-pid = {i = 0, p = 1, d = 0}
+pid = {i = 0, p = 1, d = 0, tolerance = 0}
 
 [pivot.left]
 encoderToMechanismCoef = 1666.666666666666666666666666666666666666666666 # 100:1 * 15:18 * 20:1
@@ -118,11 +118,11 @@ alignment_mode = false
 theta_mode_pSeed = 3
 
 use_velocity_pid = false
-x_holonomic_pid = {p = 1.2, i = 0, d = 0}
-y_holonomic_pid = {p = 1.2, i = 0, d = 0}
-t_holonomic_pid = {p = 7.9, i = 0, d = 0.7} #need to be redone (current mcr values)
-steer_pid_common = {p = 3, i = 0, d = 0.3}
-drive_pid_common = {p = 0.005, i = 0, d = 0.0}
+x_holonomic_pid = {p = 1.2, i = 0, d = 0, tolerance = 0}
+y_holonomic_pid = {p = 1.2, i = 0, d = 0, tolerance = 0}
+t_holonomic_pid = {p = 7.9, i = 0, d = 0.7, tolerance = 0} #need to be redone (current mcr values)
+steer_pid_common = {p = 3, i = 0, d = 0.3, tolerance = 0}
+drive_pid_common = {p = 0.005, i = 0, d = 0.0, tolerance = 0}
 ff_fl = {ks = 0.045, kv = 2.505}
 ff_fr = {ks = 0.056, kv = 2.532}
 ff_br = {ks = 0.044, kv = 2.496}
@@ -142,7 +142,7 @@ br_pos_offset = {x = -0.3556, y = -0.3429}
 encoderToMechanismCoef = 0.078125 # (14.0 / 50.0) * (10.0 / 60.0) mk4i reduction
 rotationalInertia = 0.002
 inverted = false
-breakModeEnabled = false
+breakModeEnabled = true
 currentLimit = 30
 
 [swerve.steer_fr]
@@ -215,7 +215,7 @@ encoderToMechanismCoef = 1
 
 # CLIMBER STUFF GOES HERE
 [climber]
-climber_pid = {p = 0, i = 0, d = 0}
+climber_pid = {p = 0, i = 0, d = 0, tolerance = 0}
 ff_kv = 0.0
 ff_ks = 0.0
 
