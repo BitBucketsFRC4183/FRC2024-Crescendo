@@ -11,17 +11,17 @@
 [disabler]
 vision_disabled = true
 drive_disabled = false
-flywheel_disabled = false
+flywheel_disabled = true
 odometry_disabled = false
 climber_disabled = true
 groundIntake_disabled = false
 nms_disabled = false
-pivot_disabled = false
+pivot_disabled = true
 
 # Commands
 [commands]
 ram_fire_speed = 60
-skip_intermediates = false
+skip_intermediates = true
 
 # Ground Intake
 [ground_intake.top]

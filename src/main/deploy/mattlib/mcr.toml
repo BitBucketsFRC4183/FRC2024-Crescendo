@@ -19,6 +19,7 @@ bl_pos_offset = {x = -0.2318, y = 0.26035}
 br_pos_offset = {x = -0.2318, y = -0.26035}
 
 [swerve]
+theta_mode_pSeed = 3
 alignment_mode = false
 
 [swerve.feedforward]

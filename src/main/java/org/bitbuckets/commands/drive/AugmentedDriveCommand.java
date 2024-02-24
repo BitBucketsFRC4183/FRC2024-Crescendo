@@ -1,6 +1,7 @@
 package org.bitbuckets.commands.drive;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -25,6 +26,8 @@ public class AugmentedDriveCommand extends Command {
     final DriveSubsystem driveSubsystem;
     final OdometrySubsystem odometrySubsystem;
     final SwerveComponent swerveComponent;
+    final PIDController pidController;
+
 
     public AugmentedDriveCommand(SwerveComponent swerveComponent, DriveSubsystem driveSubsystem, OdometrySubsystem odometrySubsystem, OperatorInput operatorInput) {
         this.operatorInput = operatorInput;
@@ -33,6 +36,9 @@ public class AugmentedDriveCommand extends Command {
         this.swerveComponent = swerveComponent;
 
         magnitudeChange = new SlewRateLimiter(swerveComponent.magnitudeFwLimit());
+        pidController = new PIDController(swerveComponent.thetaModePSeed(), 0, 0);
+        pidController.enableContinuousInput(-Math.PI, Math.PI);
+        pidController.setTolerance(Math.PI / 45);
         addRequirements(driveSubsystem);
     }
 
@@ -45,16 +51,36 @@ public class AugmentedDriveCommand extends Command {
 
         boolean shouldFlip = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red;
 
+
         double now = WPIUtilJNI.now() * 1e-6;
         double dt = now - lastTime;
 
         double x = operatorInput.getRobotForwardComponentRaw(); //[-1, 1]
         double y = operatorInput.getDriverRightComponentRaw(); //[-1, 1]
-        double theta = operatorInput.getDriverRightStickX();
+        double theta;
+        double output;
+
+
+
+        if (operatorInput.isPIDStick()) {
+            Rotation2d desiredHeading = new Rotation2d(operatorInput.getDriverRightStickX(), operatorInput.getDriverRightStickY());
+            Rotation2d currentHeading = odometrySubsystem.getGyroAngle();
+
+            theta = Math.hypot(operatorInput.getDriverRightStickX(), operatorInput.getDriverRightStickY());
+            output = pidController.calculate(currentHeading.getRadians(), desiredHeading.getRadians());
+        } else {
+            theta = operatorInput.getDriverRightStickX();
+            output = theta * 1 * Math.PI;
+
+        }
+//        double theta = operatorInput.getDriverRightStickX();
+//        double fieldY = operatorInput.getDriverRightStickX();
+//        double fieldX = operatorInput.getDriverRightStickY();
 
         double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), 0.05);
         Rotation2d linearDirection = new Rotation2d(x, y);
         theta = MathUtil.applyDeadband(theta, 0.1);
+        pidController.setP(theta * swerveComponent.thetaModePSeed());
 
         linearMagnitude = linearMagnitude * linearMagnitude;
         theta = Math.copySign(theta * theta, theta);
@@ -79,7 +105,7 @@ public class AugmentedDriveCommand extends Command {
                 new ChassisSpeeds(
                         linearVelocity.getX() * speedMultiplier, //4.5 is the experimentally determined max velocity
                         linearVelocity.getY() * speedMultiplier,
-                        theta * 1 * Math.PI );
+                        output);
 
 
         if (RobotContainer.SWERVE.fieldOriented()) {
