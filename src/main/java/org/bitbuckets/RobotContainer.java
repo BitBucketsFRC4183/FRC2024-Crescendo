@@ -383,8 +383,8 @@ public class RobotContainer {
 
         //operatorInput.ampSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 100));
         //operatorInput.speakerSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 60));
-        operatorInput.ampSetpoint_hold.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, COMMANDS.groundIntake_voltage(), COMMANDS.noteManagement_voltage()));
-        operatorInput.groundIntakeNoBeamBreak.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
+        //operatorInput.ampSetpoint_hold.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, COMMANDS.groundIntake_voltage(), COMMANDS.noteManagement_voltage()));
+        operatorInput.groundIntakeNoBeamBreak.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, COMMANDS.groundIntake_voltage(), COMMANDS.noteManagement_voltage() ));
         operatorInput.shootManually.whileTrue(new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 60));
 
         operatorInput.isTeleop.and(pivotThreshold).whileTrue(new ManualPivotCommand(operatorInput, pivotSubsystem));
