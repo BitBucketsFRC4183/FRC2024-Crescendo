@@ -37,7 +37,7 @@ id = 21
 rotationToMeterCoef = 1
 encoderToMechanismCoef = 1
 rotationalInertia = 1
-inverted = false
+inverted = true
 currentLimit = 40
 
 [ground_intake.ff_top]
