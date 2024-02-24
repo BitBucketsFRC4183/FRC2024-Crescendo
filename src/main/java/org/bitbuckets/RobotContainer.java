@@ -262,8 +262,10 @@ public class RobotContainer {
 
         var twoNote = new SequentialCommandGroup(
                 new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                followFirstTrajectory("twoNote", "twoNote-1", isNeo),
-                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem),
+                new ParallelCommandGroup(
+                        followFirstTrajectory("twoNote", "twoNote-1", isNeo),
+                        new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
+                ),
                 followTrajectory("twoNote", "twoNote-2", isNeo),
                 new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed)
         );
@@ -275,38 +277,52 @@ public class RobotContainer {
 
         var twoNoteCollect = new SequentialCommandGroup(
                 new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                followFirstTrajectory("twoNoteCollect", "twoNoteCollect-1", isNeo),
-                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem),
+                new ParallelCommandGroup(
+                        followFirstTrajectory("twoNoteCollect", "twoNoteCollect-1", isNeo),
+                        new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
+                ),
                 followTrajectory("twoNoteCollect", "twoNoteCollect-2", isNeo),
                 new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                followTrajectory("twoNoteCollect", "twoNoteCollect-3", isNeo),
-                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
+                new ParallelCommandGroup(
+                        followTrajectory("twoNoteCollect", "twoNoteCollect-3", isNeo),
+                        new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
+                )
         );
 
         var threeNote = new SequentialCommandGroup(
                 new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                followFirstTrajectory("threeNote", "threeNote-1", isNeo),
-                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem),
+                new ParallelCommandGroup(
+                        followFirstTrajectory("threeNote", "threeNote-1", isNeo),
+                        new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
+                ),
                 followTrajectory("threeNote", "threeNote-2", isNeo),
                 new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                followTrajectory("threeNote", "threeNote-3", isNeo),
-                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem),
+                new ParallelCommandGroup(
+                        followTrajectory("threeNote", "threeNote-3", isNeo),
+                        new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
+                ),
                 followTrajectory("threeNote", "threeNote-4", isNeo),
                 new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed)
         );
 
         var fourNote = new SequentialCommandGroup(
                 new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                followFirstTrajectory("fourNote", "fourNote-1", isNeo),
-                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem),
+                new ParallelCommandGroup(
+                        followFirstTrajectory("fourNote", "fourNote-1", isNeo),
+                        new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
+                ),
                 followTrajectory("fourNote", "fourNote-2", isNeo),
                 new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                followTrajectory("fourNote", "fourNote-3", isNeo),
-                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem),
+                new ParallelCommandGroup(
+                        followTrajectory("fourNote", "fourNote-3", isNeo),
+                        new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
+                ),
                 followTrajectory("fourNote", "fourNote-4", isNeo),
                 new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                followTrajectory("fourNote", "fourNote-5", isNeo),
-                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem),
+                new ParallelCommandGroup(
+                        followTrajectory("fourNote", "fourNote-5", isNeo),
+                        new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
+                ),
                 followTrajectory("fourNote", "fourNote-6", isNeo),
                 new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed)
         );
@@ -328,34 +344,42 @@ public class RobotContainer {
 
         var twoNoteContested = new SequentialCommandGroup(
                 new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                followFirstTrajectory("twoNoteContested", "twoNoteContested-1", isNeo),
-                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem),
+                new ParallelCommandGroup(
+                        followFirstTrajectory("twoNoteContested", "twoNoteContested-1", isNeo),
+                        new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
+                ),
                 followTrajectory("twoNoteContested", "twoNoteContested-2", isNeo),
                 new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed)
         );
 
         var twoNoteContestedAlt = new SequentialCommandGroup(
                 new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                followFirstTrajectory("twoNoteContestedAlt", "twoNoteContestedAlt-1", isNeo),
-                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem),
+                new ParallelCommandGroup(
+                        followFirstTrajectory("twoNoteContestedAlt", "twoNoteContestedAlt-1", isNeo),
+                        new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
+                ),
                 followTrajectory("twoNoteContestedAlt", "twoNoteContestedAlt-2", isNeo),
                 new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed)
         );
 
         var threeNoteContested = new SequentialCommandGroup(
                 new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                followFirstTrajectory("threeNoteContested", "threeNoteContested-1", isNeo),
-                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem),
+                new ParallelCommandGroup(
+                        followFirstTrajectory("threeNoteContested", "threeNoteContested-1", isNeo),
+                        new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
+                ),
                 followTrajectory("threeNoteContested", "threeNoteContested-2", isNeo),
                 new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                followTrajectory("threeNoteContested", "threeNoteContested-3", isNeo),
-                new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem),
+                new ParallelCommandGroup(
+                        followTrajectory("threeNoteContested", "threeNoteContested-3", isNeo),
+                        new LessAggressiveFeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem)
+                ),
                 followTrajectory("threeNoteContested", "threeNoteContested-4", isNeo),
                 new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed)
         );
 
         SendableChooser<Command> chooser = new SendableChooser<>();
-        chooser.addOption("fourNote", fourNote); //TODO later
+        chooser.addOption("fourNote", fourNote);
         chooser.setDefaultOption("oneNoteCollect", oneNoteCollect);
         chooser.addOption("twoNote", twoNote);
         chooser.addOption("shootLeave", shootLeave);
