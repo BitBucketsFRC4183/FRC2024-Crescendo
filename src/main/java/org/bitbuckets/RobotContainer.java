@@ -30,8 +30,8 @@ import org.bitbuckets.commands.groundIntake.FeedGroundIntakeGroup;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
 import org.bitbuckets.commands.groundIntake.LessAggressiveFeedGroundIntakeGroup;
 import org.bitbuckets.commands.shooter.FeedFlywheelAndFireGroup;
-import org.bitbuckets.commands.shooter.PivotToPositionFireGroup;
 import org.bitbuckets.commands.shooter.SourceConsumerGroup;
+import org.bitbuckets.commands.shooter.flywheel.SpinFlywheelIndefinite;
 import org.bitbuckets.commands.shooter.pivot.ManualPivotCommand;
 import org.bitbuckets.disabled.DisablerComponent;
 import org.bitbuckets.disabled.KinematicGyro;
@@ -405,6 +405,7 @@ public class RobotContainer {
         //operatorInput.speakerSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 60));
         operatorInput.ampSetpoint_hold.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
         operatorInput.shootManually.whileTrue(new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 60));
+        operatorInput.spinFlyWheel_hold.whileTrue(new SpinFlywheelIndefinite(flywheelSubsystem, true, 20));
 
 
         // disable manual pivot. Do not enable unless mechanical agrees

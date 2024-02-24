@@ -23,7 +23,8 @@ public class OperatorInput {
     final Trigger shootManually = operatorControl.x();
     final Trigger sourceIntake_hold = operatorControl.leftBumper();
     final Trigger ampSetpoint_hold = operatorControl.rightTrigger();
-    final Trigger speakerSetpoint_hold = operatorControl.leftTrigger();
+    //final Trigger speakerSetpoint_hold = operatorControl.leftTrigger();
+    final Trigger spinFlyWheel_hold = operatorControl.leftTrigger();
     final Trigger groundIntakeHoldOp = operatorControl.rightBumper();
     final Trigger groundOuttakeHoldOp = operatorControl.b();
     final Trigger ampVisionPriority_toggle = operatorControl.povLeft();
@@ -60,7 +61,6 @@ public class OperatorInput {
     {
         return deadband(operatorControl.getRawAxis(XboxController.Axis.kRightY.value));
     }
-
 
 
 
