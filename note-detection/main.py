@@ -286,6 +286,12 @@ if __name__ == '__main__':
         if detected:
             left, top, right, bottom = location_data(boxes) # middle of 2d
 
+            # set so that the bottom is 0
+            top = 640 - top
+            bottom = 640 - bottom
+
+            #print(f"{left}, {top}, {right}, {bottom}")
+
             # clockwise from bottom left, units are inches
             object_points = np.array([
                 [0, 0, 0],
@@ -309,12 +315,12 @@ if __name__ == '__main__':
 
             if (success):
                 rmat = cv2.Rodrigues(rvec)[0] # rotation matrix
-                camera_position = -np.dot(rmat.T, tvec)
+                note_position = -np.dot(rmat.T, tvec)
 
-                x = camera_position[0]
-                y = camera_position[1]
+                x = note_position[0]
+                y = note_position[1]
 
-                print(f"Camera pose: {x}, {y}")
+                print(f"Note pose: {x}, {y}")
 
 
         # publish data using networktables
@@ -342,7 +348,7 @@ if __name__ == '__main__':
     fps = frames / (time.time() - initTime)
     # print(f"Overall fps: {fps: .3f}")
 
-    nt.close()
+    #nt.close()
     cam.release()
     #video.release()
     rknn_lite.release()
