@@ -43,8 +43,7 @@ public class SwerveModule implements IMattlibHooked {
 
     @Override
     public ExplainedException[] verifyInit() {
-        //resetToAbsolute();
-        steerController.forceRotationalOffset(0);
+        resetToAbsolute();
         return new ExplainedException[0];
     }
 
@@ -61,7 +60,7 @@ public class SwerveModule implements IMattlibHooked {
         }
         if (++resetIteration > 500) {
             resetIteration = 0;
-            //resetToAbsolute();
+            resetToAbsolute();
         }
     }
 
