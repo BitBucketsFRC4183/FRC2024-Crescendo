@@ -21,6 +21,8 @@ br_pos_offset = {x = -0.2318, y = -0.26035}
 [swerve]
 offset_tuning_mode = true
 steer_pid_common = {p = 10, i = 0, d = 0.3, tolerance = 0}
+theta_mode_pSeed = 3
+alignment_mode = false
 
 [swerve.feedforward]
 ff_fl = {ks = 0.29395385148144837, kv = 2.67740377965345}
