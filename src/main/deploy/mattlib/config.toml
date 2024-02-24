@@ -16,7 +16,7 @@ odometry_disabled = false
 climber_disabled = true
 groundIntake_disabled = false
 nms_disabled = false
-pivot_disabled = true
+pivot_disabled = false
 
 # Commands
 [commands]
@@ -116,7 +116,6 @@ magnitudeFWLim = 3.3
 field_oriented = true
 alignment_mode = false
 theta_mode_pSeed = 3
-
 use_velocity_pid = false
 x_holonomic_pid = {p = 1.2, i = 0, d = 0, tolerance = 0}
 y_holonomic_pid = {p = 1.2, i = 0, d = 0, tolerance = 0}
