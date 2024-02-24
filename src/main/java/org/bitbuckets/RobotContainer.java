@@ -547,8 +547,8 @@ public class RobotContainer {
         } else {
             leftMotor = HardwareREV.rotationalSpark_builtInPID(SHOOTER_FLYWHEEL_LEFT, FLYWHEEL_VELOCITY_PID);
             rightMotor = HardwareREV.rotationalSpark_builtInPID(SHOOTER_FLYWHEEL_RIGHT, FLYWHEEL_VELOCITY_PID);
-            velocityEncoderLeft = HardwareUtil.throughboreEncoder(FLYWHEEL_ENCODER_LEFT);
-            velocityEncoderRight = HardwareUtil.throughboreEncoder(FLYWHEEL_ENCODER_RIGHT);
+            velocityEncoderLeft = leftMotor; //HardwareUtil.throughboreEncoder(FLYWHEEL_ENCODER_LEFT);
+            velocityEncoderRight = rightMotor; //HardwareUtil.throughboreEncoder(FLYWHEEL_ENCODER_RIGHT);
         }
 
 
