@@ -16,7 +16,7 @@ odometry_disabled = false
 climber_disabled = true
 groundIntake_disabled = false
 nms_disabled = false
-pivot_disabled = false
+pivot_disabled = true
 
 # Commands
 [commands]
