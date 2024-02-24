@@ -23,7 +23,7 @@ public class OperatorInput {
     final Trigger shootManually = operatorControl.x();
     final Trigger sourceIntake_hold = operatorControl.leftBumper();
     final Trigger groundIntakeNoBeamBreak = operatorControl.rightTrigger();
-    final Trigger ampShotSpeed = operatorControl.leftTrigger();
+    final Trigger ampShotSpeed = operatorControl.y();
     final Trigger groundIntakeHoldOp = operatorControl.rightBumper();
     final Trigger groundOuttakeHoldOp = operatorControl.b();
     final Trigger ampVisionPriority_toggle = operatorControl.povLeft();
@@ -38,10 +38,10 @@ public class OperatorInput {
     final Trigger autoAlignHold = driver.x();
     final Trigger xButtonToggle = driver.a();
     final Trigger homeToOperatorHold = driver.y(); //y would you use this (this homes in on the operator's selected target visible in LEDs)
-    final Trigger groundIntakeHold = driver.rightBumper();
-    final Trigger groundOuttakeHold = driver.leftBumper();
+    //final Trigger groundIntakeHold = driver.rightBumper();
+    //final Trigger groundOuttakeHold = driver.leftBumper();
     final Trigger resetGyroPress = driver.start();
-    final Trigger toggleRotationControl = driver.povUp();
+    final Trigger pidModeHold = driver.leftBumper();
 
 
     /**
@@ -75,7 +75,7 @@ public class OperatorInput {
         return turboModeHold.getAsBoolean();
     }
     public boolean isPIDStick() {
-        return toggleRotationControl.getAsBoolean();
+        return pidModeHold.getAsBoolean();
     }
 
     public boolean getAutoAlignState() {
@@ -91,9 +91,6 @@ public class OperatorInput {
         return xButtonToggle.getAsBoolean();
     }
 
-    public boolean getGroundIntakeState() {
-        return groundIntakeHold.getAsBoolean();
-    }
 
     public boolean getResetGyroState() {
         return resetGyroPress.getAsBoolean();

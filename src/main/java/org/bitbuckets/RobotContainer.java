@@ -30,6 +30,7 @@ import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
 import org.bitbuckets.commands.groundIntake.BasicGroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.FeedGroundIntakeGroup;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
+import org.bitbuckets.commands.shooter.AmpMakeReadyGroup;
 import org.bitbuckets.commands.shooter.FireMakeReadyGroup;
 import org.bitbuckets.commands.shooter.SourceConsumerGroup;
 import org.bitbuckets.commands.shooter.flywheel.SpinFlywheelIndefinite;
@@ -48,6 +49,7 @@ import org.bitbuckets.vision.CamerasComponent;
 import org.bitbuckets.vision.VisionComponent;
 import org.bitbuckets.vision.VisionSimContainer;
 import org.bitbuckets.vision.VisionSubsystem;
+import org.opencv.core.Mat;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import xyz.auriium.mattlib.ctre.HardwareCTRE;
@@ -99,6 +101,7 @@ public class RobotContainer {
 
         //DO SETTINGS BEFORE PRE INIT
         MattlibSettings.USE_LOGGING = true;
+        MattlibSettings.USE_TUNING = true;
         MattlibSettings.ROBOT = WhichRobotUtil.loadRobot();
 
         //THIS HAS TO RUN FIRST
@@ -197,11 +200,14 @@ public class RobotContainer {
         //LinearFFGenRoutine groundBottomFFRoutine = new LinearFFGenRoutine(BOTTOM_GROUND_FFGEN, groundIntakeSubsystem.bottomMotor, groundIntakeSubsystem.bottomMotor);
         //CTowerCommands.wrapRoutine(groundTopFFRoutine).schedule();
         //CTowerCommands.wrapRoutine(groundBottomFFRoutine).schedule();
-      /*  RotationFFGenRoutine shooterFFRoutine = new RotationFFGenRoutine(SHOOTER_WHEEL_1_FFGEN, shooterSubsystem.leftMotor, shooterSubsystem.leftMotor );
-        CTowerCommands.wrapRoutine(shooterFFRoutine).schedule();
-        shooterFFRoutine = new RotationFFGenRoutine(SHOOTER_WHEEL_2_FFGEN, shooterSubsystem.rightMotor, shooterSubsystem.rightMotor);
-        CTowerCommands.wrapRoutine(shooterFFRoutine).schedule();
-*/
+        RotationFFGenRoutine leftShooterR = new RotationFFGenRoutine(SHOOTER_WHEEL_1_FFGEN, flywheelSubsystem.leftMotor, flywheelSubsystem.velocityEncoderLeft);
+        RotationFFGenRoutine rightShooterR = new RotationFFGenRoutine(SHOOTER_WHEEL_2_FFGEN, flywheelSubsystem.rightMotor, flywheelSubsystem.velocityEncoderRight);
+
+        new ParallelCommandGroup(
+                CTowerCommands.wrapRoutine(leftShooterR),
+                CTowerCommands.wrapRoutine(rightShooterR)
+        ).schedule();
+
 //        Command[] commands = new Command[4];
 //        for (int i = 0; i < 4; i++) {
 //            var motorWeAreTesting = driveSubsystem.modules[i].driveMotor;
@@ -382,7 +388,7 @@ public class RobotContainer {
         operatorInput.rev.whileTrue(new SpinFlywheelIndefinite(flywheelSubsystem, false, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond()));
         //operatorInput.ampSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 100));
         //operatorInput.speakerSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 60));
-        //operatorInput.ampSetpoint_hold.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, COMMANDS.groundIntake_voltage(), COMMANDS.noteManagement_voltage()));
+        operatorInput.ampShotSpeed.whileTrue(new AmpMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 15));
         operatorInput.groundIntakeNoBeamBreak.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, COMMANDS.groundIntake_voltage(), COMMANDS.noteManagement_voltage() ));
         operatorInput.shootManually.whileTrue(new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond()));
 
@@ -393,9 +399,9 @@ public class RobotContainer {
         //operatorInput.setShooterAngleManually.onTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));
 
         operatorInput.sourceIntake_hold.whileTrue(new SourceConsumerGroup(noteManagementSubsystem, flywheelSubsystem));
-        operatorInput.groundIntakeHold.or(operatorInput.groundIntakeHoldOp).and(operatorInput.groundOuttakeHold.negate()) //TODO change input
+        operatorInput.groundIntakeHoldOp //TODO change input
                 .whileTrue(new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem));
-        operatorInput.groundOuttakeHold.or(operatorInput.groundOuttakeHoldOp).and(operatorInput.groundIntakeHold.negate())
+        operatorInput.groundOuttakeHoldOp
                 .whileTrue(new GroundOuttakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
 
         operatorInput.resetGyroPress.onTrue(Commands.runOnce(() -> {
@@ -497,29 +503,29 @@ public class RobotContainer {
     }
 
     FlywheelSubsystem loadFlywheelSubsystem() {
-        IRotationalController leftMotor;
-        IRotationalController rightMotor;
+        IRotationalVelocityController leftMotor;
+        IRotationalVelocityController rightMotor;
 
         IRotationEncoder velocityEncoderRight;
         IRotationEncoder velocityEncoderLeft;
 
 
         if (DISABLER.flywheel_disabled()) {
-            leftMotor = HardwareDisabled.rotationalController_disabled();
-            rightMotor = HardwareDisabled.rotationalController_disabled();
+            leftMotor = HardwareDisabled.rotationalVelocityController_disabled();
+            rightMotor = HardwareDisabled.rotationalVelocityController_disabled();
             velocityEncoderLeft = HardwareDisabled.rotationEncoder_disabled();
             velocityEncoderRight = HardwareDisabled.rotationEncoder_disabled();
         } else if (Robot.isSimulation()) {
-            leftMotor = HardwareSIM.rotationalSIM_pid(SHOOTER_FLYWHEEL_LEFT, FLYWHEEL_VELOCITY_PID, DCMotor.getNEO(1));
-            rightMotor = HardwareSIM.rotationalSIM_pid(SHOOTER_FLYWHEEL_RIGHT, FLYWHEEL_VELOCITY_PID, DCMotor.getNEO(1));
+            leftMotor = HardwareDisabled.rotationalVelocityController_disabled();//HardwareSIM.rotationalSIM_pid(SHOOTER_FLYWHEEL_LEFT, FLYWHEEL_VELOCITY_PID, DCMotor.getNEO(1));
+            rightMotor = HardwareDisabled.rotationalVelocityController_disabled();//HardwareSIM.rotationalSIM_pid(SHOOTER_FLYWHEEL_RIGHT, FLYWHEEL_VELOCITY_PID, DCMotor.getNEO(1));
             velocityEncoderLeft = leftMotor; //TODO switch out leftMotor with actual velocity encoder
             velocityEncoderRight = rightMotor;
 
         } else {
-            leftMotor = HardwareREV.rotationalSpark_builtInPID(SHOOTER_FLYWHEEL_LEFT, FLYWHEEL_VELOCITY_PID);
-            rightMotor = HardwareREV.rotationalSpark_builtInPID(SHOOTER_FLYWHEEL_RIGHT, FLYWHEEL_VELOCITY_PID);
-            velocityEncoderLeft = leftMotor; //HardwareUtil.throughboreEncoder(FLYWHEEL_ENCODER_LEFT);
-            velocityEncoderRight = rightMotor; //HardwareUtil.throughboreEncoder(FLYWHEEL_ENCODER_RIGHT);
+            leftMotor = HardwareREV.rotationalSpark_builtInVelocityPID(SHOOTER_FLYWHEEL_LEFT, FLYWHEEL_VELOCITY_PID);
+            rightMotor = HardwareREV.rotationalSpark_builtInVelocityPID(SHOOTER_FLYWHEEL_RIGHT, FLYWHEEL_VELOCITY_PID);
+            velocityEncoderLeft = HardwareUtil.throughboreEncoder(FLYWHEEL_ENCODER_LEFT);
+            velocityEncoderRight = HardwareUtil.throughboreEncoder(FLYWHEEL_ENCODER_RIGHT);
         }
 
 
@@ -719,7 +725,8 @@ public class RobotContainer {
     public static final PIDComponent FLYWHEEL_VELOCITY_PID = LOG.load(PIDComponent.class, "flywheel/velocity_pid");
     public static final DigitalEncoderComponent FLYWHEEL_ENCODER_LEFT = LOG.load(DigitalEncoderComponent.class, "flywheel/left/encoder");
     public static final DigitalEncoderComponent FLYWHEEL_ENCODER_RIGHT = LOG.load(DigitalEncoderComponent.class, "flywheel/right/encoder");
-
+    public static final FFComponent FLYWHEEL_LEFT_FF = LOG.load(FFComponent.class, "flywheel/left/ff");
+    public static final FFComponent FLYWHEEL_RIGHT_FF = LOG.load(FFComponent.class, "flywheel/right/ff");
 
     //pivot
     public static final DigitalEncoderComponent SHOOTER_PIVOT_ENCODER = LOG.load(DigitalEncoderComponent.class, "pivot/encoder");

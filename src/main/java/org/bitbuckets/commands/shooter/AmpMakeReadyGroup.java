@@ -14,11 +14,14 @@ import org.bitbuckets.shooter.FlywheelSubsystem;
 /**
  *
  */
-public class FireMakeReadyGroup extends ParallelDeadlineGroup {
+public class AmpMakeReadyGroup extends ParallelDeadlineGroup {
 
-    public FireMakeReadyGroup(FlywheelSubsystem flywheelSubsystem, NoteManagementSubsystem noteManagementSubsystem, GroundIntakeSubsystem groundIntakeSubsystem, double flywheelSpeed_metersPerSecondOfFlywheel) {
+    public AmpMakeReadyGroup(FlywheelSubsystem flywheelSubsystem, NoteManagementSubsystem noteManagementSubsystem, GroundIntakeSubsystem groundIntakeSubsystem, double flywheelSpeed_metersPerSecondOfFlywheel) {
         super(
-                new AwaitNoteNotInManagerCommand(noteManagementSubsystem),
+                new SequentialCommandGroup(
+                        new AwaitNoteNotInManagerCommand(noteManagementSubsystem),
+                        new WaitCommand(1)
+                ),
                 new SpinFlywheelIndefinite(flywheelSubsystem, false, flywheelSpeed_metersPerSecondOfFlywheel),
                 new SequentialCommandGroup(
                         new AwaitFlywheelSpeedsCommand(flywheelSubsystem, flywheelSpeed_metersPerSecondOfFlywheel),

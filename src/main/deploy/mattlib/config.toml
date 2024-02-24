@@ -16,7 +16,7 @@ odometry_disabled = false
 climber_disabled = true
 groundIntake_disabled = false
 nms_disabled = false
-pivot_disabled = true
+pivot_disabled = false
 
 # Commands
 [commands]
@@ -55,27 +55,27 @@ pid = {p = 0, i = 0, d = 0}
 
 # flywheel
 [flywheel]
-ff_ks = 0.70516754605 #0.4895168812659137
-ff_kv = 0.13181832208 #0.12869522412846462
-velocity_pid = {p = 1, i = 0, d = 0}
+velocity_pid = {p = 0.1, i = 0, d = 0.85}
 
 [flywheel.left]
-id = 4
-encoderToMechanismCoef = 1
-rotationalInertia = 0.002
-velocityStdv = 0.001
-positionStdv = 0.001
-inverted = false
-encoder = { dio_channelA = 0, dio_channelB = 1, encoderToMechanismCoef = 1 }
-
-[flywheel.right]
 id = 7
 encoderToMechanismCoef = 1
 rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
 inverted = true
-encoder = { dio_channelA = 7, dio_channelB = 8, encoderToMechanismCoef = 1 }
+ff = { ks = 0.7273402234421602, kv = 0.127317440563727}
+encoder = { dio_channelA = 0, dio_channelB = 1, encoderToMechanismCoef = 1, inverted = false }
+
+[flywheel.right]
+id = 4
+encoderToMechanismCoef = 1
+rotationalInertia = 0.002
+velocityStdv = 0.001
+positionStdv = 0.001
+inverted = false
+ff = { ks = 0.8238191115849531, kv = 0.1274754523576695}
+encoder = { dio_channelA = 7, dio_channelB = 8, encoderToMechanismCoef = 1, inverted = true }
 
 [flywheel.calculator]
 mass = 0.25 #kg
@@ -90,7 +90,7 @@ Vy = 5 #m/s
 
 # Pivot Stuff
 [pivot]
-encoder = { dio_channelA = 2, dio_channelB = 3, encoderToMechanismCoef = 1 }
+encoder = { dio_channelA = 2, dio_channelB = 3, encoderToMechanismCoef = 1, inverted = true }
 pid = {i = 0, p = 1, d = 0}
 
 [pivot.left]

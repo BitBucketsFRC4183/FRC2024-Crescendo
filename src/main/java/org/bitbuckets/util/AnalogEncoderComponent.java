@@ -10,6 +10,7 @@ public interface AnalogEncoderComponent extends INetworkedComponent {
     @Conf("offset") double offset_mechanismRotations();
     @Conf("encoderToMechanismCoef") double encoderToMechanismCoefficient();
 
+
     @Log("positionWithOffset") void logPositionWithOffset(double position_mechanismRotations);
     @Log("velocity") void logVelocity(double velocity_metersPerSecond);
 
