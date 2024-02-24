@@ -32,7 +32,10 @@ public class PlaceOdometryCommand extends Command {
         }
 
         System.out.println("Initial Pose: " + initialPose.toString() + "flipped: " + shouldMirror());
-
         odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(initialPose));
+    }
+
+    @Override public boolean isFinished() {
+        return true;
     }
 }

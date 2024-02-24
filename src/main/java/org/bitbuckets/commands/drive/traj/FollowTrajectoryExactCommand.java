@@ -49,6 +49,7 @@ public class FollowTrajectoryExactCommand extends Command {
 
     @Override
     public void initialize() {
+        thetaPid.reset(odometrySubsystem.getGyroAngle().getRadians());
         thetaPid.enableContinuousInput(-Math.PI, Math.PI);
         thetaPid.setTolerance(Math.PI / 360 ); //0.5 deg
         timer.restart();
@@ -67,7 +68,7 @@ public class FollowTrajectoryExactCommand extends Command {
 
         double xFeedback = xPid.calculate(robotState.getX(), trajectoryReference.x);
         double yFeedback = yPid.calculate(robotState.getY(), trajectoryReference.y);
-        double rotationFeedback = thetaPid.calculate(robotState.getRotation().getRadians(), trajectoryReference.heading);
+        double rotationFeedback = thetaPid.calculate(odometrySubsystem.getGyroAngle().getRadians(), trajectoryReference.heading);
 
         ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 xFF + xFeedback,

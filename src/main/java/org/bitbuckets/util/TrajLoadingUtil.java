@@ -37,8 +37,10 @@ public class TrajLoadingUtil {
             if (!toCheck.exists()) break;
 
             //it's there
+            i++;
             choreoTrajList.add(loadFile(toCheck));
         }
+        System.out.println("done: " + choreoPath);
         return choreoTrajList.toArray(ChoreoTrajectory[]::new);
 
 

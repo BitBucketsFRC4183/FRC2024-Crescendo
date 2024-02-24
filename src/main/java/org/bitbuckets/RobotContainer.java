@@ -345,7 +345,7 @@ public class RobotContainer {
         chooser.addOption("twoNote", twoNote);
         chooser.addOption("twoNoteCollect", twoNoteCollect);
         chooser.addOption("shootLeave", shootLeave);
-        chooser.addOption("threeNote", threeNote);
+        chooser.setDefaultOption("threeNote", threeNote);
         chooser.addOption("twoNoteContested", twoNoteContested);
         chooser.addOption("threeNoteContested", threeNoteContested);
 
