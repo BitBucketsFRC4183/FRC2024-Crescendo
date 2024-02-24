@@ -3,7 +3,9 @@ package org.bitbuckets.commands.drive;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import org.bitbuckets.RobotContainer;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.OdometrySubsystem;
 import org.bitbuckets.vision.VisionSubsystem;
@@ -53,16 +55,16 @@ public class MoveToAlignCommand extends Command {
         if (this.targetPose != null) {
             setTarget();
 
-            double desiredVelocity = 5;
-
+            double desiredVelocity = 0;
+            
             ChassisSpeeds speeds = this.holoController.calculate(
                     this.odometrySubsystem.getRobotCentroidPosition(),
                     this.targetPose.toPose2d(),
                     desiredVelocity,
-                    this.targetPose.toPose2d().getRotation()
+                    this.targetPose.toPose2d().getRotation().rotateBy(Rotation2d.fromDegrees(180))
             );
 
-            driveSubsystem.driveUsingChassisSpeed(speeds);
+        driveSubsystem.driveUsingChassisSpeed(speeds, false);
         }
     }
 
@@ -80,9 +82,6 @@ public class MoveToAlignCommand extends Command {
                     Math.abs(currentPose.getY() - this.targetPose.getY()) < yThreshold &&
                     (currentPose.getRotation().getDegrees() - this.targetPose.getRotation().getAngle()) < angleThreshold;
 
-            if (finished) {
-                System.out.println("ho ho ho");
-            }
 
             return finished;
         } else return true;

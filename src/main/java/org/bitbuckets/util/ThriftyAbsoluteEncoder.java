@@ -1,19 +1,21 @@
 package org.bitbuckets.util;
 
+import edu.wpi.first.math.MathSharedStore;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.RobotController;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.loop.IMattlibHooked;
 import xyz.auriium.mattlib2.utils.AngleUtil;
+import xyz.auriium.yuukonstants.exception.ExplainedException;
 
 public class ThriftyAbsoluteEncoder implements IRotationEncoder, IMattlibHooked {
 
     final AnalogInput input;
-    final AbsoluteEncoderComponent encoderComponent;
+    final AnalogEncoderComponent encoderComponent;
 
     double offset_mechanismRotations;
 
-    public ThriftyAbsoluteEncoder(AnalogInput input, AbsoluteEncoderComponent encoderComponent) {
+    public ThriftyAbsoluteEncoder(AnalogInput input, AnalogEncoderComponent encoderComponent) {
         this.input = input;
         this.encoderComponent = encoderComponent;
 
@@ -21,6 +23,29 @@ public class ThriftyAbsoluteEncoder implements IRotationEncoder, IMattlibHooked 
         mattRegister();
     }
 
+    double lastPosition_encoderRotations = 0;
+    double lastTime = MathSharedStore.getTimestamp();
+    double dpdtApproximation = 0;
+
+    @Override
+    public ExplainedException[] verifyInit() {
+        this.lastPosition_encoderRotations = angularPosition_encoderRotations();
+        this.lastTime = MathSharedStore.getTimestamp();
+
+        return new ExplainedException[0];
+    }
+
+    @Override
+    public void logicPeriodic() {
+        double currentPosition = angularPosition_encoderRotations();
+        double deltaPosition = currentPosition - lastPosition_encoderRotations;
+        double currentTime = MathSharedStore.getTimestamp();
+        double deltaTime = currentTime - lastTime;
+
+        this.dpdtApproximation = deltaPosition / deltaTime;
+        this.lastTime = currentTime;
+        this.lastPosition_encoderRotations = currentPosition;
+    }
 
     @Override
     public void logPeriodic() {
@@ -55,12 +80,14 @@ public class ThriftyAbsoluteEncoder implements IRotationEncoder, IMattlibHooked 
 
     @Override
     public double angularVelocity_mechanismRotationsPerSecond() {
-        throw new UnsupportedOperationException("Angular velocity for mechanism rps not finished");
+        return angularPosition_encoderRotations() * encoderComponent.encoderToMechanismCoefficient();
     }
+
+
 
     @Override
     public double angularVelocity_encoderRotationsPerSecond() {
-        throw new UnsupportedOperationException("Angular velocity for encoder rps not finished");
+        return dpdtApproximation;
     }
 
 }

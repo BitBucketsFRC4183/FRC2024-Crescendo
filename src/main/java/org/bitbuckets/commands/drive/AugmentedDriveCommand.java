@@ -45,7 +45,7 @@ public class AugmentedDriveCommand extends Command {
         boolean shouldFlip = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red;
 
         double now = WPIUtilJNI.now() * 1e-6;
-        double dt = now - lastTime;
+//        double dt = now - lastTime;
 
         double x = operatorInput.getRobotForwardComponentRaw(); //[-1, 1]
         double y = operatorInput.getDriverRightComponentRaw(); //[-1, 1]
@@ -64,10 +64,15 @@ public class AugmentedDriveCommand extends Command {
                         .getTranslation();
 
         double speedMultiplier = 3d;
+        double slowSpeedMultiplier = 1.5d;
         double turboSpeedMultiplier = 4.5;
         if (operatorInput.getTurboModeHeld())
         {
             speedMultiplier = turboSpeedMultiplier;
+        }
+        if (operatorInput.getSlowModeHeld())
+        {
+            speedMultiplier = slowSpeedMultiplier;
         }
         ChassisSpeeds speeds =
                 new ChassisSpeeds(
@@ -85,9 +90,7 @@ public class AugmentedDriveCommand extends Command {
             speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds,gyroAngle);
         }
 
-
-        driveSubsystem.driveUsingChassisSpeed(speeds);
-
+        driveSubsystem.driveUsingChassisSpeed(speeds, swerveComponent.useVelocityPID());
 
     }
 

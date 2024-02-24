@@ -52,17 +52,17 @@ inverted = false
 
 
 [swerve.abs_fr]
-analogChannel = 3
+analog_channel = 3
 offset = 0.26
 
 [swerve.abs_fl]
-analogChannel = 2
+analog_channel = 2
 offset = 0.209
 
 [swerve.abs_br]
-analogChannel = 0
+analog_channel = 0
 offset = 0.328
 
 [swerve.abs_bl]
-analogChannel = 1
+analog_channel = 1
 offset = 0.0#0.0352701817

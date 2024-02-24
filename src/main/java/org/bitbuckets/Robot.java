@@ -14,9 +14,6 @@ public class Robot extends CachingTimedRobot {
     @Override
     public void robotInit() {
         container = new RobotContainer();
-        if (isSimulation()) {
-            System.out.println("we in the matrix baby");
-        }
     }
 
     @Override

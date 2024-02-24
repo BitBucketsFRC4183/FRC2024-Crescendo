@@ -10,6 +10,7 @@ import java.util.List;
 public class VisionUtil {
     static List<VisionFieldTarget> SPEAKERS = Arrays.asList(VisionFieldTarget.SPEAKER_CENTER, VisionFieldTarget.SPEAKER_LEFT, VisionFieldTarget.SPEAKER_RIGHT);
     static List<VisionFieldTarget> SOURCES = Arrays.asList(VisionFieldTarget.SOURCE_LEFT, VisionFieldTarget.SOURCE_RIGHT);
+    static List<Integer> RED_INVERTED = Arrays.asList(3, 4, 13, 12, 11);
 
     // converts apriltag ID to an element of the target enum
     public static VisionFieldTarget lookingAt(int fiducialID) {
@@ -26,7 +27,7 @@ public class VisionUtil {
     }
 
     // Returns the transformation needed for final position depending on tag, apriltag relative
-    public static Transform3d getDesiredTargetAlignTransform(PhotonTrackedTarget trackedTarget) {
+    private static Transform3d getDesiredTargetAlignTransform(PhotonTrackedTarget trackedTarget) {
 
         VisionFieldTarget target = lookingAt(trackedTarget.getFiducialId()); //field element
         Transform3d tagTransform = lookupRobotTransformFromTarget(target);
@@ -45,28 +46,33 @@ public class VisionUtil {
     public static Pose3d getDesiredTargetAlignPose(PhotonTrackedTarget trackedTarget) {
         VisionFieldTarget target = lookingAt(trackedTarget.getFiducialId()); //field element
         Transform3d tagTransform = lookupRobotTransformFromTarget(target);
+        // inverts based on team side
 
+        if (RED_INVERTED.contains(trackedTarget.getFiducialId())) {
+            tagTransform.plus(new Transform3d(tagTransform.getX()*-2, 0, 0, new Rotation3d(0, 0 ,0)));
+        }
         return VisionSubsystem.LAYOUT.getTagPose(trackedTarget.getFiducialId()).orElseThrow().plus(tagTransform);
     }
 
     // desired transform to move the robot to the desired final position, field relative pose, could be improved with mattlib
     public static Transform3d lookupRobotTransformFromTarget(VisionFieldTarget target) {
         // translations are in inches
+        // translation not accounting for team side, should always be relative to blue element!!!!!!!
         return switch (target) {
             case SPEAKER_CENTER ->
-                    new Transform3d(Units.inchesToMeters(50), 0d, 0d, new Rotation3d(0d, 0d, 0d));
+                    new Transform3d(Units.inchesToMeters(55), 0d, 0d, new Rotation3d(0d, 0d, 0d));
             case SPEAKER_LEFT ->
-                    new Transform3d(new Translation3d(Units.inchesToMeters(24), 0d, Units.inchesToMeters(80)), new Rotation3d(0d, 0d, 0));
+                    new Transform3d(Units.inchesToMeters(55), Units.inchesToMeters(22.25), 0, new Rotation3d(0d, 0d, 0));
             case SPEAKER_RIGHT ->
-                    new Transform3d(new Translation3d(Units.inchesToMeters(-24), 0d, Units.inchesToMeters(80)), new Rotation3d(0d, 0d, 0));
+                    new Transform3d(Units.inchesToMeters(55), Units.inchesToMeters(-22.25), 0, new Rotation3d(0d, 0d, 0));
             case AMP ->
-                    new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0));
+                    new Transform3d(Units.inchesToMeters(32), 0d, 0, new Rotation3d(0d, 0d, 0));
             case SOURCE_LEFT -> //relative to the robot
-                    new Transform3d(new Translation3d(Units.inchesToMeters(20), 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0));
+                    new Transform3d(Units.inchesToMeters(20), 0d, 0, new Rotation3d(0d, 0d, 0));
             case SOURCE_RIGHT -> //relative to the robot
-                    new Transform3d(new Translation3d(Units.inchesToMeters(-20), 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0));
+                    new Transform3d(Units.inchesToMeters(-20), 0d, 0, new Rotation3d(0d, 0d, 0));
             case STAGE -> //relative to the robot
-                    new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0));
+                    new Transform3d(0d, 0d, 0, new Rotation3d(0d, 0d, 0));
         };
     }
 

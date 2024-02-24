@@ -44,14 +44,25 @@ public class FollowTrajectoryExactCommand extends Command {
     }
 
     boolean shouldMirror() {
-        DriverStation.Alliance alliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue);
+        DriverStation.Alliance alliance = DriverStation.getAlliance().orElseThrow();
         return alliance == DriverStation.Alliance.Red;
     }
 
     @Override
     public void initialize() {
-        ChoreoTrajectoryState initialState =trajectory.sample(0, shouldMirror());
-        if (reZeroOdometry) odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(initialState.getPose()));
+        if (reZeroOdometry) {
+            Pose2d initialPose = trajectory.getInitialPose();
+
+            if (shouldMirror()) {
+                initialPose = trajectory.flipped().getInitialPose();
+            }
+
+            System.out.println("Initial Pose: " + initialPose.toString() + "flipped: " + shouldMirror());
+
+            odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(initialPose));
+            odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(initialPose));
+        }
+
 
         timer.restart();
     }
@@ -71,7 +82,9 @@ public class FollowTrajectoryExactCommand extends Command {
                 robotState.getRotation()
         );
 
-        driveSubsystem.driveUsingChassisSpeed(robotRelativeSpeeds);
+
+
+        driveSubsystem.driveUsingChassisSpeed(robotRelativeSpeeds, true);
     }
 
     @Override
@@ -85,7 +98,7 @@ public class FollowTrajectoryExactCommand extends Command {
     public void end(boolean interrupted) {
         timer.stop();
         if (interrupted) {
-            driveSubsystem.driveUsingChassisSpeed(new ChassisSpeeds());
+            driveSubsystem.driveUsingChassisSpeed(new ChassisSpeeds(), false);
         }
     }
 }
