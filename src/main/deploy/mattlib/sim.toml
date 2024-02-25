@@ -2,5 +2,7 @@
 p = 30
 
 [commands]
-skip_intermediates = true
+skip_intermediates = false
 
+[swerve]
+t_holonomic_pid = {p = 9, i = 0, d = 0} #need to be redone (current mcr values)

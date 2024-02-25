@@ -29,18 +29,20 @@ public class FollowTrajectoryExactCommand extends Command {
     final ChoreoTrajectory trajectory;
     final OdometrySubsystem odometrySubsystem;
     final DriveSubsystem driveSubsystem;
-    final AutoSubsystem autoSubsystem;
-    final boolean reZeroOdometry;
 
-    public FollowTrajectoryExactCommand(ChoreoTrajectory trajectory, OdometrySubsystem odometrySubsystem, DriveSubsystem driveSubsystem, AutoSubsystem autoSubsystem, boolean reZeroOdometry) {
+    final PIDController xPid;
+    final PIDController yPid;
+    final ProfiledPIDController thetaPid;
+
+    public FollowTrajectoryExactCommand(ChoreoTrajectory trajectory, OdometrySubsystem odometrySubsystem, DriveSubsystem driveSubsystem, PIDController xPid, PIDController yPid, ProfiledPIDController thetaPid) {
         this.trajectory = trajectory;
         this.odometrySubsystem = odometrySubsystem;
         this.driveSubsystem = driveSubsystem;
         this.autoSubsystem = autoSubsystem;
 
-        this.reZeroOdometry = reZeroOdometry;
-
-        addRequirements(driveSubsystem, autoSubsystem);
+        this.xPid = xPid;
+        this.yPid = yPid;
+        this.thetaPid = thetaPid;
     }
 
     boolean shouldMirror() {
@@ -50,20 +52,9 @@ public class FollowTrajectoryExactCommand extends Command {
 
     @Override
     public void initialize() {
-        if (reZeroOdometry) {
-            Pose2d initialPose = trajectory.getInitialPose();
-
-            if (shouldMirror()) {
-                initialPose = trajectory.flipped().getInitialPose();
-            }
-
-            System.out.println("Initial Pose: " + initialPose.toString() + "flipped: " + shouldMirror());
-
-            odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(initialPose));
-            odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(initialPose));
-        }
-
-
+        thetaPid.reset(odometrySubsystem.getGyroAngle().getRadians());
+        thetaPid.enableContinuousInput(-Math.PI, Math.PI);
+        thetaPid.setTolerance(Math.PI / 360 ); //0.5 deg
         timer.restart();
     }
 
@@ -74,6 +65,14 @@ public class FollowTrajectoryExactCommand extends Command {
         ChoreoTrajectoryState trajectoryReference = trajectory.sample(time, shouldMirror());
         Pose2d robotState = odometrySubsystem.getRobotCentroidPosition();
         ChassisSpeeds velocityFeedback = autoSubsystem.calculateFeedbackSpeeds(trajectoryReference.getPose());
+
+        double xFF = trajectoryReference.velocityX;
+        double yFF = trajectoryReference.velocityY;
+        double rotationFF = trajectoryReference.angularVelocity;
+
+        double xFeedback = xPid.calculate(robotState.getX(), trajectoryReference.x);
+        double yFeedback = yPid.calculate(robotState.getY(), trajectoryReference.y);
+        double rotationFeedback = thetaPid.calculate(odometrySubsystem.getGyroAngle().getRadians(), trajectoryReference.heading);
 
         ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 trajectoryReference.velocityX + velocityFeedback.vxMetersPerSecond,

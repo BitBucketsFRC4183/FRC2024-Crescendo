@@ -14,6 +14,7 @@ public interface DigitalEncoderComponent extends INetworkedComponent {
     @Conf("dio_channelB") int dioChannelB();
     @Conf("encoderToMechanismCoef") double encoderToMechanismCoefficient();
     @Conf("offset") Optional<Double> offset_mechanismRotations();
+    @Conf("inverted") boolean inverted();
 
     @Log("positionWithOffset") void logPositionWithOffset(double position_mechanismRotations);
     @Log("velocity") void logVelocity(double velocity_metersPerSecond);

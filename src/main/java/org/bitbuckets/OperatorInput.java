@@ -24,8 +24,8 @@ public class OperatorInput {
     final Trigger shootByVision = operatorControl.a();
     final Trigger shootManually = operatorControl.x();
     final Trigger sourceIntake_hold = operatorControl.leftBumper();
-    final Trigger ampSetpoint_hold = operatorControl.rightTrigger();
-    final Trigger speakerSetpoint_hold = operatorControl.leftTrigger();
+    final Trigger groundIntakeNoBeamBreak = operatorControl.rightTrigger();
+    final Trigger ampShotSpeed = operatorControl.y();
     final Trigger groundIntakeHoldOp = operatorControl.rightBumper();
     final Trigger groundOuttakeHoldOp = operatorControl.b();
     final Trigger ampVisionPriority_toggle = operatorControl.povLeft();
@@ -33,6 +33,7 @@ public class OperatorInput {
 
     final Trigger resetVisionPriority_toggle = operatorControl.povUp();
     final Trigger setShooterAngleManually = operatorControl.leftStick();
+    final Trigger rev = operatorControl.leftTrigger();
 
 
     //DRIVER'S CONTROLS
@@ -41,9 +42,10 @@ public class OperatorInput {
     final Trigger autoAlignHold = driver.x();
     final Trigger xButtonToggle = driver.a();
     final Trigger homeToOperatorHold = driver.y(); //y would you use this (this homes in on the operator's selected target visible in LEDs)
-    final Trigger groundIntakeHold = driver.rightBumper();
-    final Trigger groundOuttakeHold = driver.leftBumper();
+    //final Trigger groundIntakeHold = driver.rightBumper();
+    //final Trigger groundOuttakeHold = driver.leftBumper();
     final Trigger resetGyroPress = driver.start();
+    final Trigger pidModeHold = driver.leftBumper();
 
 
 
@@ -77,6 +79,9 @@ public class OperatorInput {
     public boolean getTurboModeHeld() {
         return turboModeHold.getAsBoolean();
     }
+    public boolean isPIDStick() {
+        return pidModeHold.getAsBoolean();
+    }
 
     public boolean getAutoAlignState() {
         return autoAlignHold.getAsBoolean();
@@ -91,9 +96,6 @@ public class OperatorInput {
         return xButtonToggle.getAsBoolean();
     }
 
-    public boolean getGroundIntakeState() {
-        return groundIntakeHold.getAsBoolean();
-    }
 
     public boolean getResetGyroState() {
         return resetGyroPress.getAsBoolean();
