@@ -463,7 +463,7 @@ public class RobotContainer {
                 if (MattlibSettings.ROBOT == MattlibSettings.Robot.CARY) {
                     driveMotor = HardwareCTRE.linearFX_builtInVelocityPID(DRIVES[i], DRIVE_PIDS[i]);
                     absoluteEncoder = HardwareUtil.thriftyEncoder(STEER_ABS_ENCODERS[i]);
-                    steerController = HardwareREV.rotationalSpark_onboardPID(STEERS[i], STEER_PIDS[i],absoluteEncoder);
+                    steerController = HardwareREV.rotationalSpark_onboardPID(STEERS[i], STEER_PIDS[i], absoluteEncoder);
                 } else {
                     driveMotor = HardwareREV.linearSpark_builtInVelocityPID(DRIVES[i], DRIVE_PIDS[i]);
                     steerController = HardwareREV.rotationalSpark_builtInPID(STEERS[i], STEER_PIDS[i]);
