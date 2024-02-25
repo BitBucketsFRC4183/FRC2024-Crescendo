@@ -11,8 +11,10 @@ public class FeedGroundIntakeGroup extends ParallelRaceGroup { //this finishes w
 
     public FeedGroundIntakeGroup(NoteManagementSubsystem noteManagementSubsystem, GroundIntakeSubsystem groundIntakeSubsystem) { //Race the two following commands
         super(
+
                 new AwaitNoteInManagerCommand(noteManagementSubsystem), //race these two
                 new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, 9, 2)
+
 
         );
     }
