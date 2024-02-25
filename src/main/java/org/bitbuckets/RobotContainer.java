@@ -45,8 +45,6 @@ import org.bitbuckets.commands.groundIntake.FeedGroundIntakeGroup;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
 import org.bitbuckets.commands.vision.SetPriorityCommand;
 import org.bitbuckets.disabled.KinematicGyro;
-import org.bitbuckets.commands.groundIntake.LessAggressiveFeedGroundIntakeGroup;
-import org.bitbuckets.commands.shooter.FeedFlywheelAndFireGroup;
 import org.bitbuckets.commands.shooter.PivotToPositionFireGroup;
 import org.bitbuckets.commands.shooter.AmpMakeReadyGroup;
 import org.bitbuckets.commands.shooter.FireMakeReadyGroup;
@@ -247,7 +245,8 @@ public class RobotContainer {
                 driveSubsystem,
                 xController,
                 yController,
-                thetaController
+                thetaController,
+                autoSubsystem
         ).andThen(Commands.runOnce(driveSubsystem::commandWheelsToZero));
     }
 

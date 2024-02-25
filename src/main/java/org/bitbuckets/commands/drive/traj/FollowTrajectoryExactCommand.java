@@ -33,8 +33,9 @@ public class FollowTrajectoryExactCommand extends Command {
     final PIDController xPid;
     final PIDController yPid;
     final ProfiledPIDController thetaPid;
+    final AutoSubsystem autoSubsystem;
 
-    public FollowTrajectoryExactCommand(ChoreoTrajectory trajectory, OdometrySubsystem odometrySubsystem, DriveSubsystem driveSubsystem, PIDController xPid, PIDController yPid, ProfiledPIDController thetaPid) {
+    public FollowTrajectoryExactCommand(ChoreoTrajectory trajectory, OdometrySubsystem odometrySubsystem, DriveSubsystem driveSubsystem, PIDController xPid, PIDController yPid, ProfiledPIDController thetaPid, AutoSubsystem autoSubsystem) {
         this.trajectory = trajectory;
         this.odometrySubsystem = odometrySubsystem;
         this.driveSubsystem = driveSubsystem;
