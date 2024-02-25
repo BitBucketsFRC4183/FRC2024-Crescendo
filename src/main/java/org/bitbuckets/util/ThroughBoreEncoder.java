@@ -49,13 +49,13 @@ public class ThroughBoreEncoder implements IRotationEncoder, IMattlibHooked {
 
     @Override
     public double angularPosition_encoderRotations() {
-        return encoder.getDistance();
+        return encoder.getDistance() * (encoderComponent.inverted() ? -1 : 1);
         //throw new UnsupportedOperationException("This encoder is mounted directly on the axis, hence will only read Mechanism rotations and not Encoder Rotations. Please use angularPosition_mechanismRotations() instead!");
     }
 
     @Override
     public double angularPosition_mechanismRotations() {
-        return encoder.getDistance() * encoderComponent.encoderToMechanismCoefficient();
+        return angularPosition_encoderRotations() * encoderComponent.encoderToMechanismCoefficient();
     }
 
     @Override
@@ -71,13 +71,13 @@ public class ThroughBoreEncoder implements IRotationEncoder, IMattlibHooked {
 
     @Override
     public double angularVelocity_mechanismRotationsPerSecond() {
-        return encoder.getRate() * encoderComponent.encoderToMechanismCoefficient();
+        return angularVelocity_encoderRotationsPerSecond() * encoderComponent.encoderToMechanismCoefficient();
     }
 
     @Override
     public double angularVelocity_encoderRotationsPerSecond() {
         //System.out.println("Logging encoder raw: " + encoder.getRaw());
-        return encoder.getRate(); //in rotations per minute (double check tho)
+        return encoder.getRate() * (encoderComponent.inverted() ? -1 : 1); //in rotations per minute (double check tho)
         // make sure the switch on the physical through bore encoder is set to A mode (DOES NOT STAND FOR ABSOLUTE ENCODER)
         //throw new UnsupportedOperationException("This encoder is mounted directly on the axis, hence will only read Mechanism rotations and not Encoder Rotations. Please use angularVelocity_mechanismRotationsPerSecond() instead!");
     }

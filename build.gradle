@@ -76,6 +76,8 @@ dependencies {
     implementation 'xyz.auriium:mattlib2-sim:1.7.2bad-SNAPSHOT'
     implementation 'xyz.auriium:mattlib2-controls:1.7.2bad-SNAPSHOT'
 
+    compileOnly 'org.kordamp.jipsy:jipsy-processor:1.2.0'
+
 
 }
 
