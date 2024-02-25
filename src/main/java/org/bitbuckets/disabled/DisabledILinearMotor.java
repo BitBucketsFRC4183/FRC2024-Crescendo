@@ -8,6 +8,10 @@ public class DisabledILinearMotor implements ILinearMotor {
 
     }
 
+    @Override public void stopActuator() {
+
+    }
+
     @Override
     public void setToPercent(double percent_zeroToOne) {
 

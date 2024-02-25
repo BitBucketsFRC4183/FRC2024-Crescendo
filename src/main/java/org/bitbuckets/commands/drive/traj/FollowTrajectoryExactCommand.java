@@ -2,6 +2,7 @@ package org.bitbuckets.commands.drive.traj;
 
 import com.choreo.lib.ChoreoTrajectory;
 import com.choreo.lib.ChoreoTrajectoryState;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -49,7 +50,7 @@ public class FollowTrajectoryExactCommand extends Command {
 
     @Override
     public void initialize() {
-        thetaPid.reset(odometrySubsystem.getGyroAngle().getRadians());
+        thetaPid.reset(odometrySubsystem.getRobotCentroidPosition().getRotation().getRadians());
         thetaPid.enableContinuousInput(-Math.PI, Math.PI);
         thetaPid.setTolerance(Math.PI / 360 ); //0.5 deg
         timer.restart();
@@ -68,7 +69,7 @@ public class FollowTrajectoryExactCommand extends Command {
 
         double xFeedback = xPid.calculate(robotState.getX(), trajectoryReference.x);
         double yFeedback = yPid.calculate(robotState.getY(), trajectoryReference.y);
-        double rotationFeedback = thetaPid.calculate(odometrySubsystem.getGyroAngle().getRadians(), trajectoryReference.heading);
+        double rotationFeedback = thetaPid.calculate(MathUtil.angleModulus(odometrySubsystem.getRobotCentroidPosition().getRotation().getRadians()), MathUtil.angleModulus(trajectoryReference.heading));
 
         ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 xFF + xFeedback,

@@ -35,6 +35,9 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
         @Conf("br_pos_offset") Translation2d br_offset();
         @Conf("bl_pos_offset") Translation2d bl_offset();
 
+        @Log("rot_gyro") void logGyroRotation(double rot);
+        @Log("rot_odo") void logOdoRotation(double rot);
+        @Log("pose_odo") void logPosition(Pose2d pose2d);
     }
 
 
@@ -77,7 +80,9 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
 
     @Override
     public void logPeriodic() {
-        RobotContainer.SWERVE.logPosition(odometry.getEstimatedPosition());
+        odometryComponent.logPosition(odometry.getEstimatedPosition());
+        odometryComponent.logOdoRotation(odometry.getEstimatedPosition().getRotation().getRadians());
+        odometryComponent.logGyroRotation(odometry.getEstimatedPosition().getRotation().getRadians());
 
     }
 

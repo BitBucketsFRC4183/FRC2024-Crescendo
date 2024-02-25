@@ -123,7 +123,7 @@ use_velocity_pid = false
 x_holonomic_pid = {p = 1.2, i = 0, d = 0,  tolerance = 0}
 y_holonomic_pid = {p = 1.2, i = 0, d = 0,  tolerance = 0}
 t_holonomic_pid = {p = 7.9, i = 0, d = 0.7,  tolerance = 0} #need to be redone (current mcr values)
-steer_pid_common = {p = 72, i = 0, d = 0.01,  tolerance = 0}
+steer_pid_common = {p = 4, i = 0, d = 0.3,  tolerance = 0.00555556} # pi / 90 -> rots
 drive_pid_common = {p = 0.005, i = 0, d = 0.0,  tolerance = 0}
 ff_fl = {ks = 0.045, kv = 2.505}
 ff_fr = {ks = 0.056, kv = 2.532}
