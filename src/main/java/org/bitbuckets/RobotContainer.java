@@ -186,7 +186,6 @@ public class RobotContainer {
         chooser.getSelected().schedule();
 
         odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(15.18, 5.55, 0, new Rotation3d(0, 0, 0)));
-        System.out.println("here");
     }
 
     public void disabledInit() {
