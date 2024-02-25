@@ -35,4 +35,6 @@ public interface VisionComponent extends INetworkedComponent {
     @Log("combined_vision_robot_pose") void log_combined_vision_robot_pose(Pose2d p);
     @Log("final_pose") void log_final_pose(Pose2d p);
 
+    @Log("isVisionOdometryDisabled") void log_vision_odometry_disabled(boolean b);
+
 }

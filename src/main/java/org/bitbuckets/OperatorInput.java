@@ -35,6 +35,8 @@ public class OperatorInput {
     final Trigger setShooterAngleManually = operatorControl.leftStick();
     final Trigger rev = operatorControl.leftTrigger();
 
+    final Trigger disableVisionOdometry = operatorControl.start();
+
 
     //DRIVER'S CONTROLS
     final Trigger slowModeHold = driver.leftTrigger();

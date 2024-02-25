@@ -29,6 +29,8 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
 
     final Component odometryComponent;
 
+    public boolean visionOdometry;
+
     public interface Component extends INetworkedComponent {
         @Conf("centroid_height") double robotCentroidHeightWrtGround_meters();
 
@@ -52,7 +54,7 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
         this.odometry = odometry;
         this.gyro = gyro;
         this.odometryComponent = odometryComponent;
-
+        this.visionOdometry = true;
 
         mattRegister();
         register();
@@ -75,7 +77,7 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
             if (optVisionPose.isPresent()) {
                 Pose2d visionPose = optVisionPose.get().estimatedPose.toPose2d();
                 RobotContainer.VISION.log_final_pose(visionPose);
-                // odometry.addVisionMeasurement(visionPose, optVisionPose.get().timestampSeconds);
+                if (this.visionOdometry) {odometry.addVisionMeasurement(visionPose, optVisionPose.get().timestampSeconds);}
             }
         } else {
             Optional<EstimatedRobotPose> optEsmPose = visionSubsystem.estimateVisionRobotPose();
