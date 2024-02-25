@@ -11,7 +11,7 @@ public class SourceConsumerGroup extends ParallelDeadlineGroup {
     public SourceConsumerGroup(NoteManagementSubsystem noteManagementSubsystem, FlywheelSubsystem flywheelSubsystem) {
         super(
                 new AwaitNoteInManagerCommand(noteManagementSubsystem),
-                new SpinFlywheelVoltageIndefinite(flywheelSubsystem, -6)
+                new SpinFlywheelVoltageIndefinite(flywheelSubsystem, -7)
         );
     }
 }

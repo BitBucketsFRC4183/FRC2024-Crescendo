@@ -2,5 +2,5 @@
 p = 30
 
 [commands]
-skip_intermediates = true
+skip_intermediates = false
 

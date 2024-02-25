@@ -31,7 +31,6 @@ import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
 import org.bitbuckets.commands.groundIntake.LessAggressiveFeedGroundIntakeGroup;
 import org.bitbuckets.commands.shooter.FeedFlywheelAndFireGroup;
 import org.bitbuckets.commands.shooter.SourceConsumerGroup;
-import org.bitbuckets.commands.shooter.flywheel.SpinFlywheelIndefinite;
 import org.bitbuckets.commands.shooter.pivot.ManualPivotCommand;
 import org.bitbuckets.disabled.DisablerComponent;
 import org.bitbuckets.disabled.KinematicGyro;
@@ -54,9 +53,11 @@ import xyz.auriium.mattlib2.MattConsole;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
 import xyz.auriium.mattlib2.auto.ff.GenerateFFComponent;
+import xyz.auriium.mattlib2.auto.ff.RotationFFGenRoutine;
 import xyz.auriium.mattlib2.hardware.*;
 import xyz.auriium.mattlib2.hardware.config.*;
 import xyz.auriium.mattlib2.log.ConsoleComponent;
+import xyz.auriium.mattlib2.loop.CTowerCommands;
 import xyz.auriium.mattlib2.rev.HardwareREV;
 import xyz.auriium.mattlib2.sim.HardwareSIM;
 import xyz.auriium.mattlib2.utils.MockingUtil;
@@ -185,20 +186,24 @@ public class RobotContainer {
             cachedCurrentlyRunningAutoCommand.cancel();
         }
 
-/*
 
-        new AwaitThetaCommand(driveSubsystem, odometrySubsystem, thetaController, DRIVE_T_PID, Rotation2d.fromDegrees(90).getRadians())
-                .andThen(Commands.runOnce(() -> {System.out.println("WE ARE DONE");})).schedule();
+
+//        new AwaitThetaCommand(driveSubsystem, odometrySubsystem, thetaController, DRIVE_T_PID, Rotation2d.fromDegrees(90).getRadians())
+//                .andThen(Commands.runOnce(() -> {System.out.println("WE ARE DONE");})).schedule();
 
         //LinearFFGenRoutine groundTopFFRoutine = new LinearFFGenRoutine(TOP_GROUND_FFGEN, groundIntakeSubsystem.topMotor, groundIntakeSubsystem.topMotor);
         //LinearFFGenRoutine groundBottomFFRoutine = new LinearFFGenRoutine(BOTTOM_GROUND_FFGEN, groundIntakeSubsystem.bottomMotor, groundIntakeSubsystem.bottomMotor);
         //CTowerCommands.wrapRoutine(groundTopFFRoutine).schedule();
         //CTowerCommands.wrapRoutine(groundBottomFFRoutine).schedule();
-      /*  RotationFFGenRoutine shooterFFRoutine = new RotationFFGenRoutine(SHOOTER_WHEEL_1_FFGEN, shooterSubsystem.leftMotor, shooterSubsystem.leftMotor );
-        CTowerCommands.wrapRoutine(shooterFFRoutine).schedule();
-        shooterFFRoutine = new RotationFFGenRoutine(SHOOTER_WHEEL_2_FFGEN, shooterSubsystem.rightMotor, shooterSubsystem.rightMotor);
-        CTowerCommands.wrapRoutine(shooterFFRoutine).schedule();
-*/
+        RotationFFGenRoutine shooterFFRoutine1 = new RotationFFGenRoutine(SHOOTER_WHEEL_1_FFGEN, flywheelSubsystem.leftMotor, flywheelSubsystem.leftMotor );
+        Command shooterFFCommand1 = CTowerCommands.wrapRoutine(shooterFFRoutine1);
+        RotationFFGenRoutine shooterFFRoutine2 = new RotationFFGenRoutine(SHOOTER_WHEEL_2_FFGEN, flywheelSubsystem.rightMotor, flywheelSubsystem.rightMotor);
+        Command shooterFFCommand2 = CTowerCommands.wrapRoutine(shooterFFRoutine2);
+
+        new ParallelCommandGroup(shooterFFCommand1, shooterFFCommand2).schedule();
+
+
+
 //        Command[] commands = new Command[4];
 //        for (int i = 0; i < 4; i++) {
 //            var motorWeAreTesting = driveSubsystem.modules[i].driveMotor;
@@ -396,24 +401,25 @@ public class RobotContainer {
         );
 
         //OPERATOR STUFF
-        operatorInput.autoAlignHold.whileTrue(new MoveToAlignCommand(driveSubsystem, visionSubsystem, holonomicDriveController, odometrySubsystem));
+       // operatorInput.autoAlignHold.whileTrue(new MoveToAlignCommand(driveSubsystem, visionSubsystem, holonomicDriveController, odometrySubsystem));
         operatorInput.isTeleop.and(climberThreshold).whileTrue(new MoveClimberCommand(climberSubsystem, operatorInput));
 
 
 
         //operatorInput.ampSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 100));
         //operatorInput.speakerSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 60));
-        operatorInput.ampSetpoint_hold.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
+        operatorInput.groundIntakeNoBeamBreak.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
         operatorInput.shootManually.whileTrue(new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 60));
-        operatorInput.spinFlyWheel_hold.whileTrue(new SpinFlywheelIndefinite(flywheelSubsystem, true, 20));
+        //operatorInput.ampShotSpeed.whileTrue(new FeedFlywheelAndFireGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 10));
+
+        operatorInput.isTeleop.and(pivotThreshold).whileTrue(new ManualPivotCommand(operatorInput, pivotSubsystem));
 
 
         // disable manual pivot. Do not enable unless mechanical agrees
-     operatorInput.isTeleop.and(pivotThreshold).whileTrue(new ManualPivotCommand(operatorInput, pivotSubsystem));
         //operatorInput.setShooterAngleManually.onTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));
 
         operatorInput.sourceIntake_hold.whileTrue(new SourceConsumerGroup(noteManagementSubsystem, flywheelSubsystem));
-        operatorInput.groundIntakeHold.or(operatorInput.groundIntakeHoldOp).and(operatorInput.groundOuttakeHold.negate())
+        operatorInput.groundIntakeHold.or(operatorInput.groundIntakeHoldOp).and(operatorInput.groundOuttakeHold.negate()) //TODO change input
                 .whileTrue(new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem));
         operatorInput.groundOuttakeHold.or(operatorInput.groundOuttakeHoldOp).and(operatorInput.groundIntakeHold.negate())
                 .whileTrue(new GroundOuttakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
@@ -476,9 +482,12 @@ public class RobotContainer {
                     steerController = HardwareREV.rotationalSpark_builtInPID(STEERS[i], STEER_PIDS[i]);
                     absoluteEncoder = HardwareUtil.thriftyEncoder(STEER_ABS_ENCODERS[i]);
                 } else {
+
+
                     driveMotor = HardwareREV.linearSpark_builtInVelocityPID(DRIVES[i], DRIVE_PIDS[i]);
                     steerController = HardwareREV.rotationalSpark_builtInPID(STEERS[i], STEER_PIDS[i]);
                     absoluteEncoder = HardwareUtil.thriftyEncoder(STEER_ABS_ENCODERS[i]);
+
                 }
 
             }
@@ -538,8 +547,8 @@ public class RobotContainer {
         } else {
             leftMotor = HardwareREV.rotationalSpark_builtInPID(SHOOTER_FLYWHEEL_LEFT, FLYWHEEL_VELOCITY_PID);
             rightMotor = HardwareREV.rotationalSpark_builtInPID(SHOOTER_FLYWHEEL_RIGHT, FLYWHEEL_VELOCITY_PID);
-            velocityEncoderLeft = leftMotor;//HardwareUtil.throughboreEncoder(FLYWHEEL_ENCODER_LEFT);
-            velocityEncoderRight = rightMotor;//HardwareUtil.throughboreEncoder(FLYWHEEL_ENCODER_RIGHT);
+            velocityEncoderLeft = leftMotor; //HardwareUtil.throughboreEncoder(FLYWHEEL_ENCODER_LEFT);
+            velocityEncoderRight = rightMotor; //HardwareUtil.throughboreEncoder(FLYWHEEL_ENCODER_RIGHT);
         }
 
 

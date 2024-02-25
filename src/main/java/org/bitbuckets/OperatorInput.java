@@ -22,9 +22,8 @@ public class OperatorInput {
     final Trigger shootByVision = operatorControl.a();
     final Trigger shootManually = operatorControl.x();
     final Trigger sourceIntake_hold = operatorControl.leftBumper();
-    final Trigger ampSetpoint_hold = operatorControl.rightTrigger();
-    //final Trigger speakerSetpoint_hold = operatorControl.leftTrigger();
-    final Trigger spinFlyWheel_hold = operatorControl.leftTrigger();
+    final Trigger groundIntakeNoBeamBreak = operatorControl.rightTrigger();
+    final Trigger ampShotSpeed = operatorControl.leftTrigger();
     final Trigger groundIntakeHoldOp = operatorControl.rightBumper();
     final Trigger groundOuttakeHoldOp = operatorControl.b();
     final Trigger ampVisionPriority_toggle = operatorControl.povLeft();
@@ -41,6 +40,7 @@ public class OperatorInput {
     final Trigger groundIntakeHold = driver.rightBumper();
     final Trigger groundOuttakeHold = driver.leftBumper();
     final Trigger resetGyroPress = driver.start();
+    final Trigger toggleRotationControl = driver.povUp();
 
 
     /**
@@ -65,12 +65,16 @@ public class OperatorInput {
 
 
 
+
     public boolean getSlowModeHeld() {
         return slowModeHold.getAsBoolean();
     }
 
     public boolean getTurboModeHeld() {
         return turboModeHold.getAsBoolean();
+    }
+    public boolean isPIDStick() {
+        return toggleRotationControl.getAsBoolean();
     }
 
     public boolean getAutoAlignState() {
