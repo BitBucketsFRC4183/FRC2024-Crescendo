@@ -63,10 +63,10 @@ public class AugmentedDriveCommand extends Command {
 
 
         if (operatorInput.isPIDStick()) {
-            Rotation2d desiredHeading = new Rotation2d(operatorInput.getDriverRightStickX(), operatorInput.getDriverRightStickY());
+            Rotation2d desiredHeading = new Rotation2d(operatorInput.getDriverRightStickY(), operatorInput.getDriverRightStickX());
             Rotation2d currentHeading = odometrySubsystem.getGyroAngle();
 
-            theta = Math.hypot(operatorInput.getDriverRightStickX(), operatorInput.getDriverRightStickY());
+            theta = Math.hypot(operatorInput.getDriverRightStickY(), operatorInput.getDriverRightStickX());
             output = pidController.calculate(currentHeading.getRadians(), desiredHeading.getRadians());
         } else {
             theta = operatorInput.getDriverRightStickX();
@@ -92,7 +92,7 @@ public class AugmentedDriveCommand extends Command {
 
         double speedMultiplier = 3d;
         double slowSpeedMultiplier = 1.5d;
-        double turboSpeedMultiplier = 4.5;
+        double turboSpeedMultiplier = 5;
         if (operatorInput.getTurboModeHeld())
         {
             speedMultiplier = turboSpeedMultiplier;

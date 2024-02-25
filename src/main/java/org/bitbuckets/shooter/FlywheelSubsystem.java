@@ -3,34 +3,37 @@ package org.bitbuckets.shooter;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import org.bitbuckets.RobotContainer;
 import org.bitbuckets.util.RunningAverageBuffer;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.hardware.IRotationalController;
+import xyz.auriium.mattlib2.hardware.IRotationalVelocityController;
 import xyz.auriium.mattlib2.log.INetworkedComponent;
-import xyz.auriium.mattlib2.log.annote.Conf;
 import xyz.auriium.mattlib2.log.annote.Log;
 import xyz.auriium.mattlib2.loop.IMattlibHooked;
 
 public class FlywheelSubsystem implements Subsystem, IMattlibHooked {
 
     // converts desired velocity into voltage
-    final SimpleMotorFeedforward feedforward;
-    public final IRotationalController leftMotor; //TODO find a way to not use public here (linearFFGenRoutine)
-    public final IRotationalController rightMotor;
+    final SimpleMotorFeedforward ff_left;
+    final SimpleMotorFeedforward ff_right;
+    public final IRotationalVelocityController leftMotor; //TODO find a way to not use public here (linearFFGenRoutine)
+    public final IRotationalVelocityController rightMotor;
 
-    final IRotationEncoder velocityEncoderLeft;
-    final IRotationEncoder velocityEncoderRight;
+    public final IRotationEncoder velocityEncoderLeft;
+    public final IRotationEncoder velocityEncoderRight;
     final ShooterComponent shooterComponent;
 
     final RunningAverageBuffer atSpeeds = new RunningAverageBuffer(4);
 
-    public FlywheelSubsystem(IRotationalController leftMotor, IRotationalController rightMotor, ShooterComponent shooterComponent, IRotationEncoder velocityEncoderLeft, IRotationEncoder velocityEncoderRight) {
+    public FlywheelSubsystem(IRotationalVelocityController leftMotor, IRotationalVelocityController rightMotor, ShooterComponent shooterComponent, IRotationEncoder velocityEncoderLeft, IRotationEncoder velocityEncoderRight) {
         this.leftMotor = leftMotor;
         this.rightMotor = rightMotor;
         this.shooterComponent = shooterComponent;
         this.velocityEncoderLeft = velocityEncoderLeft;
 
-        feedforward = new SimpleMotorFeedforward(shooterComponent.ks(),shooterComponent.kv());
+        ff_left = new SimpleMotorFeedforward(RobotContainer.FLYWHEEL_LEFT_FF.ff_ks(),RobotContainer.FLYWHEEL_LEFT_FF.ff_kv());
+        ff_right = new SimpleMotorFeedforward(RobotContainer.FLYWHEEL_RIGHT_FF.ff_ks(),RobotContainer.FLYWHEEL_RIGHT_FF.ff_kv());
         this.velocityEncoderRight = velocityEncoderRight;
 
         mattRegister();
@@ -38,9 +41,6 @@ public class FlywheelSubsystem implements Subsystem, IMattlibHooked {
     }
 
     public interface ShooterComponent extends INetworkedComponent {
-        @Conf("ff_ks") double ks();
-        @Conf("ff_kv") double kv();
-
         @Log("isReachedSpeeds") void reportReachedSpeeds(boolean reachedSpeeds);
     }
 
@@ -54,8 +54,9 @@ public class FlywheelSubsystem implements Subsystem, IMattlibHooked {
     }
 
     public void setFlywheelSpeeds(double leftMotorSpeed_rotationsPerSecond, double rightMotorSpeed_rotationsPerSecond) {
-        double leftVoltage = feedforward.calculate(leftMotorSpeed_rotationsPerSecond);
-        double rightVoltage = feedforward.calculate(rightMotorSpeed_rotationsPerSecond);
+        double leftVoltage = ff_left.calculate(leftMotorSpeed_rotationsPerSecond);
+        double rightVoltage = ff_left.calculate(rightMotorSpeed_rotationsPerSecond);
+
 
         leftMotor.setToVoltage(leftVoltage);
         rightMotor.setToVoltage(rightVoltage);
