@@ -13,19 +13,12 @@ public class FeedGroundIntakeGroup extends ParallelRaceGroup { //this finishes w
 
     public FeedGroundIntakeGroup(NoteManagementSubsystem noteManagementSubsystem, GroundIntakeSubsystem groundIntakeSubsystem) { //Race the two following commands
         super(
-                //new SequentialCommandGroup(new AwaitNoteInManagerCommand(noteManagementSubsystem), new WaitCommand(0.3)), //race these two
-                new AwaitNoteInManagerCommand(noteManagementSubsystem),
-                Commands.runEnd(
-                        () -> {//run these during the command
-                            groundIntakeSubsystem.setToVoltage(10);
-                            noteManagementSubsystem.setAllToVoltage(5);
-                        },
-                        () -> {
-                            groundIntakeSubsystem.setToVoltage(0);
-                            noteManagementSubsystem.setAllToVoltage(0);
-                        }//run this at the end
-                )
 
+                new SequentialCommandGroup(
+                        new AwaitNoteInManagerCommand(noteManagementSubsystem), //race these two
+                        new WaitCommand(0.3)
+                ),
+                new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, 9, 2)
         );
     }
 

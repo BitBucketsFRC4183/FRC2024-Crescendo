@@ -8,21 +8,22 @@ public class BasicGroundIntakeCommand extends Command {
 
     final GroundIntakeSubsystem groundIntakeSubsystem;
     final NoteManagementSubsystem noteManagementSubsystem;
+    final double groundIntakeVoltage;
+    final double noteManagementVoltage;
 
-    public BasicGroundIntakeCommand(GroundIntakeSubsystem groundIntakeSubsystem, NoteManagementSubsystem noteManagementSubsystem) {
+    public BasicGroundIntakeCommand(GroundIntakeSubsystem groundIntakeSubsystem, NoteManagementSubsystem noteManagementSubsystem, double groundIntakeVoltage, double noteManagementVoltage) {
         this.groundIntakeSubsystem = groundIntakeSubsystem;
         this.noteManagementSubsystem = noteManagementSubsystem;
-    }
-
-    @Override
-    public void initialize() {
-
+        this.groundIntakeVoltage = groundIntakeVoltage;
+        this.noteManagementVoltage = noteManagementVoltage;
     }
 
     @Override
     public void execute() {
-        groundIntakeSubsystem.setToVoltage(10);
-        noteManagementSubsystem.setAllToVoltage(5);
+
+        groundIntakeSubsystem.setToVoltage(groundIntakeVoltage); //7
+        noteManagementSubsystem.setAllToVoltage(noteManagementVoltage); //2
+
     }
 
     @Override

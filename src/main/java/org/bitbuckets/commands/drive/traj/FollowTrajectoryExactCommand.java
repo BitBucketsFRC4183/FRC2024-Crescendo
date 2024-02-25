@@ -31,9 +31,8 @@ public class FollowTrajectoryExactCommand extends Command {
     final PIDController xPid;
     final PIDController yPid;
     final ProfiledPIDController thetaPid;
-    final boolean reZeroOdometry;
 
-    public FollowTrajectoryExactCommand(ChoreoTrajectory trajectory, OdometrySubsystem odometrySubsystem, DriveSubsystem driveSubsystem, PIDController xPid, PIDController yPid, ProfiledPIDController thetaPid, boolean reZeroOdometry) {
+    public FollowTrajectoryExactCommand(ChoreoTrajectory trajectory, OdometrySubsystem odometrySubsystem, DriveSubsystem driveSubsystem, PIDController xPid, PIDController yPid, ProfiledPIDController thetaPid) {
         this.trajectory = trajectory;
         this.odometrySubsystem = odometrySubsystem;
         this.driveSubsystem = driveSubsystem;
@@ -41,7 +40,6 @@ public class FollowTrajectoryExactCommand extends Command {
         this.xPid = xPid;
         this.yPid = yPid;
         this.thetaPid = thetaPid;
-        this.reZeroOdometry = reZeroOdometry;
     }
 
     boolean shouldMirror() {
@@ -51,20 +49,7 @@ public class FollowTrajectoryExactCommand extends Command {
 
     @Override
     public void initialize() {
-        if (reZeroOdometry) {
-            Pose2d initialPose = trajectory.getInitialPose();
-
-            if (shouldMirror()) {
-                initialPose = trajectory.flipped().getInitialPose();
-            }
-
-            System.out.println("Initial Pose: " + initialPose.toString() + "flipped: " + shouldMirror());
-
-            odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(initialPose));
-            odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(initialPose));
-        }
-
-
+        thetaPid.reset(odometrySubsystem.getGyroAngle().getRadians());
         thetaPid.enableContinuousInput(-Math.PI, Math.PI);
         thetaPid.setTolerance(Math.PI / 360 ); //0.5 deg
         timer.restart();
@@ -83,7 +68,7 @@ public class FollowTrajectoryExactCommand extends Command {
 
         double xFeedback = xPid.calculate(robotState.getX(), trajectoryReference.x);
         double yFeedback = yPid.calculate(robotState.getY(), trajectoryReference.y);
-        double rotationFeedback = thetaPid.calculate(robotState.getRotation().getRadians(), trajectoryReference.heading);
+        double rotationFeedback = thetaPid.calculate(odometrySubsystem.getGyroAngle().getRadians(), trajectoryReference.heading);
 
         ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 xFF + xFeedback,
