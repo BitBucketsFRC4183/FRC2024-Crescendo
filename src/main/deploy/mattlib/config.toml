@@ -51,11 +51,11 @@ rampRate_vPerMs = 0.0008
 [ground_intake]
 ff_ks = 0
 ff_kv = 0
-pid = {p = 0, i = 0, d = 0}
+pid = {p = 0, i = 0, d = 0,  tolerance = 0}
 
 # flywheel
 [flywheel]
-velocity_pid = {p = 0.1, i = 0, d = 0.85}
+velocity_pid = {p = 0.1, i = 0, d = 0.85, tolerance = 0}
 
 [flywheel.left]
 id = 7
@@ -91,7 +91,7 @@ Vy = 5 #m/s
 # Pivot Stuff
 [pivot]
 encoder = { dio_channelA = 2, dio_channelB = 3, encoderToMechanismCoef = 1, inverted = true }
-pid = {i = 0, p = 1, d = 0}
+pid = {i = 0, p = 1, d = 0,  tolerance = 0}
 
 [pivot.left]
 encoderToMechanismCoef = 1666.666666666666666666666666666666666666666666 # 100:1 * 15:18 * 20:1
@@ -120,11 +120,11 @@ field_oriented = true
 offset_tuning_mode = false
 theta_mode_pSeed = 3
 use_velocity_pid = false
-x_holonomic_pid = {p = 1.2, i = 0, d = 0}
-y_holonomic_pid = {p = 1.2, i = 0, d = 0}
-t_holonomic_pid = {p = 7.9, i = 0, d = 0.7} #need to be redone (current mcr values)
-steer_pid_common = {p = 3, i = 0, d = 0.3}
-drive_pid_common = {p = 0.005, i = 0, d = 0.0}
+x_holonomic_pid = {p = 1.2, i = 0, d = 0,  tolerance = 0}
+y_holonomic_pid = {p = 1.2, i = 0, d = 0,  tolerance = 0}
+t_holonomic_pid = {p = 7.9, i = 0, d = 0.7,  tolerance = 0} #need to be redone (current mcr values)
+steer_pid_common = {p = 3, i = 0, d = 0.3,  tolerance = 0}
+drive_pid_common = {p = 0.005, i = 0, d = 0.0,  tolerance = 0}
 ff_fl = {ks = 0.045, kv = 2.505}
 ff_fr = {ks = 0.056, kv = 2.532}
 ff_br = {ks = 0.044, kv = 2.496}
@@ -217,7 +217,7 @@ encoderToMechanismCoef = 1
 
 # CLIMBER STUFF GOES HERE
 [climber]
-climber_pid = {p = 0, i = 0, d = 0}
+climber_pid = {p = 0, i = 0, d = 0,  tolerance = 0}
 ff_kv = 0.0
 ff_ks = 0.0
 
