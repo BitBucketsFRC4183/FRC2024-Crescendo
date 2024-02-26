@@ -98,7 +98,9 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
     @Override
     public void periodic() {
         this.cam1_result = camera_1.getLatestResult();
-        this.cam2_result = camera_2.getLatestResult();
+
+        // disable camera result hehe
+        this.cam2_result = new PhotonPipelineResult();
 
 
         Optional<PhotonTrackedTarget> optionalPhotonTrackedTarget = determineBestVisionTargetFromList(getAllTargets());

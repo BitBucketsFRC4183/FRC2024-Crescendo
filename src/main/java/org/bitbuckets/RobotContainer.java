@@ -67,6 +67,7 @@ import org.bitbuckets.vision.VisionSimContainer;
 import org.bitbuckets.vision.VisionSubsystem;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.simulation.PhotonCameraSim;
 import xyz.auriium.mattlib.ctre.HardwareCTRE;
 import xyz.auriium.mattlib2.MattConsole;
 import xyz.auriium.mattlib2.Mattlib;
@@ -656,6 +657,8 @@ public class RobotContainer {
         PhotonCamera camera2;
         camera1 = new PhotonCamera(CAMERAS.camera1Name());
         camera2 = new PhotonCamera(CAMERAS.camera2Name());
+//        PhotonCameraSim camera = new PhotonCameraSim(camera2);
+//        camera.close();
 
         // replace later when lil maddie makes a mattlib deserializer TODO
         Transform3d robotToCam1 = new Transform3d(CAMERAS.camera1TranslationOffset(), CAMERAS.camera1RotationOffset());
