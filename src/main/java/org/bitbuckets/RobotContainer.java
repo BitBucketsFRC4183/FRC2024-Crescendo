@@ -352,13 +352,46 @@ public class RobotContainer {
                 )
         );
 
+        ChoreoTrajectory[] fourNoteArr = TrajLoadingUtil.getAllTrajectories("fourNote");
+        var fourNote = new SequentialCommandGroup(
+                new PlaceOdometryCommand(fourNoteArr[0], odometrySubsystem),
+                new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
+                new ReadyWhileMovingGroundIntakeCommand(
+                        followTrajectory(fourNoteArr[0]),
+                        noteManagementSubsystem, groundIntakeSubsystem
+                ),
+                new ReadyWhileMovingShootCommand(
+                        followTrajectory(fourNoteArr[1]),
+                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
+                ),
+                followTrajectory(fourNoteArr[2]),
+                new ReadyWhileMovingGroundIntakeCommand(
+                        followTrajectory(fourNoteArr[3]),
+                        noteManagementSubsystem, groundIntakeSubsystem
+                ),
+                new ReadyWhileMovingShootCommand(
+                        followTrajectory(fourNoteArr[4]),
+                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
+                ),
+                followTrajectory(fourNoteArr[5]),
+                new ReadyWhileMovingGroundIntakeCommand(
+                        followTrajectory(fourNoteArr[6]),
+                        noteManagementSubsystem, groundIntakeSubsystem
+                ),
+                new ReadyWhileMovingShootCommand(
+                        followTrajectory(fourNoteArr[7]),
+                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
+                )
+        );
         SendableChooser<Command> chooser = new SendableChooser<>();
         chooser.addOption("twoNote", twoNote);
         chooser.addOption("twoNoteCollect", twoNoteCollect);
         chooser.addOption("shootLeave", shootLeave);
-        chooser.setDefaultOption("threeNote", threeNote);
+        chooser.addOption("threeNote", threeNote);
+        chooser.setDefaultOption("fourNote", fourNote);
         chooser.addOption("twoNoteContested", twoNoteContested);
         chooser.addOption("threeNoteContested", threeNoteContested);
+        chooser.addOption("doNothing", Commands.waitSeconds(1));
 
         SmartDashboard.putData("Path", chooser);
         return chooser;
