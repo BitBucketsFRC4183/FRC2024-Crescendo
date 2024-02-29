@@ -103,8 +103,7 @@ public class RobotContainer {
     public RobotContainer() {
 
         //DO SETTINGS BEFORE PRE INIT
-        MattlibSettings.USE_LOGGING = true;
-        MattlibSettings.USE_TUNING = true;
+        MattlibSettings.USE_TELEMETRY = MattlibSettings.LogLevel.ESSENTIAL_TELEMETRY;
         MattlibSettings.ROBOT = WhichRobotUtil.loadRobot();
 
         //THIS HAS TO RUN FIRST

@@ -12,6 +12,7 @@ import org.bitbuckets.RobotContainer;
 import org.bitbuckets.vision.VisionSubsystem;
 import xyz.auriium.mattlib2.log.INetworkedComponent;
 import xyz.auriium.mattlib2.log.annote.Conf;
+import xyz.auriium.mattlib2.log.annote.Essential;
 import xyz.auriium.mattlib2.log.annote.Log;
 import xyz.auriium.mattlib2.loop.IMattlibHooked;
 import xyz.auriium.yuukonstants.exception.ExplainedException;
@@ -41,8 +42,8 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
 
         @Log("rot_gyro") void logGyroRotation(double rot);
         @Log("rot_odo") void logOdoRotation(double rot);
-        @Log("pose_odo") void logPosition(Pose2d pose2d);
-        @Log("reset_button_state") void logReset(boolean reset);
+        @Essential @Log("pose_odo") void logPosition(Pose2d pose2d);
+        @Essential @Log("reset_button_state") void logReset(boolean reset);
 
         @Conf("gyroResetButton_dio") int gyroResetButtonId();
     }
