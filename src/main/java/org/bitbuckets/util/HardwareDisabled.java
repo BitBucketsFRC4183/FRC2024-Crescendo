@@ -38,6 +38,10 @@ public class HardwareDisabled {
 
             }
 
+            @Override public void stopActuator() {
+
+            }
+
             @Override public void setToPercent(double v) {
 
             }

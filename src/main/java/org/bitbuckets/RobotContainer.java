@@ -103,8 +103,7 @@ public class RobotContainer {
     public RobotContainer() {
 
         //DO SETTINGS BEFORE PRE INIT
-        MattlibSettings.USE_LOGGING = true;
-        MattlibSettings.USE_TUNING = true;
+        MattlibSettings.USE_TELEMETRY = MattlibSettings.LogLevel.ESSENTIAL_TELEMETRY;
         MattlibSettings.ROBOT = WhichRobotUtil.loadRobot();
 
         //THIS HAS TO RUN FIRST
@@ -462,8 +461,8 @@ public class RobotContainer {
             } else {
                 if (MattlibSettings.ROBOT == MattlibSettings.Robot.CARY) {
                     driveMotor = HardwareCTRE.linearFX_builtInVelocityPID(DRIVES[i], DRIVE_PIDS[i]);
-                    steerController = HardwareREV.rotationalSpark_builtInPID(STEERS[i], STEER_PIDS[i]);
                     absoluteEncoder = HardwareUtil.thriftyEncoder(STEER_ABS_ENCODERS[i]);
+                    steerController = HardwareREV.rotationalSpark_builtInPID(STEERS[i], STEER_PIDS[i]);
                 } else {
                     driveMotor = HardwareREV.linearSpark_builtInVelocityPID(DRIVES[i], DRIVE_PIDS[i]);
                     steerController = HardwareREV.rotationalSpark_builtInPID(STEERS[i], STEER_PIDS[i]);
@@ -511,7 +510,6 @@ public class RobotContainer {
 
         IRotationEncoder velocityEncoderRight;
         IRotationEncoder velocityEncoderLeft;
-
 
         if (DISABLER.flywheel_disabled()) {
             leftMotor = HardwareDisabled.rotationalVelocityController_disabled();
@@ -699,8 +697,8 @@ public class RobotContainer {
 
     //generator stuff
     public static final ConsoleComponent CONSOLE = LOG.load(ConsoleComponent.class, "console");
-    public static final GenerateFFComponent SHOOTER_WHEEL_2_FFGEN = LOG.load(GenerateFFComponent.class, "shooter/wheel_2_ffgen");
-    public static final GenerateFFComponent SHOOTER_WHEEL_1_FFGEN = LOG.load(GenerateFFComponent.class, "shooter/wheel_1_ffgen");
+    public static final GenerateFFComponent SHOOTER_WHEEL_2_FFGEN = LOG.load(GenerateFFComponent.class, "flywheel/wheel_2_ffgen");
+    public static final GenerateFFComponent SHOOTER_WHEEL_1_FFGEN = LOG.load(GenerateFFComponent.class, "flywheel/wheel_1_ffgen");
     public static final GenerateFFComponent[] DRIVE_MOTORS_FFGEN = LOG.loadRange(GenerateFFComponent.class, "swerve/ffgen", 4, Util.RENAMER);
 
     //commands and autp

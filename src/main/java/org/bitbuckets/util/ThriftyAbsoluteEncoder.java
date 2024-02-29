@@ -13,17 +13,15 @@ public class ThriftyAbsoluteEncoder implements IRotationEncoder, IMattlibHooked 
     final AnalogInput input;
     final AnalogEncoderComponent encoderComponent;
 
-    double offset_mechanismRotations;
-
     public ThriftyAbsoluteEncoder(AnalogInput input, AnalogEncoderComponent encoderComponent) {
         this.input = input;
         this.encoderComponent = encoderComponent;
 
-        offset_mechanismRotations = encoderComponent.offset_mechanismRotations();
         mattRegister();
     }
 
     double lastPosition_encoderRotations = 0;
+    double offset_mechanismRotations = 0;
     double lastTime = MathSharedStore.getTimestamp();
     double dpdtApproximation = 0;
 
@@ -31,6 +29,7 @@ public class ThriftyAbsoluteEncoder implements IRotationEncoder, IMattlibHooked 
     public ExplainedException[] verifyInit() {
         this.lastPosition_encoderRotations = angularPosition_encoderRotations();
         this.lastTime = MathSharedStore.getTimestamp();
+        this.offset_mechanismRotations = encoderComponent.offset_mechanismRotations();
 
         return new ExplainedException[0];
     }
@@ -82,7 +81,6 @@ public class ThriftyAbsoluteEncoder implements IRotationEncoder, IMattlibHooked 
     public double angularVelocity_mechanismRotationsPerSecond() {
         return angularPosition_encoderRotations() * encoderComponent.encoderToMechanismCoefficient();
     }
-
 
 
     @Override

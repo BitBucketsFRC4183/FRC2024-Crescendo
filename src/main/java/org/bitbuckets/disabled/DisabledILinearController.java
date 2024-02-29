@@ -8,6 +8,10 @@ public class DisabledILinearController implements ILinearController {
 
     }
 
+    @Override public void stopActuator() {
+
+    }
+
     @Override
     public void setToPercent(double percent_zeroToOne) {
 
