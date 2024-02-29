@@ -48,9 +48,10 @@ public class FollowTrajectoryExactCommand extends Command {
         return alliance == DriverStation.Alliance.Red;
     }
 
+    //TODO ITS GOTTA BE CENTROIDPOSITION.GETROTATION
     @Override
     public void initialize() {
-        thetaPid.reset(MathUtil.angleModulus(odometrySubsystem.getGyroAngle().getRadians()));
+        thetaPid.reset(MathUtil.angleModulus(odometrySubsystem.getRobotCentroidPosition().getRotation().getRadians()));
         thetaPid.enableContinuousInput(-Math.PI, Math.PI);
         thetaPid.setTolerance(Math.PI / 360 ); //0.5 deg
         timer.restart();
@@ -61,7 +62,7 @@ public class FollowTrajectoryExactCommand extends Command {
 
         double time = timer.get();
         ChoreoTrajectoryState trajectoryReference = trajectory.sample(time, shouldMirror());
-        Pose2d robotState = odometrySubsystem.getRobotCentroidPosition();
+        Pose2d robotState = odometrySubsystem.getRobotCentroidPosition();  //TODO ITS GOTTA BE CENTROIDPOSITION.GETROTATION
 
         double xFF = trajectoryReference.velocityX;
         double yFF = trajectoryReference.velocityY;
@@ -69,7 +70,8 @@ public class FollowTrajectoryExactCommand extends Command {
 
         double xFeedback = xPid.calculate(robotState.getX(), trajectoryReference.x);
         double yFeedback = yPid.calculate(robotState.getY(), trajectoryReference.y);
-        double rotationFeedback = thetaPid.calculate(MathUtil.angleModulus(odometrySubsystem.getGyroAngle().getRadians()), MathUtil.angleModulus(trajectoryReference.heading));
+        //TODO ITS GOTTA BE CENTROIDPOSITION.GETROTATION
+        double rotationFeedback = thetaPid.calculate(MathUtil.angleModulus(odometrySubsystem.getRobotCentroidPosition().getRotation().getRadians()), MathUtil.angleModulus(trajectoryReference.heading));
 
         ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 xFF + xFeedback,

@@ -99,6 +99,10 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
     }
 
 
+    /**
+     * Gets the auto-offset independent but user-zero dependent gyro angle. TODO this may break on red
+     * @return
+     */
     public Rotation2d getGyroAngle() {
         return gyro.userZeroRelativeRotation();
    }
