@@ -698,8 +698,8 @@ public class RobotContainer {
 
     //generator stuff
     public static final ConsoleComponent CONSOLE = LOG.load(ConsoleComponent.class, "console");
-    public static final GenerateFFComponent SHOOTER_WHEEL_2_FFGEN = LOG.load(GenerateFFComponent.class, "shooter/wheel_2_ffgen");
-    public static final GenerateFFComponent SHOOTER_WHEEL_1_FFGEN = LOG.load(GenerateFFComponent.class, "shooter/wheel_1_ffgen");
+    public static final GenerateFFComponent SHOOTER_WHEEL_2_FFGEN = LOG.load(GenerateFFComponent.class, "flywheel/wheel_2_ffgen");
+    public static final GenerateFFComponent SHOOTER_WHEEL_1_FFGEN = LOG.load(GenerateFFComponent.class, "flywheel/wheel_1_ffgen");
     public static final GenerateFFComponent[] DRIVE_MOTORS_FFGEN = LOG.loadRange(GenerateFFComponent.class, "swerve/ffgen", 4, Util.RENAMER);
 
     //commands and autp

@@ -4,7 +4,9 @@ import edu.wpi.first.math.MathSharedStore;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.Robot;
 import org.bitbuckets.RobotContainer;
 import org.bitbuckets.vision.VisionSubsystem;
@@ -23,6 +25,8 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
     final SwerveDrivePoseEstimator odometry;
     final SwerveDriveKinematics kinematics;
     final IGyro gyro;
+    final DigitalInput gyroResetButton;
+    public final Trigger gyroResetButtonTrigger;
 
     final Component odometryComponent;
 
@@ -38,7 +42,11 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
         @Log("rot_gyro") void logGyroRotation(double rot);
         @Log("rot_odo") void logOdoRotation(double rot);
         @Log("pose_odo") void logPosition(Pose2d pose2d);
+        @Log("reset_button_state") void logReset(boolean reset);
+
+        @Conf("gyroResetButton_dio") int gyroResetButtonId();
     }
+
 
 
     public OdometrySubsystem(DriveSubsystem driveSubsystem, VisionSubsystem visionSubsystem, SwerveDrivePoseEstimator odometry, IGyro gyro, SwerveDriveKinematics kinematics, Component odometryComponent) {
@@ -49,6 +57,8 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
         this.gyro = gyro;
         this.odometryComponent = odometryComponent;
 
+        gyroResetButton = new DigitalInput(odometryComponent.gyroResetButtonId());
+        gyroResetButtonTrigger = new Trigger(gyroResetButton::get);
 
         mattRegister();
         register();
@@ -83,6 +93,7 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
         odometryComponent.logPosition(odometry.getEstimatedPosition());
         odometryComponent.logOdoRotation(odometry.getEstimatedPosition().getRotation().getRadians());
         odometryComponent.logGyroRotation(odometry.getEstimatedPosition().getRotation().getRadians());
+        odometryComponent.logReset(gyroResetButton.get());
 
     }
 

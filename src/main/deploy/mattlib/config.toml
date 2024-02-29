@@ -1,6 +1,6 @@
 # startup stuff
-[shooter.wheel_1_ffgen]
-[shooter.wheel_2_ffgen]
+[flywheel.wheel_1_ffgen]
+[flywheel.wheel_2_ffgen]
 
 [swerve.ffgen_fr]
 [swerve.ffgen_fl]
@@ -67,6 +67,7 @@ inverted = true
 ff = { ks = 0.5477470887299486, kv = 0.12995659292230272 }
 encoder = { dio_channelA = 0, dio_channelB = 1, encoderToMechanismCoef = 1, inverted = false }
 
+
 [flywheel.right]
 id = 4
 encoderToMechanismCoef = 1
@@ -76,6 +77,8 @@ positionStdv = 0.001
 inverted = false
 ff = { ks = 0.6505197479235123, kv = 0.12757668962958083 }
 encoder = { dio_channelA = 7, dio_channelB = 8, encoderToMechanismCoef = 1, inverted = true }
+
+
 
 [flywheel.calculator]
 mass = 0.25 #kg
@@ -114,6 +117,7 @@ inverted = false
 
 # DRIVE STUFF GOES HERE
 [swerve]
+steer_pid_common = {p = 4, i = 0, d = 0.3,  tolerance = 0.00555556} # pi / 90 -> rots
 pigeonId = 5
 magnitudeFWLim = 3.3
 field_oriented = true
@@ -123,7 +127,6 @@ use_velocity_pid = false
 x_holonomic_pid = {p = 1.2, i = 0, d = 0,  tolerance = 0}
 y_holonomic_pid = {p = 1.2, i = 0, d = 0,  tolerance = 0}
 t_holonomic_pid = {p = 7.9, i = 0, d = 0.7,  tolerance = 0} #need to be redone (current mcr values)
-steer_pid_common = {p = 4, i = 0, d = 0.3,  tolerance = 0.00555556} # pi / 90 -> rots
 drive_pid_common = {p = 0.005, i = 0, d = 0.0,  tolerance = 0}
 ff_fl = {ks = 0.045, kv = 2.505}
 ff_fr = {ks = 0.056, kv = 2.532}
@@ -137,6 +140,7 @@ fl_pos_offset = {x = 0.2286, y = 0.3429}
 fr_pos_offset = {x = 0.2286, y = -0.3429}
 bl_pos_offset = {x = -0.3556, y = 0.3429}
 br_pos_offset = {x = -0.3556, y = -0.3429}
+gyroResetButton_dio = 4
 
 # Steer
 
