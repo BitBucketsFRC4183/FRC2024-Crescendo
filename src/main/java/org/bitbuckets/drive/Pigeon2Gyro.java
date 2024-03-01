@@ -37,7 +37,7 @@ public class Pigeon2Gyro implements IGyro{
     }
 
     @Override public void userForceOffset(Rotation2d beAt) {
-        tare = tare.plus(userZeroRelativeRotation()).minus(beAt);
+        tare = tare.plus(userZeroRelativeRotation()).plus(beAt);
     }
 
 
