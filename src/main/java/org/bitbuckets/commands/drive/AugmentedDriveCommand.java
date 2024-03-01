@@ -90,9 +90,9 @@ public class AugmentedDriveCommand extends Command {
                         .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
                         .getTranslation();
 
-        double speedMultiplier = 3d;
+        double speedMultiplier = 4d;
         double slowSpeedMultiplier = 1.5d;
-        double turboSpeedMultiplier = 5;
+        double turboSpeedMultiplier = 5d;
         if (operatorInput.getTurboModeHeld())
         {
             speedMultiplier = turboSpeedMultiplier;

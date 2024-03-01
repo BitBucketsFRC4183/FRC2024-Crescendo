@@ -5,6 +5,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.Robot;
@@ -59,7 +60,7 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
         this.odometryComponent = odometryComponent;
 
         gyroResetButton = new DigitalInput(odometryComponent.gyroResetButtonId());
-        gyroResetButtonTrigger = new Trigger(gyroResetButton::get);
+        gyroResetButtonTrigger = new Trigger(RobotContainer.always,() -> !gyroResetButton.get());
 
         mattRegister();
         register();

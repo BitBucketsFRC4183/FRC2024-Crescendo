@@ -168,6 +168,7 @@ rotationalInertia = 0.025
 inverted = false
 breakModeEnabled = true
 currentLimit = 70
+openRampRate = 0.5
 
 [swerve.drive_fl]
 id = 1
@@ -177,6 +178,7 @@ rotationalInertia = 0.025
 inverted = false
 breakModeEnabled = true
 currentLimit = 70
+openRampRate = 0.5
 
 [swerve.drive_br]
 id = 3
@@ -186,6 +188,8 @@ rotationalInertia = 0.025
 inverted = false
 breakModeEnabled = true
 currentLimit = 70
+openRampRate = 0.5
+
 
 [swerve.drive_bl]
 id = 6
@@ -195,6 +199,8 @@ rotationalInertia = 0.025
 inverted = false
 breakModeEnabled = true
 currentLimit = 70
+openRampRate = 0.5
+
 
 # hypothesis: non offset zero is tangent to the absolute encoders?
 # ALWAYS LOW BALL THESE OFFSETS (if its fluctuating between 0.8 and 0.9 go for 0.8
