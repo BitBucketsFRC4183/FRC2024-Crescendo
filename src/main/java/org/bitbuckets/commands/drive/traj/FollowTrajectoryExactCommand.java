@@ -11,8 +11,10 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import org.bitbuckets.RobotContainer;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.OdometrySubsystem;
+import xyz.auriium.mattlib2.utils.AngleUtil;
 
 import java.util.Optional;
 
@@ -30,7 +32,7 @@ public class FollowTrajectoryExactCommand extends Command {
     final DriveSubsystem driveSubsystem;
 
     final PIDController xPid;
-    final PIDController yPid;
+    final PIDController yPid ;
     final ProfiledPIDController thetaPid;
 
     public FollowTrajectoryExactCommand(ChoreoTrajectory trajectory, OdometrySubsystem odometrySubsystem, DriveSubsystem driveSubsystem, PIDController xPid, PIDController yPid, ProfiledPIDController thetaPid) {
@@ -53,12 +55,14 @@ public class FollowTrajectoryExactCommand extends Command {
     public void initialize() {
         thetaPid.reset(MathUtil.angleModulus(odometrySubsystem.getRobotCentroidPosition().getRotation().getRadians()));
         thetaPid.enableContinuousInput(-Math.PI, Math.PI);
-        thetaPid.setTolerance(Math.PI / 360 ); //0.5 deg
+        thetaPid.setTolerance(Math.PI / 90 ); //0.5 deg
         timer.restart();
     }
 
     @Override
     public void execute() {
+
+        RobotContainer.DRIVE_T_PID.reportState(MathUtil.angleModulus(odometrySubsystem.getRobotCentroidPosition().getRotation().getDegrees()));
 
         double time = timer.get();
         ChoreoTrajectoryState trajectoryReference = trajectory.sample(time, shouldMirror());
@@ -72,6 +76,9 @@ public class FollowTrajectoryExactCommand extends Command {
         double yFeedback = yPid.calculate(robotState.getY(), trajectoryReference.y);
         //TODO ITS GOTTA BE CENTROIDPOSITION.GETROTATION
         double rotationFeedback = thetaPid.calculate(MathUtil.angleModulus(odometrySubsystem.getRobotCentroidPosition().getRotation().getRadians()), MathUtil.angleModulus(trajectoryReference.heading));
+
+        RobotContainer.DRIVE_T_PID.reportReference(MathUtil.angleModulus(MathUtil.angleModulus(trajectoryReference.heading)));
+
 
         ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 xFF + xFeedback,

@@ -41,7 +41,7 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
         @Conf("br_pos_offset") Translation2d br_offset();
         @Conf("bl_pos_offset") Translation2d bl_offset();
 
-        @Log("rot_gyro") void logGyroRotation(double rot);
+        @Essential @Log("rot_gyro") void logGyroRotation(double rot);
         @Log("rot_odo") void logOdoRotation(double rot);
         @Essential @Log("pose_odo") void logPosition(Pose2d pose2d);
         @Essential @Log("reset_button_state") void logReset(boolean reset);

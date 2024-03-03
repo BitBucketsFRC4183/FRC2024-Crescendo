@@ -110,10 +110,8 @@ public class AugmentedDriveCommand extends Command {
 
         if (RobotContainer.SWERVE.fieldOriented()) {
             Rotation2d gyroAngle = odometrySubsystem.getGyroAngle();
-            if (shouldFlip) {
-                gyroAngle = gyroAngle.plus(Rotation2d.fromDegrees(180));
-            }
 
+            //why this work?????
             speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds,gyroAngle);
         }
 

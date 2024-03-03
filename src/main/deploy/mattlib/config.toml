@@ -104,6 +104,7 @@ velocityStdv = 0.001
 positionStdv = 0.001
 currentLimit = 20
 inverted = true
+breakModeEnabled = true
 
 [pivot.right]
 encoderToMechanismCoef = 1666.666666666666666666666666666666666666666666 # 100:1 * 15:18 * 20:1
@@ -113,6 +114,7 @@ velocityStdv = 0.001
 positionStdv = 0.001
 currentLimit = 20
 inverted = false
+breakModeEnabled = true
 
 
 # DRIVE STUFF GOES HERE
@@ -126,7 +128,7 @@ theta_mode_pSeed = 3
 use_velocity_pid = false
 x_holonomic_pid = {p = 1.2, i = 0, d = 0,  tolerance = 0}
 y_holonomic_pid = {p = 1.2, i = 0, d = 0,  tolerance = 0}
-t_holonomic_pid = {p = 7.9, i = 0, d = 0.7,  tolerance = 0} #need to be redone (current mcr values)
+t_holonomic_pid = {p = 0.6, i = 0, d = 0,  tolerance = 0} #need to be redone (current mcr values)
 drive_pid_common = {p = 0.005, i = 0, d = 0.0,  tolerance = 0}
 ff_fl = {ks = 0.045, kv = 2.505}
 ff_fr = {ks = 0.056, kv = 2.532}

@@ -104,6 +104,9 @@ public class RobotContainer {
 
         //DO SETTINGS BEFORE PRE INIT
         MattlibSettings.USE_TELEMETRY = MattlibSettings.LogLevel.ESSENTIAL_TELEMETRY;
+        if (DriverStation.isFMSAttached()) {
+            MattlibSettings.USE_TELEMETRY = MattlibSettings.LogLevel.ESSENTIAL_TELEMETRY; //never change this
+        };
         MattlibSettings.ROBOT = WhichRobotUtil.loadRobot();
 
         //THIS HAS TO RUN FIRST
@@ -286,10 +289,10 @@ public class RobotContainer {
         double deadline_seconds = COMMANDS.groupDeadline_seconds();
 
 
+
         var twoNote = twoNoteStyle("twoNote", ramFireSpeed, deadline_seconds);
         var twoNoteCompat1 = twoNoteCompatStyle("twoNoteCompat1", ramFireSpeed, deadline_seconds);
         var twoNoteCompat2 = twoNoteCompatStyle("twoNoteCompat2", ramFireSpeed, deadline_seconds);
-
 
 
         ChoreoTrajectory[] shootLeaveArr = TrajLoadingUtil.getAllTrajectories("shootLeave");
@@ -301,6 +304,11 @@ public class RobotContainer {
         );
 
         ChoreoTrajectory[] twoNoteCollectArr = TrajLoadingUtil.getAllTrajectories("twoNoteCollect");
+
+        var oneNote = new SequentialCommandGroup(
+                new PlaceOdometryCommand(twoNoteCollectArr[0], odometrySubsystem),
+                new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed)
+        );
 
         var twoNoteCollect = new SequentialCommandGroup(
                 new PlaceOdometryCommand(twoNoteCollectArr[0], odometrySubsystem),
@@ -381,48 +389,54 @@ public class RobotContainer {
                 )
         );
 
-        ChoreoTrajectory[] fourNoteArr = TrajLoadingUtil.getAllTrajectories("fourNote");
+        //var fourNoteAugment = twoNoteCompatStyle("fourNoteAugment",ramFireSpeed, deadline_seconds);
+
+
+        ChoreoTrajectory[] fourNoteAug = TrajLoadingUtil.getAllTrajectories("fourNoteAugment");
+
         var fourNote = new SequentialCommandGroup(
-                new PlaceOdometryCommand(fourNoteArr[0], odometrySubsystem),
+                new PlaceOdometryCommand(threeNoteArr[0], odometrySubsystem),
                 new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
                 new ReadyWhileMovingGroundIntakeCommand(
-                        followTrajectory(fourNoteArr[0]),
+                        followTrajectory(threeNoteArr[0]),
                         noteManagementSubsystem, groundIntakeSubsystem
                 ),
                 new ReadyWhileMovingShootCommand(
-                        followTrajectory(fourNoteArr[1]),
+                        followTrajectory(threeNoteArr[1]),
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 ),
-                followTrajectory(fourNoteArr[2]),
                 new ReadyWhileMovingGroundIntakeCommand(
-                        followTrajectory(fourNoteArr[3]),
+                        followTrajectory(threeNoteArr[2]),
                         noteManagementSubsystem, groundIntakeSubsystem
                 ),
                 new ReadyWhileMovingShootCommand(
-                        followTrajectory(fourNoteArr[4]),
+                        followTrajectory(threeNoteArr[3]),
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 ),
-                followTrajectory(fourNoteArr[5]),
+                followTrajectory(fourNoteAug[0]),
                 new ReadyWhileMovingGroundIntakeCommand(
-                        followTrajectory(fourNoteArr[6]),
+                        followTrajectory(fourNoteAug[1]),
                         noteManagementSubsystem, groundIntakeSubsystem
                 ),
                 new ReadyWhileMovingShootCommand(
-                        followTrajectory(fourNoteArr[7]),
+                        followTrajectory(fourNoteAug[2]),
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 )
         );
+
+
         SendableChooser<Command> chooser = new SendableChooser<>();
         chooser.addOption("twoNote", twoNote);
         chooser.addOption("twoNoteCollect", twoNoteCollect);
         chooser.addOption("shootLeave", shootLeave);
         chooser.addOption("threeNote", threeNote);
-        chooser.addOption("fourNote", fourNote);
+        chooser.setDefaultOption("fourNote", fourNote);
+        chooser.addOption("oneNote", oneNote);
         chooser.addOption("twoNoteContested", twoNoteContested);
         chooser.addOption("threeNoteContested", threeNoteContested);
         chooser.addOption("doNothing", Commands.waitSeconds(1));
         chooser.addOption("twoNoteCompat2", twoNoteCompat2);
-        chooser.setDefaultOption("twoNoteCompat1", twoNoteCompat1);
+        chooser.addOption("twoNoteCompat1", twoNoteCompat1);
 
         SmartDashboard.putData("Path", chooser);
         return chooser;
@@ -470,7 +484,7 @@ public class RobotContainer {
         operatorInput.groundOuttakeHoldOp
                 .whileTrue(new GroundOuttakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
 
-        operatorInput.resetGyroPress.or(odometrySubsystem.gyroResetButtonTrigger).whileTrue(Commands.runOnce(() -> {
+        operatorInput.resetGyroPress.whileTrue(Commands.runOnce(() -> {
 
             System.out.println("jigiygiugi");
 
@@ -758,6 +772,15 @@ public class RobotContainer {
                 bottomGroundIntake,
                 feedForward
         );
+    }
+
+    public void robotInit() {
+
+        System.out.println("jigiygiugi");
+
+        odometrySubsystem.debugZero();
+        odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(new Pose2d(0, 0, new Rotation2d())));
+
     }
 
 
