@@ -9,6 +9,10 @@ public class DisabledIRotationalController implements IRotationalController {
 
     }
 
+    @Override public void stopActuator() {
+
+    }
+
     @Override
     public void setToPercent(double percent_zeroToOne) {
 

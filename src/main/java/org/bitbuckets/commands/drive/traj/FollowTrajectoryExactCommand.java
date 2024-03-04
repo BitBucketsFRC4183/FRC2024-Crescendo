@@ -2,6 +2,7 @@ package org.bitbuckets.commands.drive.traj;
 
 import com.choreo.lib.ChoreoTrajectory;
 import com.choreo.lib.ChoreoTrajectoryState;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -10,8 +11,10 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import org.bitbuckets.RobotContainer;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.OdometrySubsystem;
+import xyz.auriium.mattlib2.utils.AngleUtil;
 
 import java.util.Optional;
 
@@ -29,7 +32,7 @@ public class FollowTrajectoryExactCommand extends Command {
     final DriveSubsystem driveSubsystem;
 
     final PIDController xPid;
-    final PIDController yPid;
+    final PIDController yPid ;
     final ProfiledPIDController thetaPid;
 
     public FollowTrajectoryExactCommand(ChoreoTrajectory trajectory, OdometrySubsystem odometrySubsystem, DriveSubsystem driveSubsystem, PIDController xPid, PIDController yPid, ProfiledPIDController thetaPid) {
@@ -47,20 +50,23 @@ public class FollowTrajectoryExactCommand extends Command {
         return alliance == DriverStation.Alliance.Red;
     }
 
+    //TODO ITS GOTTA BE CENTROIDPOSITION.GETROTATION
     @Override
     public void initialize() {
-        thetaPid.reset(odometrySubsystem.getGyroAngle().getRadians());
+        thetaPid.reset(MathUtil.angleModulus(odometrySubsystem.getRobotCentroidPosition().getRotation().getRadians()));
         thetaPid.enableContinuousInput(-Math.PI, Math.PI);
-        thetaPid.setTolerance(Math.PI / 360 ); //0.5 deg
+        thetaPid.setTolerance(Math.PI / 90 ); //0.5 deg
         timer.restart();
     }
 
     @Override
     public void execute() {
 
+        RobotContainer.DRIVE_T_PID.reportState(MathUtil.angleModulus(odometrySubsystem.getRobotCentroidPosition().getRotation().getDegrees()));
+
         double time = timer.get();
         ChoreoTrajectoryState trajectoryReference = trajectory.sample(time, shouldMirror());
-        Pose2d robotState = odometrySubsystem.getRobotCentroidPosition();
+        Pose2d robotState = odometrySubsystem.getRobotCentroidPosition();  //TODO ITS GOTTA BE CENTROIDPOSITION.GETROTATION
 
         double xFF = trajectoryReference.velocityX;
         double yFF = trajectoryReference.velocityY;
@@ -68,7 +74,11 @@ public class FollowTrajectoryExactCommand extends Command {
 
         double xFeedback = xPid.calculate(robotState.getX(), trajectoryReference.x);
         double yFeedback = yPid.calculate(robotState.getY(), trajectoryReference.y);
-        double rotationFeedback = thetaPid.calculate(odometrySubsystem.getGyroAngle().getRadians(), trajectoryReference.heading);
+        //TODO ITS GOTTA BE CENTROIDPOSITION.GETROTATION
+        double rotationFeedback = thetaPid.calculate(MathUtil.angleModulus(odometrySubsystem.getRobotCentroidPosition().getRotation().getRadians()), MathUtil.angleModulus(trajectoryReference.heading));
+
+        RobotContainer.DRIVE_T_PID.reportReference(MathUtil.angleModulus(MathUtil.angleModulus(trajectoryReference.heading)));
+
 
         ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 xFF + xFeedback,

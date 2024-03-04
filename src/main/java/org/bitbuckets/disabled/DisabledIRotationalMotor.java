@@ -9,6 +9,10 @@ public class DisabledIRotationalMotor implements IRotationalMotor {
 
     }
 
+    @Override public void stopActuator() {
+
+    }
+
     @Override
     public void setToPercent(double percent_zeroToOne) {
 

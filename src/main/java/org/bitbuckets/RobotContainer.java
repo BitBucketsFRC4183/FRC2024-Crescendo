@@ -14,10 +14,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.event.EventLoop;
+import edu.wpi.first.wpilibj.simulation.PDPSim;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
@@ -77,6 +76,7 @@ import static xyz.auriium.mattlib2.Mattlib.LOG;
 public class RobotContainer {
 
 
+    public static final EventLoop always = new EventLoop();
     public final DriveSubsystem driveSubsystem;
     public final OperatorInput operatorInput;
     public final Translation2d[] translation2ds;
@@ -103,8 +103,10 @@ public class RobotContainer {
     public RobotContainer() {
 
         //DO SETTINGS BEFORE PRE INIT
-        MattlibSettings.USE_LOGGING = true;
-        MattlibSettings.USE_TUNING = true;
+        MattlibSettings.USE_TELEMETRY = MattlibSettings.LogLevel.ESSENTIAL_TELEMETRY;
+        if (DriverStation.isFMSAttached()) {
+            MattlibSettings.USE_TELEMETRY = MattlibSettings.LogLevel.ESSENTIAL_TELEMETRY; //never change this
+        };
         MattlibSettings.ROBOT = WhichRobotUtil.loadRobot();
 
         //THIS HAS TO RUN FIRST
@@ -156,7 +158,7 @@ public class RobotContainer {
 
 
     public void robotPeriodic() {
-
+        always.poll();
     }
 
     public void simulationPeriodic() {
@@ -221,6 +223,8 @@ public class RobotContainer {
 //        new ParallelCommandGroup(commands).schedule();
     }
 
+
+
     public Command followTrajectory(ChoreoTrajectory trajectory) {
         return new FollowTrajectoryExactCommand(
                 trajectory,
@@ -230,6 +234,43 @@ public class RobotContainer {
                 yController,
                 thetaController
         ).andThen(Commands.runOnce(driveSubsystem::commandWheelsToZero));
+    }
+
+    public Command twoNoteStyle(String real, double ramFireSpeed, double deadline_seconds) {
+
+        ChoreoTrajectory[] twoNoteArr = TrajLoadingUtil.getAllTrajectories(real);
+
+        return new SequentialCommandGroup(
+                new PlaceOdometryCommand(twoNoteArr[0], odometrySubsystem),
+                new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
+                new ReadyWhileMovingGroundIntakeCommand(
+                        followTrajectory(twoNoteArr[0]),
+                        noteManagementSubsystem, groundIntakeSubsystem
+                ),
+                new ReadyWhileMovingShootCommand(
+                        followTrajectory(twoNoteArr[1]),
+                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
+                )
+        );
+    }
+
+    public Command twoNoteCompatStyle(String real, double ramFireSpeed, double deadline_seconds) {
+
+        ChoreoTrajectory[] twoNoteArr = TrajLoadingUtil.getAllTrajectories(real);
+
+        return new SequentialCommandGroup(
+                new PlaceOdometryCommand(twoNoteArr[0], odometrySubsystem),
+                new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
+                followTrajectory(twoNoteArr[0]),
+                new ReadyWhileMovingGroundIntakeCommand(
+                        followTrajectory(twoNoteArr[1]),
+                        noteManagementSubsystem, groundIntakeSubsystem
+                ),
+                new ReadyWhileMovingShootCommand(
+                        followTrajectory(twoNoteArr[2]),
+                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
+                )
+        );
     }
 
 
@@ -247,21 +288,11 @@ public class RobotContainer {
         double ramFireSpeed = COMMANDS.ramFireSpeed_mechanismRotationsPerSecond();
         double deadline_seconds = COMMANDS.groupDeadline_seconds();
 
-        ChoreoTrajectory[] twoNoteArr = TrajLoadingUtil.getAllTrajectories("twoNote");
 
-        var twoNote = new SequentialCommandGroup(
-                new PlaceOdometryCommand(twoNoteArr[0], odometrySubsystem),
-                new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                new ReadyWhileMovingGroundIntakeCommand(
-                        followTrajectory(twoNoteArr[0]),
-                        noteManagementSubsystem, groundIntakeSubsystem
-                ),
-                new ReadyWhileMovingShootCommand(
-                        followTrajectory(twoNoteArr[1]),
-                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                )
-        );
 
+        var twoNote = twoNoteStyle("twoNote", ramFireSpeed, deadline_seconds);
+        var twoNoteCompat1 = twoNoteCompatStyle("twoNoteCompat1", ramFireSpeed, deadline_seconds);
+        var twoNoteCompat2 = twoNoteCompatStyle("twoNoteCompat2", ramFireSpeed, deadline_seconds);
 
 
         ChoreoTrajectory[] shootLeaveArr = TrajLoadingUtil.getAllTrajectories("shootLeave");
@@ -273,6 +304,11 @@ public class RobotContainer {
         );
 
         ChoreoTrajectory[] twoNoteCollectArr = TrajLoadingUtil.getAllTrajectories("twoNoteCollect");
+
+        var oneNote = new SequentialCommandGroup(
+                new PlaceOdometryCommand(twoNoteCollectArr[0], odometrySubsystem),
+                new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed)
+        );
 
         var twoNoteCollect = new SequentialCommandGroup(
                 new PlaceOdometryCommand(twoNoteCollectArr[0], odometrySubsystem),
@@ -353,13 +389,54 @@ public class RobotContainer {
                 )
         );
 
+        //var fourNoteAugment = twoNoteCompatStyle("fourNoteAugment",ramFireSpeed, deadline_seconds);
+
+
+        ChoreoTrajectory[] fourNoteAug = TrajLoadingUtil.getAllTrajectories("fourNoteAugment");
+
+        var fourNote = new SequentialCommandGroup(
+                new PlaceOdometryCommand(threeNoteArr[0], odometrySubsystem),
+                new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
+                new ReadyWhileMovingGroundIntakeCommand(
+                        followTrajectory(threeNoteArr[0]),
+                        noteManagementSubsystem, groundIntakeSubsystem
+                ),
+                new ReadyWhileMovingShootCommand(
+                        followTrajectory(threeNoteArr[1]),
+                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
+                ),
+                new ReadyWhileMovingGroundIntakeCommand(
+                        followTrajectory(threeNoteArr[2]),
+                        noteManagementSubsystem, groundIntakeSubsystem
+                ),
+                new ReadyWhileMovingShootCommand(
+                        followTrajectory(threeNoteArr[3]),
+                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
+                ),
+                followTrajectory(fourNoteAug[0]),
+                new ReadyWhileMovingGroundIntakeCommand(
+                        followTrajectory(fourNoteAug[1]),
+                        noteManagementSubsystem, groundIntakeSubsystem
+                ),
+                new ReadyWhileMovingShootCommand(
+                        followTrajectory(fourNoteAug[2]),
+                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
+                )
+        );
+
+
         SendableChooser<Command> chooser = new SendableChooser<>();
         chooser.addOption("twoNote", twoNote);
         chooser.addOption("twoNoteCollect", twoNoteCollect);
         chooser.addOption("shootLeave", shootLeave);
-        chooser.setDefaultOption("threeNote", threeNote);
+        chooser.addOption("threeNote", threeNote);
+        chooser.setDefaultOption("fourNote", fourNote);
+        chooser.addOption("oneNote", oneNote);
         chooser.addOption("twoNoteContested", twoNoteContested);
         chooser.addOption("threeNoteContested", threeNoteContested);
+        chooser.addOption("doNothing", Commands.waitSeconds(1));
+        chooser.addOption("twoNoteCompat2", twoNoteCompat2);
+        chooser.addOption("twoNoteCompat1", twoNoteCompat1);
 
         SmartDashboard.putData("Path", chooser);
         return chooser;
@@ -391,7 +468,7 @@ public class RobotContainer {
         operatorInput.rev.whileTrue(new SpinFlywheelIndefinite(flywheelSubsystem, false, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond()));
         //operatorInput.ampSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 100));
         //operatorInput.speakerSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 60));
-        operatorInput.ampShotSpeed.whileTrue(new AmpMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 8));
+        operatorInput.ampShotSpeed.whileTrue(new AmpMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 9.5));
         operatorInput.groundIntakeNoBeamBreak.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, COMMANDS.groundIntake_voltage(), COMMANDS.noteManagement_voltage() ));
         operatorInput.shootManually.whileTrue(new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond()));
 
@@ -407,9 +484,13 @@ public class RobotContainer {
         operatorInput.groundOuttakeHoldOp
                 .whileTrue(new GroundOuttakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
 
-        operatorInput.resetGyroPress.onTrue(Commands.runOnce(() -> {
+        operatorInput.resetGyroPress.whileTrue(Commands.runOnce(() -> {
+
+            System.out.println("jigiygiugi");
+
             odometrySubsystem.debugZero();
             odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(new Pose2d(0, 0, new Rotation2d())));
+
         }));
 
     }
@@ -462,8 +543,8 @@ public class RobotContainer {
             } else {
                 if (MattlibSettings.ROBOT == MattlibSettings.Robot.CARY) {
                     driveMotor = HardwareCTRE.linearFX_builtInVelocityPID(DRIVES[i], DRIVE_PIDS[i]);
-                    steerController = HardwareREV.rotationalSpark_builtInPID(STEERS[i], STEER_PIDS[i]);
                     absoluteEncoder = HardwareUtil.thriftyEncoder(STEER_ABS_ENCODERS[i]);
+                    steerController = HardwareREV.rotationalSpark_builtInPID(STEERS[i], STEER_PIDS[i]);
                 } else {
                     driveMotor = HardwareREV.linearSpark_builtInVelocityPID(DRIVES[i], DRIVE_PIDS[i]);
                     steerController = HardwareREV.rotationalSpark_builtInPID(STEERS[i], STEER_PIDS[i]);
@@ -511,7 +592,6 @@ public class RobotContainer {
 
         IRotationEncoder velocityEncoderRight;
         IRotationEncoder velocityEncoderLeft;
-
 
         if (DISABLER.flywheel_disabled()) {
             leftMotor = HardwareDisabled.rotationalVelocityController_disabled();
@@ -694,13 +774,22 @@ public class RobotContainer {
         );
     }
 
+    public void robotInit() {
+
+        System.out.println("jigiygiugi");
+
+        odometrySubsystem.debugZero();
+        odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(new Pose2d(0, 0, new Rotation2d())));
+
+    }
+
 
     //Components MUST be created in the Robot class (because of how static bs works)
 
     //generator stuff
     public static final ConsoleComponent CONSOLE = LOG.load(ConsoleComponent.class, "console");
-    public static final GenerateFFComponent SHOOTER_WHEEL_2_FFGEN = LOG.load(GenerateFFComponent.class, "shooter/wheel_2_ffgen");
-    public static final GenerateFFComponent SHOOTER_WHEEL_1_FFGEN = LOG.load(GenerateFFComponent.class, "shooter/wheel_1_ffgen");
+    public static final GenerateFFComponent SHOOTER_WHEEL_2_FFGEN = LOG.load(GenerateFFComponent.class, "flywheel/wheel_2_ffgen");
+    public static final GenerateFFComponent SHOOTER_WHEEL_1_FFGEN = LOG.load(GenerateFFComponent.class, "flywheel/wheel_1_ffgen");
     public static final GenerateFFComponent[] DRIVE_MOTORS_FFGEN = LOG.loadRange(GenerateFFComponent.class, "swerve/ffgen", 4, Util.RENAMER);
 
     //commands and autp

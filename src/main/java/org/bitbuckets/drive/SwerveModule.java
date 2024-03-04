@@ -71,8 +71,8 @@ public class SwerveModule implements IMattlibHooked {
      * move until eternity
      */
     public void stopAllMotors() {
-        driveMotor.setToVoltage(0);
-        steerController.setToVoltage(0);
+        driveMotor.stopActuator();
+        steerController.stopActuator();
     }
 
     public void setToMoveAt(SwerveModuleState state, boolean usePID) {

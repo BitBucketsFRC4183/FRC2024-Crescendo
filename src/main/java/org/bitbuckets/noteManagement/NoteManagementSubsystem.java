@@ -36,7 +36,7 @@ public class NoteManagementSubsystem implements Subsystem, IMattlibHooked {
     @Override
     public void logPeriodic() {
 
-        nmsComponent.reportDIOOutput(digitalInput.get());
+        nmsComponent.reportDIOOutput(!digitalInput.get());
     }
 
     public void setAllToVoltage(double voltage) {
