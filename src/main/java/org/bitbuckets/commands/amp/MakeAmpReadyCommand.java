@@ -23,7 +23,7 @@ public class MakeAmpReadyCommand extends Command {
 
   @Override
   public void end(boolean interrupted){
-    ampSubsystem.setToZero();
+    ampSubsystem.doNothing();
 
   }
 
