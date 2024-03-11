@@ -23,7 +23,7 @@ public class OperatorInput {
     final Trigger shootManually = operatorControl.x();
     final Trigger sourceIntake_hold = operatorControl.leftBumper();
     final Trigger groundIntakeNoBeamBreak = operatorControl.rightTrigger();
-    final Trigger ampShotSpeed = operatorControl.y();
+    final Trigger ampShot = operatorControl.y();
     final Trigger groundIntakeHoldOp = operatorControl.rightBumper();
     final Trigger groundOuttakeHoldOp = operatorControl.b();
     final Trigger ampVisionPriority_toggle = operatorControl.povLeft();

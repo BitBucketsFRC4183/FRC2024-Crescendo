@@ -473,7 +473,7 @@ public class RobotContainer {
         //operatorInput.ampSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 100));
         //operatorInput.speakerSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 60));
         //operatorInput.ampShotSpeed.whileTrue(new AmpMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 9.5));
-        operatorInput.ampShotSpeed.onTrue(new MakeAmpReadyCommand(ampSubsystem));
+        operatorInput.ampShot.onTrue(new MakeAmpReadyCommand(ampSubsystem));
         operatorInput.groundIntakeNoBeamBreak.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, COMMANDS.groundIntake_voltage(), COMMANDS.noteManagement_voltage() ));
         operatorInput.shootManually.whileTrue(new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond()));
 
