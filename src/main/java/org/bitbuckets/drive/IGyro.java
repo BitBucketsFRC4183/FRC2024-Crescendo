@@ -10,5 +10,7 @@ public interface IGyro {
 
     void userZero();
     void userForceOffset(Rotation2d beAt);
+
+    boolean isOk();
     
 }
