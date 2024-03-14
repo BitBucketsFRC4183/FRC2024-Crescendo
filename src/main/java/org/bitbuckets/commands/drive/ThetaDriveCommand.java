@@ -15,7 +15,6 @@ import org.bitbuckets.RobotContainer;
 import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.drive.OdometrySubsystem;
 import org.bitbuckets.drive.SwerveComponent;
-import xyz.auriium.mattlib2.hardware.config.PIDComponent;
 
 public class ThetaDriveCommand extends Command {
 
@@ -74,7 +73,7 @@ public class ThetaDriveCommand extends Command {
 
         double fieldY = operatorInput.getDriverRightStickX();
         double fieldX = operatorInput.getDriverRightStickY();
-        System.out.println(fieldX);
+        //System.out.println(fieldX);
 
         Rotation2d desiredHeading = new Rotation2d(fieldX, fieldY);
         Rotation2d currentHeading = odometrySubsystem.getGyroAngle();

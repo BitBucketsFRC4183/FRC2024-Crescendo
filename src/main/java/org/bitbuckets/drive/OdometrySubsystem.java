@@ -1,18 +1,23 @@
 package org.bitbuckets.drive;
 
 import edu.wpi.first.math.MathSharedStore;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveWheelPositions;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.Robot;
 import org.bitbuckets.RobotContainer;
 import org.bitbuckets.vision.VisionSubsystem;
 import org.photonvision.EstimatedRobotPose;
 import xyz.auriium.mattlib2.log.INetworkedComponent;
 import xyz.auriium.mattlib2.log.annote.Conf;
+import xyz.auriium.mattlib2.log.annote.Essential;
 import xyz.auriium.mattlib2.log.annote.Log;
 import xyz.auriium.mattlib2.loop.IMattlibHooked;
 import xyz.auriium.yuukonstants.exception.ExplainedException;
@@ -26,6 +31,8 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
     final CustomSwervePoseEstimator odometry;
     final SwerveDriveKinematics kinematics;
     final IGyro gyro;
+    final DigitalInput gyroResetButton;
+    public final Trigger gyroResetButtonTrigger;
 
     final Component odometryComponent;
 
@@ -42,10 +49,17 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
         @Conf("br_pos_offset") Translation2d br_offset();
         @Conf("bl_pos_offset") Translation2d bl_offset();
 
+        @Essential @Log("rot_gyro") void logGyroRotation(double rot);
+        @Log("rot_odo") void logOdoRotation(double rot);
+        @Essential @Log("pose_odo") void logPosition(Pose2d pose2d);
+        @Essential @Log("reset_button_state") void logReset(boolean reset);
+
+        @Conf("gyroResetButton_dio") int gyroResetButtonId();
     }
 
     SwerveModulePosition[] lastPositions_dxdy = new SwerveModulePosition[] { new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition() };
     double lastTimestamp_seconds = 0;
+
 
     public OdometrySubsystem(DriveSubsystem driveSubsystem, VisionSubsystem visionSubsystem, CustomSwervePoseEstimator odometry, IGyro gyro, SwerveDriveKinematics kinematics, Component odometryComponent) {
         this.driveSubsystem = driveSubsystem;
@@ -55,6 +69,9 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
         this.gyro = gyro;
         this.odometryComponent = odometryComponent;
         this.visionOdometry = true;
+
+        gyroResetButton = new DigitalInput(odometryComponent.gyroResetButtonId());
+        gyroResetButtonTrigger = new Trigger(RobotContainer.always,() -> !gyroResetButton.get());
 
         mattRegister();
         register();
@@ -92,11 +109,18 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
 
     @Override
     public void logPeriodic() {
-        RobotContainer.SWERVE.logPosition(odometry.getEstimatedPosition());
+        odometryComponent.logPosition(odometry.getEstimatedPosition());
+        odometryComponent.logOdoRotation(odometry.getEstimatedPosition().getRotation().getRadians());
+        odometryComponent.logGyroRotation(odometry.getEstimatedPosition().getRotation().getRadians());
+        odometryComponent.logReset(gyroResetButton.get());
 
     }
 
 
+    /**
+     * Gets the auto-offset independent but user-zero dependent gyro angle. TODO this may break on red
+     * @return
+     */
     public Rotation2d getGyroAngle() {
         return gyro.userZeroRelativeRotation();
    }

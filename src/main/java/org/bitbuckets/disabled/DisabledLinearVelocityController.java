@@ -11,6 +11,10 @@ public class DisabledLinearVelocityController implements ILinearVelocityControll
 
     }
 
+    @Override public void stopActuator() {
+
+    }
+
     @Override public void setToPercent(double v) {
 
     }
