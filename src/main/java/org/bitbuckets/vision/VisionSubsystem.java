@@ -66,10 +66,11 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
         this.lastTarget = Optional.empty();
         this.bestTarget = Optional.empty();
 
-        var table = NetworkTableInstance.getDefault().getTable("vision");
 
-        this.xSub = table.getDoubleTopic("x").subscribe(0.0);
-        this.ySub = table.getDoubleTopic("y").subscribe(0.0);
+;        var table = NetworkTableInstance.getDefault().getTable("vision");
+
+        this.xSub = table.getDoubleTopic("x").subscribe(-8);
+        this.ySub = table.getDoubleTopic("y").subscribe(-8);
         this.detectedSub = table.getBooleanTopic("detected").subscribe(false);
 
         register();
@@ -78,7 +79,7 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
 
     @Override
     public void logPeriodic() {
-
+        System.out.println(xSub.get());
     }
 
     private void logBT(PhotonTrackedTarget bt) {

@@ -1,11 +1,20 @@
 import ntcore
-
+import time
 class NetworkTable:
-    def __init__(self):
+    def __init__(self, simulation=True):
+        self.nt = ntcore.NetworkTableInstance.getDefault()
+        self.nt.startClient4("note")
+        if simulation == False:
+            self.nt.setServerTeam(4183)
+        else:
+            self.nt.setServer("localhost")
 
-        self.xTopic = ntcore.NetworkTableInstance.getDefault().getDoubleTopic("vision/x")
-        self.yTopic = ntcore.NetworkTableInstance.getDefault().getDoubleTopic("vision/y")
-        self.detectedTopic = ntcore.NetworkTableInstance.getDefault().getBooleanTopic("vision/detected")
+        self.table = self.nt.getTable("vision")
+
+
+        self.xTopic = self.table.getDoubleTopic("x")
+        self.yTopic = self.table.getDoubleTopic("y")
+        self.detectedTopic = self.table.getBooleanTopic("detected")
 
         self.xPublisher = self.xTopic.publish()
         self.yPublisher = self.yTopic.publish()
@@ -23,3 +32,9 @@ class NetworkTable:
         self.xTopic.close()
         self.yPublisher.close()
         self.yTopic.close()
+
+if __name__ == "__main__":
+    nt = NetworkTable(True)
+    while True:
+        time.sleep(0.5);
+        nt.periodic(500, 100, True)
