@@ -25,8 +25,6 @@ import org.bitbuckets.climber.ClimberSubsystem;
 import org.bitbuckets.commands.CommandComponent;
 import org.bitbuckets.commands.ReadyWhileMovingGroundIntakeCommand;
 import org.bitbuckets.commands.ReadyWhileMovingShootCommand;
-import org.bitbuckets.commands.amp.MakeAmpReadyCommand;
-import org.bitbuckets.commands.amp.RetractAmpCommand;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
 import org.bitbuckets.commands.drive.AugmentedDriveCommand;
 import org.bitbuckets.commands.drive.PlaceOdometryCommand;
@@ -34,7 +32,6 @@ import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
 import org.bitbuckets.commands.groundIntake.BasicGroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.FeedGroundIntakeGroup;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
-import org.bitbuckets.amp.Amp;
 import org.bitbuckets.commands.shooter.FireMakeReadyGroup;
 import org.bitbuckets.commands.shooter.SourceConsumerGroup;
 import org.bitbuckets.commands.shooter.flywheel.SpinFlywheelIndefinite;
@@ -84,7 +81,7 @@ public class RobotContainer {
     public final OdometrySubsystem odometrySubsystem;
     public final VisionSubsystem visionSubsystem;
 
-    public Amp ampSubsystem;
+
     public final VisionSimContainer visionSimContainer;
     public final ClimberSubsystem climberSubsystem;
     public final GroundIntakeSubsystem groundIntakeSubsystem;
@@ -468,8 +465,8 @@ public class RobotContainer {
         //operatorInput.ampSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 100));
         //operatorInput.speakerSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 60));
         //operatorInput.ampShotSpeed.whileTrue(new AmpMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 9.5));
-        operatorInput.ampShot.whileTrue(new MakeAmpReadyCommand(ampSubsystem));
-        operatorInput.ampShot.whileFalse(new RetractAmpCommand(ampSubsystem));
+        //operatorInput.ampShot.whileTrue(new MakeAmpReadyCommand(ampSubsystem));
+        //operatorInput.ampShot.whileFalse(new RetractAmpCommand(ampSubsystem));
         operatorInput.groundIntakeNoBeamBreak.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, COMMANDS.groundIntake_voltage(), COMMANDS.noteManagement_voltage() ));
         operatorInput.shootManually.whileTrue(new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond()));
 
