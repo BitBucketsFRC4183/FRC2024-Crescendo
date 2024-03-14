@@ -19,7 +19,7 @@ public class PlaceOdometryCommand extends Command {
     }
 
     boolean shouldMirror() {
-        DriverStation.Alliance alliance = DriverStation.getAlliance().orElseThrow();
+        DriverStation.Alliance alliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue);
         return alliance == DriverStation.Alliance.Red;
     }
 
