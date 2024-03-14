@@ -36,7 +36,6 @@ import org.bitbuckets.commands.shooter.AmpMakeReadyGroup;
 import org.bitbuckets.commands.shooter.FireMakeReadyGroup;
 import org.bitbuckets.commands.shooter.SourceConsumerGroup;
 import org.bitbuckets.commands.shooter.flywheel.SpinFlywheelIndefinite;
-import org.bitbuckets.commands.shooter.pivot.ManualPivotCommand;
 import org.bitbuckets.disabled.DisablerComponent;
 import org.bitbuckets.disabled.KinematicGyro;
 import org.bitbuckets.drive.*;
@@ -80,7 +79,7 @@ public class RobotContainer {
     public final OperatorInput operatorInput;
     public final Translation2d[] translation2ds;
     public final FlywheelSubsystem flywheelSubsystem;
-    public final PivotSubsystem pivotSubsystem;
+    //public final PivotSubsystem pivotSubsystem;
     public final OdometrySubsystem odometrySubsystem;
     public final VisionSubsystem visionSubsystem;
     public final VisionSimContainer visionSimContainer;
@@ -120,7 +119,7 @@ public class RobotContainer {
         this.visionSubsystem = loadVisionSubsystem();
         this.odometrySubsystem = loadOdometrySubsystem();
         this.flywheelSubsystem = loadFlywheelSubsystem();
-        this.pivotSubsystem = loadPivotSubsystem();
+        //this.pivotSubsystem = loadPivotSubsystem();
         this.climberSubsystem = loadClimberSubsystem();
         this.groundIntakeSubsystem = loadGroundIntakeSubsystem();
         this.noteManagementSubsystem = loadNoteManagementSubsystem();
@@ -471,7 +470,7 @@ public class RobotContainer {
         operatorInput.ampShotSpeed.whileTrue(new AmpMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 12));
         operatorInput.groundIntakeNoBeamBreak.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, COMMANDS.groundIntake_voltage(), COMMANDS.noteManagement_voltage() ));
         operatorInput.shootManually.whileTrue(new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond()));
-        operatorInput.isTeleop.and(pivotThreshold).whileTrue(new ManualPivotCommand(operatorInput, pivotSubsystem));
+        //operatorInput.isTeleop.and(pivotThreshold).whileTrue(new ManualPivotCommand(operatorInput, pivotSubsystem));
 
 
         // disable manual pivot. Do not enable unless mechanical agrees
@@ -562,7 +561,7 @@ public class RobotContainer {
         return modules;
     }
 
-    PivotSubsystem loadPivotSubsystem() {
+    /*PivotSubsystem loadPivotSubsystem() {
 
         IRotationalController leftAngleMotor;
         IRotationalController rightAngleMotor;
@@ -583,7 +582,7 @@ public class RobotContainer {
         }
 
         return new PivotSubsystem(leftAngleMotor, rightAngleMotor, pivotEncoder);
-    }
+    }*/
 
     FlywheelSubsystem loadFlywheelSubsystem() {
         IRotationalVelocityController leftMotor;
