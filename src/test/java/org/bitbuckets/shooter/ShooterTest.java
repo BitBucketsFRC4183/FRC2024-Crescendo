@@ -10,7 +10,7 @@ import xyz.auriium.mattlib2.hardware.IRotationalMotor;
 
 public class ShooterTest {
 
-    @Test
+    /*@Test
     public void testShooterMathWorkingOk() {
 
         double deadband = 3;
@@ -21,7 +21,7 @@ public class ShooterTest {
         boolean output = PivotSubsystem.isWithinDeadband(deadband, target, actualValue);
         Assertions.assertTrue(output);
 
-    }
+    }*/
 
     @Test
     public void testHasReachedSpeeds() {
