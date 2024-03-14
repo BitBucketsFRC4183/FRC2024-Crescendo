@@ -14,9 +14,9 @@ drive_disabled = false
 flywheel_disabled = false
 odometry_disabled = false
 climber_disabled = true
-groundIntake_disabled = false
+groundIntake_disabled = true
 nms_disabled = false
-pivot_disabled = false
+pivot_disabled = true
 
 # Commands
 [commands]
@@ -58,25 +58,25 @@ pid = {p = 0, i = 0, d = 0,  tolerance = 0}
 velocity_pid = {p = 0.06, i = 0, d = 0.75, tolerance = 0}
 
 [flywheel.left]
-id = 7
+id = 4
 encoderToMechanismCoef = 1
 rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
 inverted = true
 ff = { ks = 0.5477470887299486, kv = 0.12995659292230272 }
-encoder = { dio_channelA = 0, dio_channelB = 1, encoderToMechanismCoef = 1, inverted = false }
+encoder = { dio_channelA = 7, dio_channelB = 8, encoderToMechanismCoef = 1, inverted = false }
 
 
 [flywheel.right]
-id = 4
+id = 7
 encoderToMechanismCoef = 1
 rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
 inverted = false
 ff = { ks = 0.6505197479235123, kv = 0.12757668962958083 }
-encoder = { dio_channelA = 7, dio_channelB = 8, encoderToMechanismCoef = 1, inverted = true }
+encoder = { dio_channelA = 0, dio_channelB = 1, encoderToMechanismCoef = 1, inverted = true }
 
 
 
@@ -126,10 +126,10 @@ field_oriented = true
 offset_tuning_mode = false
 theta_mode_pSeed = 3
 use_velocity_pid = false
-x_holonomic_pid = {p = 1.2, i = 0, d = 0,  tolerance = 0}
-y_holonomic_pid = {p = 1.2, i = 0, d = 0,  tolerance = 0}
-t_holonomic_pid = {p = 0.6, i = 0, d = 0,  tolerance = 0} #need to be redone (current mcr values)
-drive_pid_common = {p = 0.005, i = 0, d = 0.0,  tolerance = 0}
+x_holonomic_pid = {p = 2.55, i = 0, d = 0.05,  tolerance = 0}
+y_holonomic_pid = {p = 2.55, i = 0, d = 0.05,  tolerance = 0}
+t_holonomic_pid = {p = 2.45, i = 0, d = 0.05,  tolerance = 0} #need to be redone (current mcr values)
+drive_pid_common = {p = 0.006, i = 0, d = 0.0,  tolerance = 0}
 ff_fl = {ks = 0.045, kv = 2.505}
 ff_fr = {ks = 0.056, kv = 2.532}
 ff_br = {ks = 0.044, kv = 2.496}
@@ -142,7 +142,7 @@ fl_pos_offset = {x = 0.2286, y = 0.3429}
 fr_pos_offset = {x = 0.2286, y = -0.3429}
 bl_pos_offset = {x = -0.3556, y = 0.3429}
 br_pos_offset = {x = -0.3556, y = -0.3429}
-gyroResetButton_dio = 4
+gyroResetButton_dio = 11
 
 # Steer
 
@@ -207,22 +207,22 @@ openRampRate = 0.5
 # hypothesis: non offset zero is tangent to the absolute encoders?
 # ALWAYS LOW BALL THESE OFFSETS (if its fluctuating between 0.8 and 0.9 go for 0.8
 [swerve.abs_fr]
-analog_channel = 0
+analog_channel = 3
 offset = 0.371
 encoderToMechanismCoef = 1
 
 [swerve.abs_fl]
-analog_channel = 3
+analog_channel = 0
 offset = 0.341
 encoderToMechanismCoef = 1
 
 [swerve.abs_br]
-analog_channel = 1
+analog_channel = 2
 offset = 0.854
 encoderToMechanismCoef = 1
 
 [swerve.abs_bl]
-analog_channel = 2
+analog_channel = 1
 offset = 0.572
 encoderToMechanismCoef = 1
 
@@ -245,7 +245,7 @@ rotationalInertia = 0.0
 
 # NMS NOTE MANAGEMENT SUBSYSTEM
 [nms]
-channel = 6
+channel = 5
 deadband = 0 # FIX LATER
 
 [nms.top]
