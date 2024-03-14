@@ -101,7 +101,7 @@ public class RobotContainer {
     public RobotContainer() {
 
         //DO SETTINGS BEFORE PRE INIT
-        MattlibSettings.USE_TELEMETRY = MattlibSettings.LogLevel.ESSENTIAL_TELEMETRY;
+        MattlibSettings.USE_TELEMETRY = MattlibSettings.LogLevel.VERBOSE_TELEMETRY;
         if (DriverStation.isFMSAttached()) {
             MattlibSettings.USE_TELEMETRY = MattlibSettings.LogLevel.ESSENTIAL_TELEMETRY; //never change this
         };
@@ -192,6 +192,7 @@ public class RobotContainer {
         if (cachedCurrentlyRunningAutoCommand != null && cachedCurrentlyRunningAutoCommand.isScheduled()) {
             cachedCurrentlyRunningAutoCommand.cancel();
         }
+
 
 
 
@@ -464,13 +465,11 @@ public class RobotContainer {
         operatorInput.rev.whileTrue(new SpinFlywheelIndefinite(flywheelSubsystem, false, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond()));
         //operatorInput.ampSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 100));
         //operatorInput.speakerSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 60));
-        //operatorInput.ampShotSpeed.whileTrue(new AmpMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 9.5));
-        //operatorInput.ampShot.whileTrue(new MakeAmpReadyCommand(ampSubsystem));
-        //operatorInput.ampShot.whileFalse(new RetractAmpCommand(ampSubsystem));
+
+        operatorInput.ampShotSpeed.whileTrue(new AmpMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 12));
         operatorInput.groundIntakeNoBeamBreak.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, COMMANDS.groundIntake_voltage(), COMMANDS.noteManagement_voltage() ));
         operatorInput.shootManually.whileTrue(new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond()));
-
-
+        operatorInput.isTeleop.and(pivotThreshold).whileTrue(new ManualPivotCommand(operatorInput, pivotSubsystem));
 
 
         // disable manual pivot. Do not enable unless mechanical agrees
