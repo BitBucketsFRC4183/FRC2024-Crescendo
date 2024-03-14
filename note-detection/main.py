@@ -292,11 +292,11 @@ if __name__ == '__main__':
 
             #print(f"{left}, {top}, {right}, {bottom}")
 
-            # clockwise from bottom left, units are inches
+            # cw from bottom left, units are inches, x is horizontal, y is vertical, z is pointing out from camera
             object_points = np.array([
                 [0, 0, 0],
-                [0, 14, 0],
-                [14, 14, 0],
+                [0, 0, 14],
+                [14, 0, 14],
                 [14, 0, 0]
             ], dtype=np.float64)
 
@@ -307,20 +307,18 @@ if __name__ == '__main__':
                 [right, bottom]
             ], dtype=np.float64)
 
-            # default initial values for rvec and tvec
-            rvec_init = np.zeros((3, 1), dtype=np.float64)
-            tvec_init = np.zeros((3, 1), dtype=np.float64)
-
-            success, rvec, tvec = cv2.solvePnP(object_points, image_points, CAM_MATRIX, DIST_COEFFS, rvec_init, tvec_init, False)
+            success, rvec, tvec = cv2.solvePnP(object_points, image_points, CAM_MATRIX, DIST_COEFFS)
 
             if (success):
                 rmat = cv2.Rodrigues(rvec)[0] # rotation matrix
+
                 note_position = -np.dot(rmat.T, tvec)
 
                 x = note_position[0]
                 y = note_position[1]
+                z = note_position[2]
 
-                print(f"Note pose: {x}, {y}")
+                print(f"Note pose: {x}, {y}, {z}")
 
 
         # publish data using networktables
@@ -348,7 +346,7 @@ if __name__ == '__main__':
     fps = frames / (time.time() - initTime)
     # print(f"Overall fps: {fps: .3f}")
 
-    #nt.close()
+    nt.close()
     cam.release()
     #video.release()
     rknn_lite.release()
