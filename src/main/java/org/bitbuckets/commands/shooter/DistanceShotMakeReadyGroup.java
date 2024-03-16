@@ -6,19 +6,20 @@ import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
 import org.bitbuckets.noteManagement.NoteManagementSubsystem;
 import org.bitbuckets.shooter.FlywheelSubsystem;
 import xyz.auriium.mattlib2.auto.ff.FastPolynomialRegression;
+import xyz.auriium.mattlib2.auto.ff.PolynomialRegression;
 
 import java.util.HashSet;
 
 public class DistanceShotMakeReadyGroup extends DeferredCommand {
 
-    final static FastPolynomialRegression fastPolynomialRegression = FastPolynomialRegression.loadFullRank(
+    final static PolynomialRegression fastPolynomialRegression = new PolynomialRegression(
             new double[] { //distance
-                    0
+                    1.11
             },
             new double[] { //speeds
-                60
+                60,
             },
-            5
+            2
     );
 
 

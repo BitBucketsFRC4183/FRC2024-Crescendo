@@ -99,7 +99,7 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
         var alliance = DriverStation.getAlliance();
         if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
             speakerOpening = new Translation2d(
-                    FieldConstants.fieldWidth - speakerOpening.getX(),
+                    FieldConstants.fieldLength - speakerOpening.getX(),
                     speakerOpening.getY()
             );
         }
