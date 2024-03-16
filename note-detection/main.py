@@ -293,11 +293,12 @@ if __name__ == '__main__':
             #print(f"{left}, {top}, {right}, {bottom}")
 
             # cw from bottom left, units are inches, x is horizontal, y is vertical, z is pointing out from camera
+            # actual dia is 14, changed to 15 to account for bounding box looseness
             object_points = np.array([
                 [0, 0, 0],
-                [0, 0, 14],
-                [14, 0, 14],
-                [14, 0, 0]
+                [0, 0, 15],
+                [15, 0, 15],
+                [15, 0, 0]
             ], dtype=np.float64)
 
             image_points = np.array([
