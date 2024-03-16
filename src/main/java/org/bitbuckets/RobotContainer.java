@@ -33,6 +33,7 @@ import org.bitbuckets.commands.groundIntake.BasicGroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.FeedGroundIntakeGroup;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
 import org.bitbuckets.commands.shooter.AmpMakeReadyGroup;
+import org.bitbuckets.commands.shooter.DistanceShotMakeReadyGroup;
 import org.bitbuckets.commands.shooter.FireMakeReadyGroup;
 import org.bitbuckets.commands.shooter.SourceConsumerGroup;
 import org.bitbuckets.commands.shooter.flywheel.SpinFlywheelIndefinite;
@@ -471,7 +472,7 @@ public class RobotContainer {
         operatorInput.groundIntakeNoBeamBreak.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, COMMANDS.groundIntake_voltage(), COMMANDS.noteManagement_voltage() ));
         operatorInput.shootManually.whileTrue(new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond()));
         //operatorInput.isTeleop.and(pivotThreshold).whileTrue(new ManualPivotCommand(operatorInput, pivotSubsystem));
-
+        operatorInput.shootByVision.whileTrue(new DistanceShotMakeReadyGroup(flywheelSubsystem, odometrySubsystem, noteManagementSubsystem, groundIntakeSubsystem));
 
         // disable manual pivot. Do not enable unless mechanical agrees
         //operatorInput.setShooterAngleManually.onTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));

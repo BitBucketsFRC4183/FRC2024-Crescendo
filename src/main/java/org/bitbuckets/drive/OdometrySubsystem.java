@@ -5,11 +5,13 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.Robot;
 import org.bitbuckets.RobotContainer;
+import org.bitbuckets.util.FieldConstants;
 import org.bitbuckets.vision.VisionSubsystem;
 import xyz.auriium.mattlib2.log.INetworkedComponent;
 import xyz.auriium.mattlib2.log.annote.Conf;
@@ -46,6 +48,9 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
         @Essential @Log("pose_odo") void logPosition(Pose2d pose2d);
         @Essential @Log("reset_button_state") void logReset(boolean reset);
 
+        @Log("allianceSpeaker") void logAllianceSpeaker(Pose2d allianceSpeaker);
+        @Log("dist_allianceSpeaker") void logDistanceAllianceSpeaker(double dist);
+
         @Conf("gyroResetButton_dio") int gyroResetButtonId();
     }
 
@@ -73,6 +78,9 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
         return new ExplainedException[0];
     }
 
+    Pose2d allianceSpeaker = new Pose2d();
+    double distance = 0;
+
     @Override
     public void periodic() {
         odometry.update(gyro.initializationRelativeRotation(),driveSubsystem.currentPositions());
@@ -87,6 +95,22 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
             }
         }
 
+        Translation2d speakerOpening = FieldConstants.Speaker.centerSpeakerOpening.toTranslation2d();
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
+            speakerOpening = new Translation2d(
+                    FieldConstants.fieldWidth - speakerOpening.getX(),
+                    speakerOpening.getY()
+            );
+        }
+
+
+        allianceSpeaker = new Pose2d(speakerOpening.getX(), speakerOpening.getY(), new Rotation2d());
+        distance =
+                getRobotCentroidPosition()
+                        .getTranslation()
+                        .getDistance(speakerOpening);
+
     }
 
 
@@ -97,8 +121,14 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
         odometryComponent.logGyroRotation(odometry.getEstimatedPosition().getRotation().getRadians());
         odometryComponent.logReset(gyroResetButton.get());
 
+        odometryComponent.logAllianceSpeaker(allianceSpeaker);
+        odometryComponent.logDistanceAllianceSpeaker(distance);
+
     }
 
+    public double distanceFromAllianceSpeaker() {
+        return distance;
+    }
 
     /**
      * Gets the auto-offset independent but user-zero dependent gyro angle. TODO this may break on red
