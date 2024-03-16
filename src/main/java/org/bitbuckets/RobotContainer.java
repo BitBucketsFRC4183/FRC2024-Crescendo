@@ -80,10 +80,10 @@ public class RobotContainer {
     public final OperatorInput operatorInput;
     public final Translation2d[] translation2ds;
     public final FlywheelSubsystem flywheelSubsystem;
-    public final PivotSubsystem pivotSubsystem;
     public final Odometry odometry;
     public final SwerveSubsystem swerveSubsystem;
     public final OperatorToSpeeds o2s;
+    //m
 
     public final VisionSubsystem visionSubsystem;
     public final VisionSimContainer visionSimContainer;
