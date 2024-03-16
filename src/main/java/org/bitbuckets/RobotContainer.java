@@ -35,7 +35,6 @@ import org.bitbuckets.commands.shooter.AmpMakeReadyGroup;
 import org.bitbuckets.commands.shooter.FireMakeReadyGroup;
 import org.bitbuckets.commands.shooter.SourceConsumerGroup;
 import org.bitbuckets.commands.shooter.flywheel.SpinFlywheelIndefinite;
-import org.bitbuckets.commands.shooter.pivot.ManualPivotCommand;
 import org.bitbuckets.disabled.DisablerComponent;
 import org.bitbuckets.disabled.KinematicGyro;
 import org.bitbuckets.drive.*;
@@ -85,6 +84,7 @@ public class RobotContainer {
     public final Odometry odometry;
     public final SwerveSubsystem swerveSubsystem;
     public final OperatorToSpeeds o2s;
+
     public final VisionSubsystem visionSubsystem;
     public final VisionSimContainer visionSimContainer;
     public final ClimberSubsystem climberSubsystem;
@@ -129,7 +129,7 @@ public class RobotContainer {
         this.o2s = new OperatorToSpeeds(operatorInput, O2S);
         this.swerveSubsystem = new SwerveSubsystem(modules, odometry, SWERVE);
         this.flywheelSubsystem = loadFlywheelSubsystem();
-        this.pivotSubsystem = loadPivotSubsystem();
+        //this.pivotSubsystem = loadPivotSubsystem();
         this.climberSubsystem = loadClimberSubsystem();
         this.groundIntakeSubsystem = loadGroundIntakeSubsystem();
         this.noteManagementSubsystem = loadNoteManagementSubsystem();
@@ -494,7 +494,7 @@ public class RobotContainer {
         operatorInput.ampShotSpeed.whileTrue(new AmpMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 12));
         operatorInput.groundIntakeNoBeamBreak.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, COMMANDS.groundIntake_voltage(), COMMANDS.noteManagement_voltage() ));
         operatorInput.shootManually.whileTrue(new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond()));
-        operatorInput.isTeleop.and(pivotThreshold).whileTrue(new ManualPivotCommand(operatorInput, pivotSubsystem));
+        //operatorInput.isTeleop.and(pivotThreshold).whileTrue(new ManualPivotCommand(operatorInput, pivotSubsystem));
 
 
         operatorInput.sourceIntake_hold.whileTrue(new SourceConsumerGroup(noteManagementSubsystem, flywheelSubsystem));
@@ -576,7 +576,7 @@ public class RobotContainer {
         return modules;
     }
 
-    PivotSubsystem loadPivotSubsystem() {
+    /*PivotSubsystem loadPivotSubsystem() {
 
         IRotationalController leftAngleMotor;
         IRotationalController rightAngleMotor;
@@ -597,7 +597,7 @@ public class RobotContainer {
         }
 
         return new PivotSubsystem(leftAngleMotor, rightAngleMotor, pivotEncoder);
-    }
+    }*/
 
     FlywheelSubsystem loadFlywheelSubsystem() {
         IRotationalVelocityController leftMotor;
