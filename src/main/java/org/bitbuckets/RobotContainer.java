@@ -79,7 +79,7 @@ public class RobotContainer {
     public final Translation2d[] translation2ds;
     public final FlywheelSubsystem flywheelSubsystem;
     public final Odometry odometry;
-    public final SwerveSubsystem swerveSubsystem;
+    public final DriveSubsystem swerveSubsystem;
     public final OperatorToSpeeds o2s;
     //m
 
@@ -125,7 +125,7 @@ public class RobotContainer {
         this.visionSubsystem = loadVisionSubsystem();
         this.odometry = loadOdometrySubsystem();
         this.o2s = new OperatorToSpeeds(operatorInput, O2S);
-        this.swerveSubsystem = new SwerveSubsystem(modules, odometry, SWERVE);
+        this.swerveSubsystem = new DriveSubsystem(modules, odometry, SWERVE);
         this.flywheelSubsystem = loadFlywheelSubsystem();
         //this.pivotSubsystem = loadPivotSubsystem();
         this.climberSubsystem = loadClimberSubsystem();
@@ -426,8 +426,8 @@ public class RobotContainer {
         chooser.addOption("twoNote", twoNote);
         chooser.addOption("twoNoteCollect", twoNoteCollect);
         chooser.addOption("shootLeave", shootLeave);
-        chooser.addOption("threeNote", threeNote);
-        chooser.setDefaultOption("fourNote", fourNote);
+        chooser.setDefaultOption("threeNote", threeNote);
+        chooser.addOption("fourNote", fourNote);
         chooser.addOption("oneNote", oneNote);
         chooser.addOption("twoNoteContested", twoNoteContested);
         chooser.addOption("threeNoteContested", threeNoteContested);
@@ -786,7 +786,7 @@ public class RobotContainer {
     //swerve
     public static final FFComponent[] FF_SWERVE = LOG.loadRange(FFComponent.class, "swerve/ff", 4, Util.RENAMER);
     public static final OperatorToSpeeds.Component O2S = LOG.load(OperatorToSpeeds.Component.class, "operatorToSpeeds");
-    public static final SwerveSubsystem.Component SWERVE = LOG.load(SwerveSubsystem.Component.class, "swerve");
+    public static final DriveSubsystem.Component SWERVE = LOG.load(DriveSubsystem.Component.class, "swerve");
     public static final Odometry.Component ODO = LOG.load(Odometry.Component.class, "odometry");
     public static final Modules.Component MODULES = LOG.load(Modules.Component.class, "modules");
     public static final CommonMotorComponent STEER_COMMON = LOG.load(CommonMotorComponent.class, "swerve/steer_common");

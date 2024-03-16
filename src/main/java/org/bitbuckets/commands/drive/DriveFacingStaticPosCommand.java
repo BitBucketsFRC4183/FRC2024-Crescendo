@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.OperatorInput;
 import org.bitbuckets.drive.OperatorToSpeeds;
-import org.bitbuckets.drive.SwerveSubsystem;
+import org.bitbuckets.drive.DriveSubsystem;
 import xyz.auriium.mattlib2.log.INetworkedComponent;
 import xyz.auriium.mattlib2.log.annote.Log;
 import xyz.auriium.mattlib2.log.annote.Tune;
@@ -19,7 +19,7 @@ public class DriveFacingStaticPosCommand extends Command {
 
     final OperatorToSpeeds operatorToSpeeds;
     final OperatorInput operatorInput;
-    final SwerveSubsystem swerveSubsystem;
+    final DriveSubsystem swerveSubsystem;
 
     final Rotation2d goal_fieldOrAlliance;
     final boolean isAllianceRelative;
@@ -35,7 +35,7 @@ public class DriveFacingStaticPosCommand extends Command {
         @Log("goal") void reportGoal(double goalDeg);
     }
 
-    public DriveFacingStaticPosCommand(OperatorToSpeeds operatorToSpeeds, OperatorInput operatorInput, SwerveSubsystem swerveSubsystem, Rotation2d goal_fieldOrAlliance, boolean isAllianceRelative, Component component) {
+    public DriveFacingStaticPosCommand(OperatorToSpeeds operatorToSpeeds, OperatorInput operatorInput, DriveSubsystem swerveSubsystem, Rotation2d goal_fieldOrAlliance, boolean isAllianceRelative, Component component) {
         this.operatorToSpeeds = operatorToSpeeds;
         this.operatorInput = operatorInput;
         this.swerveSubsystem = swerveSubsystem;

@@ -1,6 +1,5 @@
 package org.bitbuckets.drive;
 
-import edu.wpi.first.math.MathSharedStore;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -8,13 +7,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import xyz.auriium.mattlib2.log.INetworkedComponent;
-import xyz.auriium.mattlib2.log.annote.Log;
 import xyz.auriium.mattlib2.log.annote.Tune;
 import xyz.auriium.mattlib2.loop.IMattlibHooked;
 
-import java.util.Optional;
-
-public class SwerveSubsystem implements Subsystem, IMattlibHooked {
+public class DriveSubsystem implements Subsystem, IMattlibHooked {
 
     // HARDWARE
     public final Modules modules;
@@ -26,7 +22,7 @@ public class SwerveSubsystem implements Subsystem, IMattlibHooked {
         @Tune("use_offset_finding_mode") boolean useOffsetFindingMode(); //turn on when trying to figure out which way is "forward" for modules when no offsets are present. This is nice because if you don't have it SwerveModuleState.optimize's flipping will make it impossible for you to tell where forward really is
     }
 
-    public SwerveSubsystem(Modules modules, Odometry odometry, Component component) {
+    public DriveSubsystem(Modules modules, Odometry odometry, Component component) {
         this.modules = modules;
         this.odometry = odometry;
         this.swerveComponent = component;
@@ -55,6 +51,7 @@ public class SwerveSubsystem implements Subsystem, IMattlibHooked {
     }
 
     public void orderToZero() {
+        System.out.println("ORDER2ZERO");
         orderToUnfiltered(new ChassisSpeeds(0,0,0));
     }
 

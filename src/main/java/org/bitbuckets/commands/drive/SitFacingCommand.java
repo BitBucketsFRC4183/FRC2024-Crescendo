@@ -4,22 +4,21 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
-import org.bitbuckets.drive.SwerveSubsystem;
-import org.ojalgo.matrix.transformation.Rotation;
+import org.bitbuckets.drive.DriveSubsystem;
 import xyz.auriium.mattlib2.auto.pid.IPIDController;
 import xyz.auriium.mattlib2.auto.pid.RotationalPIDBrain;
 
 public class SitFacingCommand extends Command {
 
     final RotationalPIDBrain pidBrain;
-    final SwerveSubsystem swerveSubsystem;
+    final DriveSubsystem swerveSubsystem;
     final Rotation2d desiredHeading_allianceOrField;
     final boolean isAllianceRelative;
 
     IPIDController controller;
     Rotation2d heading;
 
-    public SitFacingCommand(RotationalPIDBrain pidBrain, SwerveSubsystem swerveSubsystem, Rotation2d desiredHeadingAllianceRelative, boolean isAllianceRelative) {
+    public SitFacingCommand(RotationalPIDBrain pidBrain, DriveSubsystem swerveSubsystem, Rotation2d desiredHeadingAllianceRelative, boolean isAllianceRelative) {
         this.pidBrain = pidBrain;
         this.swerveSubsystem = swerveSubsystem;
         desiredHeading_allianceOrField = desiredHeadingAllianceRelative;

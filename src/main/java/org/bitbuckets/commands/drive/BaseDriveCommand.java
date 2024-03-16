@@ -6,15 +6,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.OperatorInput;
 import org.bitbuckets.drive.OperatorToSpeeds;
-import org.bitbuckets.drive.SwerveSubsystem;
+import org.bitbuckets.drive.DriveSubsystem;
 
 public class BaseDriveCommand extends Command {
 
     final OperatorToSpeeds operatorToSpeeds;
     final OperatorInput operatorInput;
-    final SwerveSubsystem swerveSubsystem;
+    final DriveSubsystem swerveSubsystem;
 
-    public BaseDriveCommand(OperatorToSpeeds operatorToSpeeds, OperatorInput operatorInput, SwerveSubsystem swerveSubsystem) {
+    public BaseDriveCommand(OperatorToSpeeds operatorToSpeeds, OperatorInput operatorInput, DriveSubsystem swerveSubsystem) {
         this.operatorToSpeeds = operatorToSpeeds;
         this.operatorInput = operatorInput;
         this.swerveSubsystem = swerveSubsystem;

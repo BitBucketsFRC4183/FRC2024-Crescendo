@@ -8,7 +8,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import org.bitbuckets.drive.SwerveSubsystem;
+import org.bitbuckets.drive.DriveSubsystem;
 import xyz.auriium.mattlib2.auto.pid.IPIDController;
 import xyz.auriium.mattlib2.auto.pid.LinearPIDBrain;
 import xyz.auriium.mattlib2.auto.pid.RotationalPIDBrain;
@@ -23,7 +23,7 @@ public class FollowTrajectoryExactCommand extends Command {
     final Timer timer = new Timer();
 
     final ChoreoTrajectory trajectory;
-    final SwerveSubsystem swerveSubsystem;
+    final DriveSubsystem swerveSubsystem;
 
     final LinearPIDBrain xPidBrain;
     final LinearPIDBrain yPidBrain;
@@ -33,7 +33,7 @@ public class FollowTrajectoryExactCommand extends Command {
     IPIDController yPid;
     IPIDController thetaPid;
 
-    public FollowTrajectoryExactCommand(ChoreoTrajectory trajectory, SwerveSubsystem swerveSubsystem, LinearPIDBrain xPidBrain, LinearPIDBrain yPidBrain, RotationalPIDBrain thetaPidBrain) {
+    public FollowTrajectoryExactCommand(ChoreoTrajectory trajectory, DriveSubsystem swerveSubsystem, LinearPIDBrain xPidBrain, LinearPIDBrain yPidBrain, RotationalPIDBrain thetaPidBrain) {
         this.trajectory = trajectory;
         this.swerveSubsystem = swerveSubsystem;
         this.xPidBrain = xPidBrain;
@@ -68,8 +68,8 @@ public class FollowTrajectoryExactCommand extends Command {
         double yFF = trajectoryReference.velocityY;
         double rotationFF = trajectoryReference.angularVelocity;
 
-        double xFeedback = xPid.controlToReference_primeUnits(robotState.getX(), trajectoryReference.x);
-        double yFeedback = yPid.controlToReference_primeUnits(robotState.getY(), trajectoryReference.y);
+        double xFeedback = xPid.controlToReference_primeUnits(trajectoryReference.x, robotState.getX());
+        double yFeedback = yPid.controlToReference_primeUnits(trajectoryReference.y, robotState.getY());
         double rotationFeedback = thetaPid.controlToReference_primeUnits(trajectoryReference.heading, robotHeading.getRadians());
 
         ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -92,6 +92,7 @@ public class FollowTrajectoryExactCommand extends Command {
     public void end(boolean interrupted) {
         timer.stop();
         if (interrupted) {
+            System.out.println("INTERUPT");
             swerveSubsystem.orderToZero();
         }
     }
