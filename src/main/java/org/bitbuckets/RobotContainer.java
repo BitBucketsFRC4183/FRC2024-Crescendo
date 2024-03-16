@@ -100,6 +100,8 @@ public class RobotContainer {
 
     public RobotContainer() {
 
+        RobotController.setBrownoutVoltage(6);
+
         //DO SETTINGS BEFORE PRE INIT
         MattlibSettings.USE_TELEMETRY = MattlibSettings.LogLevel.VERBOSE_TELEMETRY;
         if (DriverStation.isFMSAttached()) {
