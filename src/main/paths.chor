@@ -4,7 +4,7 @@
         "mass": 74.08797700309194,
         "rotationalInertia": 6,
         "motorMaxTorque": 1.162295081967213,
-        "motorMaxVelocity": 4800,
+        "motorMaxVelocity": 6000,
         "gearing": 6.75,
         "wheelbase": 0.5778496879611685,
         "trackWidth": 0.5778496879611685,
@@ -3023,8 +3023,35 @@
                     "controlIntervalCount": 11
                 },
                 {
-                    "x": 1.35,
-                    "y": 5.55,
+                    "x": 1.3321385383605957,
+                    "y": 5.6255598068237305,
+                    "heading": 0,
+                    "isInitialGuess": false,
+                    "translationConstrained": true,
+                    "headingConstrained": true,
+                    "controlIntervalCount": 40
+                },
+                {
+                    "x": 8.270874977111816,
+                    "y": 8.217840194702148,
+                    "heading": 0,
+                    "isInitialGuess": false,
+                    "translationConstrained": true,
+                    "headingConstrained": true,
+                    "controlIntervalCount": 40
+                },
+                {
+                    "x": 8.309856414794922,
+                    "y": 3.2086963653564453,
+                    "heading": 0,
+                    "isInitialGuess": false,
+                    "translationConstrained": true,
+                    "headingConstrained": true,
+                    "controlIntervalCount": 40
+                },
+                {
+                    "x": 1.6439918279647827,
+                    "y": 8.042423248291016,
                     "heading": 0,
                     "isInitialGuess": false,
                     "translationConstrained": true,

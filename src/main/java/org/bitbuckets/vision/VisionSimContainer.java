@@ -3,7 +3,7 @@ package org.bitbuckets.vision;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
-import org.bitbuckets.drive.OdometrySubsystem;
+import org.bitbuckets.drive.Odometry;
 import org.photonvision.PhotonCamera;
 import org.photonvision.estimation.TargetModel;
 import org.photonvision.simulation.PhotonCameraSim;
@@ -11,20 +11,17 @@ import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.simulation.VisionTargetSim;
 
-import java.util.List;
-import java.util.Map;
-
 public class VisionSimContainer {
     final VisionSystemSim visionSystemSim;
     final VisionTargetSim visionTargets;
     final VisionSubsystem visionSubsystem;
-    final OdometrySubsystem odometrySubsystem;
+    final Odometry odometry;
 
     final AprilTagFieldLayout layout;
-    public VisionSimContainer(VisionSubsystem visionSubsystem, OdometrySubsystem odometrySubsystem,
+    public VisionSimContainer(VisionSubsystem visionSubsystem, Odometry odometry,
                               PhotonCamera camera_1, PhotonCamera camera_2, AprilTagFieldLayout layout) {
         this.visionSubsystem = visionSubsystem;
-        this.odometrySubsystem = odometrySubsystem;
+        this.odometry = odometry;
         this.layout = layout;
 
         TargetModel targetModel = new TargetModel(Units.inchesToMeters(6.5), Units.inchesToMeters(6.5));
@@ -63,7 +60,7 @@ public class VisionSimContainer {
     }
 
     public void simulationPeriodic() {
-        visionSystemSim.update(odometrySubsystem.getRobotCentroidPosition());
+        visionSystemSim.update(odometry.getRobotCentroidPosition());
 
 
         // visionSystemSim.update(new Pose2d(0, 0, new Rotation2d(0)));

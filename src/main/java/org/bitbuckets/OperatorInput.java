@@ -2,6 +2,7 @@ package org.bitbuckets;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -33,15 +34,14 @@ public class OperatorInput {
 
 
     //DRIVER'S CONTROLS
-    final Trigger slowModeHold = driver.leftTrigger();
-    final Trigger turboModeHold = driver.rightTrigger();
-    final Trigger autoAlignHold = driver.x();
-    final Trigger xButtonToggle = driver.a();
-    final Trigger homeToOperatorHold = driver.y(); //y would you use this (this homes in on the operator's selected target visible in LEDs)
-    //final Trigger groundIntakeHold = driver.rightBumper();
-    //final Trigger groundOuttakeHold = driver.leftBumper();
+    public final Trigger slowModeHold = driver.leftTrigger();
+    public final Trigger turboModeHold = driver.rightTrigger();
+    public final Trigger leftSpeakerHeadingHold = driver.x();
+    public final Trigger frontSpeakerHeadingHold = driver.y();
+    public final Trigger rightSpeakerHeadingHold = driver.b();
+    public final Trigger ampHeadingHold = driver.a();
+
     final Trigger resetGyroPress = driver.start();
-    final Trigger pidModeHold = driver.leftBumper();
 
 
     /**
@@ -61,39 +61,6 @@ public class OperatorInput {
     public double getClimberInput()
     {
         return deadband(operatorControl.getRawAxis(XboxController.Axis.kRightY.value));
-    }
-
-
-
-
-
-    public boolean getSlowModeHeld() {
-        return slowModeHold.getAsBoolean();
-    }
-
-    public boolean getTurboModeHeld() {
-        return turboModeHold.getAsBoolean();
-    }
-    public boolean isPIDStick() {
-        return pidModeHold.getAsBoolean();
-    }
-
-    public boolean getAutoAlignState() {
-        return autoAlignHold.getAsBoolean();
-    }
-
-    public boolean getOperatorXButtonState() {
-        return shootManually.getAsBoolean();
-    }
-
-
-    public boolean getDriverXButtonState() {
-        return xButtonToggle.getAsBoolean();
-    }
-
-
-    public boolean getResetGyroState() {
-        return resetGyroPress.getAsBoolean();
     }
 
     public double getDriverRightComponent() {
