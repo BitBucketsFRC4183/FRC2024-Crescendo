@@ -53,6 +53,11 @@ public class KinematicGyro implements IGyro {
 
     }
 
+    @Override
+    public boolean isOk() {
+        return true;
+    }
+
 
     static SwerveModulePosition[] delta(SwerveModulePosition[] now, SwerveModulePosition[] last) {
         SwerveModulePosition[] positions = new SwerveModulePosition[now.length];
