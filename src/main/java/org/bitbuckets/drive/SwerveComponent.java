@@ -21,6 +21,7 @@ public interface SwerveComponent extends INetworkedComponent {
     @Log("hall_based_states") void logHallEncoderBasedStates(SwerveModuleState[] states);
     @Log("absolute_based_states") void logAbsoluteBasedStates(SwerveModuleState[] states);
     @Log("desired_states") void logDesiredStates(SwerveModuleState[] desiredStates);
+    @Log("isAtThetaSetpoint") void logSetpoint(boolean atSetpoint);
 
 
 

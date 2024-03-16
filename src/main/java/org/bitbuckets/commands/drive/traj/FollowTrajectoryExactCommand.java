@@ -33,9 +33,9 @@ public class FollowTrajectoryExactCommand extends Command {
 
     final PIDController xPid;
     final PIDController yPid ;
-    final ProfiledPIDController thetaPid;
+    final PIDController thetaPid;
 
-    public FollowTrajectoryExactCommand(ChoreoTrajectory trajectory, OdometrySubsystem odometrySubsystem, DriveSubsystem driveSubsystem, PIDController xPid, PIDController yPid, ProfiledPIDController thetaPid) {
+    public FollowTrajectoryExactCommand(ChoreoTrajectory trajectory, OdometrySubsystem odometrySubsystem, DriveSubsystem driveSubsystem, PIDController xPid, PIDController yPid, PIDController thetaPid) {
         this.trajectory = trajectory;
         this.odometrySubsystem = odometrySubsystem;
         this.driveSubsystem = driveSubsystem;
@@ -53,7 +53,7 @@ public class FollowTrajectoryExactCommand extends Command {
     //TODO ITS GOTTA BE CENTROIDPOSITION.GETROTATION
     @Override
     public void initialize() {
-        thetaPid.reset(MathUtil.angleModulus(odometrySubsystem.getRobotCentroidPosition().getRotation().getRadians()));
+        thetaPid.reset();
         thetaPid.enableContinuousInput(-Math.PI, Math.PI);
         thetaPid.setTolerance(Math.PI / 90 ); //0.5 deg
         timer.restart();
@@ -61,6 +61,7 @@ public class FollowTrajectoryExactCommand extends Command {
 
     @Override
     public void execute() {
+        RobotContainer.SWERVE.logSetpoint(thetaPid.atSetpoint());
 
         RobotContainer.DRIVE_T_PID.reportState(MathUtil.angleModulus(odometrySubsystem.getRobotCentroidPosition().getRotation().getDegrees()));
 

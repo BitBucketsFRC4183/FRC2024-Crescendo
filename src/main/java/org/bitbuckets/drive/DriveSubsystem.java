@@ -31,6 +31,7 @@ public class DriveSubsystem implements Subsystem, IMattlibHooked {
         }
         RobotContainer.SWERVE.logAbsoluteBasedStates(currentAbsoluteBasedState());
         RobotContainer.SWERVE.logHallEncoderBasedStates(currentHallEffectStates());
+
     }
 
     @Override public void logicPeriodic() {

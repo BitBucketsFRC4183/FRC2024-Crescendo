@@ -91,35 +91,10 @@ Vx = 10 #m/s
 Vy = 5 #m/s
 
 
-# Pivot Stuff
-[pivot]
-encoder = { dio_channelA = 2, dio_channelB = 3, encoderToMechanismCoef = 1, inverted = true }
-pid = {i = 0, p = 1, d = 0,  tolerance = 0}
-
-[pivot.left]
-encoderToMechanismCoef = 1666.666666666666666666666666666666666666666666 # 100:1 * 15:18 * 20:1
-id = 5 #right = 8
-rotationalInertia = 0.002
-velocityStdv = 0.001
-positionStdv = 0.001
-currentLimit = 20
-inverted = true
-breakModeEnabled = true
-
-[pivot.right]
-encoderToMechanismCoef = 1666.666666666666666666666666666666666666666666 # 100:1 * 15:18 * 20:1
-id = 8
-rotationalInertia = 0.002
-velocityStdv = 0.001
-positionStdv = 0.001
-currentLimit = 20
-inverted = false
-breakModeEnabled = true
-
 
 # DRIVE STUFF GOES HERE
 [swerve]
-steer_pid_common = {p = 4, i = 0, d = 0.3,  tolerance = 0.00555556} # pi / 90 -> rots
+steer_pid_common = {p = 16, i = 0, d = 0,  tolerance = 0.00555556} # pi / 90 -> rots
 pigeonId = 5
 magnitudeFWLim = 3.3
 field_oriented = true
@@ -208,12 +183,12 @@ openRampRate = 0.5
 # ALWAYS LOW BALL THESE OFFSETS (if its fluctuating between 0.8 and 0.9 go for 0.8
 [swerve.abs_fr]
 analog_channel = 3
-offset = 0.371
+offset = 0.373
 encoderToMechanismCoef = 1
 
 [swerve.abs_fl]
 analog_channel = 0
-offset = 0.341
+offset = 0.343
 encoderToMechanismCoef = 1
 
 [swerve.abs_br]
@@ -223,7 +198,7 @@ encoderToMechanismCoef = 1
 
 [swerve.abs_bl]
 analog_channel = 1
-offset = 0.572
+offset = 0.578
 encoderToMechanismCoef = 1
 
 

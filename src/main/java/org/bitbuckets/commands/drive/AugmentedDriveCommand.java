@@ -70,7 +70,7 @@ public class AugmentedDriveCommand extends Command {
             output = pidController.calculate(currentHeading.getRadians(), desiredHeading.getRadians());
         } else {
             theta = operatorInput.getDriverRightStickX();
-            output = theta * 1 * Math.PI;
+            output = theta * 1.4 * Math.PI;
 
         }
 //        double theta = operatorInput.getDriverRightStickX();
@@ -78,12 +78,10 @@ public class AugmentedDriveCommand extends Command {
 //        double fieldX = operatorInput.getDriverRightStickY();
 
         double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), 0.05);
-        Rotation2d linearDirection = new Rotation2d(x, y);
-        theta = MathUtil.applyDeadband(theta, 0.1);
+        Rotation2d linearDirection = new Rotation2d(MathUtil.applyDeadband(x, 0.09), MathUtil.applyDeadband(y, 0.09));
         pidController.setP(theta * swerveComponent.thetaModePSeed());
 
         linearMagnitude = linearMagnitude * linearMagnitude;
-        theta = Math.copySign(theta * theta, theta);
 
         Translation2d linearVelocity =
                 new Pose2d(new Translation2d(), linearDirection)
