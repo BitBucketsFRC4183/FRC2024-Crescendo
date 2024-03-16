@@ -19,6 +19,8 @@ public class PlaceAllianceZeroHeading extends Command {
     }
 
     @Override public void initialize() {
+        System.out.println("WHAT THE HELL");
+
         Rotation2d headingMod = heading;
         var alliance = DriverStation.getAlliance();
         if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
@@ -27,5 +29,9 @@ public class PlaceAllianceZeroHeading extends Command {
 
 
         odometry.forceHeading(headingMod);
+    }
+
+    @Override public boolean isFinished() {
+        return true;
     }
 }

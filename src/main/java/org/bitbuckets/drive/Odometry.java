@@ -40,6 +40,7 @@ public class Odometry implements IMattlibHooked {
         @Essential @Log("rot_gyro") void logGyroRotation(double rot);
         @Log("rot_odo") void logOdoRotation(double rot);
         @Essential @Log("pose_odo") void logPosition(Pose2d pose2d);
+        @Log("pidgeon_ok") void logPidgeonOk(boolean isOk);
     }
 
 
@@ -81,10 +82,12 @@ public class Odometry implements IMattlibHooked {
     @Override
     public void logPeriodic() {
         odometryComponent.logPosition(odometry.getEstimatedPosition());
-        odometryComponent.logOdoRotation(odometry.getEstimatedPosition().getRotation().getRadians());
-        odometryComponent.logGyroRotation(odometry.getEstimatedPosition().getRotation().getRadians());
-
+        odometryComponent.logOdoRotation(odometry.getEstimatedPosition().getRotation().getDegrees());
+        odometryComponent.logGyroRotation(gyro.rotation_initializationRelative().getDegrees());
+        odometryComponent.logPidgeonOk(gyro.isCurrentlyAlive());
     }
+
+
     public Rotation2d getHeading_fieldRelative() {
         return odometry.getEstimatedPosition().getRotation();
     }
@@ -129,13 +132,14 @@ public class Odometry implements IMattlibHooked {
      }
 
     public void forceHeading(Rotation2d rotation_fieldRelative) {
+
         odometry.resetPosition(
                gyro.rotation_initializationRelative(),
                modules.currentPositions(),
-                new Pose2d(
+               new Pose2d(
                           odometry.getEstimatedPosition().getTranslation(),
                           rotation_fieldRelative
-                )
+               )
         );
      }
 

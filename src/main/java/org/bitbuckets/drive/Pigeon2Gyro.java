@@ -1,5 +1,7 @@
 package org.bitbuckets.drive;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -16,6 +18,8 @@ public class Pigeon2Gyro implements IGyro, IMattlibHooked {
 
     final Pigeon2 pigeon2;
 
+    StatusSignal<Double> yawIgnored;
+
     public Pigeon2Gyro(Pigeon2 pigeon2) {
         this.pigeon2 = pigeon2;
 
@@ -25,8 +29,14 @@ public class Pigeon2Gyro implements IGyro, IMattlibHooked {
     @Override public ExplainedException[] verifyInit() {
         //pigeon2.setYaw(0); //TODO DO NOT DO THIS PLEASE OH MY GOD DO NOT DO THIS
         pigeon2.optimizeBusUtilization();
+        yawIgnored = pigeon2.getYaw();
+        BaseStatusSignal.setUpdateFrequencyForAll(50, yawIgnored);
+
 
         return IMattlibHooked.super.verifyInit();
+    }
+
+    @Override public void logicPeriodic() {
     }
 
     @Override
@@ -36,7 +46,7 @@ public class Pigeon2Gyro implements IGyro, IMattlibHooked {
     }
 
     @Override public boolean isCurrentlyAlive() {
-        return false;
+        return BaseStatusSignal.isAllGood(yawIgnored);
     }
 
 

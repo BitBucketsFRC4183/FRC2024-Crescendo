@@ -15,16 +15,15 @@ import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
 import org.bitbuckets.commands.CommandComponent;
 import org.bitbuckets.commands.ReadyWhileMovingGroundIntakeCommand;
 import org.bitbuckets.commands.ReadyWhileMovingShootCommand;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
+import org.bitbuckets.commands.drive.BaseDriveCommand;
+import org.bitbuckets.commands.drive.DriveFacingStaticPosCommand;
 import org.bitbuckets.commands.drive.SitFacingCommand;
-import org.bitbuckets.commands.drive.EddieFacingCommand;
-import org.bitbuckets.commands.drive.SitFacingFieldRelativeCommand;
 import org.bitbuckets.commands.drive.odo.PlaceAllianceZeroHeading;
 import org.bitbuckets.commands.drive.odo.PlaceOdometryCommand;
 import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
@@ -43,7 +42,6 @@ import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
 import org.bitbuckets.noteManagement.NoteManagementComponent;
 import org.bitbuckets.noteManagement.NoteManagementSubsystem;
 import org.bitbuckets.shooter.FlywheelSubsystem;
-import org.bitbuckets.shooter.PivotSubsystem;
 import org.bitbuckets.util.*;
 import org.bitbuckets.vision.CamerasComponent;
 import org.bitbuckets.vision.VisionComponent;
@@ -443,59 +441,27 @@ public class RobotContainer {
 
     void loadCommands() {
 
+
         //DRIVER STUFF
-        Trigger xGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftX.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kLeftX.value, -0.1));
-        Trigger yGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kLeftY.value, -0.1));
-        Trigger rotGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kRightX.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kRightX.value, -0.1));
-        Trigger climberThreshold = operatorInput.operatorControl.axisGreaterThan(XboxController.Axis.kRightY.value, 0.1).or(operatorInput.operatorControl.axisLessThan(XboxController.Axis.kRightY.value, -0.1));
-        Trigger pivotThreshold = operatorInput.operatorControl.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.1).or(operatorInput.operatorControl.axisLessThan(XboxController.Axis.kLeftY.value, -0.1));
-        xGreaterThan.or(yGreaterThan).or(rotGreaterThan)
-                .whileTrue(new EddieFacingCommand(o2s, operatorInput, swerveSubsystem));
+        operatorInput.movementNotDesired.and(operatorInput.customHeadingNotDesired).onTrue(swerveSubsystem.orderToZeroCommand());
+        operatorInput.movementNotDesired.and(operatorInput.ampHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromDegrees(-90), false));
+        operatorInput.movementNotDesired.and(operatorInput.rightSpeakerHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromRadians(Math.PI / 3), true));
+        operatorInput.movementNotDesired.and(operatorInput.leftSpeakerHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromRadians(-Math.PI / 3), true));
+        operatorInput.movementNotDesired.and(operatorInput.frontSpeakerHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromDegrees(0), true));
 
-        Trigger resting = xGreaterThan.negate().and(yGreaterThan.negate()).and(rotGreaterThan.negate());
+        operatorInput.movementDesired.and(operatorInput.customHeadingNotDesired).whileTrue(new BaseDriveCommand(o2s, operatorInput, swerveSubsystem));
+        operatorInput.movementDesired.and(operatorInput.ampHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromDegrees(-90), false, DFSP));
+        operatorInput.movementDesired.and(operatorInput.rightSpeakerHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromRadians(Math.PI / 3), false, DFSP));
+        operatorInput.movementDesired.and(operatorInput.leftSpeakerHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromRadians(-Math.PI / 3), false, DFSP));
+        operatorInput.movementDesired.and(operatorInput.frontSpeakerHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromDegrees(0), false, DFSP));
 
-        operatorInput.ampHeadingHold.and(resting).whileTrue(
-                new SitFacingFieldRelativeCommand(
-                        thetaController,
-                        swerveSubsystem,
-                        Rotation2d.fromDegrees(-90)
-                )
-        );
-        operatorInput.leftSpeakerHeadingHold.and(resting).whileTrue(
-                new SitFacingCommand(
-                        thetaController,
-                        swerveSubsystem,
-                        Rotation2d.fromRadians(-Math.PI / 3)
-                )
-        );
-        operatorInput.rightSpeakerHeadingHold.and(resting).whileTrue(
-                new SitFacingCommand(
-                        thetaController,
-                        swerveSubsystem,
-                        Rotation2d.fromRadians(Math.PI / 3)
-                )
-        );
-        operatorInput.frontSpeakerHeadingHold.and(resting).whileTrue(
-                new SitFacingCommand(
-                        thetaController,
-                        swerveSubsystem,
-                        Rotation2d.fromDegrees(0)
-                )
-        );
-
-        //stupid stuff
 
         //OPERATOR STUFF
-       // operatorInput.autoAlignHold.whileTrue(new MoveToAlignCommand(driveSubsystem, visionSubsystem, holonomicDriveController, odometrySubsystem));
-        operatorInput.isTeleop.and(climberThreshold).whileTrue(new MoveClimberCommand(climberSubsystem, operatorInput));
+        operatorInput.isTeleop.and(operatorInput.climberThreshold).whileTrue(new MoveClimberCommand(climberSubsystem, operatorInput));
         operatorInput.rev.whileTrue(new SpinFlywheelIndefinite(flywheelSubsystem, false, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond()));
-        //operatorInput.ampSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 100));
-        //operatorInput.speakerSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 60));
         operatorInput.ampShotSpeed.whileTrue(new AmpMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 12));
         operatorInput.groundIntakeNoBeamBreak.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, COMMANDS.groundIntake_voltage(), COMMANDS.noteManagement_voltage() ));
         operatorInput.shootManually.whileTrue(new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond()));
-        //operatorInput.isTeleop.and(pivotThreshold).whileTrue(new ManualPivotCommand(operatorInput, pivotSubsystem));
-
 
         operatorInput.sourceIntake_hold.whileTrue(new SourceConsumerGroup(noteManagementSubsystem, flywheelSubsystem));
         operatorInput.groundIntakeHoldOp //TODO change input
@@ -504,7 +470,7 @@ public class RobotContainer {
                 .whileTrue(new GroundOuttakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
 
         //zero heading, not anything else
-        operatorInput.resetGyroPress.onTrue(new PlaceAllianceZeroHeading(odometry,new Rotation2d()));
+        operatorInput.resetGyroPress.onTrue(new PlaceAllianceZeroHeading(odometry,Rotation2d.fromDegrees(0)));
     }
 
 
@@ -575,29 +541,6 @@ public class RobotContainer {
 
         return modules;
     }
-
-    /*PivotSubsystem loadPivotSubsystem() {
-
-        IRotationalController leftAngleMotor;
-        IRotationalController rightAngleMotor;
-        IRotationEncoder pivotEncoder;
-
-        if (DISABLER.pivot_disabled()) {
-            leftAngleMotor = HardwareDisabled.rotationalController_disabled();
-            rightAngleMotor = HardwareDisabled.rotationalController_disabled();
-            pivotEncoder = HardwareDisabled.rotationEncoder_disabled();
-        } else if (Robot.isSimulation()) {
-            leftAngleMotor = HardwareSIM.rotationalSIM_pid(LEFT_PIVOT, PIVOT_PID, DCMotor.getKrakenX60(1));
-            rightAngleMotor = HardwareSIM.rotationalSIM_pid(RIGHT_PIVOT, PIVOT_PID, DCMotor.getKrakenX60(1));
-            pivotEncoder = leftAngleMotor;
-        } else {
-            leftAngleMotor = HardwareCTRE.rotationalFX_builtInPID(LEFT_PIVOT, PIVOT_PID);
-            rightAngleMotor = HardwareCTRE.rotationalFX_builtInPID(RIGHT_PIVOT, PIVOT_PID);
-            pivotEncoder = HardwareUtil.throughboreEncoder(SHOOTER_PIVOT_ENCODER);
-        }
-
-        return new PivotSubsystem(leftAngleMotor, rightAngleMotor, pivotEncoder);
-    }*/
 
     FlywheelSubsystem loadFlywheelSubsystem() {
         IRotationalVelocityController leftMotor;
@@ -802,6 +745,7 @@ public class RobotContainer {
 
     //commands and autp
     public static final CommandComponent COMMANDS = LOG.load(CommandComponent.class, "commands");
+    public static final DriveFacingStaticPosCommand.Component DFSP = LOG.load(DriveFacingStaticPosCommand.Component.class, "commands/dfsp");
     
     //vision
     public static final VisionComponent VISION = LOG.load(VisionComponent.class, "vision");

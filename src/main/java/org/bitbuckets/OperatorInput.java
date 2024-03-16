@@ -2,7 +2,6 @@ package org.bitbuckets;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -14,7 +13,7 @@ public class OperatorInput {
     // axis 4 correspond to rot
 
     final CommandXboxController operatorControl = new CommandXboxController(1);
-    final CommandXboxController driver = new CommandXboxController(0);
+    public final CommandXboxController driver = new CommandXboxController(0);
 
     public boolean actuallyIsTeleop = false;
     final Trigger isTeleop = new Trigger(() -> actuallyIsTeleop); //TODO fill this out
@@ -31,6 +30,7 @@ public class OperatorInput {
     final Trigger speakerVisionPriority_toggle = operatorControl.povRight();
     final Trigger setShooterAngleManually = operatorControl.leftStick();
     final Trigger rev = operatorControl.leftTrigger();
+    Trigger climberThreshold = operatorControl.axisGreaterThan(XboxController.Axis.kRightY.value, 0.1).or(operatorControl.axisLessThan(XboxController.Axis.kRightY.value, -0.1));
 
 
     //DRIVER'S CONTROLS
@@ -41,7 +41,16 @@ public class OperatorInput {
     public final Trigger rightSpeakerHeadingHold = driver.b();
     public final Trigger ampHeadingHold = driver.a();
 
+    public final Trigger customHeadingDesired = leftSpeakerHeadingHold.or(frontSpeakerHeadingHold).or(rightSpeakerHeadingHold).or(ampHeadingHold);
+    public final Trigger customHeadingNotDesired = customHeadingDesired.negate();
+
     final Trigger resetGyroPress = driver.start();
+
+    final Trigger xNotDesired = driver.axisGreaterThan(XboxController.Axis.kLeftX.value, 0.1).or(driver.axisLessThan(XboxController.Axis.kLeftX.value, -0.1)).negate();
+    final Trigger yNotDesired = driver.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.1).or(driver.axisLessThan(XboxController.Axis.kLeftY.value, -0.1)).negate();
+    final Trigger thetaNotDesired = driver.axisGreaterThan(XboxController.Axis.kRightX.value, 0.1).or(driver.axisLessThan(XboxController.Axis.kRightX.value, -0.1)).negate();
+    public final Trigger movementNotDesired = xNotDesired.and(yNotDesired).and(thetaNotDesired);
+    public final Trigger movementDesired = movementNotDesired.negate();
 
 
     /**
@@ -63,14 +72,6 @@ public class OperatorInput {
         return deadband(operatorControl.getRawAxis(XboxController.Axis.kRightY.value));
     }
 
-    public double getDriverRightComponent() {
-        return deadband(-driver.getLeftX()); //reference frame stuff
-    }
-
-    public double getRobotForwardComponent() {
-        return deadband(-driver.getLeftY()); //reference frame stuff
-    }
-
     public double getDriverRightComponentRaw() {
         return -driver.getLeftX(); //reference frame stuff
     }
@@ -84,11 +85,8 @@ public class OperatorInput {
     }
 
 
-    public double getDriverRightStickX() {
+    public double getDriverAngularComponentRaw() {
         return deadband(-driver.getRightX());
-    }
-    public double getDriverRightStickY() {
-        return deadband(-driver.getRightY());
     }
 
     public double getOperatorLeftStickY(){return deadband(-operatorControl.getRawAxis(XboxController.Axis.kLeftY.value));}

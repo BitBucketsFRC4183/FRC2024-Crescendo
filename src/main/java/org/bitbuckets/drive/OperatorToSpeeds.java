@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.OperatorInput;
 import xyz.auriium.mattlib2.log.INetworkedComponent;
 import xyz.auriium.mattlib2.log.annote.Tune;
@@ -28,15 +29,18 @@ public class OperatorToSpeeds {
         this.component = component;
     }
 
+    ChassisSpeeds lastSpeeds = new ChassisSpeeds();
+
     public ChassisSpeeds desiredLimitedSpeeds_fieldRelative(Rotation2d heading_fieldRelative) {
         double x = operatorInput.getRobotForwardComponentRaw(); //[-1, 1]
         double y = operatorInput.getDriverRightComponentRaw(); //[-1, 1]
-        double theta = operatorInput.getDriverRightStickX(); //[-1, 1]
+        double theta = operatorInput.getDriverAngularComponentRaw(); //[-1, 1]
 
 
-        double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), 0.05);
+        double linearMagnitude = MathUtil.applyDeadband(
+                Math.hypot(MathUtil.applyDeadband(x,0.1), MathUtil.applyDeadband(y, 0.1)), 0.05
+        );
         Rotation2d linearDirection = new Rotation2d(x, y);
-
         linearMagnitude = linearMagnitude * linearMagnitude;
 
         Translation2d linearVelocity =
@@ -66,7 +70,9 @@ public class OperatorToSpeeds {
             headingForFlippingOnly = headingForFlippingOnly.plus(Rotation2d.fromDegrees(180));
         }
 
-        return ChassisSpeeds.fromFieldRelativeSpeeds(speeds_robotOriented, headingForFlippingOnly);
+        lastSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds_robotOriented, headingForFlippingOnly);
+
+        return lastSpeeds;
     }
 
 }
