@@ -32,6 +32,26 @@ public class DriveSubsystem implements Subsystem, IMattlibHooked {
     }
 
 
+
+    /**
+     * Used for auto
+     * @param speeds_fieldRelative
+     */
+    public void orderToUnfilteredAuto(ChassisSpeeds speeds_fieldRelative) {
+        SwerveModuleState[] setpointStates = odometry.kinematics.toSwerveModuleStates(speeds_fieldRelative);
+        Rotation2d[] headings = modules.currentModuleHeadings();
+
+        if (!swerveComponent.useOffsetFindingMode()) {
+            for (int i = 0; i < setpointStates.length; i++) {
+                setpointStates[i] = SwerveModuleState.optimize(setpointStates[i], headings[i]);
+            }
+        }
+
+
+        modules.driveUsingSwerveStates(setpointStates, true);
+    }
+
+
     /**
      * Used for auto
      * @param speeds_fieldRelative

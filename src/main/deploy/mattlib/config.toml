@@ -29,7 +29,7 @@ rotationToMeterCoef = 1
 encoderToMechanismCoef = 1
 rotationalInertia = 1
 inverted = true
-currentLimit = 45
+currentLimit = 50
 
 [ground_intake.bottom]
 id = 21
@@ -37,7 +37,7 @@ rotationToMeterCoef = 1
 encoderToMechanismCoef = 1
 rotationalInertia = 1
 inverted = true
-currentLimit = 45
+currentLimit = 50
 
 [ground_intake.ff_top]
 startDelay_ms = 1000
@@ -91,9 +91,9 @@ Vy = 5 #m/s
 # DRIVE STUFF GOES HERE
 [swerve]
 steer_pid_common = {p = 16, i = 0, d = 0,  tolerance = 0.00555556} # pi / 90 -> rots
-x_holonomic_pid = {p = 1, i = 0, d = 0,  tolerance = 0}
-y_holonomic_pid = {p = 1, i = 0, d = 0,  tolerance = 0}
-t_holonomic_pid = {p = 1, i = 0, d = 0.05,  tolerance = 0.00555556} #need to be redone (current mcr values)
+x_holonomic_pid = {p = 1.2, i = 0, d = 0,  tolerance = 0.05}
+y_holonomic_pid = {p = 1.2, i = 0, d = 0,  tolerance = 0.05}
+t_holonomic_pid = {p = 1, i = 0, d = 0.01,  tolerance = 0.034906585039} #need to be redone (current mcr values)
 drive_pid_common = {p = 0.006, i = 0, d = 0.0,  tolerance = 0}
 ff_fl = {ks = 0.045, kv = 2.505}
 ff_fr = {ks = 0.056, kv = 2.532}

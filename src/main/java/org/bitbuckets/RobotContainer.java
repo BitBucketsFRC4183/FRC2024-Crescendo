@@ -240,8 +240,7 @@ public class RobotContainer {
                 swerveSubsystem,
                 xController,
                 yController,
-                thetaController
-        ).andThen(Commands.runOnce(modules::commandWheelsToZero));
+                DRIVE_T_PID).andThen(Commands.runOnce(modules::commandWheelsToZero));
     }
 
     public Command twoNoteStyle(String real, double ramFireSpeed, double deadline_seconds) {
@@ -352,13 +351,12 @@ public class RobotContainer {
                         followTrajectory(fourNoteArr[3]),
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 ),
-                followTrajectory(fourNoteArr[4]),
                 new ReadyWhileMovingGroundIntakeCommand(
-                        followTrajectory(fourNoteArr[5]),
+                        followTrajectory(fourNoteArr[4]),
                         noteManagementSubsystem, groundIntakeSubsystem
                 ),
                 new ReadyWhileMovingShootCommand(
-                        followTrajectory(fourNoteArr[6]),
+                        followTrajectory(fourNoteArr[5]),
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 )
         );
@@ -478,7 +476,7 @@ public class RobotContainer {
 
         ChoreoTrajectory[] taxiArr = TrajLoadingUtil.getAllTrajectories("waitTaxi");
         var taxi = new SequentialCommandGroup(
-                new PlaceOdometryCommand(taxiArr[0], odometrySubsystem),
+                new PlaceOdometryCommand(taxiArr[0], odometry),
                 followTrajectory(sixNoteArr[0])
         );
 

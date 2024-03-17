@@ -2,16 +2,19 @@ package org.bitbuckets.commands.drive.traj;
 
 import com.choreo.lib.ChoreoTrajectory;
 import com.choreo.lib.ChoreoTrajectoryState;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.bitbuckets.drive.DriveSubsystem;
 import xyz.auriium.mattlib2.auto.pid.IPIDController;
 import xyz.auriium.mattlib2.auto.pid.LinearPIDBrain;
-import xyz.auriium.mattlib2.auto.pid.RotationalPIDBrain;
+import xyz.auriium.mattlib2.hardware.config.PIDComponent;
 
 /**
  * Follows a trajectory. Doesn't stop the motors once it ends and ends when the calculated trajectory time is over, doesn't leave room for PID controllers to finish.
@@ -27,18 +30,25 @@ public class FollowTrajectoryExactCommand extends Command {
 
     final LinearPIDBrain xPidBrain;
     final LinearPIDBrain yPidBrain;
-    final RotationalPIDBrain thetaPidBrain;
+    final ProfiledPIDController thetaPid;
 
     IPIDController xPid;
     IPIDController yPid;
-    IPIDController thetaPid;
+    final PIDComponent thetaPidComponent;
 
-    public FollowTrajectoryExactCommand(ChoreoTrajectory trajectory, DriveSubsystem swerveSubsystem, LinearPIDBrain xPidBrain, LinearPIDBrain yPidBrain, RotationalPIDBrain thetaPidBrain) {
+    public FollowTrajectoryExactCommand(ChoreoTrajectory trajectory, DriveSubsystem swerveSubsystem, LinearPIDBrain xPidBrain, LinearPIDBrain yPidBrain, PIDComponent thetaPidComponent) {
         this.trajectory = trajectory;
         this.swerveSubsystem = swerveSubsystem;
         this.xPidBrain = xPidBrain;
         this.yPidBrain = yPidBrain;
-        this.thetaPidBrain = thetaPidBrain;
+        this.thetaPidComponent = thetaPidComponent;
+
+        thetaPid = new ProfiledPIDController(
+                thetaPidComponent.pConstant(),
+                thetaPidComponent.iConstant(),
+                thetaPidComponent.dConstant(),
+                new TrapezoidProfile.Constraints(3,3)
+        );
     }
 
     boolean shouldMirror() {
@@ -51,7 +61,9 @@ public class FollowTrajectoryExactCommand extends Command {
     public void initialize() {
         xPid = xPidBrain.spawn();
         yPid = yPidBrain.spawn();
-        thetaPid = thetaPidBrain.spawn();
+        thetaPid.reset(MathUtil.angleModulus(swerveSubsystem.odometry.getHeading_fieldRelative().getRadians()));
+        thetaPid.enableContinuousInput(-Math.PI, Math.PI);
+        thetaPid.setTolerance(Math.PI / 90);
 
         timer.restart();
     }
@@ -69,7 +81,7 @@ public class FollowTrajectoryExactCommand extends Command {
 
         double xFeedback = xPid.controlToReference_primeUnits(trajectoryReference.x, robotState.getX());
         double yFeedback = yPid.controlToReference_primeUnits(trajectoryReference.y, robotState.getY());
-        double rotationFeedback = thetaPid.controlToReference_primeUnits(trajectoryReference.heading, robotHeading.getRadians());
+        double rotationFeedback = thetaPid.calculate(robotHeading.getRadians(), trajectoryReference.heading);
 
         ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 xFF + xFeedback,
@@ -78,13 +90,13 @@ public class FollowTrajectoryExactCommand extends Command {
                 robotState.getRotation()
         );
 
-        swerveSubsystem.orderToUnfiltered(robotRelativeSpeeds);
+        swerveSubsystem.orderToUnfilteredAuto(robotRelativeSpeeds);
     }
 
     @Override
     public boolean isFinished() {
          //
-        return (timer.hasElapsed(trajectory.getTotalTime()) && thetaPid.isAtSetpoint()) || timer.hasElapsed(trajectory.getTotalTime() + 2);
+        return (timer.hasElapsed(trajectory.getTotalTime()) && thetaPid.atSetpoint()) || timer.hasElapsed(trajectory.getTotalTime() + 2);
     }
 
     @Override
