@@ -1,12 +1,19 @@
 package org.bitbuckets.drive;
 
+import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.LinearPlantInversionFeedforward;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N2;
+import edu.wpi.first.math.system.LinearSystem;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import org.bitbuckets.util.Util;
 import xyz.auriium.mattlib2.hardware.ILinearVelocityController;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
@@ -20,12 +27,15 @@ public class SwerveModule implements IMattlibHooked {
     final IRotationalController steerController;
     final IRotationEncoder absoluteEncoder;
     final SimpleMotorFeedforward driveFF;
+    final LinearPlantInversionFeedforward<N1, N1, N1> augmentedFFPlant;
+
 
     public SwerveModule(ILinearVelocityController driveMotor, IRotationalController steerController, IRotationEncoder absoluteEncoder, SimpleMotorFeedforward driveFF) {
         this.driveMotor = driveMotor;
         this.steerController = steerController;
         this.absoluteEncoder = absoluteEncoder;
         this.driveFF = driveFF;
+        this.augmentedFFPlant = new LinearPlantInversionFeedforward<>(LinearSystemId.identifyVelocitySystem(driveFF.kv, driveFF.ka), 0.02);
 
         mattRegister();
     }
@@ -48,6 +58,13 @@ public class SwerveModule implements IMattlibHooked {
     }
 
     int resetIteration = 0;
+/*
+    double calculateFF(double currentVelocity, double nextVelocity) {
+        var r = MatBuilder.fill(Nat.N1(), Nat.N1(), currentVelocity);
+        var nextR = MatBuilder.fill(Nat.N1(), Nat.N1(), nextVelocity);
+
+        return driveFF.ks * Math.signum(currentVelocity) + augmentedFFPlant.calculate(r, nextR).get(0, 0);
+    }*/
 
     /**
      * Resets the relative encoder using the absolute encoder if you are still for long enough
@@ -86,6 +103,26 @@ public class SwerveModule implements IMattlibHooked {
         );
     }
 
+    public void setToMoveAtFuture(SwerveModuleState now, SwerveModuleState future) {
+
+        steerController.controlToNormalizedReference(
+                now.angle.getRotations()
+        );
+
+
+        var r = MatBuilder.fill(Nat.N1(), Nat.N1(), now.speedMetersPerSecond);
+        var nextR = MatBuilder.fill(Nat.N1(), Nat.N1(), future.speedMetersPerSecond);
+
+        double staticFF =  driveFF.ks * Math.signum(now.speedMetersPerSecond);
+        double velocityFF = augmentedFFPlant.calculate(r, nextR).get(0,0);
+
+        double feedforwardVoltage = MathUtil.clamp(staticFF + velocityFF, -Util.MAX_VOLTAGE, Util.MAX_VOLTAGE);
+
+
+        driveMotor.controlToLinearVelocityReferenceArbitrary(now.speedMetersPerSecond, feedforwardVoltage);
+
+    }
+
     public void setToMoveAt(SwerveModuleState optimizedState, boolean usePID) {
 
         if (optimizedState.speedMetersPerSecond < 0.001 && Math.abs(optimizedState.angle.getRotations() - steerController.angularPosition_normalizedMechanismRotations()) < 0.01) {
@@ -99,6 +136,7 @@ public class SwerveModule implements IMattlibHooked {
 
         double feedforwardVoltage = driveFF.calculate(optimizedState.speedMetersPerSecond);
         feedforwardVoltage = MathUtil.clamp(feedforwardVoltage, -Util.MAX_VOLTAGE, Util.MAX_VOLTAGE);
+
 
         if (usePID) {
             driveMotor.controlToLinearVelocityReferenceArbitrary(optimizedState.speedMetersPerSecond, feedforwardVoltage);

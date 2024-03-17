@@ -231,7 +231,7 @@ public class RobotContainer {
         }
 
          new ParallelCommandGroup(
-                 Commands.runEnd(() -> swerveSubsystem.orderToHeadingOnly(new ChassisSpeeds(1,0,0)), swerveSubsystem::orderToZero),
+                 Commands.runEnd(() -> swerveSubsystem.orderToHeadingOnly(new ChassisSpeeds(0,0,-1)), swerveSubsystem::orderToZero),
                  new ParallelCommandGroup(commands)
          ).schedule();
     }
@@ -351,6 +351,7 @@ public class RobotContainer {
                         followTrajectory(fourNoteArr[1]),
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 ),
+                //new PlaceOdometryCommand(fourNoteArr[2], odometry),
                 new ReadyWhileMovingGroundIntakeCommand(
                         followTrajectory(fourNoteArr[2]),
                         noteManagementSubsystem, groundIntakeSubsystem
@@ -359,6 +360,7 @@ public class RobotContainer {
                         followTrajectory(fourNoteArr[3]),
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 ),
+                new PlaceOdometryCommand(fourNoteArr[4], odometry),
                 new ReadyWhileMovingGroundIntakeCommand(
                         followTrajectory(fourNoteArr[4]),
                         noteManagementSubsystem, groundIntakeSubsystem
@@ -367,6 +369,8 @@ public class RobotContainer {
                         followTrajectory(fourNoteArr[5]),
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 ),
+                //new PlaceOdometryCommand(fourNoteArr[0], odometry), //TODO
+                Commands.waitSeconds(0.7),
                 Commands.runOnce(modules::commandWheelsToZero)
         );
         ChoreoTrajectory[] fourNoteCompatLeftArr = TrajLoadingUtil.getAllTrajectories("fourNoteCompatLeft");
@@ -516,14 +520,14 @@ public class RobotContainer {
         //DRIVER STUFF
         operatorInput.movementNotDesired.and(operatorInput.customHeadingNotDesired).whileTrue(swerveSubsystem.orderToZeroCommand());
         operatorInput.movementNotDesired.and(operatorInput.ampHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromDegrees(90), false));
-        operatorInput.movementNotDesired.and(operatorInput.rightSpeakerHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromRadians(Math.PI / 3), true));
-        operatorInput.movementNotDesired.and(operatorInput.leftSpeakerHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromRadians(-Math.PI / 3), true));
+        operatorInput.movementNotDesired.and(operatorInput.rightSpeakerHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromRadians(-Math.PI / 3), true));
+        operatorInput.movementNotDesired.and(operatorInput.leftSpeakerHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromRadians(Math.PI / 3), true));
         operatorInput.movementNotDesired.and(operatorInput.frontSpeakerHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromDegrees(0), true));
 
         operatorInput.movementDesired.and(operatorInput.customHeadingNotDesired).whileTrue(new BaseDriveCommand(o2s, operatorInput, swerveSubsystem));
         operatorInput.movementDesired.and(operatorInput.ampHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromDegrees(90), false, DFSP));
-        operatorInput.movementDesired.and(operatorInput.rightSpeakerHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromRadians(Math.PI / 3), true, DFSP));
-        operatorInput.movementDesired.and(operatorInput.leftSpeakerHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromRadians(-Math.PI / 3), true, DFSP));
+        operatorInput.movementDesired.and(operatorInput.rightSpeakerHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromRadians(-Math.PI / 3), true, DFSP));
+        operatorInput.movementDesired.and(operatorInput.leftSpeakerHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromRadians(Math.PI / 3), true, DFSP));
         operatorInput.movementDesired.and(operatorInput.frontSpeakerHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromDegrees(0), true, DFSP));
 
 
@@ -572,7 +576,7 @@ public class RobotContainer {
 
 
         for (int i = 0; i < modules.length; i++) {
-            SimpleMotorFeedforward ff = new SimpleMotorFeedforward(FF_SWERVE[i].ff_ks(), FF_SWERVE[i].ff_kv());
+            SimpleMotorFeedforward ff = new SimpleMotorFeedforward(FF_SWERVE[i].ff_ks(), FF_SWERVE[i].ff_kv(), FF_SWERVE[i].ff_ka());
             ILinearVelocityController driveMotor;
             IRotationalController steerController;
             IRotationEncoder absoluteEncoder;

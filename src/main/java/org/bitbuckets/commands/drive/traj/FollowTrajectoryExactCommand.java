@@ -81,6 +81,12 @@ public class FollowTrajectoryExactCommand extends Command {
         double yFF = trajectoryReference.velocityY;
         double rotationFF = trajectoryReference.angularVelocity;
 
+        ChoreoTrajectoryState trajectoryNext = trajectory.sample(time + 0.02, shouldMirror());
+        double xNext = trajectoryNext.velocityX;
+        double yNext = trajectoryNext.velocityY;
+        double rotationNext = trajectoryNext.angularVelocity;
+
+
         double xFeedback = xPid.controlToReference_primeUnits(trajectoryReference.x, robotState.getX());
         double yFeedback = yPid.controlToReference_primeUnits(trajectoryReference.y, robotState.getY());
         double rotationFeedback = thetaPid.calculate(MathUtil.angleModulus(robotHeading.getRadians()), MathUtil.angleModulus(trajectoryReference.heading));
@@ -92,13 +98,22 @@ public class FollowTrajectoryExactCommand extends Command {
                 robotState.getRotation()
         );
 
-        swerveSubsystem.orderToUnfilteredAuto(robotRelativeSpeeds);
+        ChassisSpeeds nextSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                xNext,
+                yNext,
+                rotationNext,
+                robotState.getRotation()
+        );
+
+
+
+        swerveSubsystem.orderToUnfilteredAuto(robotRelativeSpeeds, nextSpeeds);
     }
 
     @Override
     public boolean isFinished() {
          //
-        return (timer.hasElapsed(trajectory.getTotalTime()) && thetaPid.atSetpoint()) || timer.hasElapsed(trajectory.getTotalTime() + 2);
+        return (timer.hasElapsed(trajectory.getTotalTime()) && thetaPid.atSetpoint()) || timer.hasElapsed(trajectory.getTotalTime() + 1);
     }
 
     @Override

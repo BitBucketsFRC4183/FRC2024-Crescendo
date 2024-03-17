@@ -49,6 +49,14 @@ public class Modules implements IMattlibHooked {
         }
     }
 
+    public void driveUsingFutureStates(SwerveModuleState[] statesNow, SwerveModuleState[] statesLater) {
+        desiredStates_forLog = statesNow;
+
+        for (int i = 0; i < modules.length; i++) {
+            modules[i].setToMoveAtFuture(statesNow[i], statesLater[i]);
+        }
+    }
+
     public void driveUsingHeading(SwerveModuleState[] states) {
         desiredStates_forLog = states;
 
