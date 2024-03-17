@@ -66,6 +66,12 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
         this.lastTarget = Optional.empty();
         this.bestTarget = Optional.empty();
 
+        if (RobotContainer.DISABLER.vision_disabled()) {
+            this.cam1_result = new PhotonPipelineResult();
+        } else this.cam1_result = camera_1.getLatestResult();
+
+        // disable camera result hehe
+        this.cam2_result = new PhotonPipelineResult();
 
 ;        var table = NetworkTableInstance.getDefault().getTable("vision");
 
@@ -98,7 +104,11 @@ public class VisionSubsystem  implements Subsystem, IMattlibHooked {
 
     @Override
     public void periodic() {
-        this.cam1_result = camera_1.getLatestResult();
+
+
+        if (RobotContainer.DISABLER.vision_disabled()) {
+            this.cam1_result = new PhotonPipelineResult();
+        } else this.cam1_result = camera_1.getLatestResult();
 
         // disable camera result hehe
         this.cam2_result = new PhotonPipelineResult();
