@@ -444,16 +444,16 @@ public class RobotContainer {
 
         //DRIVER STUFF
         operatorInput.movementNotDesired.and(operatorInput.customHeadingNotDesired).onTrue(swerveSubsystem.orderToZeroCommand());
-        operatorInput.movementNotDesired.and(operatorInput.ampHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromDegrees(-90), false));
+        operatorInput.movementNotDesired.and(operatorInput.ampHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromDegrees(90), false));
         operatorInput.movementNotDesired.and(operatorInput.rightSpeakerHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromRadians(Math.PI / 3), true));
         operatorInput.movementNotDesired.and(operatorInput.leftSpeakerHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromRadians(-Math.PI / 3), true));
         operatorInput.movementNotDesired.and(operatorInput.frontSpeakerHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromDegrees(0), true));
 
         operatorInput.movementDesired.and(operatorInput.customHeadingNotDesired).whileTrue(new BaseDriveCommand(o2s, operatorInput, swerveSubsystem));
-        operatorInput.movementDesired.and(operatorInput.ampHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromDegrees(-90), false, DFSP));
-        operatorInput.movementDesired.and(operatorInput.rightSpeakerHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromRadians(Math.PI / 3), false, DFSP));
-        operatorInput.movementDesired.and(operatorInput.leftSpeakerHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromRadians(-Math.PI / 3), false, DFSP));
-        operatorInput.movementDesired.and(operatorInput.frontSpeakerHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromDegrees(0), false, DFSP));
+        operatorInput.movementDesired.and(operatorInput.ampHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromDegrees(90), false, DFSP));
+        operatorInput.movementDesired.and(operatorInput.rightSpeakerHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromRadians(Math.PI / 3), true, DFSP));
+        operatorInput.movementDesired.and(operatorInput.leftSpeakerHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromRadians(-Math.PI / 3), true, DFSP));
+        operatorInput.movementDesired.and(operatorInput.frontSpeakerHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromDegrees(0), true, DFSP));
 
 
         //OPERATOR STUFF
@@ -492,11 +492,6 @@ public class RobotContainer {
 
     Modules loadModules() {
         SwerveModule[] modules = loadSwerveModules();
-
-       /* return new DriveSubsystem(modules, kinematics, new UngodlyAbomination(
-                kinematics,
-                translation2ds
-        ));*/
 
         return new Modules(modules,MODULES);
     }

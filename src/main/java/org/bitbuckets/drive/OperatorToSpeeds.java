@@ -38,9 +38,9 @@ public class OperatorToSpeeds {
 
 
         double linearMagnitude = MathUtil.applyDeadband(
-                Math.hypot(MathUtil.applyDeadband(x,0.1), MathUtil.applyDeadband(y, 0.1)), 0.05
+                Math.hypot(x,y), 0.05
         );
-        Rotation2d linearDirection = new Rotation2d(x, y);
+        Rotation2d linearDirection = new Rotation2d(MathUtil.applyDeadband(x,0.1), MathUtil.applyDeadband(y, 0.1));
         linearMagnitude = linearMagnitude * linearMagnitude;
 
         Translation2d linearVelocity =

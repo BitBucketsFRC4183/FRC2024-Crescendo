@@ -1,5 +1,5 @@
 {
-    "version": "v0.2.2",
+    "version": "v0.3",
     "robotConfiguration": {
         "mass": 74.08797700309194,
         "rotationalInertia": 6,
@@ -216,6 +216,7 @@
                     "timestamp": 1.7071382847358019
                 }
             ],
+            "trajectoryWaypoints": [],
             "constraints": [
                 {
                     "scope": [
@@ -239,7 +240,9 @@
             "usesControlIntervalGuessing": true,
             "defaultControlIntervalCount": 40,
             "usesDefaultFieldObstacles": true,
-            "circleObstacles": []
+            "circleObstacles": [],
+            "eventMarkers": [],
+            "isTrajectoryStale": true
         },
         "threeNote": {
             "waypoints": [
@@ -714,6 +717,7 @@
                     "timestamp": 4.233018421470866
                 }
             ],
+            "trajectoryWaypoints": [],
             "constraints": [
                 {
                     "scope": [
@@ -779,7 +783,9 @@
             "usesControlIntervalGuessing": true,
             "defaultControlIntervalCount": 40,
             "usesDefaultFieldObstacles": true,
-            "circleObstacles": []
+            "circleObstacles": [],
+            "eventMarkers": [],
+            "isTrajectoryStale": true
         },
         "mvpTaxi": {
             "waypoints": [
@@ -957,6 +963,7 @@
                     "timestamp": 1.5241723853471034
                 }
             ],
+            "trajectoryWaypoints": [],
             "constraints": [
                 {
                     "scope": [
@@ -981,7 +988,9 @@
             "usesControlIntervalGuessing": true,
             "defaultControlIntervalCount": 40,
             "usesDefaultFieldObstacles": true,
-            "circleObstacles": []
+            "circleObstacles": [],
+            "eventMarkers": [],
+            "isTrajectoryStale": true
         },
         "shootLeave": {
             "waypoints": [
@@ -1276,6 +1285,7 @@
                     "timestamp": 2.3080174062915955
                 }
             ],
+            "trajectoryWaypoints": [],
             "constraints": [
                 {
                     "scope": [
@@ -1293,7 +1303,9 @@
             "usesControlIntervalGuessing": true,
             "defaultControlIntervalCount": 40,
             "usesDefaultFieldObstacles": true,
-            "circleObstacles": []
+            "circleObstacles": [],
+            "eventMarkers": [],
+            "isTrajectoryStale": true
         },
         "twoNoteContested": {
             "waypoints": [
@@ -2029,6 +2041,7 @@
                     "timestamp": 6.301965761319907
                 }
             ],
+            "trajectoryWaypoints": [],
             "constraints": [
                 {
                     "scope": [
@@ -2065,7 +2078,9 @@
             "usesControlIntervalGuessing": true,
             "defaultControlIntervalCount": 40,
             "usesDefaultFieldObstacles": true,
-            "circleObstacles": []
+            "circleObstacles": [],
+            "eventMarkers": [],
+            "isTrajectoryStale": true
         },
         "threeNoteContested": {
             "waypoints": [
@@ -2855,6 +2870,7 @@
                     "timestamp": 7.430242778513802
                 }
             ],
+            "trajectoryWaypoints": [],
             "constraints": [
                 {
                     "scope": [
@@ -2910,7 +2926,9 @@
             "usesControlIntervalGuessing": true,
             "defaultControlIntervalCount": 40,
             "usesDefaultFieldObstacles": true,
-            "circleObstacles": []
+            "circleObstacles": [],
+            "eventMarkers": [],
+            "isTrajectoryStale": true
         },
         "fourNoteContested": {
             "waypoints": [
@@ -4141,6 +4159,7 @@
                     "timestamp": 9.475391152392703
                 }
             ],
+            "trajectoryWaypoints": [],
             "constraints": [
                 {
                     "scope": [
@@ -4228,7 +4247,9 @@
             "usesControlIntervalGuessing": true,
             "defaultControlIntervalCount": 40,
             "usesDefaultFieldObstacles": true,
-            "circleObstacles": []
+            "circleObstacles": [],
+            "eventMarkers": [],
+            "isTrajectoryStale": true
         },
         "twoNoteCompat1": {
             "waypoints": [
@@ -4586,6 +4607,7 @@
                     "timestamp": 2.343494895110904
                 }
             ],
+            "trajectoryWaypoints": [],
             "constraints": [
                 {
                     "scope": [
@@ -4638,7 +4660,9 @@
             "usesControlIntervalGuessing": true,
             "defaultControlIntervalCount": 40,
             "usesDefaultFieldObstacles": true,
-            "circleObstacles": []
+            "circleObstacles": [],
+            "eventMarkers": [],
+            "isTrajectoryStale": true
         },
         "twoNoteCompat2": {
             "waypoints": [
@@ -5005,6 +5029,7 @@
                     "timestamp": 2.5009682595014997
                 }
             ],
+            "trajectoryWaypoints": [],
             "constraints": [
                 {
                     "scope": [
@@ -5057,7 +5082,9 @@
             "usesControlIntervalGuessing": true,
             "defaultControlIntervalCount": 40,
             "usesDefaultFieldObstacles": true,
-            "circleObstacles": []
+            "circleObstacles": [],
+            "eventMarkers": [],
+            "isTrajectoryStale": true
         },
         "fourNote": {
             "waypoints": [
@@ -5784,6 +5811,7 @@
                     "timestamp": 6.859413896055031
                 }
             ],
+            "trajectoryWaypoints": [],
             "constraints": [
                 {
                     "scope": [
@@ -5875,7 +5903,9 @@
             "usesControlIntervalGuessing": true,
             "defaultControlIntervalCount": 40,
             "usesDefaultFieldObstacles": true,
-            "circleObstacles": []
+            "circleObstacles": [],
+            "eventMarkers": [],
+            "isTrajectoryStale": true
         },
         "leaveSide": {
             "waypoints": [
@@ -6026,6 +6056,7 @@
                     "timestamp": 1.205507812013358
                 }
             ],
+            "trajectoryWaypoints": [],
             "constraints": [
                 {
                     "scope": [
@@ -6043,7 +6074,9 @@
             "usesControlIntervalGuessing": true,
             "defaultControlIntervalCount": 40,
             "usesDefaultFieldObstacles": true,
-            "circleObstacles": []
+            "circleObstacles": [],
+            "eventMarkers": [],
+            "isTrajectoryStale": true
         },
         "twoNoteCollect": {
             "waypoints": [
@@ -6518,6 +6551,7 @@
                     "timestamp": 4.233018421470866
                 }
             ],
+            "trajectoryWaypoints": [],
             "constraints": [
                 {
                     "scope": [
@@ -6583,7 +6617,9 @@
             "usesControlIntervalGuessing": true,
             "defaultControlIntervalCount": 40,
             "usesDefaultFieldObstacles": true,
-            "circleObstacles": []
+            "circleObstacles": [],
+            "eventMarkers": [],
+            "isTrajectoryStale": true
         },
         "fourNoteAugment": {
             "waypoints": [
@@ -6860,6 +6896,7 @@
                     "timestamp": 2.525028081300119
                 }
             ],
+            "trajectoryWaypoints": [],
             "constraints": [
                 {
                     "scope": [
@@ -6912,7 +6949,9 @@
             "usesControlIntervalGuessing": true,
             "defaultControlIntervalCount": 40,
             "usesDefaultFieldObstacles": true,
-            "circleObstacles": []
+            "circleObstacles": [],
+            "eventMarkers": [],
+            "isTrajectoryStale": true
         }
     },
     "splitTrajectoriesAtStopPoints": true,
