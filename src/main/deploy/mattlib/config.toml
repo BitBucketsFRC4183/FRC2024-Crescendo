@@ -1,11 +1,6 @@
 # startup stuff
-[flywheel.wheel_1_ffgen]
-[flywheel.wheel_2_ffgen]
-
-[swerve.ffgen_fr]
-[swerve.ffgen_fl]
-[swerve.ffgen_br]
-[swerve.ffgen_bl]
+[leftFlywheelGen]
+[rightFlywheelGen]
 
 # Disabler
 [disabler]
@@ -25,6 +20,7 @@ groupDeadline_seconds = 4
 groundIntake_nominalVoltage = 9
 noteManagement_nominalVoltage = 2
 skip_intermediates = false
+dfsp = { p_heading = 0.04 }
 
 # Ground Intake
 [ground_intake.top]
@@ -120,32 +116,33 @@ breakModeEnabled = true
 # DRIVE STUFF GOES HERE
 [swerve]
 steer_pid_common = {p = 4, i = 0, d = 0.3,  tolerance = 0.00555556} # pi / 90 -> rots
-pigeonId = 5
-magnitudeFWLim = 3.3
-field_oriented = true
-offset_tuning_mode = false
-theta_mode_pSeed = 3
-use_velocity_pid = false
-x_holonomic_pid = {p = 2.55, i = 0, d = 0.05,  tolerance = 0}
-y_holonomic_pid = {p = 2.55, i = 0, d = 0.05,  tolerance = 0}
-t_holonomic_pid = {p = 2.45, i = 0, d = 0.05,  tolerance = 0} #need to be redone (current mcr values)
+x_holonomic_pid = {p = 0, i = 0, d = 0.0,  tolerance = 0.05}
+y_holonomic_pid = {p = 0, i = 0, d = 0.0,  tolerance = 0.05} #0.05 meters deadband
+t_holonomic_pid = {p = 1, i = 0, d = 0.04,  tolerance = 0.00555556} #need to be redone (current mcr values)
 drive_pid_common = {p = 0.006, i = 0, d = 0.0,  tolerance = 0}
 ff_fl = {ks = 0.045, kv = 2.505}
 ff_fr = {ks = 0.056, kv = 2.532}
 ff_br = {ks = 0.044, kv = 2.496}
 ff_bl = {ks = 0.044, kv = 2.516}
+use_velocity_pid_teleop = false
+use_offset_finding_mode = false
+
+[operatorToSpeeds]
+field_oriented = true
+turbo_speed_multiplier = 5
+normal_speed_multiplier = 4.5
+slow_speed_multiplier = 3
 
 [odometry]
+pigeon_can_id = 5
 centroid_height = 0 #TODO
 camera_centroid_offset = {x = 0, y = 0, z = 0} #TODO
 fl_pos_offset = {x = 0.2286, y = 0.3429}
 fr_pos_offset = {x = 0.2286, y = -0.3429}
 bl_pos_offset = {x = -0.3556, y = 0.3429}
 br_pos_offset = {x = -0.3556, y = -0.3429}
-gyroResetButton_dio = 11
 
-# Steer
-
+# SWERVE STEERING
 [swerve.steer_common]
 encoderToMechanismCoef = 0.078125 # (14.0 / 50.0) * (10.0 / 60.0) mk4i reduction
 rotationalInertia = 0.002

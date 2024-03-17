@@ -2,21 +2,16 @@ package org.bitbuckets.commands.drive.traj;
 
 import com.choreo.lib.ChoreoTrajectory;
 import com.choreo.lib.ChoreoTrajectoryState;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import org.bitbuckets.RobotContainer;
 import org.bitbuckets.drive.DriveSubsystem;
-import org.bitbuckets.drive.OdometrySubsystem;
-import xyz.auriium.mattlib2.utils.AngleUtil;
-
-import java.util.Optional;
+import xyz.auriium.mattlib2.auto.pid.IPIDController;
+import xyz.auriium.mattlib2.auto.pid.LinearPIDBrain;
+import xyz.auriium.mattlib2.auto.pid.RotationalPIDBrain;
 
 /**
  * Follows a trajectory. Doesn't stop the motors once it ends and ends when the calculated trajectory time is over, doesn't leave room for PID controllers to finish.
@@ -28,22 +23,24 @@ public class FollowTrajectoryExactCommand extends Command {
     final Timer timer = new Timer();
 
     final ChoreoTrajectory trajectory;
-    final OdometrySubsystem odometrySubsystem;
-    final DriveSubsystem driveSubsystem;
+    final DriveSubsystem swerveSubsystem;
 
-    final PIDController xPid;
-    final PIDController yPid ;
-    final ProfiledPIDController thetaPid;
+    final LinearPIDBrain xPidBrain;
+    final LinearPIDBrain yPidBrain;
+    final RotationalPIDBrain thetaPidBrain;
 
-    public FollowTrajectoryExactCommand(ChoreoTrajectory trajectory, OdometrySubsystem odometrySubsystem, DriveSubsystem driveSubsystem, PIDController xPid, PIDController yPid, ProfiledPIDController thetaPid) {
+    IPIDController xPid;
+    IPIDController yPid;
+    IPIDController thetaPid;
+
+    public FollowTrajectoryExactCommand(ChoreoTrajectory trajectory, DriveSubsystem swerveSubsystem, LinearPIDBrain xPidBrain, LinearPIDBrain yPidBrain, RotationalPIDBrain thetaPidBrain) {
         this.trajectory = trajectory;
-        this.odometrySubsystem = odometrySubsystem;
-        this.driveSubsystem = driveSubsystem;
-
-        this.xPid = xPid;
-        this.yPid = yPid;
-        this.thetaPid = thetaPid;
+        this.swerveSubsystem = swerveSubsystem;
+        this.xPidBrain = xPidBrain;
+        this.yPidBrain = yPidBrain;
+        this.thetaPidBrain = thetaPidBrain;
     }
+
 
     boolean shouldMirror() {
         DriverStation.Alliance alliance = DriverStation.getAlliance().orElseThrow();
@@ -53,32 +50,27 @@ public class FollowTrajectoryExactCommand extends Command {
     //TODO ITS GOTTA BE CENTROIDPOSITION.GETROTATION
     @Override
     public void initialize() {
-        thetaPid.reset(MathUtil.angleModulus(odometrySubsystem.getRobotCentroidPosition().getRotation().getRadians()));
-        thetaPid.enableContinuousInput(-Math.PI, Math.PI);
-        thetaPid.setTolerance(Math.PI / 90 ); //0.5 deg
+        xPid = xPidBrain.spawn();
+        yPid = yPidBrain.spawn();
+        thetaPid = thetaPidBrain.spawn();
+
         timer.restart();
     }
 
     @Override
     public void execute() {
-
-        RobotContainer.DRIVE_T_PID.reportState(MathUtil.angleModulus(odometrySubsystem.getRobotCentroidPosition().getRotation().getDegrees()));
-
         double time = timer.get();
         ChoreoTrajectoryState trajectoryReference = trajectory.sample(time, shouldMirror());
-        Pose2d robotState = odometrySubsystem.getRobotCentroidPosition();  //TODO ITS GOTTA BE CENTROIDPOSITION.GETROTATION
+        Pose2d robotState = swerveSubsystem.odometry.getRobotCentroidPosition();  //TODO ITS GOTTA BE CENTROIDPOSITION.GETROTATION
+        Rotation2d robotHeading = robotState.getRotation();
 
         double xFF = trajectoryReference.velocityX;
         double yFF = trajectoryReference.velocityY;
         double rotationFF = trajectoryReference.angularVelocity;
 
-        double xFeedback = xPid.calculate(robotState.getX(), trajectoryReference.x);
-        double yFeedback = yPid.calculate(robotState.getY(), trajectoryReference.y);
-        //TODO ITS GOTTA BE CENTROIDPOSITION.GETROTATION
-        double rotationFeedback = thetaPid.calculate(MathUtil.angleModulus(odometrySubsystem.getRobotCentroidPosition().getRotation().getRadians()), MathUtil.angleModulus(trajectoryReference.heading));
-
-        RobotContainer.DRIVE_T_PID.reportReference(MathUtil.angleModulus(MathUtil.angleModulus(trajectoryReference.heading)));
-
+        double xFeedback = xPid.controlToReference_primeUnits(trajectoryReference.x, robotState.getX());
+        double yFeedback = yPid.controlToReference_primeUnits(trajectoryReference.y, robotState.getY());
+        double rotationFeedback = thetaPid.controlToReference_primeUnits(trajectoryReference.heading, robotHeading.getRadians());
 
         ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 xFF + xFeedback,
@@ -87,22 +79,21 @@ public class FollowTrajectoryExactCommand extends Command {
                 robotState.getRotation()
         );
 
-
-
-        driveSubsystem.driveUsingChassisSpeed(robotRelativeSpeeds, true);
+        swerveSubsystem.orderToUnfiltered(robotRelativeSpeeds);
     }
 
     @Override
     public boolean isFinished() {
          //
-        return (timer.hasElapsed(trajectory.getTotalTime()) && thetaPid.atSetpoint()) || timer.hasElapsed(trajectory.getTotalTime() + 2);
+        return (timer.hasElapsed(trajectory.getTotalTime()) && thetaPid.isAtSetpoint()) || timer.hasElapsed(trajectory.getTotalTime() + 2);
     }
 
     @Override
     public void end(boolean interrupted) {
         timer.stop();
         if (interrupted) {
-            driveSubsystem.driveUsingChassisSpeed(new ChassisSpeeds(), false);
+            System.out.println("INTERUPT");
+            swerveSubsystem.orderToZero();
         }
     }
 }
