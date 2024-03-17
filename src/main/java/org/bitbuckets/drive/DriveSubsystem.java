@@ -2,6 +2,7 @@ package org.bitbuckets.drive;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -68,6 +69,12 @@ public class DriveSubsystem implements Subsystem, IMattlibHooked {
 
 
         modules.driveUsingSwerveStates(setpointStates, swerveComponent.useVelocityPidTeleop());
+    }
+
+    public void orderToHeadingOnly(ChassisSpeeds speeds_onlyHeading) {
+        SwerveModuleState[] setpointStates = odometry.kinematics.toSwerveModuleStates(speeds_onlyHeading);
+
+        modules.driveUsingHeading(setpointStates);
     }
 
     public void orderToZero() {

@@ -7,6 +7,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -53,6 +54,7 @@ import xyz.auriium.mattlib.ctre.HardwareCTRE;
 import xyz.auriium.mattlib2.MattConsole;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
+import xyz.auriium.mattlib2.auto.ff.LinearFFGenRoutine;
 import xyz.auriium.mattlib2.auto.ff.RotationFFGenRoutine;
 import xyz.auriium.mattlib2.auto.ff.config.GenerateFFComponent;
 import xyz.auriium.mattlib2.auto.pid.LinearPIDBrain;
@@ -214,22 +216,24 @@ public class RobotContainer {
         //LinearFFGenRoutine groundBottomFFRoutine = new LinearFFGenRoutine(BOTTOM_GROUND_FFGEN, groundIntakeSubsystem.bottomMotor, groundIntakeSubsystem.bottomMotor);
         //CTowerCommands.wrapRoutine(groundTopFFRoutine).schedule();
         //CTowerCommands.wrapRoutine(groundBottomFFRoutine).schedule();
-        RotationFFGenRoutine leftShooterR = new RotationFFGenRoutine(LEFT_FLYWHEEL_GEN, flywheelSubsystem.leftMotor, flywheelSubsystem.velocityEncoderLeft);
+        /*RotationFFGenRoutine leftShooterR = new RotationFFGenRoutine(LEFT_FLYWHEEL_GEN, flywheelSubsystem.leftMotor, flywheelSubsystem.velocityEncoderLeft);
         RotationFFGenRoutine rightShooterR = new RotationFFGenRoutine(RIGHT_FLYWHEEL_GEN, flywheelSubsystem.rightMotor, flywheelSubsystem.velocityEncoderRight);
 
         new ParallelCommandGroup(
                 CTowerCommands.wrapRoutine(leftShooterR),
                 CTowerCommands.wrapRoutine(rightShooterR)
-        ).schedule();
+        ).schedule();*/
+        Command[] commands = new Command[4];
+         for (int i = 0; i < 4; i++) {
+            var motorWeAreTesting = swerveSubsystem.modules.modules[i].driveMotor;
+            LinearFFGenRoutine driveFFRoutine = new LinearFFGenRoutine(DRIVE_FF[i],motorWeAreTesting, motorWeAreTesting);
+            commands[i]= CTowerCommands.wrapRoutine(driveFFRoutine);
+        }
 
-//        Command[] commands = new Command[4];
-//        for (int i = 0; i < 4; i++) {
-//            var motorWeAreTesting = driveSubsystem.modules[i].driveMotor;
-//            LinearFFGenRoutine driveFFRoutine = new LinearFFGenRoutine(DRIVE_MOTORS_FFGEN[i],motorWeAreTesting, motorWeAreTesting);
-//            commands[i]= CTowerCommands.wrapRoutine(driveFFRoutine);
-//        }
-//
-//        new ParallelCommandGroup(commands).schedule();
+         new ParallelCommandGroup(
+                 Commands.runEnd(() -> swerveSubsystem.orderToHeadingOnly(new ChassisSpeeds(1,0,0)), swerveSubsystem::orderToZero),
+                 new ParallelCommandGroup(commands)
+         ).schedule();
     }
 
 
@@ -798,6 +802,7 @@ public class RobotContainer {
 
 
     //Components MUST be created in the Robot class (because of how static bs works)
+    static final GenerateFFComponent[] DRIVE_FF = LOG.loadRange(GenerateFFComponent.class, "drive_ff", 4);
     static final GenerateFFComponent LEFT_FLYWHEEL_GEN = LOG.load(GenerateFFComponent.class, "leftFlywheelGen");
     static final GenerateFFComponent RIGHT_FLYWHEEL_GEN = LOG.load(GenerateFFComponent.class, "rightFlywheelGen");
 
