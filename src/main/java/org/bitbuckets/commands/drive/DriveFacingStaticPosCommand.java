@@ -60,6 +60,8 @@ public class DriveFacingStaticPosCommand extends Command {
 
 
     @Override public void initialize() {
+
+
         timeLast_seconds = MathSharedStore.getTimestamp();
         boolean shouldFlip = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red;
         goalHeadingMutable = goal_fieldOrAlliance;

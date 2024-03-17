@@ -116,8 +116,8 @@ breakModeEnabled = true
 # DRIVE STUFF GOES HERE
 [swerve]
 steer_pid_common = {p = 4, i = 0, d = 0.3,  tolerance = 0.00555556} # pi / 90 -> rots
-x_holonomic_pid = {p = 0.3, i = 0, d = 0.0,  tolerance = 0.05}
-y_holonomic_pid = {p = 0.3, i = 0, d = 0.0,  tolerance = 0.05} #0.05 meters deadband
+x_holonomic_pid = {p = 0, i = 0, d = 0.0,  tolerance = 0.05}
+y_holonomic_pid = {p = 0, i = 0, d = 0.0,  tolerance = 0.05} #0.05 meters deadband
 t_holonomic_pid = {p = 1, i = 0, d = 0.04,  tolerance = 0.00555556} #need to be redone (current mcr values)
 drive_pid_common = {p = 0.006, i = 0, d = 0.0,  tolerance = 0}
 ff_fl = {ks = 0.045, kv = 2.505}
