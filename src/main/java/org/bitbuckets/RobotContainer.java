@@ -9,6 +9,7 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.apriltag.AprilTagDetector;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -43,7 +44,6 @@ import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
 import org.bitbuckets.commands.vision.SetPriorityCommand;
 import org.bitbuckets.commands.vision.ToggleVisionOdometryCommand;
 import org.bitbuckets.disabled.KinematicGyro;
-import org.bitbuckets.commands.shooter.PivotToPositionFireGroup;
 import org.bitbuckets.commands.shooter.AmpMakeReadyGroup;
 import org.bitbuckets.commands.shooter.FireMakeReadyGroup;
 import org.bitbuckets.commands.shooter.SourceConsumerGroup;
@@ -102,7 +102,7 @@ public class RobotContainer {
     public final ClimberSubsystem climberSubsystem;
     public final GroundIntakeSubsystem groundIntakeSubsystem;
     public final NoteManagementSubsystem noteManagementSubsystem;
-    public final AutoSubsystem autoSubsystem;
+
     public final SwerveDriveKinematics kinematics;
 
     public final SendableChooser<Command> chooser;
@@ -150,7 +150,6 @@ public class RobotContainer {
         this.climberSubsystem = loadClimberSubsystem();
         this.groundIntakeSubsystem = loadGroundIntakeSubsystem();
         this.noteManagementSubsystem = loadNoteManagementSubsystem();
-        this.autoSubsystem = loadAutosubsystem();
 
         if (!DISABLER.vision_disabled() && Robot.isSimulation()) {
             PhotonCamera[] cameras = visionSubsystem.getCameras();
@@ -482,7 +481,7 @@ public class RobotContainer {
         operatorInput.ampShotSpeed.whileTrue(new AmpMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 12));
         operatorInput.groundIntakeNoBeamBreak.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, COMMANDS.groundIntake_voltage(), COMMANDS.noteManagement_voltage() ));
         operatorInput.shootManually.whileTrue(new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond()));
-        operatorInput.disableVisionOdometry.onTrue(new ToggleVisionOdometryCommand(odometrySubsystem));
+        operatorInput.disableVisionOdometry.onTrue(new ToggleVisionOdometryCommand(odometry));
 
         operatorInput.sourceIntake_hold.whileTrue(new SourceConsumerGroup(noteManagementSubsystem, flywheelSubsystem));
         operatorInput.groundIntakeHoldOp //TODO change input
@@ -637,7 +636,7 @@ public class RobotContainer {
         return new Odometry(
                 modules,
                 visionSubsystem,
-                new CustomSwervePoseEstimator( //The auto path will reset all of this data anyways
+                new SwerveDrivePoseEstimator( //The auto path will reset all of this data anyways
                         kinematics,
                         new Rotation2d(),
                         new SwerveModulePosition[]{new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition()},

@@ -5,7 +5,9 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import org.bitbuckets.Robot;
+import org.bitbuckets.RobotContainer;
 import org.bitbuckets.vision.VisionSubsystem;
 import org.photonvision.EstimatedRobotPose;
 import xyz.auriium.mattlib2.log.INetworkedComponent;
@@ -21,7 +23,7 @@ public class Odometry implements IMattlibHooked {
 
     final Modules modules;
     final VisionSubsystem visionSubsystem;
-    final CustomSwervePoseEstimator odometry;
+    final SwerveDrivePoseEstimator odometry;
     final SwerveDriveKinematics kinematics;
     final IGyro gyro;
 
@@ -118,14 +120,6 @@ public class Odometry implements IMattlibHooked {
         );
    }
 
-     public Pose3d getCameraPositionVert() {
-        return getRobotCentroidPositionVert().plus(
-                new Transform3d(
-                        odometryComponent.cameraCentroidOffset(),
-                        new Rotation3d()
-                )
-        );
-   }
 
      public Pose3d getShooterCentroidPositionVert() {
 
