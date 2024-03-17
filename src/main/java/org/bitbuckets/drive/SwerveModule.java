@@ -1,8 +1,10 @@
 package org.bitbuckets.drive;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import org.bitbuckets.util.Util;
@@ -17,15 +19,13 @@ public class SwerveModule implements IMattlibHooked {
     public final ILinearVelocityController driveMotor;
     final IRotationalController steerController;
     final IRotationEncoder absoluteEncoder;
-    final SimpleMotorFeedforward ff;
-    final SwerveComponent parentSwerveComponent;
+    final SimpleMotorFeedforward driveFF;
 
-    public SwerveModule(ILinearVelocityController driveMotor, IRotationalController steerController, IRotationEncoder absoluteEncoder, SimpleMotorFeedforward ff, SwerveComponent parentSwerveComponent) {
+    public SwerveModule(ILinearVelocityController driveMotor, IRotationalController steerController, IRotationEncoder absoluteEncoder, SimpleMotorFeedforward driveFF) {
         this.driveMotor = driveMotor;
         this.steerController = steerController;
         this.absoluteEncoder = absoluteEncoder;
-        this.ff = ff;
-        this.parentSwerveComponent = parentSwerveComponent;
+        this.driveFF = driveFF;
 
         mattRegister();
     }
@@ -75,16 +75,7 @@ public class SwerveModule implements IMattlibHooked {
         steerController.stopActuator();
     }
 
-    public void setToMoveAt(SwerveModuleState state, boolean usePID) {
-
-        SwerveModuleState optimizedState = SwerveModuleState.optimize(
-                state,
-                Rotation2d.fromRotations(steerController.angularPosition_normalizedMechanismRotations())
-        );
-
-        if (parentSwerveComponent.offsetTuningMode()) { //Don't use optimize when tuning
-            optimizedState = state;
-        }
+    public void setToMoveAt(SwerveModuleState optimizedState, boolean usePID) {
 
         if (optimizedState.speedMetersPerSecond < 0.001 && Math.abs(optimizedState.angle.getRotations() - steerController.angularPosition_normalizedMechanismRotations()) < 0.01) {
             steerController.setToVoltage(0);
@@ -95,7 +86,7 @@ public class SwerveModule implements IMattlibHooked {
                 optimizedState.angle.getRotations()
         );
 
-        double feedforwardVoltage = ff.calculate(optimizedState.speedMetersPerSecond);
+        double feedforwardVoltage = driveFF.calculate(optimizedState.speedMetersPerSecond);
         feedforwardVoltage = MathUtil.clamp(feedforwardVoltage, -Util.MAX_VOLTAGE, Util.MAX_VOLTAGE);
 
         if (usePID) {

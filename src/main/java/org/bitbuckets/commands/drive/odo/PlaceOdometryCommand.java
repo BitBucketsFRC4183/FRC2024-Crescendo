@@ -1,21 +1,20 @@
-package org.bitbuckets.commands.drive;
+package org.bitbuckets.commands.drive.odo;
 
 import com.choreo.lib.ChoreoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
-import org.bitbuckets.drive.OdometrySubsystem;
+import org.bitbuckets.drive.Odometry;
 
 public class PlaceOdometryCommand extends Command {
 
 
     final ChoreoTrajectory trajectory;
-    final OdometrySubsystem odometrySubsystem;
+    final Odometry odometry;
 
-    public PlaceOdometryCommand(ChoreoTrajectory trajectory, OdometrySubsystem odometrySubsystem) {
+    public PlaceOdometryCommand(ChoreoTrajectory trajectory, Odometry odometry) {
         this.trajectory = trajectory;
-        this.odometrySubsystem = odometrySubsystem;
+        this.odometry = odometry;
     }
 
     boolean shouldMirror() {
@@ -31,8 +30,7 @@ public class PlaceOdometryCommand extends Command {
             initialPose = trajectory.flipped().getInitialPose();
         }
 
-        System.out.println("Initial Pose: " + initialPose.toString() + "flipped: " + shouldMirror());
-        odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(initialPose));
+        odometry.forcePosition(initialPose);
     }
 
     @Override public boolean isFinished() {

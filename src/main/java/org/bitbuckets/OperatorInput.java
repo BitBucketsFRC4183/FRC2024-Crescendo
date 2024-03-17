@@ -15,7 +15,7 @@ public class OperatorInput {
     // axis 4 correspond to rot
 
     final CommandXboxController operatorControl = new CommandXboxController(1);
-    final CommandXboxController driver = new CommandXboxController(0);
+    public final CommandXboxController driver = new CommandXboxController(0);
 
     public boolean actuallyIsTeleop = false;
     final Trigger isTeleop = new Trigger(() -> actuallyIsTeleop); //TODO fill this out
@@ -34,20 +34,29 @@ public class OperatorInput {
     final Trigger resetVisionPriority_toggle = operatorControl.povUp();
     final Trigger setShooterAngleManually = operatorControl.leftStick();
     final Trigger rev = operatorControl.leftTrigger();
+    Trigger climberThreshold = operatorControl.axisGreaterThan(XboxController.Axis.kRightY.value, 0.1).or(operatorControl.axisLessThan(XboxController.Axis.kRightY.value, -0.1));
 
     final Trigger disableVisionOdometry = operatorControl.start();
 
 
     //DRIVER'S CONTROLS
-    final Trigger slowModeHold = driver.leftTrigger();
-    final Trigger turboModeHold = driver.rightTrigger();
-    final Trigger autoAlignHold = driver.x();
-    final Trigger xButtonToggle = driver.a();
-    final Trigger homeToOperatorHold = driver.y(); //y would you use this (this homes in on the operator's selected target visible in LEDs)
-    //final Trigger groundIntakeHold = driver.rightBumper();
-    //final Trigger groundOuttakeHold = driver.leftBumper();
+    public final Trigger slowModeHold = driver.leftTrigger();
+    public final Trigger turboModeHold = driver.rightTrigger();
+    public final Trigger leftSpeakerHeadingHold = driver.x();
+    public final Trigger frontSpeakerHeadingHold = driver.y();
+    public final Trigger rightSpeakerHeadingHold = driver.b();
+    public final Trigger ampHeadingHold = driver.a();
+
+    public final Trigger customHeadingDesired = leftSpeakerHeadingHold.or(frontSpeakerHeadingHold).or(rightSpeakerHeadingHold).or(ampHeadingHold);
+    public final Trigger customHeadingNotDesired = customHeadingDesired.negate();
+
     final Trigger resetGyroPress = driver.start();
-    final Trigger pidModeHold = driver.leftBumper();
+
+    final Trigger xNotDesired = driver.axisGreaterThan(XboxController.Axis.kLeftX.value, 0.1).or(driver.axisLessThan(XboxController.Axis.kLeftX.value, -0.1)).negate();
+    final Trigger yNotDesired = driver.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.1).or(driver.axisLessThan(XboxController.Axis.kLeftY.value, -0.1)).negate();
+    final Trigger thetaNotDesired = driver.axisGreaterThan(XboxController.Axis.kRightX.value, 0.1).or(driver.axisLessThan(XboxController.Axis.kRightX.value, -0.1)).negate();
+    public final Trigger movementNotDesired = xNotDesired.and(yNotDesired).and(thetaNotDesired);
+    public final Trigger movementDesired = movementNotDesired.negate();
 
 
 
@@ -70,47 +79,6 @@ public class OperatorInput {
         return deadband(operatorControl.getRawAxis(XboxController.Axis.kRightY.value));
     }
 
-
-
-
-
-    public boolean getSlowModeHeld() {
-        return slowModeHold.getAsBoolean();
-    }
-
-    public boolean getTurboModeHeld() {
-        return turboModeHold.getAsBoolean();
-    }
-    public boolean isPIDStick() {
-        return pidModeHold.getAsBoolean();
-    }
-
-    public boolean getAutoAlignState() {
-        return autoAlignHold.getAsBoolean();
-    }
-
-    public boolean getOperatorXButtonState() {
-        return shootManually.getAsBoolean();
-    }
-
-
-    public boolean getDriverXButtonState() {
-        return xButtonToggle.getAsBoolean();
-    }
-
-
-    public boolean getResetGyroState() {
-        return resetGyroPress.getAsBoolean();
-    }
-
-    public double getDriverRightComponent() {
-        return deadband(-driver.getLeftX()); //reference frame stuff
-    }
-
-    public double getRobotForwardComponent() {
-        return deadband(-driver.getLeftY()); //reference frame stuff
-    }
-
     public double getDriverRightComponentRaw() {
         return -driver.getLeftX(); //reference frame stuff
     }
@@ -129,11 +97,8 @@ public class OperatorInput {
         return Rotation2d.fromRotations(rotZeroToOne);
     }
 
-    public double getDriverRightStickX() {
+    public double getDriverAngularComponentRaw() {
         return deadband(-driver.getRightX());
-    }
-    public double getDriverRightStickY() {
-        return deadband(-driver.getRightY());
     }
 
     public double getOperatorLeftStickY(){return deadband(-operatorControl.getRawAxis(XboxController.Axis.kLeftY.value));}

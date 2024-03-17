@@ -8,16 +8,12 @@ import com.pathplanner.lib.pathfinding.LocalADStar;
 import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.apriltag.AprilTagDetector;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.math.controller.HolonomicDriveController;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.math.util.Units;
@@ -29,18 +25,17 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
 import org.bitbuckets.commands.CommandComponent;
 import org.bitbuckets.commands.ReadyWhileMovingGroundIntakeCommand;
 import org.bitbuckets.commands.ReadyWhileMovingShootCommand;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
-import org.bitbuckets.commands.drive.AugmentedDriveCommand;
-import org.bitbuckets.commands.drive.PlaceOdometryCommand;
-import org.bitbuckets.commands.drive.MoveToAlignCommand;
-import org.bitbuckets.commands.drive.ThetaDriveCommand;
-import org.bitbuckets.commands.drive.traj.FollowAStarToNoteCommand;
+import org.bitbuckets.commands.drive.BaseDriveCommand;
+import org.bitbuckets.commands.drive.DriveFacingStaticPosCommand;
+import org.bitbuckets.commands.drive.SitFacingCommand;
+import org.bitbuckets.commands.drive.odo.PlaceAllianceZeroHeading;
+import org.bitbuckets.commands.drive.odo.PlaceOdometryCommand;
 import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
 import org.bitbuckets.commands.groundIntake.BasicGroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.FeedGroundIntakeGroup;
@@ -53,7 +48,6 @@ import org.bitbuckets.commands.shooter.AmpMakeReadyGroup;
 import org.bitbuckets.commands.shooter.FireMakeReadyGroup;
 import org.bitbuckets.commands.shooter.SourceConsumerGroup;
 import org.bitbuckets.commands.shooter.flywheel.SpinFlywheelIndefinite;
-import org.bitbuckets.commands.shooter.pivot.ManualPivotCommand;
 import org.bitbuckets.disabled.DisablerComponent;
 import org.bitbuckets.drive.*;
 import org.bitbuckets.groundIntake.GroundIntakeComponent;
@@ -61,7 +55,6 @@ import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
 import org.bitbuckets.noteManagement.NoteManagementComponent;
 import org.bitbuckets.noteManagement.NoteManagementSubsystem;
 import org.bitbuckets.shooter.FlywheelSubsystem;
-import org.bitbuckets.shooter.PivotSubsystem;
 import org.bitbuckets.util.*;
 import org.bitbuckets.vision.CamerasComponent;
 import org.bitbuckets.vision.VisionComponent;
@@ -74,8 +67,10 @@ import xyz.auriium.mattlib.ctre.HardwareCTRE;
 import xyz.auriium.mattlib2.MattConsole;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
-import xyz.auriium.mattlib2.auto.ff.GenerateFFComponent;
 import xyz.auriium.mattlib2.auto.ff.RotationFFGenRoutine;
+import xyz.auriium.mattlib2.auto.ff.config.GenerateFFComponent;
+import xyz.auriium.mattlib2.auto.pid.LinearPIDBrain;
+import xyz.auriium.mattlib2.auto.pid.RotationalPIDBrain;
 import xyz.auriium.mattlib2.hardware.*;
 import xyz.auriium.mattlib2.hardware.config.*;
 import xyz.auriium.mattlib2.log.ConsoleComponent;
@@ -93,12 +88,15 @@ public class RobotContainer {
 
 
     public static final EventLoop always = new EventLoop();
-    public final DriveSubsystem driveSubsystem;
+    public final Modules modules;
     public final OperatorInput operatorInput;
     public final Translation2d[] translation2ds;
     public final FlywheelSubsystem flywheelSubsystem;
-    public final PivotSubsystem pivotSubsystem;
-    public final OdometrySubsystem odometrySubsystem;
+    public final Odometry odometry;
+    public final DriveSubsystem swerveSubsystem;
+    public final OperatorToSpeeds o2s;
+    //m
+
     public final VisionSubsystem visionSubsystem;
     public final VisionSimContainer visionSimContainer;
     public final ClimberSubsystem climberSubsystem;
@@ -109,15 +107,17 @@ public class RobotContainer {
 
     public final SendableChooser<Command> chooser;
 
-    public PIDController xController;
-    public PIDController yController;
-    public ProfiledPIDController thetaController;
+    public final LinearPIDBrain xController;
+    public final LinearPIDBrain yController;
+    public final RotationalPIDBrain thetaController;
 
     public final MattConsole mainConsole;
 
     Command cachedCurrentlyRunningAutoCommand = null;
 
     public RobotContainer() {
+
+        RobotController.setBrownoutVoltage(6);
 
         //DO SETTINGS BEFORE PRE INIT
         MattlibSettings.USE_TELEMETRY = MattlibSettings.LogLevel.VERBOSE_TELEMETRY;
@@ -132,15 +132,21 @@ public class RobotContainer {
 
         CommandScheduler.getInstance().enable();
 
+        this.xController = new LinearPIDBrain(DRIVE_X_PID);
+        this.yController = new LinearPIDBrain(DRIVE_Y_PID);
+        this.thetaController = new RotationalPIDBrain(DRIVE_T_PID);
+
         // load order matters!!!!!
         this.operatorInput = new OperatorInput();
         this.translation2ds = loadTranslations();
         this.kinematics = loadKinematics();
-        this.driveSubsystem = loadDriveSubsystem();
+        this.modules = loadModules();
         this.visionSubsystem = loadVisionSubsystem();
-        this.odometrySubsystem = loadOdometrySubsystem();
+        this.odometry = loadOdometrySubsystem();
+        this.o2s = new OperatorToSpeeds(operatorInput, O2S);
+        this.swerveSubsystem = new DriveSubsystem(modules, odometry, SWERVE);
         this.flywheelSubsystem = loadFlywheelSubsystem();
-        this.pivotSubsystem = loadPivotSubsystem();
+        //this.pivotSubsystem = loadPivotSubsystem();
         this.climberSubsystem = loadClimberSubsystem();
         this.groundIntakeSubsystem = loadGroundIntakeSubsystem();
         this.noteManagementSubsystem = loadNoteManagementSubsystem();
@@ -150,7 +156,7 @@ public class RobotContainer {
             PhotonCamera[] cameras = visionSubsystem.getCameras();
             this.visionSimContainer = new VisionSimContainer(
                     visionSubsystem,
-                    odometrySubsystem,
+                    odometry,
                     cameras[0],
                     cameras[1],
                     VisionSubsystem.LAYOUT
@@ -226,8 +232,8 @@ public class RobotContainer {
         //LinearFFGenRoutine groundBottomFFRoutine = new LinearFFGenRoutine(BOTTOM_GROUND_FFGEN, groundIntakeSubsystem.bottomMotor, groundIntakeSubsystem.bottomMotor);
         //CTowerCommands.wrapRoutine(groundTopFFRoutine).schedule();
         //CTowerCommands.wrapRoutine(groundBottomFFRoutine).schedule();
-        RotationFFGenRoutine leftShooterR = new RotationFFGenRoutine(SHOOTER_WHEEL_1_FFGEN, flywheelSubsystem.leftMotor, flywheelSubsystem.velocityEncoderLeft);
-        RotationFFGenRoutine rightShooterR = new RotationFFGenRoutine(SHOOTER_WHEEL_2_FFGEN, flywheelSubsystem.rightMotor, flywheelSubsystem.velocityEncoderRight);
+        RotationFFGenRoutine leftShooterR = new RotationFFGenRoutine(LEFT_FLYWHEEL_GEN, flywheelSubsystem.leftMotor, flywheelSubsystem.velocityEncoderLeft);
+        RotationFFGenRoutine rightShooterR = new RotationFFGenRoutine(RIGHT_FLYWHEEL_GEN, flywheelSubsystem.rightMotor, flywheelSubsystem.velocityEncoderRight);
 
         new ParallelCommandGroup(
                 CTowerCommands.wrapRoutine(leftShooterR),
@@ -249,13 +255,11 @@ public class RobotContainer {
     public Command followTrajectory(ChoreoTrajectory trajectory) {
         return new FollowTrajectoryExactCommand(
                 trajectory,
-                odometrySubsystem,
-                driveSubsystem,
+                swerveSubsystem,
                 xController,
                 yController,
-                thetaController,
-                autoSubsystem
-        ).andThen(Commands.runOnce(driveSubsystem::commandWheelsToZero));
+                thetaController
+        ).andThen(Commands.runOnce(modules::commandWheelsToZero));
     }
 
     public Command twoNoteStyle(String real, double ramFireSpeed, double deadline_seconds) {
@@ -263,7 +267,7 @@ public class RobotContainer {
         ChoreoTrajectory[] twoNoteArr = TrajLoadingUtil.getAllTrajectories(real);
 
         return new SequentialCommandGroup(
-                new PlaceOdometryCommand(twoNoteArr[0], odometrySubsystem),
+                new PlaceOdometryCommand(twoNoteArr[0], odometry),
                 new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
                 new ReadyWhileMovingGroundIntakeCommand(
                         followTrajectory(twoNoteArr[0]),
@@ -281,7 +285,7 @@ public class RobotContainer {
         ChoreoTrajectory[] twoNoteArr = TrajLoadingUtil.getAllTrajectories(real);
 
         return new SequentialCommandGroup(
-                new PlaceOdometryCommand(twoNoteArr[0], odometrySubsystem),
+                new PlaceOdometryCommand(twoNoteArr[0], odometry),
                 new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
                 followTrajectory(twoNoteArr[0]),
                 new ReadyWhileMovingGroundIntakeCommand(
@@ -298,15 +302,6 @@ public class RobotContainer {
 
 
     SendableChooser<Command> loadAutonomous() {
-        xController = new PIDController(DRIVE_X_PID.pConstant(), DRIVE_X_PID.iConstant(), DRIVE_X_PID.dConstant());
-        yController = new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant());
-        thetaController = new ProfiledPIDController(
-                DRIVE_T_PID.pConstant(),
-                DRIVE_T_PID.iConstant(),
-                DRIVE_T_PID.dConstant(),
-                new TrapezoidProfile.Constraints(3, 3)
-        );
-
         double ramFireSpeed = COMMANDS.ramFireSpeed_mechanismRotationsPerSecond();
         double deadline_seconds = COMMANDS.groupDeadline_seconds();
 
@@ -320,7 +315,7 @@ public class RobotContainer {
         ChoreoTrajectory[] shootLeaveArr = TrajLoadingUtil.getAllTrajectories("shootLeave");
 
         var shootLeave = new SequentialCommandGroup(
-                new PlaceOdometryCommand(shootLeaveArr[0], odometrySubsystem),
+                new PlaceOdometryCommand(shootLeaveArr[0], odometry),
                 new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
                 followTrajectory(shootLeaveArr[0])
         );
@@ -328,12 +323,12 @@ public class RobotContainer {
         ChoreoTrajectory[] twoNoteCollectArr = TrajLoadingUtil.getAllTrajectories("twoNoteCollect");
 
         var oneNote = new SequentialCommandGroup(
-                new PlaceOdometryCommand(twoNoteCollectArr[0], odometrySubsystem),
+                new PlaceOdometryCommand(twoNoteCollectArr[0], odometry),
                 new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed)
         );
 
         var twoNoteCollect = new SequentialCommandGroup(
-                new PlaceOdometryCommand(twoNoteCollectArr[0], odometrySubsystem),
+                new PlaceOdometryCommand(twoNoteCollectArr[0], odometry),
                 new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
                 new ReadyWhileMovingGroundIntakeCommand(
                         followTrajectory(twoNoteCollectArr[0]),
@@ -353,7 +348,7 @@ public class RobotContainer {
 
 
         var threeNote = new SequentialCommandGroup(
-                new PlaceOdometryCommand(threeNoteArr[0], odometrySubsystem),
+                new PlaceOdometryCommand(threeNoteArr[0], odometry),
                 new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
                 new ReadyWhileMovingGroundIntakeCommand(
                         followTrajectory(threeNoteArr[0]),
@@ -375,7 +370,7 @@ public class RobotContainer {
 
         ChoreoTrajectory[] twoNoteContestedArr = TrajLoadingUtil.getAllTrajectories("twoNoteContested");
         var twoNoteContested = new SequentialCommandGroup(
-                new PlaceOdometryCommand(twoNoteContestedArr[0], odometrySubsystem),
+                new PlaceOdometryCommand(twoNoteContestedArr[0], odometry),
                 new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
                 followTrajectory(twoNoteContestedArr[0]),
                 new ReadyWhileMovingGroundIntakeCommand(
@@ -390,7 +385,7 @@ public class RobotContainer {
 
         ChoreoTrajectory[] threeNoteContestedArr = TrajLoadingUtil.getAllTrajectories("threeNoteContested");
         var threeNoteContested = new SequentialCommandGroup(
-                new PlaceOdometryCommand(threeNoteContestedArr[0], odometrySubsystem),
+                new PlaceOdometryCommand(threeNoteContestedArr[0], odometry),
                 new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
                 new ReadyWhileMovingGroundIntakeCommand(
                         followTrajectory(threeNoteContestedArr[0]),
@@ -417,7 +412,7 @@ public class RobotContainer {
         ChoreoTrajectory[] fourNoteAug = TrajLoadingUtil.getAllTrajectories("fourNoteAugment");
 
         var fourNote = new SequentialCommandGroup(
-                new PlaceOdometryCommand(threeNoteArr[0], odometrySubsystem),
+                new PlaceOdometryCommand(threeNoteArr[0], odometry),
                 new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
                 new ReadyWhileMovingGroundIntakeCommand(
                         followTrajectory(threeNoteArr[0]),
@@ -451,8 +446,8 @@ public class RobotContainer {
         chooser.addOption("twoNote", twoNote);
         chooser.addOption("twoNoteCollect", twoNoteCollect);
         chooser.addOption("shootLeave", shootLeave);
-        chooser.addOption("threeNote", threeNote);
-        chooser.setDefaultOption("fourNote", fourNote);
+        chooser.setDefaultOption("threeNote", threeNote);
+        chooser.addOption("fourNote", fourNote);
         chooser.addOption("oneNote", oneNote);
         chooser.addOption("twoNoteContested", twoNoteContested);
         chooser.addOption("threeNoteContested", threeNoteContested);
@@ -466,38 +461,28 @@ public class RobotContainer {
 
     void loadCommands() {
 
+
         //DRIVER STUFF
-        Trigger xGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftX.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kLeftX.value, -0.1));
-        Trigger yGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kLeftY.value, -0.1));
-        Trigger rotGreaterThan = operatorInput.driver.axisGreaterThan(XboxController.Axis.kRightX.value, 0.1).or(operatorInput.driver.axisLessThan(XboxController.Axis.kRightX.value, -0.1));
-        Trigger climberThreshold = operatorInput.operatorControl.axisGreaterThan(XboxController.Axis.kRightY.value, 0.1).or(operatorInput.operatorControl.axisLessThan(XboxController.Axis.kRightY.value, -0.1));
-        Trigger pivotThreshold = operatorInput.operatorControl.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.1).or(operatorInput.operatorControl.axisLessThan(XboxController.Axis.kLeftY.value, -0.1));
-        operatorInput.isTeleop.and(xGreaterThan.or(yGreaterThan).or(rotGreaterThan)).whileTrue(new AugmentedDriveCommand(SWERVE, driveSubsystem, odometrySubsystem, operatorInput));
-        HolonomicDriveController holonomicDriveController = new HolonomicDriveController(
-                new PIDController(DRIVE_X_PID.pConstant(), DRIVE_X_PID.iConstant(), DRIVE_X_PID.dConstant()),
-                new PIDController(DRIVE_Y_PID.pConstant(), DRIVE_Y_PID.iConstant(), DRIVE_Y_PID.dConstant()),
-                new ProfiledPIDController(
-                        DRIVE_T_PID.pConstant(),
-                        DRIVE_T_PID.iConstant(),
-                        DRIVE_T_PID.dConstant(),
-                        new TrapezoidProfile.Constraints(3, 3)
-                ) //TODO
-        );
+        operatorInput.movementNotDesired.and(operatorInput.customHeadingNotDesired).onTrue(swerveSubsystem.orderToZeroCommand());
+        operatorInput.movementNotDesired.and(operatorInput.ampHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromDegrees(90), false));
+        operatorInput.movementNotDesired.and(operatorInput.rightSpeakerHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromRadians(Math.PI / 3), true));
+        operatorInput.movementNotDesired.and(operatorInput.leftSpeakerHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromRadians(-Math.PI / 3), true));
+        operatorInput.movementNotDesired.and(operatorInput.frontSpeakerHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromDegrees(0), true));
+
+        operatorInput.movementDesired.and(operatorInput.customHeadingNotDesired).whileTrue(new BaseDriveCommand(o2s, operatorInput, swerveSubsystem));
+        operatorInput.movementDesired.and(operatorInput.ampHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromDegrees(90), false, DFSP));
+        operatorInput.movementDesired.and(operatorInput.rightSpeakerHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromRadians(Math.PI / 3), true, DFSP));
+        operatorInput.movementDesired.and(operatorInput.leftSpeakerHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromRadians(-Math.PI / 3), true, DFSP));
+        operatorInput.movementDesired.and(operatorInput.frontSpeakerHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromDegrees(0), true, DFSP));
+
 
         //OPERATOR STUFF
-       // operatorInput.autoAlignHold.whileTrue(new MoveToAlignCommand(driveSubsystem, visionSubsystem, holonomicDriveController, odometrySubsystem));
-        operatorInput.isTeleop.and(climberThreshold).whileTrue(new MoveClimberCommand(climberSubsystem, operatorInput));
+        operatorInput.isTeleop.and(operatorInput.climberThreshold).whileTrue(new MoveClimberCommand(climberSubsystem, operatorInput));
         operatorInput.rev.whileTrue(new SpinFlywheelIndefinite(flywheelSubsystem, false, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond()));
-        //operatorInput.ampSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 100));
-        //operatorInput.speakerSetpoint_hold.whileTrue(new PivotToPositionFireGroup(flywheelSubsystem, pivotSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 0.5, 60));
         operatorInput.ampShotSpeed.whileTrue(new AmpMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 12));
         operatorInput.groundIntakeNoBeamBreak.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, COMMANDS.groundIntake_voltage(), COMMANDS.noteManagement_voltage() ));
         operatorInput.shootManually.whileTrue(new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond()));
-        operatorInput.isTeleop.and(pivotThreshold).whileTrue(new ManualPivotCommand(operatorInput, pivotSubsystem));
         operatorInput.disableVisionOdometry.onTrue(new ToggleVisionOdometryCommand(odometrySubsystem));
-
-        // disable manual pivot. Do not enable unless mechanical agrees
-        //operatorInput.setShooterAngleManually.onTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));
 
         operatorInput.sourceIntake_hold.whileTrue(new SourceConsumerGroup(noteManagementSubsystem, flywheelSubsystem));
         operatorInput.groundIntakeHoldOp //TODO change input
@@ -505,47 +490,8 @@ public class RobotContainer {
         operatorInput.groundOuttakeHoldOp
                 .whileTrue(new GroundOuttakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
 
-        operatorInput.resetGyroPress.whileTrue(Commands.runOnce(() -> {
-
-            System.out.println("jigiygiugi");
-
-            odometrySubsystem.debugZero();
-            odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(new Pose2d(0, 0, new Rotation2d())));
-
-        }));
-
-        operatorInput.ampVisionPriority_toggle.onTrue(new SetPriorityCommand(visionSubsystem, VisionSubsystem.VisionPriority.AMP));
-        operatorInput.speakerVisionPriority_toggle.onTrue(new SetPriorityCommand(visionSubsystem, VisionSubsystem.VisionPriority.SPEAKER));
-        operatorInput.resetVisionPriority_toggle.onTrue(new SetPriorityCommand(visionSubsystem, VisionSubsystem.VisionPriority.NONE));
-
-        var ofc = new FollowAStarToNoteCommand(
-                odometrySubsystem,
-                driveSubsystem,
-                visionSubsystem,
-                autoSubsystem,
-                new PathConstraints(
-                        4.5,
-                        6,
-                        2,
-                        3
-                ), new LocalADStar()
-        );
-
-//        operatorInput.noteMagnetModeHold.whileTrue(
-//                ofc
-//        );
-
-        SmartDashboard.putNumberArray("traj", ConversionUtil.fromPoseArray(
-                new Pose2d(0,0, new Rotation2d()),
-                new Pose2d(1,1, new Rotation2d()),
-                new Pose2d(2,2, new Rotation2d())
-        ));
-
-
-    }
-
-    AutoSubsystem loadAutosubsystem() {
-        return new AutoSubsystem(odometrySubsystem, DRIVE_X_PID, DRIVE_Y_PID, DRIVE_T_PID, null);
+        //zero heading, not anything else
+        operatorInput.resetGyroPress.onTrue(new PlaceAllianceZeroHeading(odometry,Rotation2d.fromDegrees(0)));
     }
 
 
@@ -565,15 +511,10 @@ public class RobotContainer {
         );
     }
 
-    DriveSubsystem loadDriveSubsystem() {
+    Modules loadModules() {
         SwerveModule[] modules = loadSwerveModules();
 
-       /* return new DriveSubsystem(modules, kinematics, new UngodlyAbomination(
-                kinematics,
-                translation2ds
-        ));*/
-
-        return new DriveSubsystem(modules, kinematics);
+        return new Modules(modules,MODULES);
     }
 
     SwerveModule[] loadSwerveModules() {
@@ -611,33 +552,10 @@ public class RobotContainer {
                 driveMotor = HardwareDisabled.linearMotor_disabled();
             }
 */
-            modules[i] = new SwerveModule(driveMotor, steerController, absoluteEncoder, ff, SWERVE);
+            modules[i] = new SwerveModule(driveMotor, steerController, absoluteEncoder, ff);
         }
 
         return modules;
-    }
-
-    PivotSubsystem loadPivotSubsystem() {
-
-        IRotationalController leftAngleMotor;
-        IRotationalController rightAngleMotor;
-        IRotationEncoder pivotEncoder;
-
-        if (DISABLER.pivot_disabled()) {
-            leftAngleMotor = HardwareDisabled.rotationalController_disabled();
-            rightAngleMotor = HardwareDisabled.rotationalController_disabled();
-            pivotEncoder = HardwareDisabled.rotationEncoder_disabled();
-        } else if (Robot.isSimulation()) {
-            leftAngleMotor = HardwareSIM.rotationalSIM_pid(LEFT_PIVOT, PIVOT_PID, DCMotor.getKrakenX60(1));
-            rightAngleMotor = HardwareSIM.rotationalSIM_pid(RIGHT_PIVOT, PIVOT_PID, DCMotor.getKrakenX60(1));
-            pivotEncoder = leftAngleMotor;
-        } else {
-            leftAngleMotor = HardwareCTRE.rotationalFX_builtInPID(LEFT_PIVOT, PIVOT_PID);
-            rightAngleMotor = HardwareCTRE.rotationalFX_builtInPID(RIGHT_PIVOT, PIVOT_PID);
-            pivotEncoder = HardwareUtil.throughboreEncoder(SHOOTER_PIVOT_ENCODER);
-        }
-
-        return new PivotSubsystem(leftAngleMotor, rightAngleMotor, pivotEncoder);
     }
 
     FlywheelSubsystem loadFlywheelSubsystem() {
@@ -702,22 +620,22 @@ public class RobotContainer {
 
     }
 
-    OdometrySubsystem loadOdometrySubsystem() {
+    Odometry loadOdometrySubsystem() {
 
         IGyro gyro;
 
         if (Robot.isSimulation() || DISABLER.odometry_disabled()) {
-            gyro = new KinematicGyro(driveSubsystem, kinematics);
+            gyro = new KinematicGyro(modules, kinematics);
         } else {
-            Pigeon2 pigeon2 = new Pigeon2(SWERVE.pigeonCanId());
+            Pigeon2 pigeon2 = new Pigeon2(ODO.pigeonCanId());
 
             gyro = new Pigeon2Gyro(pigeon2);
         }
 
         // TODO implement swappable version per condition (sim, disable, enable)
 
-        return new OdometrySubsystem(
-                driveSubsystem,
+        return new Odometry(
+                modules,
                 visionSubsystem,
                 new CustomSwervePoseEstimator( //The auto path will reset all of this data anyways
                         kinematics,
@@ -821,24 +739,20 @@ public class RobotContainer {
 
     public void robotInit() {
 
-        System.out.println("jigiygiugi");
-
-        odometrySubsystem.debugZero();
-        odometrySubsystem.forceOdometryToThinkWeAreAt(new Pose3d(new Pose2d(0, 0, new Rotation2d())));
-
     }
 
 
     //Components MUST be created in the Robot class (because of how static bs works)
+    static final GenerateFFComponent LEFT_FLYWHEEL_GEN = LOG.load(GenerateFFComponent.class, "leftFlywheelGen");
+    static final GenerateFFComponent RIGHT_FLYWHEEL_GEN = LOG.load(GenerateFFComponent.class, "rightFlywheelGen");
+
 
     //generator stuff
     public static final ConsoleComponent CONSOLE = LOG.load(ConsoleComponent.class, "console");
-    public static final GenerateFFComponent SHOOTER_WHEEL_2_FFGEN = LOG.load(GenerateFFComponent.class, "flywheel/wheel_2_ffgen");
-    public static final GenerateFFComponent SHOOTER_WHEEL_1_FFGEN = LOG.load(GenerateFFComponent.class, "flywheel/wheel_1_ffgen");
-    public static final GenerateFFComponent[] DRIVE_MOTORS_FFGEN = LOG.loadRange(GenerateFFComponent.class, "swerve/ffgen", 4, Util.RENAMER);
 
     //commands and autp
     public static final CommandComponent COMMANDS = LOG.load(CommandComponent.class, "commands");
+    public static final DriveFacingStaticPosCommand.Component DFSP = LOG.load(DriveFacingStaticPosCommand.Component.class, "commands/dfsp");
     
     //vision
     public static final VisionComponent VISION = LOG.load(VisionComponent.class, "vision");
@@ -878,8 +792,10 @@ public class RobotContainer {
 
     //swerve
     public static final FFComponent[] FF_SWERVE = LOG.loadRange(FFComponent.class, "swerve/ff", 4, Util.RENAMER);
-    public static final SwerveComponent SWERVE = LOG.load(SwerveComponent.class, "swerve");
-    public static final OdometrySubsystem.Component ODO = LOG.load(OdometrySubsystem.Component.class, "odometry");
+    public static final OperatorToSpeeds.Component O2S = LOG.load(OperatorToSpeeds.Component.class, "operatorToSpeeds");
+    public static final DriveSubsystem.Component SWERVE = LOG.load(DriveSubsystem.Component.class, "swerve");
+    public static final Odometry.Component ODO = LOG.load(Odometry.Component.class, "odometry");
+    public static final Modules.Component MODULES = LOG.load(Modules.Component.class, "modules");
     public static final CommonMotorComponent STEER_COMMON = LOG.load(CommonMotorComponent.class, "swerve/steer_common");
     public static final CommonPIDComponent STEER_PID_COMMON = LOG.load(CommonPIDComponent.class, "swerve/steer_pid_common");
     public static final CommonPIDComponent DRIVE_PID_COMMON = LOG.load(CommonPIDComponent.class, "swerve/drive_pid_common");

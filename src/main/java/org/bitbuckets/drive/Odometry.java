@@ -5,14 +5,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveWheelPositions;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.event.EventLoop;
-import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.Robot;
-import org.bitbuckets.RobotContainer;
 import org.bitbuckets.vision.VisionSubsystem;
 import org.photonvision.EstimatedRobotPose;
 import xyz.auriium.mattlib2.log.INetworkedComponent;
@@ -24,21 +17,21 @@ import xyz.auriium.yuukonstants.exception.ExplainedException;
 
 import java.util.Optional;
 
-public class OdometrySubsystem implements Subsystem, IMattlibHooked {
+public class Odometry implements IMattlibHooked {
 
-    final DriveSubsystem driveSubsystem;
+    final Modules modules;
     final VisionSubsystem visionSubsystem;
     final CustomSwervePoseEstimator odometry;
     final SwerveDriveKinematics kinematics;
     final IGyro gyro;
-    final DigitalInput gyroResetButton;
-    public final Trigger gyroResetButtonTrigger;
 
     final Component odometryComponent;
 
     public boolean visionOdometry;
 
     public interface Component extends INetworkedComponent {
+        @Conf("pigeon_can_id") int pigeonCanId();
+
         @Conf("centroid_height") double robotCentroidHeightWrtGround_meters();
 
         @Log("x_velocity") void reportXVelocity(double xVelocity_metersPerSecond);
@@ -52,17 +45,15 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
         @Essential @Log("rot_gyro") void logGyroRotation(double rot);
         @Log("rot_odo") void logOdoRotation(double rot);
         @Essential @Log("pose_odo") void logPosition(Pose2d pose2d);
-        @Essential @Log("reset_button_state") void logReset(boolean reset);
-
-        @Conf("gyroResetButton_dio") int gyroResetButtonId();
+        @Log("pidgeon_ok") void logPidgeonOk(boolean isOk);
     }
 
     SwerveModulePosition[] lastPositions_dxdy = new SwerveModulePosition[] { new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition() };
     double lastTimestamp_seconds = 0;
 
 
-    public OdometrySubsystem(DriveSubsystem driveSubsystem, VisionSubsystem visionSubsystem, CustomSwervePoseEstimator odometry, IGyro gyro, SwerveDriveKinematics kinematics, Component odometryComponent) {
-        this.driveSubsystem = driveSubsystem;
+    public Odometry(Modules modules, VisionSubsystem visionSubsystem, SwerveDrivePoseEstimator odometry, IGyro gyro, SwerveDriveKinematics kinematics, Component odometryComponent) {
+        this.modules = modules;
         this.visionSubsystem = visionSubsystem;
         this.kinematics = kinematics;
         this.odometry = odometry;
@@ -70,23 +61,19 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
         this.odometryComponent = odometryComponent;
         this.visionOdometry = true;
 
-        gyroResetButton = new DigitalInput(odometryComponent.gyroResetButtonId());
-        gyroResetButtonTrigger = new Trigger(RobotContainer.always,() -> !gyroResetButton.get());
-
         mattRegister();
-        register();
     }
 
     @Override
     public ExplainedException[] verifyInit() {
-        odometry.resetPosition(gyro.initializationRelativeRotation(), driveSubsystem.currentPositions(), new Pose2d());
+        odometry.resetPosition(gyro.rotation_initializationRelative(), modules.currentPositions(), new Pose2d());
 
         return new ExplainedException[0];
     }
 
     @Override
-    public void periodic() {
-        odometry.update(gyro.initializationRelativeRotation(),driveSubsystem.currentPositions());
+    public void logicPeriodic() {
+        odometry.update(gyro.rotation_initializationRelative(), modules.currentPositions());
 
         if (Robot.isReal()) {
             //VISION
@@ -100,36 +87,27 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
             Optional<EstimatedRobotPose> optEsmPose = visionSubsystem.estimateVisionRobotPose();
             optEsmPose.ifPresent(esmPose -> RobotContainer.VISION.log_final_pose(esmPose.estimatedPose.toPose2d()));
         }
-
-        lastPositions_dxdy = driveSubsystem.currentPositions();
-        lastTimestamp_seconds = MathSharedStore.getTimestamp();
-
     }
 
 
     @Override
     public void logPeriodic() {
         odometryComponent.logPosition(odometry.getEstimatedPosition());
-        odometryComponent.logOdoRotation(odometry.getEstimatedPosition().getRotation().getRadians());
-        odometryComponent.logGyroRotation(odometry.getEstimatedPosition().getRotation().getRadians());
-        odometryComponent.logReset(gyroResetButton.get());
-
+        odometryComponent.logOdoRotation(odometry.getEstimatedPosition().getRotation().getDegrees());
+        odometryComponent.logGyroRotation(gyro.rotation_initializationRelative().getDegrees());
+        odometryComponent.logPidgeonOk(gyro.isCurrentlyAlive());
     }
 
 
-    /**
-     * Gets the auto-offset independent but user-zero dependent gyro angle. TODO this may break on red
-     * @return
-     */
-    public Rotation2d getGyroAngle() {
-        return gyro.userZeroRelativeRotation();
-   }
+    public Rotation2d getHeading_fieldRelative() {
+        return odometry.getEstimatedPosition().getRotation();
+    }
 
-   public Pose2d getRobotCentroidPosition() {
+    public Pose2d getRobotCentroidPosition() {
         return odometry.getEstimatedPosition();
    }
 
-   public Pose3d getRobotCentroidPositionVert() {
+    public Pose3d getRobotCentroidPositionVert() {
         Pose2d estimatedPose = odometry.getEstimatedPosition();
 
         return new Pose3d(
@@ -140,51 +118,44 @@ public class OdometrySubsystem implements Subsystem, IMattlibHooked {
         );
    }
 
+     public Pose3d getCameraPositionVert() {
+        return getRobotCentroidPositionVert().plus(
+                new Transform3d(
+                        odometryComponent.cameraCentroidOffset(),
+                        new Rotation3d()
+                )
+        );
+   }
 
-   public Pose3d getShooterCentroidPositionVert() {
+     public Pose3d getShooterCentroidPositionVert() {
+
         //TODO someone needs to do this
 
        return null;
    }
 
-   public void forceOdometryToThinkWeAreAt(Pose3d position) {
+     public void forcePosition(Pose2d position_fieldRelative) {
         odometry.resetPosition(
-                gyro.initializationRelativeRotation(),
-                driveSubsystem.currentPositions(),
-                position.toPose2d()
+                gyro.rotation_initializationRelative(),
+                modules.currentPositions(),
+                position_fieldRelative
         );
-   }
+     }
 
-   //i have no idea what this does dont use it
-   public void debugZero() {
-        gyro.userZero();
-   }
+    public void forceHeading(Rotation2d rotation_fieldRelative) {
 
-   public void debugGyroToPosition(Rotation2d beat) {
-        gyro.userForceOffset(beat);
-   }
+        odometry.resetPosition(
+               gyro.rotation_initializationRelative(),
+               modules.currentPositions(),
+               new Pose2d(
+                          odometry.getEstimatedPosition().getTranslation(),
+                          rotation_fieldRelative
+               )
+        );
+     }
 
    public ChassisSpeeds robotVelocity_metersPerSecond() {
-        SwerveModulePosition[] currentPositions = driveSubsystem.currentPositions();
-        SwerveModulePosition[] lastPositions = lastPositions_dxdy;
+        return kinematics.toChassisSpeeds(modules.currentHallEffectStates());
 
-        double currentTime_seconds = MathSharedStore.getTimestamp();
-        double lastTime_seconds = lastTimestamp_seconds;
-
-        double dt = currentTime_seconds - lastTime_seconds;
-        Twist2d twist = kinematics.toTwist2d(
-                new SwerveDriveWheelPositions(lastPositions),
-                new SwerveDriveWheelPositions(currentPositions)
-        );
-
-        double dxdt = twist.dx / dt;
-        double dydt = twist.dy / dt;
-        double dthetadt = twist.dtheta / dt;
-
-        return new ChassisSpeeds(
-                dxdt,
-                dydt,
-                dthetadt
-        );
    }
 }

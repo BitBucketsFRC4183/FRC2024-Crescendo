@@ -22,16 +22,9 @@ public class GroundIntakeSubsystem implements Subsystem, IMattlibHooked {
     }
 
     // copypasted from ClimberSubsystem
-    public void setGroundIntakeSpeeds(double topMotorSpeed_metersPerSecond, double bottomMotorSpeed_metersPerSecond) {
-        double leftVoltage = feedForward.calculate(topMotorSpeed_metersPerSecond);
-        double rightVoltage = feedForward.calculate(bottomMotorSpeed_metersPerSecond);
-
-        topMotor.setToVoltage(leftVoltage);
-        topMotor.setToVoltage(rightVoltage);
-    }
     public void setToVoltage(double voltage) {
-        topMotor.setToVoltage(voltage);
-        bottomMotor.setToVoltage(voltage);
+        topMotor.setToVoltage(voltage / 1.1);
+        bottomMotor.setToVoltage(voltage * 1.1);
     }
 
     public void setMotorsZero() {

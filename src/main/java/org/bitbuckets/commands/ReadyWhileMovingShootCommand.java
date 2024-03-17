@@ -21,4 +21,6 @@ public class ReadyWhileMovingShootCommand extends ParallelDeadlineGroup {
                 new SpinFlywheelIndefinite(flywheelSubsystem, false, ramFireSpeed)
         );
     }
+
+
 }
