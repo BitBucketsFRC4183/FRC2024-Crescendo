@@ -113,7 +113,7 @@ public class FollowTrajectoryExactCommand extends Command {
     @Override
     public boolean isFinished() {
          //
-        return (timer.hasElapsed(trajectory.getTotalTime()) && thetaPid.atSetpoint()) || timer.hasElapsed(trajectory.getTotalTime() + 1);
+        return (timer.hasElapsed(trajectory.getTotalTime()) && thetaPid.atSetpoint()) || timer.hasElapsed(trajectory.getTotalTime() + 1); //TODO needs to be 1
     }
 
     @Override

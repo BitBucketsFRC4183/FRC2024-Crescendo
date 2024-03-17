@@ -24,6 +24,7 @@ import org.bitbuckets.commands.ReadyWhileMovingShootCommand;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
 import org.bitbuckets.commands.drive.BaseDriveCommand;
 import org.bitbuckets.commands.drive.DriveFacingStaticPosCommand;
+import org.bitbuckets.commands.drive.SitFacingAutoCommand;
 import org.bitbuckets.commands.drive.SitFacingCommand;
 import org.bitbuckets.commands.drive.odo.PlaceAllianceZeroHeading;
 import org.bitbuckets.commands.drive.odo.PlaceOdometryCommand;
@@ -274,6 +275,7 @@ public class RobotContainer {
                 new PlaceOdometryCommand(twoNoteArr[0], odometry),
                 new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
                 followTrajectory(twoNoteArr[0]),
+                new SitFacingAutoCommand(thetaController, swerveSubsystem, new Rotation2d(0), true),
                 new ReadyWhileMovingGroundIntakeCommand(
                         followTrajectory(twoNoteArr[1]),
                         noteManagementSubsystem, groundIntakeSubsystem
@@ -373,126 +375,32 @@ public class RobotContainer {
                 Commands.waitSeconds(0.7),
                 Commands.runOnce(modules::commandWheelsToZero)
         );
-        ChoreoTrajectory[] fourNoteCompatLeftArr = TrajLoadingUtil.getAllTrajectories("fourNoteCompatLeft");
 
-        var fourNoteCompatLeft = new SequentialCommandGroup(
-                    new PlaceOdometryCommand(fourNoteCompatLeftArr[0], odometry),
-                    new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                    followTrajectory(fourNoteCompatLeftArr[0]),
-                    new ReadyWhileMovingGroundIntakeCommand(
-                            followTrajectory(fourNoteCompatLeftArr[1]),
-                            noteManagementSubsystem, groundIntakeSubsystem
-                    ),
-                    new ReadyWhileMovingShootCommand(
-                            followTrajectory(fourNoteCompatLeftArr[2]),
-                            flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                    ),
-                    new ReadyWhileMovingGroundIntakeCommand(
-                            followTrajectory(fourNoteCompatLeftArr[3]),
-                            noteManagementSubsystem, groundIntakeSubsystem
-                    ),
-                    new ReadyWhileMovingShootCommand(
-                            followTrajectory(fourNoteCompatLeftArr[4]),
-                            flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                    ),
-                    new ReadyWhileMovingGroundIntakeCommand(
-                            followTrajectory(fourNoteCompatLeftArr[5]),
-                            noteManagementSubsystem, groundIntakeSubsystem
-                    ),
-                    Commands.runOnce(modules::commandWheelsToZero)
-//                    new ReadyWhileMovingShootCommand(
-//                            followTrajectory(fourNoteCompatLeftArr[6]),
-//                            flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-//                    )
-
+        ChoreoTrajectory[] fourToFiveArr = TrajLoadingUtil.getAllTrajectories("fourToFive");
+        var fourToFive = new SequentialCommandGroup(
+                new PlaceOdometryCommand(fourToFiveArr[0], odometry),
+                followTrajectory(fourToFiveArr[0]),
+                new ReadyWhileMovingGroundIntakeCommand(
+                        followTrajectory(fourToFiveArr[1]),
+                        noteManagementSubsystem, groundIntakeSubsystem
+                ),
+                followTrajectory(fourToFiveArr[2]),
+                new ReadyWhileMovingShootCommand(
+                        followTrajectory(fourToFiveArr[3]),
+                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
+                )
         );
 
-        ChoreoTrajectory[] fourNoteCompatRightArr = TrajLoadingUtil.getAllTrajectories("fourNoteCompatRight");
-
-//        var fourNoteCompatRight = new SequentialCommandGroup(
-//                new PlaceOdometryCommand(fourNoteCompatRightArr[0], odometrySubsystem),
-//                new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-//                followTrajectory(fourNoteCompatRightArr[0]),
-//                new ReadyWhileMovingGroundIntakeCommand(
-//                        followTrajectory(fourNoteCompatRightArr[1]),
-//                        noteManagementSubsystem, groundIntakeSubsystem
-//                ),
-//                new ReadyWhileMovingShootCommand(
-//                        followTrajectory(fourNoteCompatRightArr[2]),
-//                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-//                ),
-//                followTrajectory(fourNoteCompatRightArr[3]),
-//                followTrajectory(fourNoteCompatRightArr[4]),
-//                new ReadyWhileMovingGroundIntakeCommand(
-//                        followTrajectory(fourNoteCompatRightArr[5]),
-//                        noteManagementSubsystem, groundIntakeSubsystem
-//                ),
-//                followTrajectory(fourNoteCompatRightArr[6]),
-//                new ReadyWhileMovingShootCommand(
-//                        followTrajectory(fourNoteCompatRightArr[7]),
-//                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-//                ),
-//                followTrajectory(fourNoteCompatRightArr[8]),
-//                followTrajectory(fourNoteCompatRightArr[9]),
-//                followTrajectory(fourNoteCompatRightArr[10]),
-//                new ReadyWhileMovingGroundIntakeCommand(
-//                        followTrajectory(fourNoteCompatRightArr[11]),
-//                        noteManagementSubsystem, groundIntakeSubsystem
-//                ),
-//                followTrajectory(fourNoteCompatRightArr[12]),
-//                followTrajectory(fourNoteCompatRightArr[13]),
-//                new ReadyWhileMovingShootCommand(
-//                        followTrajectory(fourNoteCompatRightArr[14]),
-//                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-//                )
-//
-//
-//        );
-
-        ChoreoTrajectory[] sixNoteArr = TrajLoadingUtil.getAllTrajectories("sixNote");
-
-        var sixNote = new SequentialCommandGroup(
-                new PlaceOdometryCommand(sixNoteArr[0], odometry),
-                new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                new ReadyWhileMovingGroundIntakeCommand(
-                        followTrajectory(sixNoteArr[0]),
-                        noteManagementSubsystem, groundIntakeSubsystem
-                ),
-                new ReadyWhileMovingShootCommand(
-                        followTrajectory(sixNoteArr[1]),
-                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                ),
-                new ReadyWhileMovingGroundIntakeCommand(
-                        followTrajectory(sixNoteArr[2]),
-                        noteManagementSubsystem, groundIntakeSubsystem
-                ),
-                new ReadyWhileMovingShootCommand(
-                        followTrajectory(sixNoteArr[3]),
-                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                ),
-                new ReadyWhileMovingGroundIntakeCommand(
-                        followTrajectory(sixNoteArr[4]),
-                        noteManagementSubsystem, groundIntakeSubsystem
-                ),
-                new ReadyWhileMovingShootCommand(
-                        followTrajectory(sixNoteArr[5]),
-                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                ),
-                new ReadyWhileMovingGroundIntakeCommand(
-                        followTrajectory(sixNoteArr[6]),
-                        noteManagementSubsystem, groundIntakeSubsystem
-                ),
-                new ReadyWhileMovingShootCommand(
-                        followTrajectory(sixNoteArr[7]),
-                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                ),
-                Commands.runOnce(modules::commandWheelsToZero)
+        var fiveNote = new SequentialCommandGroup(
+                fourNote.asProxy(),
+                fourToFive.asProxy()
         );
+
 
         ChoreoTrajectory[] taxiArr = TrajLoadingUtil.getAllTrajectories("waitTaxi");
         var taxi = new SequentialCommandGroup(
                 new PlaceOdometryCommand(taxiArr[0], odometry),
-                followTrajectory(sixNoteArr[0]),
+                followTrajectory(taxiArr[0]),
                 Commands.runOnce(modules::commandWheelsToZero)
         );
 
@@ -503,12 +411,11 @@ public class RobotContainer {
         chooser.addOption("shootGetFar", shootLeave);
         chooser.addOption("threeNote", threeNote);
         chooser.setDefaultOption("fourNote (RUN THIS ONE)", fourNote);
+        chooser.addOption("fiveNote (SKETCHY)", fiveNote);
+        chooser.addOption("fourToFive (SKETCHY)", fourToFive);
         chooser.addOption("doNothing", Commands.waitSeconds(1));
         chooser.addOption("twoNoteCompatRight", twoNoteCompatRight);
         chooser.addOption("twoNoteCompatLeft", twoNoteCompatLeft);
-        chooser.addOption("fourNoteCompatLeft", fourNoteCompatLeft);
-//        chooser.addOption("fourNoteCompatRight", fourNoteCompatRight);
-        chooser.addOption("sixNote", sixNote);
 
         SmartDashboard.putData("Path", chooser);
         return chooser;
