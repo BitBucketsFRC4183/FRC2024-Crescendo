@@ -40,7 +40,12 @@ public class SitFacingCommand extends Command {
     }
 
     @Override public void execute() {
+        if (controller.isAtSetpoint()) {
+            return;
+        }
+
         double controlOut = controller.controlToReference_primeUnits(heading.getRadians(), swerveSubsystem.odometry.getHeading_fieldRelative().getRadians());
+
 
         swerveSubsystem.orderToUnfiltered(new ChassisSpeeds(0,0,controlOut));
     }

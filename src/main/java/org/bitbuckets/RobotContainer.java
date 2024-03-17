@@ -502,7 +502,7 @@ public class RobotContainer {
         chooser.addOption("taxi", taxi);
         chooser.addOption("shootGetFar", shootLeave);
         chooser.addOption("threeNote", threeNote);
-        chooser.setDefaultOption("fourNote", fourNote);
+        chooser.setDefaultOption("fourNote (RUN THIS ONE)", fourNote);
         chooser.addOption("doNothing", Commands.waitSeconds(1));
         chooser.addOption("twoNoteCompatRight", twoNoteCompatRight);
         chooser.addOption("twoNoteCompatLeft", twoNoteCompatLeft);
