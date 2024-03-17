@@ -860,6 +860,8 @@ public class RobotContainer {
     public static final PIDComponent DRIVE_X_PID = LOG.load(PIDComponent.class, "swerve/x_holonomic_pid");
     public static final PIDComponent DRIVE_Y_PID = LOG.load(PIDComponent.class, "swerve/y_holonomic_pid");
     public static final PIDComponent DRIVE_T_PID = LOG.load(PIDComponent.class, "swerve/t_holonomic_pid");
+    public static final PIDComponent DRIVE_T_TELEOP = LOG.load(PIDComponent.class, "swerve/t_teleop_pid");
+
 
     public static final CamerasComponent CAMERAS = LOG.load(CamerasComponent.class, "cameras");
     public static final DisablerComponent DISABLER = LOG.load(DisablerComponent.class, "disabler");

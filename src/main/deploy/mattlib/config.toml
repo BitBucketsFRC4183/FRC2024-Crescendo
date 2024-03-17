@@ -94,12 +94,13 @@ steer_pid_common = {p = 10, i = 0, d = 0,  tolerance = 0.00555556} # pi / 90 -> 
 x_holonomic_pid = {p = 28, i = 0.04, d = 0,  tolerance = 0.05}
 y_holonomic_pid = {p = 28, i = 0.04, d = 0,  tolerance = 0.05}
 t_holonomic_pid = {p = 2, i = 0, d = 0,  tolerance = 0.034906585039} #need to be redone (current mcr values)
+t_teleop_pid = {p = 2, i = 0, d = 0,  tolerance = 0.034906585039} #need to be redone (current mcr values)
 drive_pid_common = {p = 0.0065, i = 0, d = 0.0,  tolerance = 0}
 ff_fl = {ks = 0.045, kv = 2.505}
 ff_fr = {ks = 0.056, kv = 2.532}
 ff_br = {ks = 0.044, kv = 2.496}
 ff_bl = {ks = 0.044, kv = 2.516}
-use_velocity_pid_teleop = false
+use_velocity_pid_teleop = true
 use_offset_finding_mode = false
 
 [operatorToSpeeds]
