@@ -3,31 +3,30 @@ package org.bitbuckets.disabled;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import org.bitbuckets.drive.DriveSubsystem;
+import org.bitbuckets.drive.Modules;
 import org.bitbuckets.drive.IGyro;
 
 public class KinematicGyro implements IGyro {
 
-    final DriveSubsystem driveSubsystem;
+    final Modules modules;
     final SwerveDriveKinematics kinematics;
 
-    public KinematicGyro(DriveSubsystem driveSubsystem, SwerveDriveKinematics kinematics) {
-        this.driveSubsystem = driveSubsystem;
+    public KinematicGyro(Modules modules, SwerveDriveKinematics kinematics) {
+        this.modules = modules;
         this.kinematics = kinematics;
 
         lastAngle_fieldRelative = Rotation2d.fromDegrees(0);
-        lastPositions = driveSubsystem.currentPositions();
+        lastPositions = modules.currentPositions();
     }
 
     Rotation2d lastAngle_fieldRelative;
     SwerveModulePosition[] lastPositions;
 
-    Rotation2d tare = new Rotation2d();
 
     @Override
-    public Rotation2d initializationRelativeRotation() {
+    public Rotation2d rotation_initializationRelative() {
 
-        SwerveModulePosition[] currentPositions = driveSubsystem.currentPositions();
+        SwerveModulePosition[] currentPositions = modules.currentPositions();
         SwerveModulePosition[] deltaPositions = delta(currentPositions, lastPositions);
 
         Rotation2d dTheta = new Rotation2d(kinematics.toTwist2d(deltaPositions).dtheta);
@@ -39,18 +38,8 @@ public class KinematicGyro implements IGyro {
         return lastAngle_fieldRelative;
     }
 
-    @Override
-    public Rotation2d userZeroRelativeRotation() {
-        return initializationRelativeRotation().minus(tare);
-    }
-
-    @Override
-    public void userZero() {
-        tare = tare.plus(userZeroRelativeRotation());
-    }
-
-    @Override public void userForceOffset(Rotation2d beAt) {
-
+    @Override public boolean isCurrentlyAlive() {
+        return true;
     }
 
 
