@@ -1,140 +1,63 @@
 package org.bitbuckets.drive;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import org.bitbuckets.RobotContainer;
+import xyz.auriium.mattlib2.log.INetworkedComponent;
+import xyz.auriium.mattlib2.log.annote.Tune;
 import xyz.auriium.mattlib2.loop.IMattlibHooked;
 
 public class DriveSubsystem implements Subsystem, IMattlibHooked {
 
-    public final SwerveModule[] modules;
-    final SwerveDriveKinematics kinematics;
-    //final UngodlyAbomination swerveGenerator;
+    // HARDWARE
+    public final Modules modules;
+    public final Odometry odometry;
+    public final Component swerveComponent;
 
+    public interface Component extends INetworkedComponent {
+        @Tune("use_velocity_pid_teleop") boolean useVelocityPidTeleop();
+        @Tune("use_offset_finding_mode") boolean useOffsetFindingMode(); //turn on when trying to figure out which way is "forward" for modules when no offsets are present. This is nice because if you don't have it SwerveModuleState.optimize's flipping will make it impossible for you to tell where forward really is
+    }
 
-    public DriveSubsystem(SwerveModule[] modules, SwerveDriveKinematics kinematics) {
+    public DriveSubsystem(Modules modules, Odometry odometry, Component component) {
         this.modules = modules;
-        this.kinematics = kinematics;
-        //this.swerveGenerator = swerveGenerator;
+        this.odometry = odometry;
+        this.swerveComponent = component;
 
         register();
         mattRegister();
     }
 
-    @Override
-    public void logPeriodic() {
-        if (desiredStates != null) {
-            RobotContainer.SWERVE.logDesiredStates(desiredStates);
-        }
-        RobotContainer.SWERVE.logAbsoluteBasedStates(currentAbsoluteBasedState());
-        RobotContainer.SWERVE.logHallEncoderBasedStates(currentHallEffectStates());
 
-    }
+    /**
+     * Used for auto
+     * @param speeds_fieldRelative
+     */
+    public void orderToUnfiltered(ChassisSpeeds speeds_fieldRelative) {
+        SwerveModuleState[] setpointStates = odometry.kinematics.toSwerveModuleStates(speeds_fieldRelative);
+        Rotation2d[] headings = modules.currentModuleHeadings();
 
-    @Override public void logicPeriodic() {
-/*
-        lastSetpoint = swerveGenerator.generateSetpoint(
-                LIM,
-                lastSetpoint,
-                toFollow,
-                0.02
-        );
-
-        SwerveModuleState[] states = lastSetpoint.moduleStates();
-        driveUsingSwerveStates(states, false);*/
-    }
-/*
-    UngodlyAbomination.SwerveSetpoint lastSetpoint = new UngodlyAbomination.SwerveSetpoint(
-            new ChassisSpeeds(),
-            new SwerveModuleState[]{
-                    new SwerveModuleState(),
-                    new SwerveModuleState(),
-                    new SwerveModuleState(),
-                    new SwerveModuleState()
+        if (!swerveComponent.useOffsetFindingMode()) {
+            for (int i = 0; i < setpointStates.length; i++) {
+                setpointStates[i] = SwerveModuleState.optimize(setpointStates[i], headings[i]);
             }
-    );
-
-
-    public static final UngodlyAbomination.ModuleLimits LIM =  new UngodlyAbomination.ModuleLimits(
-            4.4,
-            4.4 * 5,
-            Units.degreesToRadians(1080.0)
-    );*/
-
-    ChassisSpeeds toFollow = new ChassisSpeeds();
-
-    /**
-     * Commands the motors to drive at some voltages, using a chassis speed reference
-     * This will set them for the rest of time
-     */
-    public void driveUsingChassisSpeed(ChassisSpeeds speeds_robotRelative, boolean usePID) {
-        toFollow = speeds_robotRelative;
-
-        driveUsingSwerveStates(kinematics.toSwerveModuleStates(speeds_robotRelative), usePID);
-
-    }
-
-    /**
-     * Commands each module in the module array to move using the swerve module states_robotRelative as reference
-     * @param states_robotRelative states_robotRelative indexed by the IDs at the top of this class
-     */
-    public void driveUsingSwerveStates(SwerveModuleState[] states_robotRelative, boolean usePID) {
-        desiredStates = states_robotRelative;
-
-
-        for (int i = 0; i < modules.length; i++) {
-            modules[i].setToMoveAt(states_robotRelative[i], usePID);
         }
+
+
+        modules.driveUsingSwerveStates(setpointStates, swerveComponent.useVelocityPidTeleop());
     }
 
-    SwerveModuleState[] desiredStates;
-
-
-    /**
-     *
-     * @return The current position of the swerve drive, as reported by each module
-     */
-    public SwerveModulePosition[] currentPositions() {
-        return new SwerveModulePosition[] {
-                modules[0].getPosition(),
-                modules[1].getPosition(),
-                modules[2].getPosition(),
-                modules[3].getPosition()
-        };
+    public void orderToZero() {
+        System.out.println("ORDER2ZERO");
+        orderToUnfiltered(new ChassisSpeeds(0,0,0));
     }
 
-
-    /**
-     *
-     * @return The current state of the swerve drive as reported by each module
-     */
-    public SwerveModuleState[] currentHallEffectStates() {
-        return new SwerveModuleState[] {
-                modules[0].getHallEffectBasedState(),
-                modules[1].getHallEffectBasedState(),
-                modules[2].getHallEffectBasedState(),
-                modules[3].getHallEffectBasedState()
-        };
+    public Command orderToZeroCommand() {
+        return Commands.runOnce(this::orderToZero, this);
     }
-
-    public SwerveModuleState[] currentAbsoluteBasedState() {
-        return new SwerveModuleState[] {
-                modules[0].getAbsoluteBasedState(),
-                modules[1].getAbsoluteBasedState(),
-                modules[2].getAbsoluteBasedState(),
-                modules[3].getAbsoluteBasedState()
-        };
-    }
-
-    public void commandWheelsToZero() {
-        for (SwerveModule module : modules) {
-            module.stopAllMotors();
-        }
-    }
-
 
 
 }
