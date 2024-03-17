@@ -46,4 +46,8 @@ public class BaseDriveCommand extends Command {
         swerveSubsystem.orderToUnfiltered(limitedSpeeds);
     }
 
+    @Override
+    public void end(boolean interrupted) {
+        swerveSubsystem.orderToZero();
+    }
 }

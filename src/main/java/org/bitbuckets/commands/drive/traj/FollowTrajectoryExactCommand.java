@@ -49,6 +49,8 @@ public class FollowTrajectoryExactCommand extends Command {
                 thetaPidComponent.dConstant(),
                 new TrapezoidProfile.Constraints(3,3)
         );
+
+        addRequirements(swerveSubsystem);
     }
 
     boolean shouldMirror() {
@@ -63,7 +65,7 @@ public class FollowTrajectoryExactCommand extends Command {
         yPid = yPidBrain.spawn();
         thetaPid.reset(MathUtil.angleModulus(swerveSubsystem.odometry.getHeading_fieldRelative().getRadians()));
         thetaPid.enableContinuousInput(-Math.PI, Math.PI);
-        thetaPid.setTolerance(Math.PI / 90);
+        thetaPid.setTolerance(Math.PI / 45); // 2 deg
 
         timer.restart();
     }
@@ -81,7 +83,7 @@ public class FollowTrajectoryExactCommand extends Command {
 
         double xFeedback = xPid.controlToReference_primeUnits(trajectoryReference.x, robotState.getX());
         double yFeedback = yPid.controlToReference_primeUnits(trajectoryReference.y, robotState.getY());
-        double rotationFeedback = thetaPid.calculate(robotHeading.getRadians(), trajectoryReference.heading);
+        double rotationFeedback = thetaPid.calculate(MathUtil.angleModulus(robotHeading.getRadians()), MathUtil.angleModulus(trajectoryReference.heading));
 
         ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 xFF + xFeedback,

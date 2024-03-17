@@ -71,8 +71,7 @@ public class DriveSubsystem implements Subsystem, IMattlibHooked {
     }
 
     public void orderToZero() {
-        System.out.println("ORDER2ZERO");
-        orderToUnfiltered(new ChassisSpeeds(0,0,0));
+        orderToUnfilteredAuto(new ChassisSpeeds(0,0,0));
     }
 
     public Command orderToZeroCommand() {

@@ -240,7 +240,7 @@ public class RobotContainer {
                 swerveSubsystem,
                 xController,
                 yController,
-                DRIVE_T_PID).andThen(Commands.runOnce(modules::commandWheelsToZero));
+                DRIVE_T_PID);
     }
 
     public Command twoNoteStyle(String real, double ramFireSpeed, double deadline_seconds) {
@@ -257,7 +257,8 @@ public class RobotContainer {
                 new ReadyWhileMovingShootCommand(
                         followTrajectory(twoNoteArr[1]),
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                )
+                ),
+                Commands.runOnce(modules::commandWheelsToZero)
         );
     }
 
@@ -276,7 +277,8 @@ public class RobotContainer {
                 new ReadyWhileMovingShootCommand(
                         followTrajectory(twoNoteArr[2]),
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                )
+                ),
+                Commands.runOnce(modules::commandWheelsToZero)
         );
     }
 
@@ -297,7 +299,8 @@ public class RobotContainer {
         var shootLeave = new SequentialCommandGroup(
                 new PlaceOdometryCommand(shootLeaveArr[0], odometry),
                 new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                followTrajectory(shootLeaveArr[0])
+                followTrajectory(shootLeaveArr[0]),
+                Commands.runOnce(modules::commandWheelsToZero)
         );
 
 
@@ -323,7 +326,8 @@ public class RobotContainer {
                 new ReadyWhileMovingShootCommand(
                         followTrajectory(threeNoteArr[3]),
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                )
+                ),
+                Commands.runOnce(modules::commandWheelsToZero)
         );
 
 
@@ -358,7 +362,8 @@ public class RobotContainer {
                 new ReadyWhileMovingShootCommand(
                         followTrajectory(fourNoteArr[5]),
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                )
+                ),
+                Commands.runOnce(modules::commandWheelsToZero)
         );
         ChoreoTrajectory[] fourNoteCompatLeftArr = TrajLoadingUtil.getAllTrajectories("fourNoteCompatLeft");
 
@@ -385,7 +390,8 @@ public class RobotContainer {
                     new ReadyWhileMovingGroundIntakeCommand(
                             followTrajectory(fourNoteCompatLeftArr[5]),
                             noteManagementSubsystem, groundIntakeSubsystem
-                    )
+                    ),
+                    Commands.runOnce(modules::commandWheelsToZero)
 //                    new ReadyWhileMovingShootCommand(
 //                            followTrajectory(fourNoteCompatLeftArr[6]),
 //                            flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
@@ -471,13 +477,15 @@ public class RobotContainer {
                 new ReadyWhileMovingShootCommand(
                         followTrajectory(sixNoteArr[7]),
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                )
+                ),
+                Commands.runOnce(modules::commandWheelsToZero)
         );
 
         ChoreoTrajectory[] taxiArr = TrajLoadingUtil.getAllTrajectories("waitTaxi");
         var taxi = new SequentialCommandGroup(
                 new PlaceOdometryCommand(taxiArr[0], odometry),
-                followTrajectory(sixNoteArr[0])
+                followTrajectory(sixNoteArr[0]),
+                Commands.runOnce(modules::commandWheelsToZero)
         );
 
 
@@ -502,7 +510,7 @@ public class RobotContainer {
 
 
         //DRIVER STUFF
-        operatorInput.movementNotDesired.and(operatorInput.customHeadingNotDesired).onTrue(swerveSubsystem.orderToZeroCommand());
+        operatorInput.movementNotDesired.and(operatorInput.customHeadingNotDesired).whileTrue(swerveSubsystem.orderToZeroCommand());
         operatorInput.movementNotDesired.and(operatorInput.ampHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromDegrees(90), false));
         operatorInput.movementNotDesired.and(operatorInput.rightSpeakerHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromRadians(Math.PI / 3), true));
         operatorInput.movementNotDesired.and(operatorInput.leftSpeakerHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromRadians(-Math.PI / 3), true));
