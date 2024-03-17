@@ -44,7 +44,6 @@ import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
 import org.bitbuckets.noteManagement.NoteManagementComponent;
 import org.bitbuckets.noteManagement.NoteManagementSubsystem;
 import org.bitbuckets.shooter.FlywheelSubsystem;
-import org.bitbuckets.shooter.PivotSubsystem;
 import org.bitbuckets.util.*;
 import org.bitbuckets.vision.CamerasComponent;
 import org.bitbuckets.vision.VisionComponent;
@@ -443,37 +442,36 @@ public class RobotContainer {
         var sixNote = new SequentialCommandGroup(
                 new PlaceOdometryCommand(sixNoteArr[0], odometrySubsystem),
                 new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                followTrajectory(sixNoteArr[0]),
                 new ReadyWhileMovingGroundIntakeCommand(
+                        followTrajectory(sixNoteArr[0]),
+                        noteManagementSubsystem, groundIntakeSubsystem
+                ),
+                new ReadyWhileMovingShootCommand(
                         followTrajectory(sixNoteArr[1]),
-                        noteManagementSubsystem, groundIntakeSubsystem
+                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 ),
-                new ReadyWhileMovingShootCommand(
+                new ReadyWhileMovingGroundIntakeCommand(
                         followTrajectory(sixNoteArr[2]),
-                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
+                        noteManagementSubsystem, groundIntakeSubsystem
                 ),
-                new ReadyWhileMovingGroundIntakeCommand(
+                new ReadyWhileMovingShootCommand(
                         followTrajectory(sixNoteArr[3]),
-                        noteManagementSubsystem, groundIntakeSubsystem
+                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 ),
-                new ReadyWhileMovingShootCommand(
+                new ReadyWhileMovingGroundIntakeCommand(
                         followTrajectory(sixNoteArr[4]),
-                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
+                        noteManagementSubsystem, groundIntakeSubsystem
                 ),
-                new ReadyWhileMovingGroundIntakeCommand(
+                new ReadyWhileMovingShootCommand(
                         followTrajectory(sixNoteArr[5]),
-                        noteManagementSubsystem, groundIntakeSubsystem
-                ),
-                new ReadyWhileMovingShootCommand(
-                        followTrajectory(sixNoteArr[6]),
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 ),
                 new ReadyWhileMovingGroundIntakeCommand(
-                        followTrajectory(sixNoteArr[7]),
+                        followTrajectory(sixNoteArr[6]),
                         noteManagementSubsystem, groundIntakeSubsystem
                 ),
                 new ReadyWhileMovingShootCommand(
-                        followTrajectory(sixNoteArr[8]),
+                        followTrajectory(sixNoteArr[7]),
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 )
 
@@ -482,9 +480,16 @@ public class RobotContainer {
 
         );
 
+        ChoreoTrajectory[] taxiArr = TrajLoadingUtil.getAllTrajectories("waitTaxi");
+        var taxi = new SequentialCommandGroup(
+                new PlaceOdometryCommand(taxiArr[0], odometrySubsystem),
+                followTrajectory(sixNoteArr[0])
+        );
+
 
         SendableChooser<Command> chooser = new SendableChooser<>();
         //chooser.addOption("twoNote", twoNote);
+        chooser.addOption("taxi", taxi);
         chooser.addOption("shootGetFar", shootLeave);
         chooser.addOption("threeNote", threeNote);
         chooser.setDefaultOption("fourNote", fourNote);
