@@ -334,7 +334,7 @@ public class RobotContainer {
         ChoreoTrajectory[] fourNoteArr = TrajLoadingUtil.getAllTrajectories("fourNote");
 
         var fourNote = new SequentialCommandGroup(
-                new PlaceOdometryCommand(fourNoteArr[0], odometrySubsystem),
+                new PlaceOdometryCommand(fourNoteArr[0], odometry),
                 new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
                 new ReadyWhileMovingGroundIntakeCommand(
                         followTrajectory(fourNoteArr[0]),
@@ -365,7 +365,7 @@ public class RobotContainer {
         ChoreoTrajectory[] fourNoteCompatLeftArr = TrajLoadingUtil.getAllTrajectories("fourNoteCompatLeft");
 
         var fourNoteCompatLeft = new SequentialCommandGroup(
-                    new PlaceOdometryCommand(fourNoteCompatLeftArr[0], odometrySubsystem),
+                    new PlaceOdometryCommand(fourNoteCompatLeftArr[0], odometry),
                     new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
                     followTrajectory(fourNoteCompatLeftArr[0]),
                     new ReadyWhileMovingGroundIntakeCommand(
@@ -440,7 +440,7 @@ public class RobotContainer {
         ChoreoTrajectory[] sixNoteArr = TrajLoadingUtil.getAllTrajectories("sixNote");
 
         var sixNote = new SequentialCommandGroup(
-                new PlaceOdometryCommand(sixNoteArr[0], odometrySubsystem),
+                new PlaceOdometryCommand(sixNoteArr[0], odometry),
                 new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
                 followTrajectory(sixNoteArr[0]),
                 new ReadyWhileMovingGroundIntakeCommand(
