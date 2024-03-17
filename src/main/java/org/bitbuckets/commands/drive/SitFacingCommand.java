@@ -46,6 +46,7 @@ public class SitFacingCommand extends Command {
     }
 
     @Override public void end(boolean interrupted) {
+        swerveSubsystem.orderToZero();
         controller = null;
     }
 }

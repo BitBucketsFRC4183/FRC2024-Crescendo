@@ -2,6 +2,7 @@ package org.bitbuckets.drive;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -32,6 +33,26 @@ public class DriveSubsystem implements Subsystem, IMattlibHooked {
     }
 
 
+
+    /**
+     * Used for auto
+     * @param speeds_fieldRelative
+     */
+    public void orderToUnfilteredAuto(ChassisSpeeds speeds_fieldRelative) {
+        SwerveModuleState[] setpointStates = odometry.kinematics.toSwerveModuleStates(speeds_fieldRelative);
+        Rotation2d[] headings = modules.currentModuleHeadings();
+
+        if (!swerveComponent.useOffsetFindingMode()) {
+            for (int i = 0; i < setpointStates.length; i++) {
+                setpointStates[i] = SwerveModuleState.optimize(setpointStates[i], headings[i]);
+            }
+        }
+
+
+        modules.driveUsingSwerveStates(setpointStates, true);
+    }
+
+
     /**
      * Used for auto
      * @param speeds_fieldRelative
@@ -50,9 +71,14 @@ public class DriveSubsystem implements Subsystem, IMattlibHooked {
         modules.driveUsingSwerveStates(setpointStates, swerveComponent.useVelocityPidTeleop());
     }
 
+    public void orderToHeadingOnly(ChassisSpeeds speeds_onlyHeading) {
+        SwerveModuleState[] setpointStates = odometry.kinematics.toSwerveModuleStates(speeds_onlyHeading);
+
+        modules.driveUsingHeading(setpointStates);
+    }
+
     public void orderToZero() {
-        System.out.println("ORDER2ZERO");
-        orderToUnfiltered(new ChassisSpeeds(0,0,0));
+        orderToUnfilteredAuto(new ChassisSpeeds(0,0,0));
     }
 
     public Command orderToZeroCommand() {

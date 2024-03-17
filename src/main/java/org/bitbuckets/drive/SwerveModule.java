@@ -75,6 +75,17 @@ public class SwerveModule implements IMattlibHooked {
         steerController.stopActuator();
     }
 
+    public void setToHeading(SwerveModuleState optimizedState) {
+        if (optimizedState.speedMetersPerSecond < 0.001 && Math.abs(optimizedState.angle.getRotations() - steerController.angularPosition_normalizedMechanismRotations()) < 0.01) {
+            steerController.setToVoltage(0);
+            driveMotor.setToVoltage(0);
+        }
+
+        steerController.controlToNormalizedReference(
+                optimizedState.angle.getRotations()
+        );
+    }
+
     public void setToMoveAt(SwerveModuleState optimizedState, boolean usePID) {
 
         if (optimizedState.speedMetersPerSecond < 0.001 && Math.abs(optimizedState.angle.getRotations() - steerController.angularPosition_normalizedMechanismRotations()) < 0.01) {

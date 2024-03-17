@@ -49,6 +49,14 @@ public class Modules implements IMattlibHooked {
         }
     }
 
+    public void driveUsingHeading(SwerveModuleState[] states) {
+        desiredStates_forLog = states;
+
+        for (int i = 0; i < modules.length; i++) {
+            modules[i].setToHeading(states[i]);
+        }
+    }
+
     /**
      *
      * @return The current position of the swerve drive, as reported by each module
