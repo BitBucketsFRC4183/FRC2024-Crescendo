@@ -3,6 +3,7 @@ package org.bitbuckets.noteManagement;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.util.RunningAverageBuffer;
 import xyz.auriium.mattlib2.hardware.ILinearMotor;
 import xyz.auriium.mattlib2.loop.IMattlibHooked;
@@ -17,6 +18,8 @@ public class NoteManagementSubsystem implements Subsystem, IMattlibHooked {
     final RunningAverageBuffer topBuffer;
     final SimpleMotorFeedforward simpleMotorFeedforward;
 
+    public final Trigger noteIsIn;
+
 
     public NoteManagementSubsystem(ILinearMotor nms_bottomMotor, ILinearMotor nms_topMotor, DigitalInput digitalInput, NoteManagementComponent nmsComponent) {
         this.nms_bottomMotor = nms_bottomMotor;
@@ -27,6 +30,8 @@ public class NoteManagementSubsystem implements Subsystem, IMattlibHooked {
         bottomBuffer = new RunningAverageBuffer(3);
         topBuffer = new RunningAverageBuffer(3);
         simpleMotorFeedforward = new SimpleMotorFeedforward(1, 2);
+
+        noteIsIn = new Trigger(this::isNoteIn);
 
 
 

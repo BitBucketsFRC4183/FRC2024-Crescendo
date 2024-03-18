@@ -1,5 +1,7 @@
 package org.bitbuckets.commands.drive;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -7,18 +9,21 @@ import edu.wpi.first.wpilibj2.command.Command;
 import org.bitbuckets.drive.DriveSubsystem;
 import xyz.auriium.mattlib2.auto.pid.IPIDController;
 import xyz.auriium.mattlib2.auto.pid.RotationalPIDBrain;
+import xyz.auriium.mattlib2.hardware.config.PIDComponent;
 
 public class SitFacingCommand extends Command {
 
-    final RotationalPIDBrain pidBrain;
+    final PIDComponent pidBrain;
     final DriveSubsystem swerveSubsystem;
     final Rotation2d desiredHeading_allianceOrField;
     final boolean isAllianceRelative;
 
-    IPIDController controller;
+    final PIDController rotationalController = new PIDController(0,0,0);
+
+
     Rotation2d heading;
 
-    public SitFacingCommand(RotationalPIDBrain pidBrain, DriveSubsystem swerveSubsystem, Rotation2d desiredHeadingAllianceRelative, boolean isAllianceRelative) {
+    public SitFacingCommand(PIDComponent pidBrain, DriveSubsystem swerveSubsystem, Rotation2d desiredHeadingAllianceRelative, boolean isAllianceRelative) {
         this.pidBrain = pidBrain;
         this.swerveSubsystem = swerveSubsystem;
         desiredHeading_allianceOrField = desiredHeadingAllianceRelative;
@@ -28,7 +33,10 @@ public class SitFacingCommand extends Command {
     }
 
     @Override public void initialize() {
-        controller = pidBrain.spawn();
+        rotationalController.setPID(pidBrain.pConstant(), pidBrain.iConstant(), pidBrain.dConstant());
+        rotationalController.reset();
+        rotationalController.enableContinuousInput(-Math.PI, Math.PI);
+        rotationalController.setTolerance(Math.PI / 90);
 
         heading = desiredHeading_allianceOrField;
         if (isAllianceRelative) {
@@ -40,11 +48,15 @@ public class SitFacingCommand extends Command {
     }
 
     @Override public void execute() {
-        if (controller.isAtSetpoint()) {
+        if (rotationalController.atSetpoint()) {
             return;
         }
 
-        double controlOut = controller.controlToReference_primeUnits(heading.getRadians(), swerveSubsystem.odometry.getHeading_fieldRelative().getRadians());
+        double controlOut = rotationalController
+                .calculate(
+                        MathUtil.angleModulus(heading.getRadians()),
+                        MathUtil.angleModulus(swerveSubsystem.odometry.getHeading_fieldRelative().getRadians())
+                );
 
 
         swerveSubsystem.orderToUnfiltered(new ChassisSpeeds(0,0,controlOut));
@@ -52,6 +64,5 @@ public class SitFacingCommand extends Command {
 
     @Override public void end(boolean interrupted) {
         swerveSubsystem.orderToZero();
-        controller = null;
     }
 }
