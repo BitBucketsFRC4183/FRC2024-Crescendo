@@ -296,9 +296,8 @@ public class RobotContainer {
 
 
 
-        var twoNoteCompatLeft = twoNoteCompatStyle("twoNoteCompatLeft", ramFireSpeed, deadline_seconds);
-        var twoNoteCompatRight = twoNoteCompatStyle("twoNoteCompatRight", ramFireSpeed, deadline_seconds);
-
+        var twoNoteCompatLeftBlue = twoNoteCompatStyle("twoNoteCompatLeft", ramFireSpeed, deadline_seconds);
+        var twoNoteCompatRightBlue = twoNoteCompatStyle("twoNoteCompatRight", ramFireSpeed, deadline_seconds);
 
         ChoreoTrajectory[] shootLeaveArr = TrajLoadingUtil.getAllTrajectories("shootGetFar");
 
@@ -414,8 +413,8 @@ public class RobotContainer {
         chooser.addOption("fiveNote (SKETCHY)", fiveNote);
         chooser.addOption("fourToFive (SKETCHY)", fourToFive);
         chooser.addOption("doNothing", Commands.waitSeconds(1));
-        chooser.addOption("twoNoteCompatRight", twoNoteCompatRight);
-        chooser.addOption("twoNoteCompatLeft", twoNoteCompatLeft);
+        chooser.addOption("twoNoteCompatRight (blue relative)", twoNoteCompatRightBlue);
+        chooser.addOption("twoNoteCompatLeft (blue relative)", twoNoteCompatLeftBlue);
 
         SmartDashboard.putData("Path", chooser);
         return chooser;
