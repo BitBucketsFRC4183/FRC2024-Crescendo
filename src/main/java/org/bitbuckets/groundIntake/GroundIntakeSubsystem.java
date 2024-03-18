@@ -23,8 +23,8 @@ public class GroundIntakeSubsystem implements Subsystem, IMattlibHooked {
 
     // copypasted from ClimberSubsystem
     public void setToVoltage(double voltage) {
-        topMotor.setToVoltage(voltage);
-        bottomMotor.setToVoltage(voltage);
+        topMotor.setToVoltage(voltage / 1.1);
+        bottomMotor.setToVoltage(voltage * 1.1);
     }
 
     public void setMotorsZero() {

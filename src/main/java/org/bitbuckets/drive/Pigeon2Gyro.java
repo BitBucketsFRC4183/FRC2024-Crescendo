@@ -14,11 +14,11 @@ import xyz.auriium.yuukonstants.exception.ExplainedException;
  * 0,0 is FL, right is positive x and twords back is positive y, gyro is at 5,9
  *
  */
-public class Pigeon2Gyro implements IGyro, IMattlibHooked{
+public class Pigeon2Gyro implements IGyro, IMattlibHooked {
 
     final Pigeon2 pigeon2;
 
-    StatusSignal<Double> yawCachedSignal;
+    StatusSignal<Double> yawIgnored;
 
     public Pigeon2Gyro(Pigeon2 pigeon2) {
         this.pigeon2 = pigeon2;
@@ -26,40 +26,27 @@ public class Pigeon2Gyro implements IGyro, IMattlibHooked{
         mattRegister();
     }
 
-    @Override
-    public ExplainedException[] verifyInit() {
-        yawCachedSignal = pigeon2.getYaw();
+    @Override public ExplainedException[] verifyInit() {
+        //pigeon2.setYaw(0); //TODO DO NOT DO THIS PLEASE OH MY GOD DO NOT DO THIS
+        pigeon2.optimizeBusUtilization();
+        yawIgnored = pigeon2.getYaw();
+        BaseStatusSignal.setUpdateFrequencyForAll(50, yawIgnored);
 
-        return new ExplainedException[0];
+
+        return IMattlibHooked.super.verifyInit();
     }
 
-
-    Rotation2d tare = new Rotation2d();
+    @Override public void logicPeriodic() {
+    }
 
     @Override
-    public Rotation2d initializationRelativeRotation() {
+    public Rotation2d rotation_initializationRelative() {
+
         return pigeon2.getRotation2d();
     }
 
-    @Override
-    public Rotation2d userZeroRelativeRotation() {
-        return pigeon2.getRotation2d().minus(tare);
-    }
-
-    @Override
-    public void userZero() {
-        tare = tare.plus(userZeroRelativeRotation());
-    }
-
-    @Override
-    public void userForceOffset(Rotation2d beAt) {
-        tare = tare.plus(userZeroRelativeRotation()).plus(beAt);
-    }
-
-    @Override
-    public boolean isOk() {
-
-        return BaseStatusSignal.isAllGood(yawCachedSignal);
+    @Override public boolean isCurrentlyAlive() {
+        return BaseStatusSignal.isAllGood(yawIgnored);
     }
 
 
