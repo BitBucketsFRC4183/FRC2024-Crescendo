@@ -52,6 +52,7 @@ import org.bitbuckets.disabled.DisablerComponent;
 import org.bitbuckets.drive.*;
 import org.bitbuckets.groundIntake.GroundIntakeComponent;
 import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
+import org.bitbuckets.led.LedSubsytem;
 import org.bitbuckets.noteManagement.NoteManagementComponent;
 import org.bitbuckets.noteManagement.NoteManagementSubsystem;
 import org.bitbuckets.shooter.FlywheelSubsystem;
@@ -113,6 +114,7 @@ public class RobotContainer {
     public final RotationalPIDBrain thetaController;
 
     public final MattConsole mainConsole;
+    public final LedSubsytem ledSubystem;
 
     Command cachedCurrentlyRunningAutoCommand = null;
 
@@ -151,6 +153,9 @@ public class RobotContainer {
         this.climberSubsystem = loadClimberSubsystem();
         this.groundIntakeSubsystem = loadGroundIntakeSubsystem();
         this.noteManagementSubsystem = loadNoteManagementSubsystem();
+
+        if (!DISABLER.led_disabled()) {this.ledSubystem = new LedSubsytem(this.noteManagementSubsystem);}
+        else this.ledSubystem = null;
 
         if (!DISABLER.vision_disabled() && Robot.isSimulation()) {
             PhotonCamera[] cameras = visionSubsystem.getCameras();

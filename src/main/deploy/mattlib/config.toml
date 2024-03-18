@@ -16,6 +16,7 @@ climber_disabled = true
 groundIntake_disabled = false
 nms_disabled = false
 pivot_disabled = true
+led_disabled = false
 
 # Commands
 [commands]

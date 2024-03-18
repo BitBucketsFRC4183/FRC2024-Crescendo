@@ -15,4 +15,6 @@ public interface DisablerComponent extends INetworkedComponent {
     @Conf("groundIntake_disabled") boolean groundIntake_disabled();
     @Conf("nms_disabled") boolean nms_disabled();
 
+    @Conf("led_disabled") boolean led_disabled();
+
 }
