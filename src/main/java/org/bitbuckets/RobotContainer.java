@@ -21,6 +21,7 @@ import org.bitbuckets.climber.ClimberSubsystem;
 import org.bitbuckets.commands.CommandComponent;
 import org.bitbuckets.commands.ReadyWhileMovingGroundIntakeCommand;
 import org.bitbuckets.commands.ReadyWhileMovingShootCommand;
+import org.bitbuckets.commands.VibratingCommand;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
 import org.bitbuckets.commands.drive.BaseDriveCommand;
 import org.bitbuckets.commands.drive.DriveFacingStaticPosCommand;
@@ -425,10 +426,10 @@ public class RobotContainer {
 
         //DRIVER STUFF
         operatorInput.movementNotDesired.and(operatorInput.customHeadingNotDesired).whileTrue(swerveSubsystem.orderToZeroCommand());
-        operatorInput.movementNotDesired.and(operatorInput.ampHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromDegrees(90), false));
-        operatorInput.movementNotDesired.and(operatorInput.rightSpeakerHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromRadians(-Math.PI / 3), true));
-        operatorInput.movementNotDesired.and(operatorInput.leftSpeakerHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromRadians(Math.PI / 3), true));
-        operatorInput.movementNotDesired.and(operatorInput.frontSpeakerHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromDegrees(0), true));
+        operatorInput.movementNotDesired.and(operatorInput.ampHeadingHold).whileTrue(new SitFacingCommand(DRIVE_T_TELEOP, swerveSubsystem, Rotation2d.fromDegrees(90), false));
+        operatorInput.movementNotDesired.and(operatorInput.rightSpeakerHeadingHold).whileTrue(new SitFacingCommand(DRIVE_T_TELEOP, swerveSubsystem, Rotation2d.fromRadians(-Math.PI / 3), true));
+        operatorInput.movementNotDesired.and(operatorInput.leftSpeakerHeadingHold).whileTrue(new SitFacingCommand(DRIVE_T_TELEOP, swerveSubsystem, Rotation2d.fromRadians(Math.PI / 3), true));
+        operatorInput.movementNotDesired.and(operatorInput.frontSpeakerHeadingHold).whileTrue(new SitFacingCommand(DRIVE_T_TELEOP, swerveSubsystem, Rotation2d.fromDegrees(0), true));
 
         operatorInput.movementDesired.and(operatorInput.customHeadingNotDesired).whileTrue(new BaseDriveCommand(o2s, operatorInput, swerveSubsystem));
         operatorInput.movementDesired.and(operatorInput.ampHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromDegrees(90), false, DFSP));
@@ -452,6 +453,7 @@ public class RobotContainer {
 
         //zero heading, not anything else
         operatorInput.resetGyroPress.onTrue(new PlaceAllianceZeroHeading(odometry,Rotation2d.fromDegrees(0)));
+        noteManagementSubsystem.noteIsIn.whileTrue(new VibratingCommand(operatorInput));
     }
 
 
