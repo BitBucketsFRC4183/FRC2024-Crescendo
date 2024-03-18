@@ -13,15 +13,13 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.event.EventLoop;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
 import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
-import org.bitbuckets.commands.CommandComponent;
-import org.bitbuckets.commands.ReadyWhileMovingGroundIntakeCommand;
-import org.bitbuckets.commands.ReadyWhileMovingShootCommand;
-import org.bitbuckets.commands.VibratingCommand;
+import org.bitbuckets.commands.*;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
 import org.bitbuckets.commands.drive.BaseDriveCommand;
 import org.bitbuckets.commands.drive.DriveFacingStaticPosCommand;
@@ -42,6 +40,7 @@ import org.bitbuckets.disabled.KinematicGyro;
 import org.bitbuckets.drive.*;
 import org.bitbuckets.groundIntake.GroundIntakeComponent;
 import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
+import org.bitbuckets.led.LedComponent;
 import org.bitbuckets.noteManagement.NoteManagementComponent;
 import org.bitbuckets.noteManagement.NoteManagementSubsystem;
 import org.bitbuckets.shooter.FlywheelSubsystem;
@@ -50,6 +49,7 @@ import org.bitbuckets.vision.CamerasComponent;
 import org.bitbuckets.vision.VisionComponent;
 import org.bitbuckets.vision.VisionSimContainer;
 import org.bitbuckets.vision.VisionSubsystem;
+import org.bitbuckets.led.LedSubsystem;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import xyz.auriium.mattlib.ctre.HardwareCTRE;
@@ -57,7 +57,6 @@ import xyz.auriium.mattlib2.MattConsole;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
 import xyz.auriium.mattlib2.auto.ff.LinearFFGenRoutine;
-import xyz.auriium.mattlib2.auto.ff.RotationFFGenRoutine;
 import xyz.auriium.mattlib2.auto.ff.config.GenerateFFComponent;
 import xyz.auriium.mattlib2.auto.pid.LinearPIDBrain;
 import xyz.auriium.mattlib2.auto.pid.RotationalPIDBrain;
@@ -93,6 +92,7 @@ public class RobotContainer {
     public final GroundIntakeSubsystem groundIntakeSubsystem;
     public final NoteManagementSubsystem noteManagementSubsystem;
     public final SwerveDriveKinematics kinematics;
+    public final LedSubsystem ledSubsystem;
 
     public final SendableChooser<Command> chooser;
 
@@ -137,6 +137,7 @@ public class RobotContainer {
         this.climberSubsystem = loadClimberSubsystem();
         this.groundIntakeSubsystem = loadGroundIntakeSubsystem();
         this.noteManagementSubsystem = loadNoteManagementSubsystem();
+        this.ledSubsystem = loadLedSubsystem();
 
         if (!DISABLER.vision_disabled() && Robot.isSimulation()) {
             PhotonCamera[] cameras = visionSubsystem.getCameras();
@@ -453,7 +454,7 @@ public class RobotContainer {
 
         //zero heading, not anything else
         operatorInput.resetGyroPress.onTrue(new PlaceAllianceZeroHeading(odometry,Rotation2d.fromDegrees(0)));
-        noteManagementSubsystem.noteIsIn.whileTrue(new VibratingCommand(operatorInput));
+        noteManagementSubsystem.noteIsIn.whileTrue(new ParallelCommandGroup(new VibratingCommand(operatorInput), new LedNoteInCommand(ledSubsystem)));
     }
 
 
@@ -708,6 +709,11 @@ public class RobotContainer {
         );
     }
 
+    LedSubsystem loadLedSubsystem() {
+        Spark ledController = new Spark(LED_CONTROLLER.channel());
+        return new LedSubsystem(ledController);
+    }
+
     public void robotInit() {
 
     }
@@ -782,6 +788,8 @@ public class RobotContainer {
 
     public static final CamerasComponent CAMERAS = LOG.load(CamerasComponent.class, "cameras");
     public static final DisablerComponent DISABLER = LOG.load(DisablerComponent.class, "disabler");
+
+    public static final LedComponent LED_CONTROLLER = LOG.load(LedComponent.class, "led");
 
 
 }
