@@ -3,12 +3,14 @@ package org.bitbuckets.commands.shooter.flywheel;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.bitbuckets.shooter.FlywheelSubsystem;
 
+import java.util.function.Supplier;
+
 public class AwaitFlywheelSpeedsCommand extends Command {
 
     final FlywheelSubsystem flywheelSubsystem;
-    final double thresholdSpeeds;
+    final Supplier<Double> thresholdSpeeds;
 
-    public AwaitFlywheelSpeedsCommand(FlywheelSubsystem flywheelSubsystem, double thresholdSpeeds) {
+    public AwaitFlywheelSpeedsCommand(FlywheelSubsystem flywheelSubsystem, Supplier<Double> thresholdSpeeds) {
         this.flywheelSubsystem = flywheelSubsystem;
         this.thresholdSpeeds = thresholdSpeeds;
     }
@@ -18,6 +20,6 @@ public class AwaitFlywheelSpeedsCommand extends Command {
     }
 
     @Override public boolean isFinished() {
-        return flywheelSubsystem.hasReachedSpeeds(thresholdSpeeds, thresholdSpeeds);
+        return flywheelSubsystem.hasReachedSpeeds(thresholdSpeeds.get(), thresholdSpeeds.get());
     }
 }

@@ -1,33 +1,24 @@
 package org.bitbuckets.commands.shooter;
 
-import edu.wpi.first.wpilibj2.command.DeferredCommand;
-import org.bitbuckets.drive.OdometrySubsystem;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import org.bitbuckets.commands.drive.SitFacingAutoCommand;
+import org.bitbuckets.commands.drive.SitFacingCommand;
+import org.bitbuckets.commands.drive.SitFacingPositionCommand;
+import org.bitbuckets.drive.DriveSubsystem;
 import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
 import org.bitbuckets.noteManagement.NoteManagementSubsystem;
 import org.bitbuckets.shooter.FlywheelSubsystem;
-import xyz.auriium.mattlib2.auto.ff.FastPolynomialRegression;
-import xyz.auriium.mattlib2.auto.ff.PolynomialRegression;
+import org.bitbuckets.util.FieldConstants;
+import xyz.auriium.mattlib2.hardware.config.PIDComponent;
 
-import java.util.HashSet;
+public class DistanceShotMakeReadyGroup extends SequentialCommandGroup {
 
-public class DistanceShotMakeReadyGroup extends DeferredCommand {
-
-    final static PolynomialRegression fastPolynomialRegression = new PolynomialRegression(
-            new double[] { //distance
-                    1.11
-            },
-            new double[] { //speeds
-                60,
-            },
-            2
-    );
-
-
-    public DistanceShotMakeReadyGroup(FlywheelSubsystem flywheelSubsystem, OdometrySubsystem odometrySubsystem, NoteManagementSubsystem noteManagementSubsystem, GroundIntakeSubsystem groundIntakeSubsystem) {
-        super(() -> {
-            double flywheelSpeeds = fastPolynomialRegression.predict(odometrySubsystem.distanceFromAllianceSpeaker());
-
-            return new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, flywheelSpeeds);
-        }, new HashSet<>());
+    public DistanceShotMakeReadyGroup(PIDComponent component, DriveSubsystem driveSubsystem, FlywheelSubsystem flywheelSubsystem, NoteManagementSubsystem noteManagementSubsystem, GroundIntakeSubsystem groundIntakeSubsystem) {
+        super(
+                new SitFacingPositionCommand(component, driveSubsystem, FieldConstants.Speaker.centerSpeakerOpening.toTranslation2d().minus(new Translation2d(0.4, 0)), true),
+                new DistanceShot(flywheelSubsystem, driveSubsystem.odometry, noteManagementSubsystem, groundIntakeSubsystem)
+        );
     }
+
 }

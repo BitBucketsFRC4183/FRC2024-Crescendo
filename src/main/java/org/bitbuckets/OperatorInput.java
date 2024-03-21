@@ -21,7 +21,7 @@ public class OperatorInput {
     final Trigger isTeleop = new Trigger(() -> actuallyIsTeleop); //TODO fill this out
 
     //OPERATOR'S CONTROLS
-    final Trigger shootByVision = operatorControl.a();
+
     final Trigger shootManually = operatorControl.x();
     final Trigger sourceIntake_hold = operatorControl.leftBumper();
     final Trigger groundIntakeNoBeamBreak = operatorControl.rightTrigger();
@@ -42,6 +42,7 @@ public class OperatorInput {
     public final Trigger frontSpeakerHeadingHold = driver.y();
     public final Trigger rightSpeakerHeadingHold = driver.b();
     public final Trigger ampHeadingHold = driver.a();
+    final Trigger shootByVision = driver.rightTrigger();
 
     public final Trigger customHeadingDesired = leftSpeakerHeadingHold.or(frontSpeakerHeadingHold).or(rightSpeakerHeadingHold).or(ampHeadingHold);
     public final Trigger customHeadingNotDesired = customHeadingDesired.negate();

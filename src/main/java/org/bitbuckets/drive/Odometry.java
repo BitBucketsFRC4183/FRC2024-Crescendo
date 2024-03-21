@@ -48,12 +48,10 @@ public class Odometry implements IMattlibHooked {
         @Log("rot_odo") void logOdoRotation(double rot);
         @Essential @Log("pose_odo") void logPosition(Pose2d pose2d);
         @Log("pidgeon_ok") void logPidgeonOk(boolean isOk);
-        @Essential @Log("reset_button_state") void logReset(boolean reset);
 
         @Log("allianceSpeaker") void logAllianceSpeaker(Pose2d allianceSpeaker);
         @Log("dist_allianceSpeaker") void logDistanceAllianceSpeaker(double dist);
 
-        @Conf("gyroResetButton_dio") int gyroResetButtonId();
     }
 
 
@@ -120,7 +118,6 @@ public class Odometry implements IMattlibHooked {
         odometryComponent.logPidgeonOk(gyro.isCurrentlyAlive());
         odometryComponent.logOdoRotation(odometry.getEstimatedPosition().getRotation().getRadians());
         odometryComponent.logGyroRotation(odometry.getEstimatedPosition().getRotation().getRadians());
-        odometryComponent.logReset(gyroResetButton.get());
 
         odometryComponent.logAllianceSpeaker(allianceSpeaker);
         odometryComponent.logDistanceAllianceSpeaker(distance);

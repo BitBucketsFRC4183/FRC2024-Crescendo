@@ -19,6 +19,7 @@ pivot_disabled = true
 
 # Commands
 [commands]
+amp_speed = 12
 ramFire_speed = 60
 groupDeadline_seconds = 4
 groundIntake_nominalVoltage = 9
@@ -98,7 +99,7 @@ steer_pid_common = {p = 10, i = 0, d = 0,  tolerance = 0.00555556} # pi / 90 -> 
 x_holonomic_pid = {p = 4, i = 0, d = 0,  tolerance = 0.05}
 y_holonomic_pid = {p = 4, i = 0, d = 0,  tolerance = 0.05}
 t_holonomic_pid = {p = 10, i = 0, d = 0,  tolerance = 0.034906585039} #need to be redone (current mcr values)
-t_teleop_pid = {p = 2, i = 0, d = 0,  tolerance = 0.13962634016} #need to be redone (current mcr values)
+t_teleop_pid = {p = 1, i = 0, d = 0,  tolerance = 0.13962634016} #need to be redone (current mcr values)
 drive_pid_common = {p = 0.00, i = 0, d = 0.0,  tolerance = 0}
 ff_fl = {ks = 0.1694, kv = 2.4946, ka = 0.0015}
 ff_fr = {ks = 0.1694, kv = 2.4946, ka = 0.0015}
