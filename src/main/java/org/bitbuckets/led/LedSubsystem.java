@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import org.bitbuckets.RobotContainer;
 import org.bitbuckets.noteManagement.NoteManagementSubsystem;
 import xyz.auriium.mattlib2.loop.IMattlibHooked;
 
@@ -53,6 +54,7 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
     }
 
     private void setBufferColor(Color color) {
+        RobotContainer.LED.log_current_mode("solid-color");
         for (var i = 0; i < buffer.getLength(); i++) {
             buffer.setLED(i, color);
         }
@@ -60,6 +62,7 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
 
     private void rainbow() {
         // For every pixel
+        RobotContainer.LED.log_current_mode("rainbow");
         for (var i = 0; i < buffer.getLength(); i++) {
             // Calculate the hue - hue is easier for rainbows because the color
             // shape is a circle so only one value needs to precess

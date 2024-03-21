@@ -52,6 +52,7 @@ import org.bitbuckets.disabled.DisablerComponent;
 import org.bitbuckets.drive.*;
 import org.bitbuckets.groundIntake.GroundIntakeComponent;
 import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
+import org.bitbuckets.led.LedComponent;
 import org.bitbuckets.led.LedSubsystem;
 
 import org.bitbuckets.noteManagement.NoteManagementComponent;
@@ -883,6 +884,8 @@ public class RobotContainer {
 
     public static final CamerasComponent CAMERAS = LOG.load(CamerasComponent.class, "cameras");
     public static final DisablerComponent DISABLER = LOG.load(DisablerComponent.class, "disabler");
+
+    public static final LedComponent LED = LOG.load(LedComponent.class, "led");
 
 
 }
