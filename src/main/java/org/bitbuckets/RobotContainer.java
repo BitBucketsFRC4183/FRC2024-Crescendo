@@ -372,7 +372,7 @@ public class RobotContainer {
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 ),
                 //new PlaceOdometryCommand(fourNoteArr[0], odometry), //TODO
-                Commands.waitSeconds(0.7),
+                Commands.waitSeconds(0.2),
                 Commands.runOnce(modules::commandWheelsToZero)
         );
 
