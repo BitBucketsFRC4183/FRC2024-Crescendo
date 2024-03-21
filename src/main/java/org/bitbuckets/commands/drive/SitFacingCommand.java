@@ -41,7 +41,7 @@ public class SitFacingCommand extends Command {
         heading = desiredHeading_allianceOrField;
         if (isAllianceRelative) {
             boolean shouldFlip = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red;
-            if (shouldFlip) {
+            if (!shouldFlip) { //TODO hack idk why this works
                 heading = heading.plus(Rotation2d.fromDegrees(180));
             }
         }
@@ -54,12 +54,16 @@ public class SitFacingCommand extends Command {
 
         double controlOut = rotationalController
                 .calculate(
-                        MathUtil.angleModulus(heading.getRadians()),
-                        MathUtil.angleModulus(swerveSubsystem.odometry.getHeading_fieldRelative().getRadians())
+                        heading.getRadians(),
+                        swerveSubsystem.odometry.getHeading_fieldRelative().getRadians()
                 );
 
 
         swerveSubsystem.orderToUnfiltered(new ChassisSpeeds(0,0,controlOut));
+    }
+
+    @Override public boolean isFinished() {
+        return rotationalController.atSetpoint();
     }
 
     @Override public void end(boolean interrupted) {
