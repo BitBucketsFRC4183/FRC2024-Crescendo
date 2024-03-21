@@ -6,5 +6,5 @@ import xyz.auriium.mattlib2.log.annote.Essential;
 import xyz.auriium.mattlib2.log.annote.Log;
 
 public interface LedComponent extends INetworkedComponent {
-    @Log("current_mode") void log_current_mode(String hi);
+    @Log("ledState") void log_ledState(String hi);
 }
