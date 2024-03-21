@@ -2,9 +2,12 @@ package org.bitbuckets.shooter;
 
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.RobotContainer;
 import org.bitbuckets.util.RunningAverageBuffer;
+import xyz.auriium.mattlib2.auto.ff.FastPolynomialRegression;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
 import xyz.auriium.mattlib2.hardware.IRotationalController;
 import xyz.auriium.mattlib2.hardware.IRotationalVelocityController;
@@ -23,8 +26,6 @@ public class FlywheelSubsystem implements Subsystem, IMattlibHooked {
     public final IRotationEncoder velocityEncoderLeft;
     public final IRotationEncoder velocityEncoderRight;
     final ShooterComponent shooterComponent;
-
-    final RunningAverageBuffer atSpeeds = new RunningAverageBuffer(4);
 
     public FlywheelSubsystem(IRotationalVelocityController leftMotor, IRotationalVelocityController rightMotor, ShooterComponent shooterComponent, IRotationEncoder velocityEncoderLeft, IRotationEncoder velocityEncoderRight) {
         this.leftMotor = leftMotor;

@@ -6,6 +6,13 @@ import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import org.bitbuckets.Robot;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.event.EventLoop;
+import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import org.bitbuckets.RobotContainer;
+import org.bitbuckets.util.FieldConstants;
 import org.bitbuckets.vision.VisionSubsystem;
 import xyz.auriium.mattlib2.log.INetworkedComponent;
 import xyz.auriium.mattlib2.log.annote.Conf;
@@ -41,6 +48,10 @@ public class Odometry implements IMattlibHooked {
         @Log("rot_odo") void logOdoRotation(double rot);
         @Essential @Log("pose_odo") void logPosition(Pose2d pose2d);
         @Log("pidgeon_ok") void logPidgeonOk(boolean isOk);
+
+        @Log("allianceSpeaker") void logAllianceSpeaker(Pose2d allianceSpeaker);
+        @Log("dist_allianceSpeaker") void logDistanceAllianceSpeaker(double dist);
+
     }
 
 
@@ -63,6 +74,9 @@ public class Odometry implements IMattlibHooked {
         return new ExplainedException[0];
     }
 
+    Pose2d allianceSpeaker = new Pose2d();
+    double distance = 0;
+
     @Override
     public void logicPeriodic() {
         odometry.update(gyro.rotation_initializationRelative(), modules.currentPositions());
@@ -76,6 +90,23 @@ public class Odometry implements IMattlibHooked {
                 odometry.addVisionMeasurement(maybeAPose, MathSharedStore.getTimestamp());
             }
         }
+
+        Translation2d speakerOpening = FieldConstants.Speaker.centerSpeakerOpening.toTranslation2d();
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
+            speakerOpening = new Translation2d(
+                    FieldConstants.fieldLength - speakerOpening.getX(),
+                    speakerOpening.getY()
+            );
+        }
+
+
+        allianceSpeaker = new Pose2d(speakerOpening.getX(), speakerOpening.getY(), new Rotation2d());
+        distance =
+                getRobotCentroidPosition()
+                        .getTranslation()
+                        .getDistance(speakerOpening);
+
     }
 
 
@@ -85,8 +116,17 @@ public class Odometry implements IMattlibHooked {
         odometryComponent.logOdoRotation(odometry.getEstimatedPosition().getRotation().getDegrees());
         odometryComponent.logGyroRotation(gyro.rotation_initializationRelative().getDegrees());
         odometryComponent.logPidgeonOk(gyro.isCurrentlyAlive());
+        odometryComponent.logOdoRotation(odometry.getEstimatedPosition().getRotation().getRadians());
+        odometryComponent.logGyroRotation(odometry.getEstimatedPosition().getRotation().getRadians());
+
+        odometryComponent.logAllianceSpeaker(allianceSpeaker);
+        odometryComponent.logDistanceAllianceSpeaker(distance);
+
     }
 
+    public double distanceFromAllianceSpeaker() {
+        return distance;
+    }
 
     public Rotation2d getHeading_fieldRelative() {
         return odometry.getEstimatedPosition().getRotation();

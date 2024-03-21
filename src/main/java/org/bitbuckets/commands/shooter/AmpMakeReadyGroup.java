@@ -11,12 +11,14 @@ import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
 import org.bitbuckets.noteManagement.NoteManagementSubsystem;
 import org.bitbuckets.shooter.FlywheelSubsystem;
 
+import java.util.function.Supplier;
+
 /**
  *
  */
 public class AmpMakeReadyGroup extends ParallelDeadlineGroup {
 
-    public AmpMakeReadyGroup(FlywheelSubsystem flywheelSubsystem, NoteManagementSubsystem noteManagementSubsystem, GroundIntakeSubsystem groundIntakeSubsystem, double flywheelSpeed_metersPerSecondOfFlywheel) {
+    public AmpMakeReadyGroup(FlywheelSubsystem flywheelSubsystem, NoteManagementSubsystem noteManagementSubsystem, GroundIntakeSubsystem groundIntakeSubsystem, Supplier<Double> flywheelSpeed_metersPerSecondOfFlywheel) {
         super(
                 new SequentialCommandGroup(
                         new AwaitNoteNotInManagerCommand(noteManagementSubsystem),

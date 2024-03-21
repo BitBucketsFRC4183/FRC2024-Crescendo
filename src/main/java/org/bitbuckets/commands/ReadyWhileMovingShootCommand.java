@@ -7,9 +7,11 @@ import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
 import org.bitbuckets.noteManagement.NoteManagementSubsystem;
 import org.bitbuckets.shooter.FlywheelSubsystem;
 
+import java.util.function.Supplier;
+
 public class ReadyWhileMovingShootCommand extends ParallelDeadlineGroup {
 
-    public ReadyWhileMovingShootCommand(Command followTrajectoryCommand, FlywheelSubsystem flywheelSubsystem, NoteManagementSubsystem noteManagementSubsystem, GroundIntakeSubsystem groundIntakeSubsystem, double ramFireSpeed, double deadline) {
+    public ReadyWhileMovingShootCommand(Command followTrajectoryCommand, FlywheelSubsystem flywheelSubsystem, NoteManagementSubsystem noteManagementSubsystem, GroundIntakeSubsystem groundIntakeSubsystem, Supplier<Double> ramFireSpeed, double deadline) {
         super(
                 new ParallelRaceGroup(
                         new SequentialCommandGroup(

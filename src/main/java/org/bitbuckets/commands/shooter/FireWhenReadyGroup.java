@@ -9,10 +9,12 @@ import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
 import org.bitbuckets.noteManagement.NoteManagementSubsystem;
 import org.bitbuckets.shooter.FlywheelSubsystem;
 
+import java.util.function.Supplier;
+
 public class FireWhenReadyGroup extends ParallelDeadlineGroup {
 
     //wait for the fly wheel to get up to speed then shoot. Cancel once the note leaves
-    public FireWhenReadyGroup(FlywheelSubsystem flywheelSubsystem, NoteManagementSubsystem noteManagementSubsystem, GroundIntakeSubsystem groundIntakeSubsystem, double flywheelSpeed_metersPerSecondOfFlywheel) {
+    public FireWhenReadyGroup(FlywheelSubsystem flywheelSubsystem, NoteManagementSubsystem noteManagementSubsystem, GroundIntakeSubsystem groundIntakeSubsystem, Supplier<Double> flywheelSpeed_metersPerSecondOfFlywheel) {
         super(
                 new AwaitNoteNotInManagerCommand(noteManagementSubsystem),
                 new SequentialCommandGroup(

@@ -33,9 +33,7 @@ import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
 import org.bitbuckets.commands.groundIntake.BasicGroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.FeedGroundIntakeGroup;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
-import org.bitbuckets.commands.shooter.AmpMakeReadyGroup;
-import org.bitbuckets.commands.shooter.FireMakeReadyGroup;
-import org.bitbuckets.commands.shooter.SourceConsumerGroup;
+import org.bitbuckets.commands.shooter.*;
 import org.bitbuckets.commands.shooter.flywheel.SpinFlywheelIndefinite;
 import org.bitbuckets.disabled.DisablerComponent;
 import org.bitbuckets.disabled.KinematicGyro;
@@ -57,7 +55,6 @@ import xyz.auriium.mattlib2.MattConsole;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
 import xyz.auriium.mattlib2.auto.ff.LinearFFGenRoutine;
-import xyz.auriium.mattlib2.auto.ff.RotationFFGenRoutine;
 import xyz.auriium.mattlib2.auto.ff.config.GenerateFFComponent;
 import xyz.auriium.mattlib2.auto.pid.LinearPIDBrain;
 import xyz.auriium.mattlib2.auto.pid.RotationalPIDBrain;
@@ -71,6 +68,7 @@ import xyz.auriium.mattlib2.utils.MockingUtil;
 import xyz.auriium.yuukonstants.exception.ExplainedException;
 
 import java.io.IOException;
+import java.util.function.Supplier;
 
 import static xyz.auriium.mattlib2.Mattlib.LOG;
 
@@ -249,7 +247,7 @@ public class RobotContainer {
                 DRIVE_T_PID);
     }
 
-    public Command twoNoteStyle(String real, double ramFireSpeed, double deadline_seconds) {
+    public Command twoNoteStyle(String real, Supplier<Double> ramFireSpeed, double deadline_seconds) {
 
         ChoreoTrajectory[] twoNoteArr = TrajLoadingUtil.getAllTrajectories(real);
 
@@ -268,7 +266,7 @@ public class RobotContainer {
         );
     }
 
-    public Command twoNoteCompatStyle(String real, double ramFireSpeed, double deadline_seconds) {
+    public Command twoNoteCompatStyle(String real, Supplier<Double> ramFireSpeed, double deadline_seconds) {
 
         ChoreoTrajectory[] twoNoteArr = TrajLoadingUtil.getAllTrajectories(real);
 
@@ -292,7 +290,7 @@ public class RobotContainer {
 
 
     SendableChooser<Command> loadAutonomous() {
-        double ramFireSpeed = COMMANDS.ramFireSpeed_mechanismRotationsPerSecond();
+        Supplier<Double> ramFireSpeed = COMMANDS::ramFireSpeed_mechanismRotationsPerSecond;
         double deadline_seconds = COMMANDS.groupDeadline_seconds();
 
 
@@ -440,10 +438,15 @@ public class RobotContainer {
 
         //OPERATOR STUFF
         operatorInput.isTeleop.and(operatorInput.climberThreshold).whileTrue(new MoveClimberCommand(climberSubsystem, operatorInput));
-        operatorInput.rev.whileTrue(new SpinFlywheelIndefinite(flywheelSubsystem, false, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond()));
-        operatorInput.ampShotSpeed.whileTrue(new AmpMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 12));
+        operatorInput.rev.whileTrue(new SpinFlywheelIndefinite(flywheelSubsystem, false, COMMANDS::ramFireSpeed_mechanismRotationsPerSecond));
+        operatorInput.ampShotSpeed.whileTrue(new AmpMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, COMMANDS::ampSpeed_mechanismRotationsPerSecond));
         operatorInput.groundIntakeNoBeamBreak.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, COMMANDS.groundIntake_voltage(), COMMANDS.noteManagement_voltage() ));
-        operatorInput.shootManually.whileTrue(new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond()));
+        operatorInput.shootManually.whileTrue(new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, COMMANDS::ramFireSpeed_mechanismRotationsPerSecond));
+        //operatorInput.isTeleop.and(pivotThreshold).whileTrue(new ManualPivotCommand(operatorInput, pivotSubsystem));
+        operatorInput.shootByVision.whileTrue(new DistanceShotMakeReadyGroup(DRIVE_T_TELEOP, swerveSubsystem, flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem));
+
+        // disable manual pivot. Do not enable unless mechanical agrees
+        //operatorInput.setShooterAngleManually.onTrue(new ManualPivotCommand(operatorInput, shooterSubsystem));
 
         operatorInput.sourceIntake_hold.whileTrue(new SourceConsumerGroup(noteManagementSubsystem, flywheelSubsystem));
         operatorInput.groundIntakeHoldOp //TODO change input
