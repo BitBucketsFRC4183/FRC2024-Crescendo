@@ -9,7 +9,7 @@ import org.bitbuckets.noteManagement.NoteManagementSubsystem;
 import xyz.auriium.mattlib2.loop.IMattlibHooked;
 
 
-public class LedSubsytem implements Subsystem, IMattlibHooked {
+public class LedSubsystem implements Subsystem, IMattlibHooked {
 
     public final NoteManagementSubsystem nms;
     final AddressableLED ledStrip;
@@ -20,7 +20,7 @@ public class LedSubsytem implements Subsystem, IMattlibHooked {
     final boolean lastState;
 
 
-    public LedSubsytem(NoteManagementSubsystem nms) {
+    public LedSubsystem(NoteManagementSubsystem nms) {
         this.nms = nms;
         this.ledStrip = new AddressableLED(PWM_header);
         this.buffer = new AddressableLEDBuffer(60);
@@ -32,6 +32,9 @@ public class LedSubsytem implements Subsystem, IMattlibHooked {
         ledStrip.setData(buffer);
 
         ledStrip.start();
+
+        register();
+        mattRegister();
     }
 
     @Override
@@ -65,7 +68,8 @@ public class LedSubsytem implements Subsystem, IMattlibHooked {
             buffer.setHSV(i, hue, 255, 128);
         }
         // Increase by to make the rainbow "move"
-        rainbowFirstPixelHue += 3;
+        var speed = 3;
+        rainbowFirstPixelHue += speed;
         // Check bounds
         rainbowFirstPixelHue %= 180;
     }
