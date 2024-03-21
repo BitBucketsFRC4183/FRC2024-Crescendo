@@ -56,7 +56,7 @@ public class OperatorToSpeeds {
         ChassisSpeeds speeds_robotOriented =  new ChassisSpeeds(
                         linearVelocity.getX() * speedMultiplier, //4.5 is the experimentally determined max velocity
                         linearVelocity.getY() * speedMultiplier,
-                        theta * Math.PI
+                        theta * Math.PI * 1.5
         );
 
         if (!component.fieldOriented()) {
