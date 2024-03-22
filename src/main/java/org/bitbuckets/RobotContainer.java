@@ -15,13 +15,11 @@ import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.*;
 import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
-import org.bitbuckets.commands.CommandComponent;
-import org.bitbuckets.commands.ReadyWhileMovingGroundIntakeCommand;
-import org.bitbuckets.commands.ReadyWhileMovingShootCommand;
-import org.bitbuckets.commands.VibratingCommand;
+import org.bitbuckets.commands.*;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
 import org.bitbuckets.commands.drive.BaseDriveCommand;
 import org.bitbuckets.commands.drive.DriveFacingStaticPosCommand;
@@ -30,6 +28,7 @@ import org.bitbuckets.commands.drive.SitFacingCommand;
 import org.bitbuckets.commands.drive.odo.PlaceAllianceZeroHeading;
 import org.bitbuckets.commands.drive.odo.PlaceOdometryCommand;
 import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
+import org.bitbuckets.commands.drive.traj.FollowTrajectoryHardCommand;
 import org.bitbuckets.commands.groundIntake.BasicGroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.FeedGroundIntakeGroup;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
@@ -81,6 +80,7 @@ public class RobotContainer {
     public final Modules modules;
     public final OperatorInput operatorInput;
     public final Translation2d[] translation2ds;
+    LedSubsystem ledSubsystem = new LedSubsystem();
     public final FlywheelSubsystem flywheelSubsystem;
     public final Odometry odometry;
     public final DriveSubsystem swerveSubsystem;
@@ -241,12 +241,12 @@ public class RobotContainer {
 
 
     public Command followTrajectory(ChoreoTrajectory trajectory) {
-        return new FollowTrajectoryExactCommand(
+        return new FollowTrajectoryHardCommand(
                 trajectory,
                 swerveSubsystem,
                 xController,
-                yController,
-                DRIVE_T_PID);
+                yController
+        );
     }
 
     public Command twoNoteStyle(String real, double ramFireSpeed, double deadline_seconds) {
@@ -353,7 +353,8 @@ public class RobotContainer {
                         followTrajectory(fourNoteArr[1]),
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 ),
-                //new PlaceOdometryCommand(fourNoteArr[2], odometry),
+                Commands.waitSeconds(0.2),
+                new PlaceOdometryCommand(fourNoteArr[2], odometry),
                 new ReadyWhileMovingGroundIntakeCommand(
                         followTrajectory(fourNoteArr[2]),
                         noteManagementSubsystem, groundIntakeSubsystem
@@ -362,7 +363,7 @@ public class RobotContainer {
                         followTrajectory(fourNoteArr[3]),
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 ),
-                new PlaceOdometryCommand(fourNoteArr[4], odometry),
+                //new PlaceOdometryCommand(fourNoteArr[4], odometry),
                 new ReadyWhileMovingGroundIntakeCommand(
                         followTrajectory(fourNoteArr[4]),
                         noteManagementSubsystem, groundIntakeSubsystem
@@ -372,7 +373,7 @@ public class RobotContainer {
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 ),
                 //new PlaceOdometryCommand(fourNoteArr[0], odometry), //TODO
-                Commands.waitSeconds(0.2),
+                Commands.waitSeconds(0.25),
                 Commands.runOnce(modules::commandWheelsToZero)
         );
 
@@ -451,9 +452,10 @@ public class RobotContainer {
         operatorInput.groundOuttakeHoldOp
                 .whileTrue(new GroundOuttakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
 
+
         //zero heading, not anything else
         operatorInput.resetGyroPress.onTrue(new PlaceAllianceZeroHeading(odometry,Rotation2d.fromDegrees(0)));
-        noteManagementSubsystem.noteIsIn.whileTrue(new VibratingCommand(operatorInput));
+        noteManagementSubsystem.noteIsIn.whileTrue(new SetLEDCommand(Color.kGreen, ledSubsystem));
     }
 
 
