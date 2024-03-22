@@ -14,7 +14,7 @@ public class AwaitFlywheelSpeedsCommand extends Command {
     }
 
     @Override public void initialize() {
-        System.out.println("speedsP " + thresholdSpeeds);
+
     }
 
     @Override public boolean isFinished() {
