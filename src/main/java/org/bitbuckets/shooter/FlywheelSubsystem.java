@@ -1,6 +1,7 @@
 package org.bitbuckets.shooter;
 
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.RobotContainer;
@@ -73,15 +74,15 @@ public class FlywheelSubsystem implements Subsystem, IMattlibHooked {
     }
 
     public double getLeftPercentage() {
-        return velocityEncoderLeft.angularVelocity_mechanismRotationsPerSecond() / desiredSpeedsForDisplayOnly;
+        return MathUtil.clamp(velocityEncoderLeft.angularVelocity_mechanismRotationsPerSecond() / desiredSpeedsForDisplayOnly, 0, 1);
     }
 
     public double getRightPercentage() {
-        return velocityEncoderRight.angularVelocity_mechanismRotationsPerSecond() / desiredSpeedsForDisplayOnly;
+        return MathUtil.clamp(velocityEncoderRight.angularVelocity_mechanismRotationsPerSecond() / desiredSpeedsForDisplayOnly, 0, 1);
     }
 
     public double getAveragePercentage() {
-        return (getLeftPercentage() + getRightPercentage()) / 2d;
+        return MathUtil.clamp((getLeftPercentage() + getRightPercentage()) / 2d, 0, 1);
     }
 
     public void setFlywheelToZero() {
