@@ -305,6 +305,7 @@ public class RobotContainer {
         var shootLeave = new SequentialCommandGroup(
                 new PlaceOdometryCommand(shootLeaveArr[0], odometry),
                 new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
+                Commands.waitSeconds(8),
                 followTrajectory(shootLeaveArr[0]),
                 Commands.runOnce(modules::commandWheelsToZero)
         );
