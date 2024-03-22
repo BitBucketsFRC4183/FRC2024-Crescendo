@@ -18,8 +18,6 @@ public class SetLEDCommand extends Command {
 
     @Override
     public void execute() {
-
-        System.out.println("AAAAAA");
         ledSubsystem.setColor(toSetTo);
     }
 

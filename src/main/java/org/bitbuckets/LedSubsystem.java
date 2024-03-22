@@ -29,5 +29,12 @@ public class LedSubsystem {
         ledStrip.setData(buffer);
     }
 
+    public void setColor(Color[] colors) {
+        for (int i = 0; i < buffer.getLength(); i++) {
+            buffer.setLED(i, colors[i]);
+        }
+        ledStrip.setData(buffer);
+    }
+
 
 }

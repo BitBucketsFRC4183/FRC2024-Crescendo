@@ -16,6 +16,10 @@ public class SpinFlywheelIndefinite extends Command {
         flatShotFlywheelSpeed_mechanismRotationsPerSecond = flatShotSpeed_mechanismRotationsPerSecond;
     }
 
+    @Override public void initialize() {
+        flywheelSubsystem.insertDesiredDisplaySpeeds(flatShotFlywheelSpeed_mechanismRotationsPerSecond);
+    }
+
     @Override
     public void execute() {
         double invertedCoef = inverted ? -1 : 1;

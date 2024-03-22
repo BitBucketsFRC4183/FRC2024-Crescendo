@@ -27,7 +27,6 @@ import org.bitbuckets.commands.drive.SitFacingAutoCommand;
 import org.bitbuckets.commands.drive.SitFacingCommand;
 import org.bitbuckets.commands.drive.odo.PlaceAllianceZeroHeading;
 import org.bitbuckets.commands.drive.odo.PlaceOdometryCommand;
-import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
 import org.bitbuckets.commands.drive.traj.FollowTrajectoryHardCommand;
 import org.bitbuckets.commands.groundIntake.BasicGroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.FeedGroundIntakeGroup;
@@ -56,7 +55,6 @@ import xyz.auriium.mattlib2.MattConsole;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
 import xyz.auriium.mattlib2.auto.ff.LinearFFGenRoutine;
-import xyz.auriium.mattlib2.auto.ff.RotationFFGenRoutine;
 import xyz.auriium.mattlib2.auto.ff.config.GenerateFFComponent;
 import xyz.auriium.mattlib2.auto.pid.LinearPIDBrain;
 import xyz.auriium.mattlib2.auto.pid.RotationalPIDBrain;
@@ -446,12 +444,16 @@ public class RobotContainer {
         operatorInput.groundIntakeNoBeamBreak.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, COMMANDS.groundIntake_voltage(), COMMANDS.noteManagement_voltage() ));
         operatorInput.shootManually.whileTrue(new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond()));
 
+        //led shoot
+        operatorInput.shootManually.whileTrue(new SetFlywheelLEDCommand(ledSubsystem, flywheelSubsystem));
+        operatorInput.ampShotSpeed.whileTrue(new SetFlywheelLEDCommand(ledSubsystem, flywheelSubsystem));
+        operatorInput.rev.whileTrue(new SetFlywheelLEDCommand(ledSubsystem, flywheelSubsystem));
+
         operatorInput.sourceIntake_hold.whileTrue(new SourceConsumerGroup(noteManagementSubsystem, flywheelSubsystem));
         operatorInput.groundIntakeHoldOp //TODO change input
                 .whileTrue(new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem));
         operatorInput.groundOuttakeHoldOp
                 .whileTrue(new GroundOuttakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
-
 
         //zero heading, not anything else
         operatorInput.resetGyroPress.onTrue(new PlaceAllianceZeroHeading(odometry,Rotation2d.fromDegrees(0)));

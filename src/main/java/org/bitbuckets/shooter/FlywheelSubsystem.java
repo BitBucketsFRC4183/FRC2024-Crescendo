@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.RobotContainer;
 import org.bitbuckets.util.RunningAverageBuffer;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
-import xyz.auriium.mattlib2.hardware.IRotationalController;
 import xyz.auriium.mattlib2.hardware.IRotationalVelocityController;
 import xyz.auriium.mattlib2.log.INetworkedComponent;
 import xyz.auriium.mattlib2.log.annote.Log;
@@ -25,6 +24,8 @@ public class FlywheelSubsystem implements Subsystem, IMattlibHooked {
     final ShooterComponent shooterComponent;
 
     final RunningAverageBuffer atSpeeds = new RunningAverageBuffer(4);
+
+    double desiredSpeedsForDisplayOnly = 0;
 
     public FlywheelSubsystem(IRotationalVelocityController leftMotor, IRotationalVelocityController rightMotor, ShooterComponent shooterComponent, IRotationEncoder velocityEncoderLeft, IRotationEncoder velocityEncoderRight) {
         this.leftMotor = leftMotor;
@@ -53,6 +54,10 @@ public class FlywheelSubsystem implements Subsystem, IMattlibHooked {
         shooterComponent.reportReachedSpeeds(reachedSpeeds);
     }
 
+    public void insertDesiredDisplaySpeeds(double desiredSpeedsForDisplayOnly) {
+        this.desiredSpeedsForDisplayOnly = desiredSpeedsForDisplayOnly;
+    }
+
     public void setFlywheelSpeeds(double leftMotorSpeed_rotationsPerSecond, double rightMotorSpeed_rotationsPerSecond) {
         double leftVoltage = ff_left.calculate(leftMotorSpeed_rotationsPerSecond);
         double rightVoltage = ff_left.calculate(rightMotorSpeed_rotationsPerSecond);
@@ -65,6 +70,18 @@ public class FlywheelSubsystem implements Subsystem, IMattlibHooked {
     public void setFlywheelVoltage(double voltage) {
         leftMotor.setToVoltage(voltage);
         rightMotor.setToVoltage(voltage);
+    }
+
+    public double getLeftPercentage() {
+        return velocityEncoderLeft.angularVelocity_mechanismRotationsPerSecond() / desiredSpeedsForDisplayOnly;
+    }
+
+    public double getRightPercentage() {
+        return velocityEncoderRight.angularVelocity_mechanismRotationsPerSecond() / desiredSpeedsForDisplayOnly;
+    }
+
+    public double getAveragePercentage() {
+        return (getLeftPercentage() + getRightPercentage()) / 2d;
     }
 
     public void setFlywheelToZero() {
