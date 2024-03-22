@@ -26,7 +26,7 @@ public class FollowTrajectoryHardCommand extends Command {
 
     final Timer timer = new Timer();
 
-    final ChoreoTrajectory trajectory;
+    public final ChoreoTrajectory trajectory;
     final DriveSubsystem swerveSubsystem;
 
     final LinearPIDBrain xPidBrain;
