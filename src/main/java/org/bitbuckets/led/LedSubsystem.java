@@ -35,9 +35,14 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
     ledState currentState;
     ledState lastState;
     double offset = 0;
+    double lRatio;
+    double rRatio;
+    double avgRatio;
+
     public enum ledState {
         IDLE,
-        TELEOP
+        TELEOP,
+        SHOOTING
     }
 
     public LedSubsystem(NoteManagementSubsystem nms, FlywheelSubsystem flywheelSubsystem) {
@@ -45,6 +50,9 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
         this.ledStrip = new AddressableLED(PWM_header);
         this.buffer = new AddressableLEDBuffer(60);
         this.flywheel = flywheelSubsystem;
+
+
+
         ledStrip.setLength(buffer.getLength());
         setBufferColor(Color.kMagenta);
         ledStrip.setData(buffer);
@@ -70,11 +78,20 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
 
     @Override
     public void logicPeriodic() {
-        if (!DriverStation.isTeleopEnabled()) { this.currentState = ledState.IDLE; }
+        double targetSpeed = RobotContainer.COMMANDS.ramFireSpeed_mechanismRotationsPerSecond();
+        lRatio = MathUtil.clamp(Math.abs(flywheel.velocityEncoderLeft.angularVelocity_mechanismRotationsPerSecond()) / targetSpeed, 0, 1);
+        rRatio = MathUtil.clamp(Math.abs(flywheel.velocityEncoderRight.angularVelocity_mechanismRotationsPerSecond()) / targetSpeed, 0, 1);
+        avgRatio = MathUtil.clamp((Math.abs(flywheel.velocityEncoderRight.angularVelocity_mechanismRotationsPerSecond()) + Math.abs(flywheel.velocityEncoderLeft.angularVelocity_mechanismRotationsPerSecond())) / 2 / targetSpeed, 0, 1);
+
+        if (avgRatio > 0.1) { this.currentState = ledState.SHOOTING; }
+        else if (!DriverStation.isTeleopEnabled()) { this.currentState = ledState.IDLE; }
         else { this.currentState = ledState.TELEOP; }
 
-        // if idling, rainbow, (else on state switch, and subsequent nms changes update nms buffer)
-        if (this.currentState == ledState.IDLE) {rainbowLoop();}
+        // if idling, rainbow |
+        if (this.currentState == ledState.IDLE) {
+            rainbowLoop();
+        }
+        else if (this.currentState == ledState.SHOOTING) {dynamicShooterSpeedsColoredAndScaledIndicatorLightThreeBarSeperated();}
         else {if (this.lastNote != this.nms.isNoteIn() || ((this.lastState != this.currentState))) {nmsIndicator();}}
 
         // lerpGradient(List.of(Color.kAliceBlue, Color.kHotPink, Color.kFloralWhite, Color.kHotPink, Color.kAliceBlue).toArray(new Color[0]));
@@ -149,11 +166,6 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
     }
 
     private void dynamicShooterSpeedsColoredAndScaledIndicatorLightThreeBarSeperated() {
-        double targetSpeed = RobotContainer.COMMANDS.ramFireSpeed_mechanismRotationsPerSecond();
-        double lRatio = MathUtil.clamp(Math.abs(flywheel.velocityEncoderLeft.angularVelocity_mechanismRotationsPerSecond()) / targetSpeed, 0, 1);
-        double rRatio = MathUtil.clamp(Math.abs(flywheel.velocityEncoderRight.angularVelocity_mechanismRotationsPerSecond()) / targetSpeed, 0, 1);
-        double avgRatio = MathUtil.clamp((Math.abs(flywheel.velocityEncoderRight.angularVelocity_mechanismRotationsPerSecond()) + Math.abs(flywheel.velocityEncoderLeft.angularVelocity_mechanismRotationsPerSecond())) / 2 / targetSpeed, 0, 1);
-
         // funee monkey
         setBufferColor(Color.kWhiteSmoke);
         List<Integer> leftStrip =  strips.get(0);
@@ -185,7 +197,7 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
 
         for (List<Integer> strip : centers) {
             for (var i = 0; i < strip.size(); i++) {
-                if ((double) i / strip.size() <= rRatio) {
+                if ((double) i / strip.size() <= avgRatio) {
                     buffer.setLED(strip.get(i), Color.kPurple);
                 }
             }
