@@ -155,7 +155,7 @@ public class RobotContainer {
         this.groundIntakeSubsystem = loadGroundIntakeSubsystem();
         this.noteManagementSubsystem = loadNoteManagementSubsystem();
 
-        if (!DISABLER.led_disabled()) {this.ledSubsystem = new LedSubsystem(this.noteManagementSubsystem);}
+        if (!DISABLER.led_disabled()) {this.ledSubsystem = new LedSubsystem(this.noteManagementSubsystem, this.flywheelSubsystem);}
         else this.ledSubsystem = null;
 
         if (!DISABLER.vision_disabled() && Robot.isSimulation()) {
