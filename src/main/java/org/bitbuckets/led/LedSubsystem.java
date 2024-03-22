@@ -10,6 +10,7 @@ import org.bitbuckets.RobotContainer;
 import org.bitbuckets.noteManagement.NoteManagementSubsystem;
 import org.bitbuckets.shooter.FlywheelSubsystem;
 import org.ojalgo.array.operation.ROT;
+import org.opencv.core.Mat;
 import xyz.auriium.mattlib2.auto.ff.RotationFFGenRoutine;
 import xyz.auriium.mattlib2.loop.IMattlibHooked;
 
@@ -61,7 +62,7 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
             }
             strips.add(strip);
         }
-        System.out.println(strips);
+
         register();
         mattRegister();
     }
@@ -76,12 +77,12 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
         if (this.currentState == ledState.IDLE) {rainbowLoop();}
         else {if (this.lastNote != this.nms.isNoteIn() || ((this.lastState != this.currentState))) {nmsIndicator();}}
 
-        lerpGradient(List.of(Color.kAliceBlue, Color.kHotPink, Color.kFloralWhite, Color.kHotPink, Color.kAliceBlue).toArray(new Color[0]));
+        // lerpGradient(List.of(Color.kAliceBlue, Color.kHotPink, Color.kFloralWhite, Color.kHotPink, Color.kAliceBlue).toArray(new Color[0]));
+        dynamicShooterSpeedsColoredAndScaledIndicatorLightThreeBarSeperated();
         ledStrip.setData(buffer);
         this.lastNote = this.nms.isNoteIn();
         this.lastState = this.currentState;
         RobotContainer.LED.log_ledState(this.currentState.toString());
-
 
     }
 
@@ -151,7 +152,9 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
         double targetSpeed = RobotContainer.COMMANDS.ramFireSpeed_mechanismRotationsPerSecond();
         double lRatio = MathUtil.clamp(Math.abs(flywheel.velocityEncoderLeft.angularVelocity_mechanismRotationsPerSecond()) / targetSpeed, 0, 1);
         double rRatio = MathUtil.clamp(Math.abs(flywheel.velocityEncoderRight.angularVelocity_mechanismRotationsPerSecond()) / targetSpeed, 0, 1);
+        double avgRatio = MathUtil.clamp((Math.abs(flywheel.velocityEncoderRight.angularVelocity_mechanismRotationsPerSecond()) + Math.abs(flywheel.velocityEncoderLeft.angularVelocity_mechanismRotationsPerSecond())) / 2 / targetSpeed, 0, 1);
 
+        // funee monkey
         setBufferColor(Color.kWhiteSmoke);
         List<Integer> leftStrip =  strips.get(0);
         for (var i = 0; i < leftStrip.size(); i++) {
@@ -161,6 +164,7 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
         }
 
         List<Integer> rightStrip =  strips.get(2);
+        Collections.reverse(rightStrip);
         for (var i = 0; i < rightStrip.size(); i++) {
             if ((double) i / rightStrip.size() <= rRatio) {
                 buffer.setLED(rightStrip.get(i), Color.kPurple);
@@ -168,7 +172,24 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
         }
 
         List<Integer> centerStrip = strips.get(1);
-        List<List<Integer>> centersInverted = List.of(Arrays.copyOfRange(centerStrip,0, centerStrip.size()/2))
+        List<List<Integer>> centers = List.of(new ArrayList<>(), new ArrayList<>());
+
+        for (var j = 0; j < centerStrip.size()/2; j++) {
+            centers.get(0).add(centerStrip.get(j));
+        }
+        Collections.reverse(centers.get(0));
+
+        for (var j = centerStrip.size()/2; j < centerStrip.size(); j++) {
+            centers.get(1).add(centerStrip.get(j));
+        }
+
+        for (List<Integer> strip : centers) {
+            for (var i = 0; i < strip.size(); i++) {
+                if ((double) i / strip.size() <= rRatio) {
+                    buffer.setLED(strip.get(i), Color.kPurple);
+                }
+            }
+        }
     }
 }
 
