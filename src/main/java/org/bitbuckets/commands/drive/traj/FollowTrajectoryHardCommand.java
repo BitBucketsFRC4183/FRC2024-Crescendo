@@ -87,7 +87,7 @@ public class FollowTrajectoryHardCommand extends Command {
         desiredHeading = Rotation2d.fromRadians(trajectoryReference.heading);
         desiredHeading = desiredHeading.plus(new Rotation2d(dTheta_radianSeconds * dt_seconds));
         Rotation2d errorHeading = desiredHeading.minus(swerveSubsystem.odometry.getHeading_fieldRelative());
-        double feedback_u = errorHeading.getRadians() / dt_seconds * 0.04;
+        double feedback_u = errorHeading.getRadians() / dt_seconds * 0.16;
 
         if (Math.abs(errorHeading.getDegrees()) < 2) {
             feedback_u = 0;
