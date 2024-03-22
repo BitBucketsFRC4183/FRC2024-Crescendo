@@ -22,6 +22,7 @@ public class SetFlywheelLEDCommand extends Command {
         Color[] leftArr = split(flywheelSubsystem.getLeftPercentage());
         Color[] rightArr = split(flywheelSubsystem.getRightPercentage());
         Color[] avgArr = split(flywheelSubsystem.getAveragePercentage());
+
         Color[] sum = ArrayUtil.combine(ArrayUtil.combine(leftArr, rightArr), avgArr);
 
         ledSubsystem.setColor(sum);
@@ -33,7 +34,7 @@ public class SetFlywheelLEDCommand extends Command {
         int toDelta = toColor * 1;
 
         for (int i = 0; i < toColor; i++) {
-            arr[i] = Color.kAliceBlue;
+            arr[i] = Color.kBlue;
         }
         for (int i = toDelta; i < 20; i++) {
             arr[i] = Color.kWhite;

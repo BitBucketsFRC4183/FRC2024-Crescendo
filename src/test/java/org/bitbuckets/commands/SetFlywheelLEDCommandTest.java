@@ -15,7 +15,7 @@ class SetFlywheelLEDCommandTest {
         Color[] allBlue = SetFlywheelLEDCommand.split(1);
 
         for (int i = 0; i < 20; i++) {
-            Assertions.assertEquals(Color.kAliceBlue, allBlue[i]);
+            Assertions.assertEquals(Color.kBlue, allBlue[i]);
         }
 
         Color[] allWhite = SetFlywheelLEDCommand.split(0);
@@ -27,7 +27,7 @@ class SetFlywheelLEDCommandTest {
         Color[] halfAndHalf = SetFlywheelLEDCommand.split(0.5);
 
         for (int i = 0; i < 10; i++) {
-            Assertions.assertEquals(Color.kAliceBlue, halfAndHalf[i]);
+            Assertions.assertEquals(Color.kBlue, halfAndHalf[i]);
         }
         for (int i = 10; i < 20; i++) {
             Assertions.assertEquals(Color.kWhite, halfAndHalf[i]);

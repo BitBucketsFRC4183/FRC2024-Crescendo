@@ -17,7 +17,6 @@ public class SpinFlywheelIndefinite extends Command {
     }
 
     @Override public void initialize() {
-        flywheelSubsystem.insertDesiredDisplaySpeeds(flatShotFlywheelSpeed_mechanismRotationsPerSecond);
     }
 
     @Override

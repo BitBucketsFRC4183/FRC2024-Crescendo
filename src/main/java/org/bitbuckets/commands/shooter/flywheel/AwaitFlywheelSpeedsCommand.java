@@ -14,7 +14,7 @@ public class AwaitFlywheelSpeedsCommand extends Command {
     }
 
     @Override public void initialize() {
-        flywheelSubsystem.insertDesiredDisplaySpeeds(thresholdSpeeds);
+
     }
 
     @Override public boolean isFinished() {

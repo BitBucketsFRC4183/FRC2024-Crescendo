@@ -439,15 +439,25 @@ public class RobotContainer {
 
         //OPERATOR STUFF
         operatorInput.isTeleop.and(operatorInput.climberThreshold).whileTrue(new MoveClimberCommand(climberSubsystem, operatorInput));
-        operatorInput.rev.whileTrue(new SpinFlywheelIndefinite(flywheelSubsystem, false, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond()));
-        operatorInput.ampShotSpeed.whileTrue(new AmpMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 12));
+        operatorInput.rev.whileTrue(
+                new ParallelCommandGroup(
+                        new SetFlywheelLEDCommand(ledSubsystem, flywheelSubsystem),
+                        new SpinFlywheelIndefinite(flywheelSubsystem, false, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond())
+                )
+        );
+        operatorInput.ampShotSpeed.whileTrue(
+                new ParallelCommandGroup(
+                        new SetFlywheelLEDCommand(ledSubsystem, flywheelSubsystem),
+                        new AmpMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 12)
+                )
+        );
         operatorInput.groundIntakeNoBeamBreak.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, COMMANDS.groundIntake_voltage(), COMMANDS.noteManagement_voltage() ));
-        operatorInput.shootManually.whileTrue(new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond()));
-
-        //led shoot
-        operatorInput.shootManually.whileTrue(new SetFlywheelLEDCommand(ledSubsystem, flywheelSubsystem));
-        operatorInput.ampShotSpeed.whileTrue(new SetFlywheelLEDCommand(ledSubsystem, flywheelSubsystem));
-        operatorInput.rev.whileTrue(new SetFlywheelLEDCommand(ledSubsystem, flywheelSubsystem));
+        operatorInput.shootManually.whileTrue(
+                new ParallelCommandGroup(
+                        new SetFlywheelLEDCommand(ledSubsystem, flywheelSubsystem),
+                        new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond())
+                )
+        );
 
         operatorInput.sourceIntake_hold.whileTrue(new SourceConsumerGroup(noteManagementSubsystem, flywheelSubsystem));
         operatorInput.groundIntakeHoldOp //TODO change input
@@ -457,7 +467,7 @@ public class RobotContainer {
 
         //zero heading, not anything else
         operatorInput.resetGyroPress.onTrue(new PlaceAllianceZeroHeading(odometry,Rotation2d.fromDegrees(0)));
-        noteManagementSubsystem.noteIsIn.whileTrue(new SetLEDCommand(Color.kGreen, ledSubsystem));
+        noteManagementSubsystem.noteIsIn.and(flywheelSubsystem.isInUse.negate()).whileTrue(new SetLEDCommand(Color.kGreen, ledSubsystem));
     }
 
 
