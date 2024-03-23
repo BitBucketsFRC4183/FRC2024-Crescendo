@@ -342,7 +342,7 @@ public class RobotContainer {
         ChoreoTrajectory[] fourNoteArr = TrajLoadingUtil.getAllTrajectories("fourNote");
 
         var fourNote = new SequentialCommandGroup(
-                new ReadyForwardAuto(swerveSubsystem),
+                //new ReadyForwardAuto(swerveSubsystem),
                 new PlaceOdometryCommand(fourNoteArr[0], odometry),
                 new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
                 new ReadyWhileMovingGroundIntakeCommand(
