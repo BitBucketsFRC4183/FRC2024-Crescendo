@@ -76,6 +76,7 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
             strips.add(strip);
         }
 
+
         register();
         mattRegister();
     }
@@ -88,12 +89,13 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
         rRatio = MathUtil.clamp(Math.abs(flywheel.velocityEncoderRight.angularVelocity_mechanismRotationsPerSecond()) / targetSpeed, 0, 1);
         avgRatio = MathUtil.clamp((Math.abs(flywheel.velocityEncoderRight.angularVelocity_mechanismRotationsPerSecond()) + Math.abs(flywheel.velocityEncoderLeft.angularVelocity_mechanismRotationsPerSecond())) / 2 / targetSpeed, 0, 1);
 
-        if (avgRatio > 0.1) { this.currentState = ledState.SHOOTING; }
+        if (avgRatio > 0.02) { this.currentState = ledState.SHOOTING; }
         else if (intake.bottomMotor.reportVoltageNow() > 1 || intake.topMotor.reportVoltageNow() > 1) {this.currentState = ledState.INTAKE;}
         else if (intake.bottomMotor.reportVoltageNow() < -1 || intake.topMotor.reportVoltageNow() < -1) {this.currentState = ledState.OUTTAKE;}
         else if (!DriverStation.isTeleopEnabled()) { this.currentState = ledState.IDLE; }
         else { this.currentState = ledState.TELEOP; }
-        
+
+
         /// this.currentState = ledState.INTAKE;
         if (this.currentState == ledState.IDLE) {
             rainbowLoop();
@@ -103,15 +105,27 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
         else if (this.currentState == ledState.OUTTAKE) {intakeRunning(true);}
         else {nmsIndicator();}
 
-        // lerpGradient(List.of(Color.kAliceBlue, Color.kHotPink, Color.kFloralWhite, Color.kHotPink, Color.kAliceBlue).toArray(new Color[0]));
+        
+        lerpGradient(List.of(Color.kBlack, Color.kWhite, Color.kBlack).toArray(new Color[0]));
         // dynamicShooterSpeedsColoredAndScaledIndicatorLightThreeBarSeperated();
         // intakeRunning();
         ledStrip.setData(buffer);
         this.lastState = this.currentState;
         RobotContainer.LED.log_ledState(this.currentState.toString());
-
     }
 
+    @Override
+    public void logPeriodic() {
+        for (List<Integer> strip : strips) {
+            List<String> colors = new ArrayList<>();
+            for (Integer number : strip) {
+
+                colors.add(buffer.getLED(number).toString());
+            }
+            System.out.println(colors);
+        }
+        System.out.println(strips);
+    }
     private void setBufferColor(Color color) {
         for (var i = 0; i < buffer.getLength(); i++) {
             buffer.setLED(i, color);
@@ -128,7 +142,8 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
             buffer.setHSV(i, hue, 255, 128);
         }
         // Increase by to make the rainbow "move"
-        var speed = 2;
+
+        var speed = 1;
         rainbowFirstPixelHue += speed;
         // Check bounds
         rainbowFirstPixelHue %= 180;
@@ -136,7 +151,7 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
 
     private void nmsIndicator() {
         if (this.nms.isNoteIn()) {
-            setBufferColor(Color.kFirstRed);
+            setBufferColor(Color.kRed);
         } else setBufferColor(Color.kLimeGreen);
     }
 
@@ -155,7 +170,7 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
                 Color currentColor = colors[i];
                 Color nextColor = colors[(i + 1) % colors.length];
 
-
+                
                 double r = MathUtil.interpolate(currentColor.red, nextColor.red, ((double) j / (buffer.getLength()))) * 255;
                 double g = MathUtil.interpolate(currentColor.green, nextColor.green, ((double) j / (buffer.getLength()))) * 255;
                 double b = MathUtil.interpolate(currentColor.blue, nextColor.blue, ((double) j / (buffer.getLength()))) * 255;
@@ -177,16 +192,16 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
     private void dynamicShooterSpeedsColoredAndScaledIndicatorLightThreeBarSeperated() {
         // funee monkey
         setBufferColor(Color.kWhiteSmoke);
-        List<Integer> leftStrip =  strips.get(0);
-        Collections.reverse(leftStrip);
+        List<Integer> leftStrip =  new ArrayList<>(strips.get(0));
         for (var i = 0; i < leftStrip.size(); i++) {
             if ((double) i / leftStrip.size() <= lRatio) {
                 buffer.setLED(leftStrip.get(i), Color.kPurple);
             }
         }
 
-        List<Integer> rightStrip =  strips.get(2);
-
+        List<Integer> rightStrip =  new ArrayList<>(strips.get(2));
+        Collections.reverse(rightStrip);
+        System.out.println(rightStrip);
         for (var i = 0; i < rightStrip.size(); i++) {
             if ((double) i / rightStrip.size() <= rRatio) {
                 buffer.setLED(rightStrip.get(i), Color.kPurple);
@@ -228,22 +243,28 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
 
         var chunkSize = 3;
         Color color;
-        if (this.nms.isNoteIn()) { color = Color.kLimeGreen; } else { color = Color.kFirstRed; }
+        if (this.nms.isNoteIn()) { color = Color.kLimeGreen; } else { color = Color.kRed; }
 
-        int invertedSign;
-        if (!inverted) {invertedSign = 1;} else {invertedSign = -1;}
-        for (var i = 0; i < halves.get(0).size(); i++) {
-            if (Math.ceil((double) i / chunkSize) % 2 == 0) {
-                buffer.setLED((int) (halves.get(0).get(i) + offset) % allStrip.size(), color);
-                buffer.setLED((int) (halves.get(1).get(i) + offset) % allStrip.size(), color);
-            } else buffer.setLED(i, Color.kBlack);
+        setBufferColor(Color.kBlack);
+        if (inverted) {
+            Collections.reverse(halves.get(0));
+            Collections.reverse(halves.get(1));
         }
 
+        for (var i = 0; i < halves.get(0).size(); i++) {
+            if (Math.ceil((double) i / chunkSize) % 2 == 1) {
+                buffer.setLED((int) (halves.get(0).get(i) + offset) % allStrip.size(), color);
+                buffer.setLED((int) (halves.get(1).get(i) + offset) % allStrip.size(), color);
+            }
+        }
 
+        offset++;
         if (offset % chunkSize == 0) {
             offset = 0;
         }
     }
+
+
 }
 
 
