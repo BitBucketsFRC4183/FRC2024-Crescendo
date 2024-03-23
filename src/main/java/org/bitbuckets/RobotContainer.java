@@ -379,16 +379,7 @@ public class RobotContainer {
         ChoreoTrajectory[] fourToFiveArr = TrajLoadingUtil.getAllTrajectories("fourToFive");
         var fourToFive = new SequentialCommandGroup(
                 new PlaceOdometryCommand(fourToFiveArr[0], odometry),
-                followTrajectory(fourToFiveArr[0]),
-                new ReadyWhileMovingGroundIntakeCommand(
-                        followTrajectory(fourToFiveArr[1]),
-                        noteManagementSubsystem, groundIntakeSubsystem
-                ),
-                followTrajectory(fourToFiveArr[2]),
-                new ReadyWhileMovingShootCommand(
-                        followTrajectory(fourToFiveArr[3]),
-                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                )
+                followTrajectory(fourToFiveArr[0])
         );
 
         var fiveNote = new SequentialCommandGroup(
