@@ -102,7 +102,7 @@ t_teleop_pid = {p = 2, i = 0, d = 0,  tolerance = 0.13962634016} #need to be red
 drive_pid_common = {p = 0.00, i = 0, d = 0.0,  tolerance = 0} #p = 0.006
 ff_fl = {ks = 0.1694, kv = 2.4896, ka = 0.0015}
 ff_fr = {ks = 0.1694, kv = 2.514, ka = 0.0015}
-ff_bl = {ks = 0.1694, kv = 2.4986, ka = 0.0015}
+ff_bl = {ks = 0.1694, kvm = 2.4986, ka = 0.0015}
 ff_br = {ks = 0.1694, kv = 2.4776, ka = 0.0015}
 use_velocity_pid_teleop = false
 use_offset_finding_mode = false
