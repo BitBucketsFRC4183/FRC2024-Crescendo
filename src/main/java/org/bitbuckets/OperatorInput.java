@@ -3,7 +3,6 @@ package org.bitbuckets;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -21,11 +20,11 @@ public class OperatorInput {
     final Trigger isTeleop = new Trigger(() -> actuallyIsTeleop); //TODO fill this out
 
     //OPERATOR'S CONTROLS
-    final Trigger shootByVision = operatorControl.a();
+    final Trigger amp = operatorControl.a();
     final Trigger shootManually = operatorControl.x();
     final Trigger sourceIntake_hold = operatorControl.leftBumper();
     final Trigger groundIntakeNoBeamBreak = operatorControl.rightTrigger();
-    final Trigger ampShotSpeed = operatorControl.y();
+    final Trigger pass = operatorControl.y();
     final Trigger groundIntakeHoldOp = operatorControl.rightBumper();
     final Trigger groundOuttakeHoldOp = operatorControl.b();
     final Trigger ampVisionPriority_toggle = operatorControl.povLeft();

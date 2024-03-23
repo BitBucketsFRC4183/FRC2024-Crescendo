@@ -94,17 +94,17 @@ Vy = 5 #m/s
 
 # DRIVE STUFF GOES HERE
 [swerve]
-steer_pid_common = {p = 10, i = 0, d = 0,  tolerance = 0.00555556} # pi / 90 -> rots
+steer_pid_common = {p = 16, i = 0, d = 0,  tolerance = 0.00555556} # pi / 90 -> rots
 x_holonomic_pid = {p = 4, i = 0, d = 0,  tolerance = 0.05}
 y_holonomic_pid = {p = 4, i = 0, d = 0,  tolerance = 0.05}
 t_holonomic_pid = {p = 10, i = 0, d = 0,  tolerance = 0.034906585039} #need to be redone (current mcr values)
 t_teleop_pid = {p = 2, i = 0, d = 0,  tolerance = 0.13962634016} #need to be redone (current mcr values)
-drive_pid_common = {p = 0.00, i = 0, d = 0.0,  tolerance = 0}
-ff_fl = {ks = 0.1694, kv = 2.4946, ka = 0.0015}
-ff_fr = {ks = 0.1694, kv = 2.4946, ka = 0.0015}
-ff_bl = {ks = 0.1694, kv = 2.4946, ka = 0.0015}
-ff_br = {ks = 0.1694, kv = 2.4946, ka = 0.0015}
-use_velocity_pid_teleop = true
+drive_pid_common = {p = 0.00, i = 0, d = 0.0,  tolerance = 0} #p = 0.006
+ff_fl = {ks = 0.1694, kv = 2.4896, ka = 0.0015}
+ff_fr = {ks = 0.1694, kv = 2.514, ka = 0.0015}
+ff_bl = {ks = 0.1694, kv = 2.4986, ka = 0.0015}
+ff_br = {ks = 0.1694, kv = 2.4776, ka = 0.0015}
+use_velocity_pid_teleop = false
 use_offset_finding_mode = false
 
 [operatorToSpeeds]

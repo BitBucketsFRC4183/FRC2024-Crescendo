@@ -31,6 +31,7 @@ import org.bitbuckets.commands.drive.traj.FollowTrajectoryHardCommand;
 import org.bitbuckets.commands.groundIntake.BasicGroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.FeedGroundIntakeGroup;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
+import org.bitbuckets.commands.groundIntake.spam.PulseGroundIntakeFor;
 import org.bitbuckets.commands.shooter.AmpMakeReadyGroup;
 import org.bitbuckets.commands.shooter.FireMakeReadyGroup;
 import org.bitbuckets.commands.shooter.SourceConsumerGroup;
@@ -231,7 +232,7 @@ public class RobotContainer {
         }
 
          new ParallelCommandGroup(
-                 Commands.runEnd(() -> swerveSubsystem.orderToHeadingOnly(new ChassisSpeeds(0,0,-1)), swerveSubsystem::orderToZero),
+                 Commands.runEnd(() -> swerveSubsystem.orderToHeadingOnly(new ChassisSpeeds(1,0,0)), swerveSubsystem::orderToZero),
                  new ParallelCommandGroup(commands)
          ).schedule();
     }
@@ -292,8 +293,6 @@ public class RobotContainer {
     SendableChooser<Command> loadAutonomous() {
         double ramFireSpeed = COMMANDS.ramFireSpeed_mechanismRotationsPerSecond();
         double deadline_seconds = COMMANDS.groupDeadline_seconds();
-
-
 
         var twoNoteCompatLeftBlue = twoNoteCompatStyle("twoNoteCompatLeft", ramFireSpeed, deadline_seconds);
         var twoNoteCompatRightBlue = twoNoteCompatStyle("twoNoteCompatRight", ramFireSpeed, deadline_seconds);
@@ -395,9 +394,31 @@ public class RobotContainer {
                 Commands.runOnce(modules::commandWheelsToZero)
         );
 
+        ChoreoTrajectory[] garbage = TrajLoadingUtil.getAllTrajectories("threeNoteCompatLeft");
+
+        var garbageMan = new SequentialCommandGroup(
+                new PlaceOdometryCommand(garbage[0], odometry),
+                followTrajectory(garbage[0]),
+                new ParallelDeadlineGroup(
+                        new ReadyWhileMovingShootCommand(followTrajectory(garbage[1]), flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds),
+                        new ParallelDeadlineGroup(
+                                Commands.waitSeconds(1.5),
+                                new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, 9, 2)
+                        )
+                ),
+                followTrajectory(garbage[2]),
+                new ParallelDeadlineGroup(
+                        new ReadyWhileMovingShootCommand(followTrajectory(garbage[3]), flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds),
+                        new ParallelDeadlineGroup(
+                                Commands.waitSeconds(1.5),
+                                new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, 9, 2)
+                        )
+                )
+
+        );
 
         SendableChooser<Command> chooser = new SendableChooser<>();
-        //chooser.addOption("twoNote", twoNote);
+        chooser.addOption("threeNoteCompatRight (Blue)", garbageMan);
         chooser.addOption("taxi", taxi);
         chooser.addOption("shootGetFar", shootLeave);
         chooser.addOption("threeNote", threeNote);
@@ -437,7 +458,13 @@ public class RobotContainer {
                         new SpinFlywheelIndefinite(flywheelSubsystem, false, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond())
                 )
         );
-        operatorInput.ampShotSpeed.whileTrue(
+        operatorInput.pass.whileTrue(
+                new ParallelCommandGroup(
+                        new SetFlywheelLEDCommand(ledSubsystem, flywheelSubsystem),
+                        new AmpMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 35)
+                )
+        );
+        operatorInput.amp.whileTrue(
                 new ParallelCommandGroup(
                         new SetFlywheelLEDCommand(ledSubsystem, flywheelSubsystem),
                         new AmpMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 12)
@@ -453,6 +480,7 @@ public class RobotContainer {
 
         operatorInput.sourceIntake_hold.whileTrue(new SourceConsumerGroup(noteManagementSubsystem, flywheelSubsystem));
         operatorInput.groundIntakeHoldOp //TODO change input
+                //.whileTrue(new PulseGroundIntakeFor(groundIntakeSubsystem, noteManagementSubsystem, 2));
                 .whileTrue(new FeedGroundIntakeGroup(noteManagementSubsystem, groundIntakeSubsystem));
         operatorInput.groundOuttakeHoldOp
                 .whileTrue(new GroundOuttakeCommand(groundIntakeSubsystem, noteManagementSubsystem));
