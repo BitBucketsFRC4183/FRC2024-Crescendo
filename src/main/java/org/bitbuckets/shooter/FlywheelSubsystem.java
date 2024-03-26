@@ -1,12 +1,13 @@
 package org.bitbuckets.shooter;
 
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.bitbuckets.RobotContainer;
 import org.bitbuckets.util.RunningAverageBuffer;
 import xyz.auriium.mattlib2.hardware.IRotationEncoder;
-import xyz.auriium.mattlib2.hardware.IRotationalController;
 import xyz.auriium.mattlib2.hardware.IRotationalVelocityController;
 import xyz.auriium.mattlib2.log.INetworkedComponent;
 import xyz.auriium.mattlib2.log.annote.Log;
@@ -26,6 +27,12 @@ public class FlywheelSubsystem implements Subsystem, IMattlibHooked {
 
     final RunningAverageBuffer atSpeeds = new RunningAverageBuffer(4);
 
+    double lastLeft = 0;
+    double lastright = 0;
+
+    public final Trigger isInUse;
+    public final Trigger isAtSpeeds;
+
     public FlywheelSubsystem(IRotationalVelocityController leftMotor, IRotationalVelocityController rightMotor, ShooterComponent shooterComponent, IRotationEncoder velocityEncoderLeft, IRotationEncoder velocityEncoderRight) {
         this.leftMotor = leftMotor;
         this.rightMotor = rightMotor;
@@ -38,6 +45,9 @@ public class FlywheelSubsystem implements Subsystem, IMattlibHooked {
 
         mattRegister();
         register();
+
+        this.isAtSpeeds = new Trigger(() -> hasReachedSpeeds(lastLeft, lastright));
+        this.isInUse = new Trigger(() -> hasReachedSpeeds(5,5));
     }
 
     public interface ShooterComponent extends INetworkedComponent {
@@ -57,6 +67,8 @@ public class FlywheelSubsystem implements Subsystem, IMattlibHooked {
         double leftVoltage = ff_left.calculate(leftMotorSpeed_rotationsPerSecond);
         double rightVoltage = ff_left.calculate(rightMotorSpeed_rotationsPerSecond);
 
+        lastLeft = Math.abs(leftMotorSpeed_rotationsPerSecond);
+        lastright = Math.abs(rightMotorSpeed_rotationsPerSecond);
 
         leftMotor.setToVoltage(leftVoltage);
         rightMotor.setToVoltage(rightVoltage);
@@ -65,6 +77,18 @@ public class FlywheelSubsystem implements Subsystem, IMattlibHooked {
     public void setFlywheelVoltage(double voltage) {
         leftMotor.setToVoltage(voltage);
         rightMotor.setToVoltage(voltage);
+    }
+
+    public double getLeftPercentage() {
+        return MathUtil.clamp(Math.abs(velocityEncoderLeft.angularVelocity_mechanismRotationsPerSecond()) / lastLeft, 0, 1);
+    }
+
+    public double getRightPercentage() {
+        return MathUtil.clamp(Math.abs(velocityEncoderRight.angularVelocity_mechanismRotationsPerSecond()) / lastright, 0, 1);
+    }
+
+    public double getAveragePercentage() {
+        return MathUtil.clamp((getLeftPercentage() + getRightPercentage()) / 2d, 0, 1);
     }
 
     public void setFlywheelToZero() {

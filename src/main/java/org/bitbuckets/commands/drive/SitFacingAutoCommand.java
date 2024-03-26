@@ -1,29 +1,27 @@
 package org.bitbuckets.commands.drive;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.bitbuckets.drive.DriveSubsystem;
 import xyz.auriium.mattlib2.auto.pid.IPIDController;
 import xyz.auriium.mattlib2.auto.pid.RotationalPIDBrain;
-import xyz.auriium.mattlib2.hardware.config.PIDComponent;
 
-public class SitFacingCommand extends Command {
+public class SitFacingAutoCommand extends Command {
 
-    final PIDComponent pidBrain;
+    final RotationalPIDBrain pidBrain;
     final DriveSubsystem swerveSubsystem;
     final Rotation2d desiredHeading_allianceOrField;
     final boolean isAllianceRelative;
 
-    final PIDController rotationalController = new PIDController(0,0,0);
-
-
+    IPIDController controller;
     Rotation2d heading;
 
-    public SitFacingCommand(PIDComponent pidBrain, DriveSubsystem swerveSubsystem, Rotation2d desiredHeadingAllianceRelative, boolean isAllianceRelative) {
+    final Timer timer = new Timer();
+
+    public SitFacingAutoCommand(RotationalPIDBrain pidBrain, DriveSubsystem swerveSubsystem, Rotation2d desiredHeadingAllianceRelative, boolean isAllianceRelative) {
         this.pidBrain = pidBrain;
         this.swerveSubsystem = swerveSubsystem;
         desiredHeading_allianceOrField = desiredHeadingAllianceRelative;
@@ -33,40 +31,35 @@ public class SitFacingCommand extends Command {
     }
 
     @Override public void initialize() {
-        rotationalController.setPID(pidBrain.pConstant(), pidBrain.iConstant(), pidBrain.dConstant());
-        rotationalController.reset();
-        rotationalController.enableContinuousInput(-Math.PI, Math.PI);
-        rotationalController.setTolerance(Math.PI / 90);
+        timer.restart();
+        controller = pidBrain.spawn();
 
         heading = desiredHeading_allianceOrField;
         if (isAllianceRelative) {
             boolean shouldFlip = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red;
-            if (!shouldFlip) { //TODO hack idk why this works
+            if (shouldFlip) {
                 heading = heading.plus(Rotation2d.fromDegrees(180));
             }
         }
     }
 
     @Override public void execute() {
-        if (rotationalController.atSetpoint()) {
+        if (controller.isAtSetpoint()) {
             return;
         }
 
-        double controlOut = rotationalController
-                .calculate(
-                        heading.getRadians(),
-                        swerveSubsystem.odometry.getHeading_fieldRelative().getRadians()
-                );
+        double controlOut = controller.controlToReference_primeUnits(heading.getRadians(), swerveSubsystem.odometry.getHeading_fieldRelative().getRadians());
 
 
         swerveSubsystem.orderToUnfiltered(new ChassisSpeeds(0,0,controlOut));
     }
 
     @Override public boolean isFinished() {
-        return rotationalController.atSetpoint();
+        return controller.isAtSetpoint() || timer.hasElapsed(2);
     }
 
     @Override public void end(boolean interrupted) {
         swerveSubsystem.orderToZero();
+        controller = null;
     }
 }

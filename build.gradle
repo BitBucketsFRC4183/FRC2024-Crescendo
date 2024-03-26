@@ -1,7 +1,7 @@
 //Don't touch this unless you want me to murder you (in minecraft)
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2024.2.1"
+    id "edu.wpi.first.GradleRIO" version "2024.3.2"
     id 'jacoco'
 }
 
@@ -70,11 +70,11 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:4.11.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.0.0'
 
-    implementation 'xyz.auriium:mattlib2-log-nt:1.8.4-SNAPSHOT'
-    implementation 'xyz.auriium:mattlib2-rev:1.8.4-SNAPSHOT'
-    implementation 'xyz.auriium:mattlib2-ctre:1.8.4-SNAPSHOT'
-    implementation 'xyz.auriium:mattlib2-sim:1.8.4-SNAPSHOT'
-    implementation 'xyz.auriium:mattlib2-controls:1.8.4-SNAPSHOT'
+    implementation 'xyz.auriium:mattlib2-log-nt:1.8.8'
+    implementation 'xyz.auriium:mattlib2-rev:1.8.8'
+    implementation 'xyz.auriium:mattlib2-ctre:1.8.8'
+    implementation 'xyz.auriium:mattlib2-sim:1.8.8'
+    implementation 'xyz.auriium:mattlib2-controls:1.8.8'
 
     compileOnly 'org.kordamp.jipsy:jipsy-processor:1.2.0'
 

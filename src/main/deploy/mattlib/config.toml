@@ -65,7 +65,7 @@ rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
 inverted = true
-ff = { ks = 0.5477470887299486, kv = 0.12995659292230272 }
+ff = { ks = 0.5477470887299486, kv = 0.12995659292230272, ka = 0 }
 encoder = { dio_channelA = 7, dio_channelB = 8, encoderToMechanismCoef = 1, inverted = false }
 
 
@@ -76,7 +76,7 @@ rotationalInertia = 0.002
 velocityStdv = 0.001
 positionStdv = 0.001
 inverted = false
-ff = { ks = 0.6505197479235123, kv = 0.12757668962958083 }
+ff = { ks = 0.6505197479235123, kv = 0.12757668962958083, ka = 0 }
 encoder = { dio_channelA = 0, dio_channelB = 1, encoderToMechanismCoef = 1, inverted = true }
 
 
@@ -96,23 +96,23 @@ Vy = 5 #m/s
 # DRIVE STUFF GOES HERE
 [swerve]
 steer_pid_common = {p = 10, i = 0, d = 0,  tolerance = 0.00555556} # pi / 90 -> rots
-x_holonomic_pid = {p = 28, i = 0.04, d = 0,  tolerance = 0.05}
-y_holonomic_pid = {p = 28, i = 0.04, d = 0,  tolerance = 0.05}
-t_holonomic_pid = {p = 2, i = 0, d = 0,  tolerance = 0.034906585039} #need to be redone (current mcr values)
-t_teleop_pid = {p = 2, i = 0, d = 0,  tolerance = 0.034906585039} #need to be redone (current mcr values)
-drive_pid_common = {p = 0.0065, i = 0, d = 0.0,  tolerance = 0}
-ff_fl = {ks = 0.167, kv = 2.4946}
-ff_fr = {ks = 0.1694, kv = 2.5274}
-ff_bl = {ks = 0.1614, kv = 2.4854}
-ff_br = {ks = 0.1836, kv = 2.5086}
+x_holonomic_pid = {p = 4, i = 0, d = 0,  tolerance = 0.05}
+y_holonomic_pid = {p = 4, i = 0, d = 0,  tolerance = 0.05}
+t_holonomic_pid = {p = 10, i = 0, d = 0,  tolerance = 0.034906585039} #need to be redone (current mcr values)
+t_teleop_pid = {p = 2, i = 0, d = 0,  tolerance = 0.13962634016} #need to be redone (current mcr values)
+drive_pid_common = {p = 0.00, i = 0, d = 0.0,  tolerance = 0}
+ff_fl = {ks = 0.1694, kv = 2.4946, ka = 0.0015}
+ff_fr = {ks = 0.1694, kv = 2.4946, ka = 0.0015}
+ff_bl = {ks = 0.1694, kv = 2.4946, ka = 0.0015}
+ff_br = {ks = 0.1694, kv = 2.4946, ka = 0.0015}
 use_velocity_pid_teleop = true
 use_offset_finding_mode = false
 
 [operatorToSpeeds]
 field_oriented = true
-turbo_speed_multiplier = 5
-normal_speed_multiplier = 4.5
-slow_speed_multiplier = 3
+turbo_speed_multiplier = 4.3
+normal_speed_multiplier = 3.3
+slow_speed_multiplier = 2.3
 
 [odometry]
 pigeon_can_id = 5

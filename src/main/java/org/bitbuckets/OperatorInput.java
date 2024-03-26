@@ -1,9 +1,9 @@
 package org.bitbuckets;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -102,5 +102,17 @@ public class OperatorInput {
     }
 
     public double getOperatorLeftStickY(){return deadband(-operatorControl.getRawAxis(XboxController.Axis.kLeftY.value));}
+
+    public void setOperatorVibrating(boolean shouldVibrate) {
+        if (shouldVibrate) {
+            operatorControl.getHID().setRumble(GenericHID.RumbleType.kBothRumble, 0.5);
+
+        } else {
+            operatorControl.getHID().setRumble(GenericHID.RumbleType.kBothRumble, 0);
+
+        }
+    }
+
+
 
 }

@@ -25,19 +25,19 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.*;
 import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
-import org.bitbuckets.commands.CommandComponent;
-import org.bitbuckets.commands.ReadyWhileMovingGroundIntakeCommand;
-import org.bitbuckets.commands.ReadyWhileMovingShootCommand;
+import org.bitbuckets.commands.*;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
 import org.bitbuckets.commands.drive.BaseDriveCommand;
 import org.bitbuckets.commands.drive.DriveFacingStaticPosCommand;
+import org.bitbuckets.commands.drive.SitFacingAutoCommand;
 import org.bitbuckets.commands.drive.SitFacingCommand;
 import org.bitbuckets.commands.drive.odo.PlaceAllianceZeroHeading;
 import org.bitbuckets.commands.drive.odo.PlaceOdometryCommand;
-import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
+import org.bitbuckets.commands.drive.traj.FollowTrajectoryHardCommand;
 import org.bitbuckets.commands.groundIntake.BasicGroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.FeedGroundIntakeGroup;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
@@ -71,7 +71,6 @@ import xyz.auriium.mattlib2.MattConsole;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
 import xyz.auriium.mattlib2.auto.ff.LinearFFGenRoutine;
-import xyz.auriium.mattlib2.auto.ff.RotationFFGenRoutine;
 import xyz.auriium.mattlib2.auto.ff.config.GenerateFFComponent;
 import xyz.auriium.mattlib2.auto.pid.LinearPIDBrain;
 import xyz.auriium.mattlib2.auto.pid.RotationalPIDBrain;
@@ -95,6 +94,7 @@ public class RobotContainer {
     public final Modules modules;
     public final OperatorInput operatorInput;
     public final Translation2d[] translation2ds;
+    LedSubsystem ledSubsystem = new LedSubsystem();
     public final FlywheelSubsystem flywheelSubsystem;
     public final Odometry odometry;
     public final DriveSubsystem swerveSubsystem;
@@ -253,7 +253,7 @@ public class RobotContainer {
         }
 
          new ParallelCommandGroup(
-                 Commands.runEnd(() -> swerveSubsystem.orderToHeadingOnly(new ChassisSpeeds(1,0,0)), swerveSubsystem::orderToZero),
+                 Commands.runEnd(() -> swerveSubsystem.orderToHeadingOnly(new ChassisSpeeds(0,0,-1)), swerveSubsystem::orderToZero),
                  new ParallelCommandGroup(commands)
          ).schedule();
     }
@@ -261,12 +261,12 @@ public class RobotContainer {
 
 
     public Command followTrajectory(ChoreoTrajectory trajectory) {
-        return new FollowTrajectoryExactCommand(
+        return new FollowTrajectoryHardCommand(
                 trajectory,
                 swerveSubsystem,
                 xController,
-                yController,
-                DRIVE_T_PID);
+                yController
+        );
     }
 
     public Command twoNoteStyle(String real, double ramFireSpeed, double deadline_seconds) {
@@ -296,6 +296,7 @@ public class RobotContainer {
                 new PlaceOdometryCommand(twoNoteArr[0], odometry),
                 new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
                 followTrajectory(twoNoteArr[0]),
+                new SitFacingAutoCommand(thetaController, swerveSubsystem, new Rotation2d(0), true),
                 new ReadyWhileMovingGroundIntakeCommand(
                         followTrajectory(twoNoteArr[1]),
                         noteManagementSubsystem, groundIntakeSubsystem
@@ -316,15 +317,15 @@ public class RobotContainer {
 
 
 
-        var twoNoteCompatLeft = twoNoteCompatStyle("twoNoteCompatLeft", ramFireSpeed, deadline_seconds);
-        var twoNoteCompatRight = twoNoteCompatStyle("twoNoteCompatRight", ramFireSpeed, deadline_seconds);
-
+        var twoNoteCompatLeftBlue = twoNoteCompatStyle("twoNoteCompatLeft", ramFireSpeed, deadline_seconds);
+        var twoNoteCompatRightBlue = twoNoteCompatStyle("twoNoteCompatRight", ramFireSpeed, deadline_seconds);
 
         ChoreoTrajectory[] shootLeaveArr = TrajLoadingUtil.getAllTrajectories("shootGetFar");
 
         var shootLeave = new SequentialCommandGroup(
                 new PlaceOdometryCommand(shootLeaveArr[0], odometry),
                 new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
+                Commands.waitSeconds(8),
                 followTrajectory(shootLeaveArr[0]),
                 Commands.runOnce(modules::commandWheelsToZero)
         );
@@ -373,6 +374,8 @@ public class RobotContainer {
                         followTrajectory(fourNoteArr[1]),
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 ),
+                Commands.waitSeconds(0.2),
+                new PlaceOdometryCommand(fourNoteArr[2], odometry),
                 new ReadyWhileMovingGroundIntakeCommand(
                         followTrajectory(fourNoteArr[2]),
                         noteManagementSubsystem, groundIntakeSubsystem
@@ -381,6 +384,7 @@ public class RobotContainer {
                         followTrajectory(fourNoteArr[3]),
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 ),
+                //new PlaceOdometryCommand(fourNoteArr[4], odometry),
                 new ReadyWhileMovingGroundIntakeCommand(
                         followTrajectory(fourNoteArr[4]),
                         noteManagementSubsystem, groundIntakeSubsystem
@@ -389,128 +393,36 @@ public class RobotContainer {
                         followTrajectory(fourNoteArr[5]),
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 ),
+                //new PlaceOdometryCommand(fourNoteArr[0], odometry), //TODO
+                Commands.waitSeconds(0.25),
                 Commands.runOnce(modules::commandWheelsToZero)
         );
-        ChoreoTrajectory[] fourNoteCompatLeftArr = TrajLoadingUtil.getAllTrajectories("fourNoteCompatLeft");
 
-        var fourNoteCompatLeft = new SequentialCommandGroup(
-                    new PlaceOdometryCommand(fourNoteCompatLeftArr[0], odometry),
-                    new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                    followTrajectory(fourNoteCompatLeftArr[0]),
-                    new ReadyWhileMovingGroundIntakeCommand(
-                            followTrajectory(fourNoteCompatLeftArr[1]),
-                            noteManagementSubsystem, groundIntakeSubsystem
-                    ),
-                    new ReadyWhileMovingShootCommand(
-                            followTrajectory(fourNoteCompatLeftArr[2]),
-                            flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                    ),
-                    new ReadyWhileMovingGroundIntakeCommand(
-                            followTrajectory(fourNoteCompatLeftArr[3]),
-                            noteManagementSubsystem, groundIntakeSubsystem
-                    ),
-                    new ReadyWhileMovingShootCommand(
-                            followTrajectory(fourNoteCompatLeftArr[4]),
-                            flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                    ),
-                    new ReadyWhileMovingGroundIntakeCommand(
-                            followTrajectory(fourNoteCompatLeftArr[5]),
-                            noteManagementSubsystem, groundIntakeSubsystem
-                    ),
-                    Commands.runOnce(modules::commandWheelsToZero)
-//                    new ReadyWhileMovingShootCommand(
-//                            followTrajectory(fourNoteCompatLeftArr[6]),
-//                            flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-//                    )
-
+        ChoreoTrajectory[] fourToFiveArr = TrajLoadingUtil.getAllTrajectories("fourToFive");
+        var fourToFive = new SequentialCommandGroup(
+                new PlaceOdometryCommand(fourToFiveArr[0], odometry),
+                followTrajectory(fourToFiveArr[0]),
+                new ReadyWhileMovingGroundIntakeCommand(
+                        followTrajectory(fourToFiveArr[1]),
+                        noteManagementSubsystem, groundIntakeSubsystem
+                ),
+                followTrajectory(fourToFiveArr[2]),
+                new ReadyWhileMovingShootCommand(
+                        followTrajectory(fourToFiveArr[3]),
+                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
+                )
         );
 
-        ChoreoTrajectory[] fourNoteCompatRightArr = TrajLoadingUtil.getAllTrajectories("fourNoteCompatRight");
-
-//        var fourNoteCompatRight = new SequentialCommandGroup(
-//                new PlaceOdometryCommand(fourNoteCompatRightArr[0], odometrySubsystem),
-//                new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-//                followTrajectory(fourNoteCompatRightArr[0]),
-//                new ReadyWhileMovingGroundIntakeCommand(
-//                        followTrajectory(fourNoteCompatRightArr[1]),
-//                        noteManagementSubsystem, groundIntakeSubsystem
-//                ),
-//                new ReadyWhileMovingShootCommand(
-//                        followTrajectory(fourNoteCompatRightArr[2]),
-//                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-//                ),
-//                followTrajectory(fourNoteCompatRightArr[3]),
-//                followTrajectory(fourNoteCompatRightArr[4]),
-//                new ReadyWhileMovingGroundIntakeCommand(
-//                        followTrajectory(fourNoteCompatRightArr[5]),
-//                        noteManagementSubsystem, groundIntakeSubsystem
-//                ),
-//                followTrajectory(fourNoteCompatRightArr[6]),
-//                new ReadyWhileMovingShootCommand(
-//                        followTrajectory(fourNoteCompatRightArr[7]),
-//                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-//                ),
-//                followTrajectory(fourNoteCompatRightArr[8]),
-//                followTrajectory(fourNoteCompatRightArr[9]),
-//                followTrajectory(fourNoteCompatRightArr[10]),
-//                new ReadyWhileMovingGroundIntakeCommand(
-//                        followTrajectory(fourNoteCompatRightArr[11]),
-//                        noteManagementSubsystem, groundIntakeSubsystem
-//                ),
-//                followTrajectory(fourNoteCompatRightArr[12]),
-//                followTrajectory(fourNoteCompatRightArr[13]),
-//                new ReadyWhileMovingShootCommand(
-//                        followTrajectory(fourNoteCompatRightArr[14]),
-//                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-//                )
-//
-//
-//        );
-
-        ChoreoTrajectory[] sixNoteArr = TrajLoadingUtil.getAllTrajectories("sixNote");
-
-        var sixNote = new SequentialCommandGroup(
-                new PlaceOdometryCommand(sixNoteArr[0], odometry),
-                new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                new ReadyWhileMovingGroundIntakeCommand(
-                        followTrajectory(sixNoteArr[0]),
-                        noteManagementSubsystem, groundIntakeSubsystem
-                ),
-                new ReadyWhileMovingShootCommand(
-                        followTrajectory(sixNoteArr[1]),
-                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                ),
-                new ReadyWhileMovingGroundIntakeCommand(
-                        followTrajectory(sixNoteArr[2]),
-                        noteManagementSubsystem, groundIntakeSubsystem
-                ),
-                new ReadyWhileMovingShootCommand(
-                        followTrajectory(sixNoteArr[3]),
-                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                ),
-                new ReadyWhileMovingGroundIntakeCommand(
-                        followTrajectory(sixNoteArr[4]),
-                        noteManagementSubsystem, groundIntakeSubsystem
-                ),
-                new ReadyWhileMovingShootCommand(
-                        followTrajectory(sixNoteArr[5]),
-                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                ),
-                new ReadyWhileMovingGroundIntakeCommand(
-                        followTrajectory(sixNoteArr[6]),
-                        noteManagementSubsystem, groundIntakeSubsystem
-                ),
-                new ReadyWhileMovingShootCommand(
-                        followTrajectory(sixNoteArr[7]),
-                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                ),
-                Commands.runOnce(modules::commandWheelsToZero)
+        var fiveNote = new SequentialCommandGroup(
+                fourNote.asProxy(),
+                fourToFive.asProxy()
         );
+
 
         ChoreoTrajectory[] taxiArr = TrajLoadingUtil.getAllTrajectories("waitTaxi");
         var taxi = new SequentialCommandGroup(
                 new PlaceOdometryCommand(taxiArr[0], odometry),
-                followTrajectory(sixNoteArr[0]),
+                followTrajectory(taxiArr[0]),
                 Commands.runOnce(modules::commandWheelsToZero)
         );
 
@@ -520,13 +432,12 @@ public class RobotContainer {
         chooser.addOption("taxi", taxi);
         chooser.addOption("shootGetFar", shootLeave);
         chooser.addOption("threeNote", threeNote);
-        chooser.setDefaultOption("fourNote", fourNote);
+        chooser.setDefaultOption("fourNote (RUN THIS ONE)", fourNote);
+        chooser.addOption("fiveNote (SKETCHY)", fiveNote);
+        chooser.addOption("fourToFive (SKETCHY)", fourToFive);
         chooser.addOption("doNothing", Commands.waitSeconds(1));
-        chooser.addOption("twoNoteCompatRight", twoNoteCompatRight);
-        chooser.addOption("twoNoteCompatLeft", twoNoteCompatLeft);
-        chooser.addOption("fourNoteCompatLeft", fourNoteCompatLeft);
-//        chooser.addOption("fourNoteCompatRight", fourNoteCompatRight);
-        chooser.addOption("sixNote", sixNote);
+        chooser.addOption("twoNoteCompatRight (blue relative)", twoNoteCompatRightBlue);
+        chooser.addOption("twoNoteCompatLeft (blue relative)", twoNoteCompatLeftBlue);
 
         SmartDashboard.putData("Path", chooser);
         return chooser;
@@ -537,15 +448,15 @@ public class RobotContainer {
 
         //DRIVER STUFF
         operatorInput.movementNotDesired.and(operatorInput.customHeadingNotDesired).whileTrue(swerveSubsystem.orderToZeroCommand());
-        operatorInput.movementNotDesired.and(operatorInput.ampHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromDegrees(90), false));
-        operatorInput.movementNotDesired.and(operatorInput.rightSpeakerHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromRadians(Math.PI / 3), true));
-        operatorInput.movementNotDesired.and(operatorInput.leftSpeakerHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromRadians(-Math.PI / 3), true));
-        operatorInput.movementNotDesired.and(operatorInput.frontSpeakerHeadingHold).whileTrue(new SitFacingCommand(thetaController, swerveSubsystem, Rotation2d.fromDegrees(0), true));
+        operatorInput.movementNotDesired.and(operatorInput.ampHeadingHold).whileTrue(new SitFacingCommand(DRIVE_T_TELEOP, swerveSubsystem, Rotation2d.fromDegrees(90), false));
+        operatorInput.movementNotDesired.and(operatorInput.rightSpeakerHeadingHold).whileTrue(new SitFacingCommand(DRIVE_T_TELEOP, swerveSubsystem, Rotation2d.fromRadians(-Math.PI / 3), true));
+        operatorInput.movementNotDesired.and(operatorInput.leftSpeakerHeadingHold).whileTrue(new SitFacingCommand(DRIVE_T_TELEOP, swerveSubsystem, Rotation2d.fromRadians(Math.PI / 3), true));
+        operatorInput.movementNotDesired.and(operatorInput.frontSpeakerHeadingHold).whileTrue(new SitFacingCommand(DRIVE_T_TELEOP, swerveSubsystem, Rotation2d.fromDegrees(0), true));
 
         operatorInput.movementDesired.and(operatorInput.customHeadingNotDesired).whileTrue(new BaseDriveCommand(o2s, operatorInput, swerveSubsystem));
         operatorInput.movementDesired.and(operatorInput.ampHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromDegrees(90), false, DFSP));
-        operatorInput.movementDesired.and(operatorInput.rightSpeakerHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromRadians(Math.PI / 3), true, DFSP));
-        operatorInput.movementDesired.and(operatorInput.leftSpeakerHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromRadians(-Math.PI / 3), true, DFSP));
+        operatorInput.movementDesired.and(operatorInput.rightSpeakerHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromRadians(-Math.PI / 3), true, DFSP));
+        operatorInput.movementDesired.and(operatorInput.leftSpeakerHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromRadians(Math.PI / 3), true, DFSP));
         operatorInput.movementDesired.and(operatorInput.frontSpeakerHeadingHold).whileTrue(new DriveFacingStaticPosCommand(o2s, operatorInput, swerveSubsystem, Rotation2d.fromDegrees(0), true, DFSP));
 
 
@@ -595,7 +506,7 @@ public class RobotContainer {
 
 
         for (int i = 0; i < modules.length; i++) {
-            SimpleMotorFeedforward ff = new SimpleMotorFeedforward(FF_SWERVE[i].ff_ks(), FF_SWERVE[i].ff_kv());
+            SimpleMotorFeedforward ff = new SimpleMotorFeedforward(FF_SWERVE[i].ff_ks(), FF_SWERVE[i].ff_kv(), FF_SWERVE[i].ff_ka());
             ILinearVelocityController driveMotor;
             IRotationalController steerController;
             IRotationEncoder absoluteEncoder;
