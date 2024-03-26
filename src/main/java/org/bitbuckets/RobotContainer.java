@@ -94,7 +94,6 @@ public class RobotContainer {
     public final Modules modules;
     public final OperatorInput operatorInput;
     public final Translation2d[] translation2ds;
-    LedSubsystem ledSubsystem = new LedSubsystem();
     public final FlywheelSubsystem flywheelSubsystem;
     public final Odometry odometry;
     public final DriveSubsystem swerveSubsystem;

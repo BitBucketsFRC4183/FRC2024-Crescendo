@@ -116,16 +116,15 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
 
     @Override
     public void logPeriodic() {
-        for (List<Integer> strip : strips) {
-            List<String> colors = new ArrayList<>();
-            for (Integer number : strip) {
-
-                colors.add(buffer.getLED(number).toString());
-            }
-            System.out.println(colors);
-        }
-        System.out.println(strips);
-
+//        for (List<Integer> strip : strips) {
+//            List<String> colors = new ArrayList<>();
+//            for (Integer number : strip) {
+//
+//                colors.add(buffer.getLED(number).toString());
+//            }
+//            System.out.println(colors);
+//        }
+//        System.out.println(strips);
     }
     private void setBufferColor(Color color) {
         for (var i = 0; i < buffer.getLength(); i++) {
