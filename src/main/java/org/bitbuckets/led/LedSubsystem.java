@@ -106,9 +106,9 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
         else {nmsIndicator();}
 
         
-        lerpGradient(List.of(Color.kBlack, Color.kWhite, Color.kBlack).toArray(new Color[0]));
+        // lerpGradient(List.of(Color.kLightBlue, Color.kPink, Color.kWhite, Color.kPink, Color.kLightBlue).toArray(new Color[0]));
         // dynamicShooterSpeedsColoredAndScaledIndicatorLightThreeBarSeperated();
-        // intakeRunning();
+        // intakeRunning(false);
         ledStrip.setData(buffer);
         this.lastState = this.currentState;
         RobotContainer.LED.log_ledState(this.currentState.toString());
@@ -125,6 +125,7 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
             System.out.println(colors);
         }
         System.out.println(strips);
+
     }
     private void setBufferColor(Color color) {
         for (var i = 0; i < buffer.getLength(); i++) {
@@ -170,10 +171,10 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
                 Color currentColor = colors[i];
                 Color nextColor = colors[(i + 1) % colors.length];
 
-                
-                double r = MathUtil.interpolate(currentColor.red, nextColor.red, ((double) j / (buffer.getLength()))) * 255;
-                double g = MathUtil.interpolate(currentColor.green, nextColor.green, ((double) j / (buffer.getLength()))) * 255;
-                double b = MathUtil.interpolate(currentColor.blue, nextColor.blue, ((double) j / (buffer.getLength()))) * 255;
+                float sigmoidConstant = 7;
+                double r = MathUtil.interpolate(currentColor.red, nextColor.red, lerpSigmoid((float) j / (buffer.getLength()), sigmoidConstant)) * 255;
+                double g = MathUtil.interpolate(currentColor.green, nextColor.green, lerpSigmoid((float) j / (buffer.getLength()), sigmoidConstant)) * 255;
+                double b = MathUtil.interpolate(currentColor.blue, nextColor.blue, lerpSigmoid((float) j / (buffer.getLength()), sigmoidConstant)) * 255;
 
                 int ledNumber = (j + (buffer.getLength() / colors.length * i) + (int) offset) % buffer.getLength();
                 buffer.setRGB(ledNumber, (int) r, (int) g, (int) b);
@@ -192,7 +193,7 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
     private void dynamicShooterSpeedsColoredAndScaledIndicatorLightThreeBarSeperated() {
         // funee monkey
         setBufferColor(Color.kWhiteSmoke);
-        List<Integer> leftStrip =  new ArrayList<>(strips.get(0));
+        List<Integer> leftStrip =  strips.get(0);
         for (var i = 0; i < leftStrip.size(); i++) {
             if ((double) i / leftStrip.size() <= lRatio) {
                 buffer.setLED(leftStrip.get(i), Color.kPurple);
@@ -264,7 +265,10 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
         }
     }
 
-
+    // sigmoid the T value of lerp (domain is [0, 1], range is [0,1])
+    private static float lerpSigmoid(float x, float k) {
+        return  (1 / (1 + (float) Math.pow(x/(1-x), -k)));
+    }
 }
 
 
