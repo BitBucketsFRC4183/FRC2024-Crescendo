@@ -475,6 +475,7 @@ public class RobotContainer {
 
         //zero heading, not anything else
         operatorInput.resetGyroPress.onTrue(new PlaceAllianceZeroHeading(odometry,Rotation2d.fromDegrees(0)));
+        noteManagementSubsystem.noteIsIn.whileTrue(new VibratingCommand(operatorInput));
     }
 
 
