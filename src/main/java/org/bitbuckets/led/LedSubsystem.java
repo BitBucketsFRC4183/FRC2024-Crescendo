@@ -244,7 +244,7 @@ public class LedSubsystem implements Subsystem, IMattlibHooked {
 
         var chunkSize = 3;
         Color color;
-        if (this.nms.isNoteIn()) { color = Color.kLimeGreen; } else { color = Color.kRed; }
+        if (this.nms.isNoteIn()) { color = Color.kGreen; } else { color = Color.kRed; }
 
         setBufferColor(Color.kBlack);
         if (inverted) {

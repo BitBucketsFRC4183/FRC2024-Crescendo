@@ -254,7 +254,7 @@ camera2Name = "Second_OV9281_Camera"
 # -55: x=0.887, x=-0.462
 # -60: x=0.866, z=-0.500
 camera1TranslationOffset = {x = -0.2286, y = -0.1143, z = 0.5207}
-camera1RotationOffset = {x = 0, y = 0, z = -0.462, w = 0.887}
+camera1RotationOffset = {x = 0, y = 0, z = -0.259, w = 0.996}
 
 camera2TranslationOffset = {x = 0, y = 0, z = 1}
 camera2RotationOffset = {x = 0, y = 0, z = 0, w = 0}
