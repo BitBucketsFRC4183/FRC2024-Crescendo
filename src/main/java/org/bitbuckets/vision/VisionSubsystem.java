@@ -2,219 +2,332 @@ package org.bitbuckets.vision;
 
 import edu.wpi.first.apriltag.AprilTagDetector;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.MathSharedStore;
 import edu.wpi.first.math.geometry.*;
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.*;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.bitbuckets.RobotContainer;
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonTargetSortMode;
+import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import xyz.auriium.mattlib2.loop.IMattlibHooked;
 import xyz.auriium.yuukonstants.exception.ExplainedException;
 
-import javax.swing.text.html.Option;
-import javax.xml.crypto.dsig.Transform;
-import java.util.Optional;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.bitbuckets.vision.VisionUtil.*;
 
 public class VisionSubsystem  implements Subsystem, IMattlibHooked {
 
+    final DoubleSubscriber xSub;
+    final DoubleSubscriber ySub;
+    final BooleanSubscriber detectedSub;
+
     final PhotonCamera camera_1;
     final PhotonCamera camera_2;
-    public final AprilTagFieldLayout layout;
     final PhotonPoseEstimator estimator1;
     final PhotonPoseEstimator estimator2;
     final AprilTagDetector aprilTagDetector;
 
-    public VisionSubsystem(PhotonCamera camera_1, PhotonCamera camera_2, AprilTagFieldLayout layout,
+    public VisionPriority priority;
+    Optional<PhotonTrackedTarget> lastTarget;
+    Optional<PhotonTrackedTarget> bestTarget;
+
+    PhotonPipelineResult cam1_result;
+    PhotonPipelineResult cam2_result;
+
+    static final String filepath = Filesystem.getDeployDirectory().getPath() + "/2024-crescendo.json";
+    public static final AprilTagFieldLayout LAYOUT;
+    static {
+        try {
+            LAYOUT = new AprilTagFieldLayout(filepath);
+        } catch (IOException e) {
+            throw new IllegalStateException(e.getMessage() + " here is why");
+        }
+    }
+
+    public VisionSubsystem(PhotonCamera camera_1, PhotonCamera camera_2,
                            PhotonPoseEstimator estimator1, PhotonPoseEstimator estimator2,
                            AprilTagDetector aprilTagDetector) {
 
         this.camera_1 = camera_1;
         this.camera_2 = camera_2;
-        this.layout = layout;
         this.estimator1 = estimator1;
         this.estimator2 = estimator2;
         this.aprilTagDetector = aprilTagDetector;
+        this.priority = VisionPriority.SPEAKER;
+        this.lastTarget = Optional.empty();
+        this.bestTarget = Optional.empty();
+
+        if (RobotContainer.DISABLER.vision_disabled()) {
+            this.cam1_result = new PhotonPipelineResult();
+        } else this.cam1_result = camera_1.getLatestResult();
+
+        // disable camera result hehe
+        this.cam2_result = new PhotonPipelineResult();
+
+;        var table = NetworkTableInstance.getDefault().getTable("vision");
+
+        this.xSub = table.getDoubleTopic("x").subscribe(-8);
+        this.ySub = table.getDoubleTopic("y").subscribe(-8);
+        this.detectedSub = table.getBooleanTopic("detected").subscribe(false);
 
         register();
         mattRegister();
     }
 
-    // converts apriltag ID to an element of the target enum
-    public Optional<VisionFieldTarget> lookingAt(int fiducialID) {
-        VisionFieldTarget target;
-        switch (fiducialID) {
-            case 1:
-            case 9:
-                target = VisionFieldTarget.SOURCE_RIGHT;
-                break;
-            case 2:
-            case 10:
-                target = VisionFieldTarget.SOURCE_LEFT;
-                break;
-            case 3:
-                target = VisionFieldTarget.SPEAKER_SIDE_RIGHT;
-                break;
-            case 8:
-                target = VisionFieldTarget.SPEAKER_SIDE_LEFT;
-                break;
-            case 5:
-            case 6:
-                target = VisionFieldTarget.AMP;
-                break;
-            case 7:
-            case 4:
-                target = VisionFieldTarget.SPEAKER_CENTER;
-                break;
-            case 11:
-            case 12:
-            case 13:
-            case 14:
-            case 15:
-            case 16:
-                target = VisionFieldTarget.STAGE;
-                break;
-            default:
-                target = null;
-        }
-        return Optional.ofNullable(target);
+    @Override
+    public void logPeriodic() {
+        System.out.println(xSub.get());
+    }
+
+    private void logBT(PhotonTrackedTarget bt) {
+        RobotContainer.VISION.log_best_target_name(lookingAt(bt.getFiducialId()).toString());
+        RobotContainer.VISION.log_best_target_id(bt.getFiducialId());
+        RobotContainer.VISION.log_best_target_pose(LAYOUT.getTagPose(bt.getFiducialId()).orElseThrow().toPose2d());
+        RobotContainer.VISION.log_best_target_ambiguity(bt.getPoseAmbiguity());
+
+
+        Pose2d bt_camera_to_tag = LAYOUT.getTagPose(bt.getFiducialId()).orElseThrow().
+                plus(bt.getBestCameraToTarget()).toPose2d();
+
+        RobotContainer.VISION.log_best_cameraToTag_pose(bt_camera_to_tag);
+
     }
 
     @Override
+    public void periodic() {
+
+
+        if (RobotContainer.DISABLER.vision_disabled()) {
+            this.cam1_result = new PhotonPipelineResult();
+        } else this.cam1_result = camera_1.getLatestResult();
+
+        // disable camera result hehe
+        this.cam2_result = new PhotonPipelineResult();
+
+
+        Optional<PhotonTrackedTarget> optionalPhotonTrackedTarget = determineBestVisionTargetFromList(getAllTargets());
+        if (optionalPhotonTrackedTarget.isPresent()) {
+            PhotonTrackedTarget ptt = optionalPhotonTrackedTarget.get();
+
+
+            logBT(ptt);
+        }
+
+
+        this.lastTarget = this.bestTarget;
+        this.bestTarget = optionalPhotonTrackedTarget;
+        this.lastTarget.ifPresent(lastTarget -> RobotContainer.VISION.log_last_target_name(lookingAt(lastTarget.getFiducialId()).toString()));
+
+    }
+
+    public enum VisionPriority {
+        AMP,
+        SPEAKER,
+        NONE
+    }
+
+
+    @Override
     public ExplainedException[] verifyInit() {
-        // if (RobotContainer.DISABLER.vision_disabled()) return Optional.empty();
-        //frc using 36h11 fam this year
-        // aprilTagDetector.addFamily("36h11");
-
-
         return new ExplainedException[0];
     }
 
+    public PhotonTrackedTarget[] getAllTargets() {
+        List<PhotonTrackedTarget> allTargets = new ArrayList<>();
 
-    // field relative pose
-    // desired transform to move the robot to the desired final position
-    public Optional<Transform3d> getDesiredTargetAlignTransform() {
-        Optional<PhotonTrackedTarget> optTrackedTarget = getBestVisionTarget();
-        ;
-
-        if (optTrackedTarget.isPresent()) {
-            PhotonTrackedTarget trackedTarget = optTrackedTarget.get();
-            int fidID = trackedTarget.getFiducialId();
-
-            VisionFieldTarget target = lookingAt(fidID).orElseThrow();
-            RobotContainer.VISION.log_looking_at(target.toString());
-            Optional<Transform3d> optTransform = getDesiredTransformFromTarget(target);
-
-            if (optTransform.isPresent()) {
-                // may throw error somewhere
-
-                Transform3d cameraToTagTransform = trackedTarget.getBestCameraToTarget();
-                Transform3d desiredTransformation = optTransform.get();
-
-                Transform3d betweenTransformation = new Transform3d(
-                        cameraToTagTransform.getTranslation().minus(desiredTransformation.getTranslation()),
-                        cameraToTagTransform.getRotation().minus(desiredTransformation.getRotation())
-                );
-                RobotContainer.VISION.log_between_transformation(betweenTransformation.getTranslation().toTranslation2d().getDistance(new Translation2d(0, 0)));
-                return Optional.ofNullable(betweenTransformation);
-            }
+        if (this.cam1_result.hasTargets()) {
+            allTargets.addAll(this.cam1_result.getTargets());
         }
 
+        if (this.cam2_result.hasTargets()) {
+            allTargets.addAll(this.cam2_result.getTargets());
+        }
 
-        // TODO combine two cameras (weighting if see more than two aptriltags) in different part of a code
-
-
-        return Optional.empty();
-    }
-
-    // TODO clean up naming and actually refractor everything
-    // Returns the transformation for each target for desired final position
-    // e.g. stop close to amp, far away from speaker
-    public Optional<Transform3d> getDesiredTransformFromTarget(VisionFieldTarget target) {
-
-        // translations are in inches
-        return switch (target) {
-            case SPEAKER_CENTER ->
-                    Optional.of(new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(72)), new Rotation3d(0d, 0d, 0)));
-            case SPEAKER_SIDE_LEFT ->
-                    Optional.of(new Transform3d(new Translation3d(Units.inchesToMeters(24), 0d, Units.inchesToMeters(72)), new Rotation3d(0d, 0d, 0)));
-            case SPEAKER_SIDE_RIGHT ->
-                    Optional.of(new Transform3d(new Translation3d(Units.inchesToMeters(-24), 0d, Units.inchesToMeters(72)), new Rotation3d(0d, 0d, 0)));
-            case AMP ->
-                    Optional.of(new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0)));
-            case SOURCE_LEFT -> //relative to the robot
-                    Optional.of(new Transform3d(new Translation3d(Units.inchesToMeters(20), 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0)));
-            case SOURCE_RIGHT -> //relative to the robot
-                    Optional.of(new Transform3d(new Translation3d(Units.inchesToMeters(-20), 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0)));
-            case STAGE -> //relative to the robot
-                    Optional.of(new Transform3d(new Translation3d(0d, 0d, Units.inchesToMeters(36)), new Rotation3d(0d, 0d, 0)));
-        };
+        return allTargets.toArray(PhotonTrackedTarget[]::new);
 
     }
 
 
-    //BASIC INFORMATION GATHERING FROM CAMERAS
+
+
+    Optional<PhotonTrackedTarget> determineBestVisionTargetFromList(PhotonTrackedTarget[] targets) {
+
+        if (targets.length == 0) {
+            return Optional.empty();
+        }
+
+        // default priorities, lower index represents high priority
+        List<VisionFieldTarget> priorities = List.of(
+                VisionFieldTarget.SPEAKER_CENTER,
+                VisionFieldTarget.SPEAKER_LEFT,
+                VisionFieldTarget.SPEAKER_RIGHT,
+                VisionFieldTarget.AMP,
+                VisionFieldTarget.SOURCE_LEFT,
+                VisionFieldTarget.SOURCE_RIGHT,
+                VisionFieldTarget.STAGE
+        );
+
+        PhotonTrackedTarget bestTarget = targets[0]; //bruh
+        VisionFieldTarget bestTargetElement = lookingAt(bestTarget.getFiducialId());
+
+        VisionUtil.TargetPriority targetPriority = VisionUtil.TargetPriority.AREA;
+
+        // if priority enabled, BEST LOOKING AT TARGET SHOULD WIN
+        // if priority enabled, not looking at ,best target wins
+        for (PhotonTrackedTarget target : targets) {
+            VisionFieldTarget targetElement = lookingAt(target.getFiducialId());
+
+            if (this.priority == VisionPriority.SPEAKER) {
+                List<VisionFieldTarget> speakers = VisionUtil.SPEAKERS;
+                // tests if targetElement is one of these and if the bestTarget is not yet set to priority
+                if ((speakers.contains(targetElement)) && !(speakers.contains(bestTargetElement))) {
+                    bestTarget = target;
+                    // tests if targetElement is one of these and if bestTarget is already set to priority
+                } else if (speakers.contains(targetElement)) {
+                    bestTarget = VisionUtil.compareTwoTargets(bestTarget, target, targetPriority);
+                    // tests if targetElement is not one of these and if bestTarget is not set to priority
+                } else if (!speakers.contains(bestTargetElement)) {
+                    bestTarget = VisionUtil.compareTwoTargets(bestTarget, target, targetPriority);
+                }
+
+            } else if (this.priority == VisionPriority.AMP) {
+                if ((targetElement == VisionFieldTarget.AMP) && (bestTargetElement != VisionFieldTarget.AMP)) {
+                    bestTarget = target;
+                } else if (targetElement == VisionFieldTarget.AMP) {
+                    bestTarget = VisionUtil.compareTwoTargets(bestTarget, target, targetPriority);
+
+                } else if (bestTargetElement != VisionFieldTarget.AMP) {
+                    bestTarget = VisionUtil.compareTwoTargets(bestTarget, target, targetPriority);
+                }
+
+
+            } else if (this.priority == VisionPriority.NONE) {
+                // if no operator priority selection, go by defaults
+                if (priorities.indexOf(targetElement) < priorities.indexOf(bestTargetElement)) {
+                    bestTarget = VisionUtil.compareTwoTargets(bestTarget,target,targetPriority);
+                }
+            }
+
+            bestTargetElement = lookingAt(bestTarget.getFiducialId());
+        }
+
+        return Optional.of(bestTarget);
+    }
+
+
     public Optional<PhotonTrackedTarget> getBestVisionTarget() {
-        Optional<PhotonTrackedTarget> vt1 = Optional.ofNullable(
-                camera_1.getLatestResult().getBestTarget()
-        );
-
-        Optional<PhotonTrackedTarget> vt2 = Optional.ofNullable(
-                camera_2.getLatestResult().getBestTarget()
-        );
-
-        // decision tree, lowest ambiguity prioritized
-        // TODO WHEN SAME ID, COMBINE DATA TOGETHER
-        // TODO CREATE HAS TARGETS BASED OFF OF TWO CAMERAS
-        if (vt1.isPresent() && vt2.isPresent()) {
-            if (vt1.get().equals(vt2.get())) {
-                return vt1;
-            } else if (vt1.get().getPoseAmbiguity() <= vt2.get().getPoseAmbiguity()) {
-                return vt1;
-            } else return vt2;
-
-        } else if (vt1.isPresent()) {
-            return vt1;
-        } else return vt2;
+        return getBestVisionTarget(false);
     }
 
+    /**
+     *
+     * @param objectTargetLock When this is true the vision system will lock onto the same target as the last target if it can still see it
+     * @return
+     */
+    public Optional<PhotonTrackedTarget> getBestVisionTarget(boolean objectTargetLock) {
+
+        if (!objectTargetLock) return this.bestTarget;
+
+        // techincally sets too
+        // kind of fixed switching between speaker center / speaker side
+        PhotonTrackedTarget bt = bestTarget.get();
+        PhotonTrackedTarget lt = lastTarget.get();
+        VisionFieldTarget bt_obj = lookingAt( bt.getFiducialId() );
+        VisionFieldTarget lt_obj = lookingAt( lt.getFiducialId() );
+
+        if ((SPEAKERS.contains(bt_obj) && SPEAKERS.contains(lt_obj) || (SOURCES.contains(bt_obj) && SOURCES.contains(lt_obj)))) {
+            if (lt_obj == bt_obj) {
+                return this.bestTarget;
+            } else {
+                PhotonTrackedTarget[] allTargets = getAllTargets();
+                PhotonTrackedTarget[] prevObjectTargets = Arrays
+                        .stream(allTargets)
+                        .filter(trackedTarget -> lookingAt(trackedTarget.getFiducialId()).equals(lt_obj)).toArray(PhotonTrackedTarget[]::new);
+                // if none of the current targets are of the samme type as the previous ones, just return the best target
+                if (prevObjectTargets.length == 0) {
+                    return Optional.empty();
+                } else {
+                    this.bestTarget = determineBestVisionTargetFromList(prevObjectTargets);
+                    logBT(this.bestTarget.get());
+                    return this.bestTarget;
+                }
+            }
+
+        } else {
+            return this.bestTarget;
+        }
+    }
 
     // estimated robot pose using cam 1
-    public Optional<Pose3d> estimateVisionRobotPose_1() {
-        return estimator1.update(camera_1.getLatestResult()).map(poseDat -> poseDat.estimatedPose);
-    }
+    public Optional<EstimatedRobotPose> estimateVisionRobotPose() {
+        Optional<EstimatedRobotPose> optEstimatedRobotPose1 = estimator1.update(this.cam1_result);
+        Optional<EstimatedRobotPose> optEstimatedRobotPose2 = estimator2.update(this.cam2_result);
+        optEstimatedRobotPose1.ifPresent(esmPose1 -> RobotContainer.VISION.log_vision_robot_pose_1(esmPose1.estimatedPose.toPose2d()));
+        optEstimatedRobotPose2.ifPresent(esmPose2 -> RobotContainer.VISION.log_vision_robot_pose_2(esmPose2.estimatedPose.toPose2d()));
 
-    // estimated robot pose using cam 2
-    public Optional<Pose3d> estimateVisionRobotPose_2() {
-        return estimator2.update(camera_2.getLatestResult()).map(poseDat -> poseDat.estimatedPose);
-    }
-
-    // combines estimated poses by averaging
-    public Optional<Pose3d> combineEstimatedPose(Optional<Pose3d> pose1, Optional<Pose3d> pose2){
-
-        if (pose1.isEmpty() && pose2.isEmpty()){
+        if (optEstimatedRobotPose1.isEmpty() && optEstimatedRobotPose2.isEmpty()) {
             return Optional.empty();
-        } else if (pose1.isEmpty()){
-            return pose2;
-        } else if (pose2.isEmpty()){
-            return pose1;
+        } else if (optEstimatedRobotPose1.isEmpty()) {
+            return optEstimatedRobotPose2;
+        } else if (optEstimatedRobotPose2.isEmpty()) {
+            return optEstimatedRobotPose1;
+        } else {
+            // weighting is done by least pose ambiguity
+            // if multitag was used, then that weight is multiplied by own many targets and a constant (arbitrary weighting)
+            EstimatedRobotPose estimatedRobotPose1 = optEstimatedRobotPose1.get();
+            EstimatedRobotPose estimatedRobotPose2 = optEstimatedRobotPose2.get();
+            double avgPoseAmbiguity1 = estimatedRobotPose1.targetsUsed.stream().mapToDouble(PhotonTrackedTarget::getPoseAmbiguity).sum() / estimatedRobotPose1.targetsUsed.size();
+            double avgPoseAmbiguity2 = estimatedRobotPose2.targetsUsed.stream().mapToDouble(PhotonTrackedTarget::getPoseAmbiguity).sum() / estimatedRobotPose2.targetsUsed.size();
+
+            RobotContainer.VISION.log_avgPoseAmbiguity1(avgPoseAmbiguity1);
+            RobotContainer.VISION.log_avgPoseAmbiguity2(avgPoseAmbiguity2);
+
+            // avgPoseAmbiguity should be between 0 and 1, less value has more weight
+            double weight1 = 1 / (avgPoseAmbiguity1 / avgPoseAmbiguity2);
+            double weight2 = 1;
+
+
+            double multiTagWeightConstant = 1.5;
+            if (estimatedRobotPose1.strategy == PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR ||
+                    estimatedRobotPose1.strategy == PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_RIO) {
+                weight1 *= (estimatedRobotPose1.targetsUsed.size() * multiTagWeightConstant);
+            }
+
+            if (estimatedRobotPose2.strategy == PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR ||
+                    estimatedRobotPose2.strategy == PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_RIO) {
+                weight2 *= (estimatedRobotPose2.targetsUsed.size() * multiTagWeightConstant);
+            }
+
+            RobotContainer.VISION.log_pose1_weight(weight1);
+            RobotContainer.VISION.log_pose2_weight(weight1);
+            Pose3d combinedWeightedPose = VisionUtil.combineTwoPoses(estimatedRobotPose1.estimatedPose, estimatedRobotPose2.estimatedPose, weight1, weight2);
+            RobotContainer.VISION.log_combined_vision_robot_pose(combinedWeightedPose.toPose2d());
+
+            List<PhotonTrackedTarget> allTargets = new ArrayList<>(estimatedRobotPose1.targetsUsed);
+            allTargets.addAll(estimatedRobotPose2.targetsUsed);
+
+            double timestamp = (estimatedRobotPose1.timestampSeconds*weight1 + estimatedRobotPose2.timestampSeconds*weight2) / (weight1 + weight2);
+
+            PhotonPoseEstimator.PoseStrategy poseStrategy;
+            if (weight1 >= weight2) { poseStrategy = estimatedRobotPose1.strategy; } else poseStrategy = estimatedRobotPose2.strategy;
+
+            return Optional.of(new EstimatedRobotPose(combinedWeightedPose, timestamp, allTargets, poseStrategy));
         }
-
-        Translation3d translation = new Translation3d(
-                (pose1.get().getX() + pose2.get().getX()) / 2.0,
-                (pose1.get().getY() + pose2.get().getY()) / 2.0,
-                (pose1.get().getZ() + pose2.get().getZ()) / 2.0
-        );
-        Rotation3d rotation = new Rotation3d(
-                (pose1.get().getRotation().getX() +  pose2.get().getRotation().getX()) / 2.0,
-                (pose1.get().getRotation().getY() +  pose2.get().getRotation().getY()) / 2.0,
-                (pose1.get().getRotation().getZ() +  pose2.get().getRotation().getZ()) / 2.0
-        );
-        Pose3d result = new Pose3d(translation, rotation);
-
-        return Optional.of(result);
     }
+
+
+    public Optional<Pose2d> getClosestNotePose() {
+        return Optional.of(new Pose2d(7,4, new Rotation2d()));
+}
 
     public PhotonCamera[] getCameras() {
         PhotonCamera[] cameras = new PhotonCamera[2];

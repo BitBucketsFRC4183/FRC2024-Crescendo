@@ -1,6 +1,7 @@
 package org.bitbuckets;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -30,9 +31,13 @@ public class OperatorInput {
     final Trigger groundOuttakeHoldOp = operatorControl.b();
     final Trigger ampVisionPriority_toggle = operatorControl.povLeft();
     final Trigger speakerVisionPriority_toggle = operatorControl.povRight();
+
+    final Trigger resetVisionPriority_toggle = operatorControl.povUp();
     final Trigger setShooterAngleManually = operatorControl.leftStick();
     final Trigger rev = operatorControl.leftTrigger();
     Trigger climberThreshold = operatorControl.axisGreaterThan(XboxController.Axis.kRightY.value, 0.1).or(operatorControl.axisLessThan(XboxController.Axis.kRightY.value, -0.1));
+
+    final Trigger disableVisionOdometry = operatorControl.start();
 
 
     //DRIVER'S CONTROLS
@@ -53,6 +58,7 @@ public class OperatorInput {
     final Trigger thetaNotDesired = driver.axisGreaterThan(XboxController.Axis.kRightX.value, 0.1).or(driver.axisLessThan(XboxController.Axis.kRightX.value, -0.1)).negate();
     public final Trigger movementNotDesired = xNotDesired.and(yNotDesired).and(thetaNotDesired);
     public final Trigger movementDesired = movementNotDesired.negate();
+
 
 
     /**
@@ -86,6 +92,11 @@ public class OperatorInput {
         return driver.getRightX();
     }
 
+    public Rotation2d getDriverRightAsAngle() {
+        double rotZeroToOne = (driver.getRightX() + 1) % 1;
+
+        return Rotation2d.fromRotations(rotZeroToOne);
+    }
 
     public double getDriverAngularComponentRaw() {
         return deadband(-driver.getRightX());

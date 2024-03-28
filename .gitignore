@@ -12,4 +12,7 @@ ctre_sim/
 /logs/
 hs_err_pid*
 
+runs/
 /trajectory-design/my_optimizers/navigation/target/
+
+*.iml

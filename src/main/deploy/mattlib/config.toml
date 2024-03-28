@@ -8,7 +8,7 @@
 
 # Disabler
 [disabler]
-vision_disabled = true
+vision_disabled = false
 drive_disabled = false
 flywheel_disabled = false
 odometry_disabled = false
@@ -16,6 +16,7 @@ climber_disabled = true
 groundIntake_disabled = false
 nms_disabled = false
 pivot_disabled = true
+led_disabled = false
 
 # Commands
 [commands]
@@ -116,7 +117,6 @@ slow_speed_multiplier = 2.3
 [odometry]
 pigeon_can_id = 5
 centroid_height = 0 #TODO
-camera_centroid_offset = {x = 0, y = 0, z = 0} #TODO
 fl_pos_offset = {x = 0.2286, y = 0.3429}
 fr_pos_offset = {x = 0.2286, y = -0.3429}
 bl_pos_offset = {x = -0.3556, y = 0.3429}
@@ -244,6 +244,25 @@ currentLimit = 30
 
 # CAMERA
 [cameras]
-camera1Name = "arducam1"
-camera2Name = "arducam2"
+camera1Name = "Arducam_OV9281_USB_Camera"
+camera2Name = "Second_OV9281_Camera"
+
+# actually get these values lmfao TODO
+# https://www.wolframalpha.com/input?i=Euler+angles+calculator
+# -30: x=0.966, z=-0.259
+# -45: x=0.924, z=-0.383
+# -55: x=0.887, x=-0.462
+# -60: x=0.866, z=-0.500
+camera1TranslationOffset = {x = -0.2286, y = -0.1143, z = 0.5207}
+camera1RotationOffset = {x = 0, y = 0, z = -0.259, w = 0.996}
+
+camera2TranslationOffset = {x = 0, y = 0, z = 1}
+camera2RotationOffset = {x = 0, y = 0, z = 0, w = 0}
+
+[NMS]
+mechPerEncoderRotation = 0.0
+metersPerRotation = 1
+rotationalInertia = 0
+id = 0
+type = "BRUSHLESS"
 

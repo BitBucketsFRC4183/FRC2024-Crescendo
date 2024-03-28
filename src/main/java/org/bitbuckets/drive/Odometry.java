@@ -5,8 +5,11 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import org.bitbuckets.Robot;
+import org.bitbuckets.RobotContainer;
 import org.bitbuckets.vision.VisionSubsystem;
+import org.photonvision.EstimatedRobotPose;
 import xyz.auriium.mattlib2.log.INetworkedComponent;
 import xyz.auriium.mattlib2.log.annote.Conf;
 import xyz.auriium.mattlib2.log.annote.Essential;
@@ -26,11 +29,15 @@ public class Odometry implements IMattlibHooked {
 
     final Component odometryComponent;
 
+    public boolean visionOdometry;
+
     public interface Component extends INetworkedComponent {
         @Conf("pigeon_can_id") int pigeonCanId();
 
         @Conf("centroid_height") double robotCentroidHeightWrtGround_meters();
-        @Conf("camera_centroid_offset") Translation3d cameraCentroidOffset();
+
+        @Log("x_velocity") void reportXVelocity(double xVelocity_metersPerSecond);
+        @Log("y_velocity") void reportYVelocity(double yVelocity_metersPerSecond);
 
         @Conf("fr_pos_offset") Translation2d fr_offset();
         @Conf("fl_pos_offset") Translation2d fl_offset();
@@ -43,6 +50,8 @@ public class Odometry implements IMattlibHooked {
         @Log("pidgeon_ok") void logPidgeonOk(boolean isOk);
     }
 
+    SwerveModulePosition[] lastPositions_dxdy = new SwerveModulePosition[] { new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition() };
+    double lastTimestamp_seconds = 0;
 
 
     public Odometry(Modules modules, VisionSubsystem visionSubsystem, SwerveDrivePoseEstimator odometry, IGyro gyro, SwerveDriveKinematics kinematics, Component odometryComponent) {
@@ -52,6 +61,7 @@ public class Odometry implements IMattlibHooked {
         this.odometry = odometry;
         this.gyro = gyro;
         this.odometryComponent = odometryComponent;
+        this.visionOdometry = true;
 
         mattRegister();
     }
@@ -69,12 +79,15 @@ public class Odometry implements IMattlibHooked {
 
         if (Robot.isReal()) {
             //VISION
-            Optional<Pose3d> visionThinks = visionSubsystem.estimateVisionRobotPose_1();
-            if (visionThinks.isPresent()) {
-                Pose2d maybeAPose = visionThinks.get().toPose2d();
-
-                odometry.addVisionMeasurement(maybeAPose, MathSharedStore.getTimestamp());
+            Optional<EstimatedRobotPose> optVisionPose = visionSubsystem.estimateVisionRobotPose();
+            if (optVisionPose.isPresent()) {
+                Pose2d visionPose = optVisionPose.get().estimatedPose.toPose2d();
+                RobotContainer.VISION.log_final_pose(visionPose);
+                if (this.visionOdometry) {odometry.addVisionMeasurement(visionPose, optVisionPose.get().timestampSeconds);}
             }
+        } else {
+            Optional<EstimatedRobotPose> optEsmPose = visionSubsystem.estimateVisionRobotPose();
+            optEsmPose.ifPresent(esmPose -> RobotContainer.VISION.log_final_pose(esmPose.estimatedPose.toPose2d()));
         }
     }
 
@@ -107,14 +120,6 @@ public class Odometry implements IMattlibHooked {
         );
    }
 
-     public Pose3d getCameraPositionVert() {
-        return getRobotCentroidPositionVert().plus(
-                new Transform3d(
-                        odometryComponent.cameraCentroidOffset(),
-                        new Rotation3d()
-                )
-        );
-   }
 
      public Pose3d getShooterCentroidPositionVert() {
 

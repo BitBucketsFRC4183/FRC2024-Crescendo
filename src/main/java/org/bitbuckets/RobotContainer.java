@@ -2,6 +2,10 @@ package org.bitbuckets;
 
 import com.choreo.lib.ChoreoTrajectory;
 import com.ctre.phoenix6.hardware.Pigeon2;
+import com.pathplanner.lib.commands.PathfindingCommand;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.pathfinding.LocalADStar;
+import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.apriltag.AprilTagDetector;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -13,15 +17,19 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.event.EventLoop;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.*;
 import org.bitbuckets.climber.ClimberComponent;
 import org.bitbuckets.climber.ClimberSubsystem;
-import org.bitbuckets.commands.CommandComponent;
-import org.bitbuckets.commands.ReadyWhileMovingGroundIntakeCommand;
-import org.bitbuckets.commands.ReadyWhileMovingShootCommand;
-import org.bitbuckets.commands.VibratingCommand;
+import org.bitbuckets.commands.*;
 import org.bitbuckets.commands.climber.MoveClimberCommand;
 import org.bitbuckets.commands.drive.BaseDriveCommand;
 import org.bitbuckets.commands.drive.DriveFacingStaticPosCommand;
@@ -29,19 +37,24 @@ import org.bitbuckets.commands.drive.SitFacingAutoCommand;
 import org.bitbuckets.commands.drive.SitFacingCommand;
 import org.bitbuckets.commands.drive.odo.PlaceAllianceZeroHeading;
 import org.bitbuckets.commands.drive.odo.PlaceOdometryCommand;
-import org.bitbuckets.commands.drive.traj.FollowTrajectoryExactCommand;
+import org.bitbuckets.commands.drive.traj.FollowTrajectoryHardCommand;
 import org.bitbuckets.commands.groundIntake.BasicGroundIntakeCommand;
 import org.bitbuckets.commands.groundIntake.FeedGroundIntakeGroup;
 import org.bitbuckets.commands.groundIntake.GroundOuttakeCommand;
+import org.bitbuckets.commands.vision.SetPriorityCommand;
+import org.bitbuckets.commands.vision.ToggleVisionOdometryCommand;
+import org.bitbuckets.disabled.KinematicGyro;
 import org.bitbuckets.commands.shooter.AmpMakeReadyGroup;
 import org.bitbuckets.commands.shooter.FireMakeReadyGroup;
 import org.bitbuckets.commands.shooter.SourceConsumerGroup;
 import org.bitbuckets.commands.shooter.flywheel.SpinFlywheelIndefinite;
 import org.bitbuckets.disabled.DisablerComponent;
-import org.bitbuckets.disabled.KinematicGyro;
 import org.bitbuckets.drive.*;
 import org.bitbuckets.groundIntake.GroundIntakeComponent;
 import org.bitbuckets.groundIntake.GroundIntakeSubsystem;
+import org.bitbuckets.led.LedComponent;
+import org.bitbuckets.led.LedSubsystem;
+
 import org.bitbuckets.noteManagement.NoteManagementComponent;
 import org.bitbuckets.noteManagement.NoteManagementSubsystem;
 import org.bitbuckets.shooter.FlywheelSubsystem;
@@ -52,12 +65,12 @@ import org.bitbuckets.vision.VisionSimContainer;
 import org.bitbuckets.vision.VisionSubsystem;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.simulation.PhotonCameraSim;
 import xyz.auriium.mattlib.ctre.HardwareCTRE;
 import xyz.auriium.mattlib2.MattConsole;
 import xyz.auriium.mattlib2.Mattlib;
 import xyz.auriium.mattlib2.MattlibSettings;
 import xyz.auriium.mattlib2.auto.ff.LinearFFGenRoutine;
-import xyz.auriium.mattlib2.auto.ff.RotationFFGenRoutine;
 import xyz.auriium.mattlib2.auto.ff.config.GenerateFFComponent;
 import xyz.auriium.mattlib2.auto.pid.LinearPIDBrain;
 import xyz.auriium.mattlib2.auto.pid.RotationalPIDBrain;
@@ -92,6 +105,7 @@ public class RobotContainer {
     public final ClimberSubsystem climberSubsystem;
     public final GroundIntakeSubsystem groundIntakeSubsystem;
     public final NoteManagementSubsystem noteManagementSubsystem;
+
     public final SwerveDriveKinematics kinematics;
 
     public final SendableChooser<Command> chooser;
@@ -101,9 +115,9 @@ public class RobotContainer {
     public final RotationalPIDBrain thetaController;
 
     public final MattConsole mainConsole;
+    public final LedSubsystem ledSubsystem;
 
     Command cachedCurrentlyRunningAutoCommand = null;
-
     public RobotContainer() {
 
         RobotController.setBrownoutVoltage(6);
@@ -117,6 +131,8 @@ public class RobotContainer {
 
         //THIS HAS TO RUN FIRST
         Mattlib.LOOPER.runPreInit();
+
+
         CommandScheduler.getInstance().enable();
 
         this.xController = new LinearPIDBrain(DRIVE_X_PID);
@@ -138,6 +154,9 @@ public class RobotContainer {
         this.groundIntakeSubsystem = loadGroundIntakeSubsystem();
         this.noteManagementSubsystem = loadNoteManagementSubsystem();
 
+        if (!DISABLER.led_disabled()) {this.ledSubsystem = new LedSubsystem(this.noteManagementSubsystem, this.flywheelSubsystem, this.groundIntakeSubsystem);}
+        else this.ledSubsystem = null;
+
         if (!DISABLER.vision_disabled() && Robot.isSimulation()) {
             PhotonCamera[] cameras = visionSubsystem.getCameras();
             this.visionSimContainer = new VisionSimContainer(
@@ -145,7 +164,7 @@ public class RobotContainer {
                     odometry,
                     cameras[0],
                     cameras[1],
-                    visionSubsystem.layout
+                    VisionSubsystem.LAYOUT
             );
         } else this.visionSimContainer = null;
 
@@ -241,12 +260,12 @@ public class RobotContainer {
 
 
     public Command followTrajectory(ChoreoTrajectory trajectory) {
-        return new FollowTrajectoryExactCommand(
+        return new FollowTrajectoryHardCommand(
                 trajectory,
                 swerveSubsystem,
                 xController,
-                yController,
-                DRIVE_T_PID);
+                yController
+        );
     }
 
     public Command twoNoteStyle(String real, double ramFireSpeed, double deadline_seconds) {
@@ -305,6 +324,7 @@ public class RobotContainer {
         var shootLeave = new SequentialCommandGroup(
                 new PlaceOdometryCommand(shootLeaveArr[0], odometry),
                 new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
+                Commands.waitSeconds(8),
                 followTrajectory(shootLeaveArr[0]),
                 Commands.runOnce(modules::commandWheelsToZero)
         );
@@ -353,7 +373,8 @@ public class RobotContainer {
                         followTrajectory(fourNoteArr[1]),
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 ),
-                //new PlaceOdometryCommand(fourNoteArr[2], odometry),
+                Commands.waitSeconds(0.2),
+                new PlaceOdometryCommand(fourNoteArr[2], odometry),
                 new ReadyWhileMovingGroundIntakeCommand(
                         followTrajectory(fourNoteArr[2]),
                         noteManagementSubsystem, groundIntakeSubsystem
@@ -362,7 +383,7 @@ public class RobotContainer {
                         followTrajectory(fourNoteArr[3]),
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 ),
-                new PlaceOdometryCommand(fourNoteArr[4], odometry),
+                //new PlaceOdometryCommand(fourNoteArr[4], odometry),
                 new ReadyWhileMovingGroundIntakeCommand(
                         followTrajectory(fourNoteArr[4]),
                         noteManagementSubsystem, groundIntakeSubsystem
@@ -372,7 +393,7 @@ public class RobotContainer {
                         flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
                 ),
                 //new PlaceOdometryCommand(fourNoteArr[0], odometry), //TODO
-                Commands.waitSeconds(0.2),
+                Commands.waitSeconds(0.25),
                 Commands.runOnce(modules::commandWheelsToZero)
         );
 
@@ -444,6 +465,7 @@ public class RobotContainer {
         operatorInput.ampShotSpeed.whileTrue(new AmpMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, 12));
         operatorInput.groundIntakeNoBeamBreak.whileTrue(new BasicGroundIntakeCommand(groundIntakeSubsystem, noteManagementSubsystem, COMMANDS.groundIntake_voltage(), COMMANDS.noteManagement_voltage() ));
         operatorInput.shootManually.whileTrue(new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, COMMANDS.ramFireSpeed_mechanismRotationsPerSecond()));
+        operatorInput.disableVisionOdometry.onTrue(new ToggleVisionOdometryCommand(odometry));
 
         operatorInput.sourceIntake_hold.whileTrue(new SourceConsumerGroup(noteManagementSubsystem, flywheelSubsystem));
         operatorInput.groundIntakeHoldOp //TODO change input
@@ -620,31 +642,23 @@ public class RobotContainer {
         PhotonCamera camera2;
         camera1 = new PhotonCamera(CAMERAS.camera1Name());
         camera2 = new PhotonCamera(CAMERAS.camera2Name());
+//        PhotonCameraSim camera = new PhotonCameraSim(camera2);
+//        camera.close();
 
-        AprilTagFieldLayout aprilTagFieldLayout;
-        String filepath = Filesystem.getDeployDirectory().getPath() + "/2024-crescendo.json";
-
-        // better error catching later ig
-        try {
-            aprilTagFieldLayout = new AprilTagFieldLayout(filepath);
-        } catch (IOException e) {
-            throw new IllegalStateException(e.getMessage() + " here is why");
-        }
-
-        // USE MATTLIB FOR CONSTANTS HERE IM JUST LAZY TODO
-        Transform3d robotToCam1 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0, 0, 0));
+        // replace later when lil maddie makes a mattlib deserializer TODO
+        Transform3d robotToCam1 = new Transform3d(CAMERAS.camera1TranslationOffset(), CAMERAS.camera1RotationOffset());
         // using multi tag localization
         PhotonPoseEstimator photonPoseEstimator1 = new PhotonPoseEstimator(
-                aprilTagFieldLayout,
+                VisionSubsystem.LAYOUT,
                 PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                 camera1,
                 robotToCam1
         );
 
 
-        Transform3d robotToCam2 = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0, 0, 0));
+        Transform3d robotToCam2 = new Transform3d(CAMERAS.camera2TranslationOffset(), CAMERAS.camera2RotationOffset());
         PhotonPoseEstimator photonPoseEstimator2 = new PhotonPoseEstimator(
-                aprilTagFieldLayout,
+                VisionSubsystem.LAYOUT,
                 PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                 camera2,
                 robotToCam2
@@ -656,7 +670,6 @@ public class RobotContainer {
         return new VisionSubsystem(
                 camera1,
                 camera2,
-                aprilTagFieldLayout,
                 photonPoseEstimator1,
                 photonPoseEstimator2,
                 new AprilTagDetector()
@@ -782,6 +795,8 @@ public class RobotContainer {
 
     public static final CamerasComponent CAMERAS = LOG.load(CamerasComponent.class, "cameras");
     public static final DisablerComponent DISABLER = LOG.load(DisablerComponent.class, "disabler");
+
+    public static final LedComponent LED = LOG.load(LedComponent.class, "led");
 
 
 }

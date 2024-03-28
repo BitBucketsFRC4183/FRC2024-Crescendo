@@ -3,6 +3,7 @@ package org.bitbuckets.vision;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
+import org.bitbuckets.RobotContainer;
 import org.bitbuckets.drive.Odometry;
 import org.photonvision.PhotonCamera;
 import org.photonvision.estimation.TargetModel;
@@ -13,7 +14,7 @@ import org.photonvision.simulation.VisionTargetSim;
 
 public class VisionSimContainer {
     final VisionSystemSim visionSystemSim;
-    final VisionTargetSim visionTargets;
+//    final VisionTargetSim visionTargets;
     final VisionSubsystem visionSubsystem;
     final Odometry odometry;
 
@@ -24,15 +25,15 @@ public class VisionSimContainer {
         this.odometry = odometry;
         this.layout = layout;
 
-        TargetModel targetModel = new TargetModel(Units.inchesToMeters(6.5), Units.inchesToMeters(6.5));
-        Pose3d targetPose = new Pose3d(new Translation3d(652.73, 196.17, 57.13), new Rotation3d(0, 0, Math.PI));
-
-        this.visionTargets = new VisionTargetSim(targetPose, targetModel);
+//        TargetModel targetModel = new TargetModel(Units.inchesToMeters(6.5), Units.inchesToMeters(6.5));
+//        Pose3d targetPose = new Pose3d(new Translation3d(652.73, 196.17, 57.13), new Rotation3d(0, 0, Math.PI));
+//
+//        this.visionTargets = new VisionTargetSim(targetPose, targetModel);
 
         this.visionSystemSim = new VisionSystemSim("main");
 
         visionSystemSim.addAprilTags(layout);
-        visionSystemSim.addVisionTargets(visionTargets);
+        // visionSystemSim.addVisionTargets(visionTargets);
 
         SimCameraProperties cameraProp = new SimCameraProperties();
         cameraProp.setCalibration(1280, 800, Rotation2d.fromDegrees(100));
@@ -41,17 +42,15 @@ public class VisionSimContainer {
         // Set the camera image capture frame rate (Note: this is limited by robot loop rate).
         cameraProp.setFPS(20);
         // The average and standard deviation in milliseconds of image data latency.
-        cameraProp.setAvgLatencyMs(35);
+        cameraProp.setAvgLatencyMs(20);
         cameraProp.setLatencyStdDevMs(5);
 
-        PhotonCameraSim camera1Sim = new PhotonCameraSim(camera_1, cameraProp);
-        PhotonCameraSim camera2Sim = new PhotonCameraSim(camera_2, cameraProp);
+        PhotonCameraSim camera1Sim = new PhotonCameraSim(camera_1, cameraProp, 0, 4);
+        PhotonCameraSim camera2Sim = new PhotonCameraSim(camera_2, cameraProp, 0, 4);
 
-        visionSystemSim.addCamera(camera1Sim,new Transform3d(0, Units.inchesToMeters(5), Units.inchesToMeters(10),
-                new Rotation3d(0, 0, 0)));
+        visionSystemSim.addCamera(camera1Sim, new Transform3d(RobotContainer.CAMERAS.camera1TranslationOffset(), RobotContainer.CAMERAS.camera1RotationOffset()));
 
-        visionSystemSim.addCamera(camera2Sim,new Transform3d(0, Units.inchesToMeters(-5), Units.inchesToMeters(10),
-                new Rotation3d(0, 0, 0)));
+        visionSystemSim.addCamera(camera2Sim, new Transform3d(RobotContainer.CAMERAS.camera2TranslationOffset(), RobotContainer.CAMERAS.camera2RotationOffset()));
 
         camera1Sim.enableDrawWireframe(true);
         camera1Sim.enableProcessedStream(true);
