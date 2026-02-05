@@ -2,10 +2,7 @@ package org.bitbuckets;
 
 import com.choreo.lib.ChoreoTrajectory;
 import com.ctre.phoenix6.hardware.Pigeon2;
-import com.pathplanner.lib.commands.PathfindingCommand;
-import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.pathfinding.LocalADStar;
-import com.pathplanner.lib.util.ReplanningConfig;
+
 import edu.wpi.first.apriltag.AprilTagDetector;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -63,9 +60,7 @@ import org.bitbuckets.vision.CamerasComponent;
 import org.bitbuckets.vision.VisionComponent;
 import org.bitbuckets.vision.VisionSimContainer;
 import org.bitbuckets.vision.VisionSubsystem;
-import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.simulation.PhotonCameraSim;
+
 import xyz.auriium.mattlib.ctre.HardwareCTRE;
 import xyz.auriium.mattlib2.MattConsole;
 import xyz.auriium.mattlib2.Mattlib;
@@ -100,8 +95,6 @@ public class RobotContainer {
     public final OperatorToSpeeds o2s;
     //m
 
-    public final VisionSubsystem visionSubsystem;
-    public final VisionSimContainer visionSimContainer;
     public final ClimberSubsystem climberSubsystem;
     public final GroundIntakeSubsystem groundIntakeSubsystem;
     public final NoteManagementSubsystem noteManagementSubsystem;
@@ -123,11 +116,11 @@ public class RobotContainer {
         RobotController.setBrownoutVoltage(6);
 
         //DO SETTINGS BEFORE PRE INIT
-        MattlibSettings.USE_TELEMETRY = MattlibSettings.LogLevel.VERBOSE_TELEMETRY;
+        MattlibSettings.USE_TELEMETRY = MattlibSettings.LogLevel.ESSENTIAL_TELEMETRY;
         if (DriverStation.isFMSAttached()) {
             MattlibSettings.USE_TELEMETRY = MattlibSettings.LogLevel.ESSENTIAL_TELEMETRY; //never change this
         };
-        MattlibSettings.ROBOT = WhichRobotUtil.loadRobot();
+        MattlibSettings.ROBOT = MattlibSettings.Robot.CARY;
 
         //THIS HAS TO RUN FIRST
         Mattlib.LOOPER.runPreInit();
@@ -144,8 +137,11 @@ public class RobotContainer {
         this.translation2ds = loadTranslations();
         this.kinematics = loadKinematics();
         this.modules = loadModules();
-        this.visionSubsystem = loadVisionSubsystem();
+
+        System.out.println("mem leak somewhere here");;
         this.odometry = loadOdometrySubsystem();
+        System.out.println("mem leak somewhere here 2");
+
         this.o2s = new OperatorToSpeeds(operatorInput, O2S);
         this.swerveSubsystem = new DriveSubsystem(modules, odometry, SWERVE);
         this.flywheelSubsystem = loadFlywheelSubsystem();
@@ -154,19 +150,9 @@ public class RobotContainer {
         this.groundIntakeSubsystem = loadGroundIntakeSubsystem();
         this.noteManagementSubsystem = loadNoteManagementSubsystem();
 
+        System.out.println("mem leak somewhere");
         if (!DISABLER.led_disabled()) {this.ledSubsystem = new LedSubsystem(this.noteManagementSubsystem, this.flywheelSubsystem, this.groundIntakeSubsystem);}
         else this.ledSubsystem = null;
-
-        if (!DISABLER.vision_disabled() && Robot.isSimulation()) {
-            PhotonCamera[] cameras = visionSubsystem.getCameras();
-            this.visionSimContainer = new VisionSimContainer(
-                    visionSubsystem,
-                    odometry,
-                    cameras[0],
-                    cameras[1],
-                    VisionSubsystem.LAYOUT
-            );
-        } else this.visionSimContainer = null;
 
         loadCommands();
         chooser = loadAutonomous();
@@ -193,8 +179,6 @@ public class RobotContainer {
     }
 
     public void simulationPeriodic() {
-        if (DISABLER.vision_disabled()) return;
-        this.visionSimContainer.simulationPeriodic();
     }
 
 
@@ -259,185 +243,9 @@ public class RobotContainer {
 
 
 
-    public Command followTrajectory(ChoreoTrajectory trajectory) {
-        return new FollowTrajectoryHardCommand(
-                trajectory,
-                swerveSubsystem,
-                xController,
-                yController
-        );
-    }
-
-    public Command twoNoteStyle(String real, double ramFireSpeed, double deadline_seconds) {
-
-        ChoreoTrajectory[] twoNoteArr = TrajLoadingUtil.getAllTrajectories(real);
-
-        return new SequentialCommandGroup(
-                new PlaceOdometryCommand(twoNoteArr[0], odometry),
-                new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                new ReadyWhileMovingGroundIntakeCommand(
-                        followTrajectory(twoNoteArr[0]),
-                        noteManagementSubsystem, groundIntakeSubsystem
-                ),
-                new ReadyWhileMovingShootCommand(
-                        followTrajectory(twoNoteArr[1]),
-                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                ),
-                Commands.runOnce(modules::commandWheelsToZero)
-        );
-    }
-
-    public Command twoNoteCompatStyle(String real, double ramFireSpeed, double deadline_seconds) {
-
-        ChoreoTrajectory[] twoNoteArr = TrajLoadingUtil.getAllTrajectories(real);
-
-        return new SequentialCommandGroup(
-                new PlaceOdometryCommand(twoNoteArr[0], odometry),
-                new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                followTrajectory(twoNoteArr[0]),
-                new SitFacingAutoCommand(thetaController, swerveSubsystem, new Rotation2d(0), true),
-                new ReadyWhileMovingGroundIntakeCommand(
-                        followTrajectory(twoNoteArr[1]),
-                        noteManagementSubsystem, groundIntakeSubsystem
-                ),
-                new ReadyWhileMovingShootCommand(
-                        followTrajectory(twoNoteArr[2]),
-                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                ),
-                Commands.runOnce(modules::commandWheelsToZero)
-        );
-    }
-
-
 
     SendableChooser<Command> loadAutonomous() {
-        double ramFireSpeed = COMMANDS.ramFireSpeed_mechanismRotationsPerSecond();
-        double deadline_seconds = COMMANDS.groupDeadline_seconds();
-
-
-
-        var twoNoteCompatLeftBlue = twoNoteCompatStyle("twoNoteCompatLeft", ramFireSpeed, deadline_seconds);
-        var twoNoteCompatRightBlue = twoNoteCompatStyle("twoNoteCompatRight", ramFireSpeed, deadline_seconds);
-
-        ChoreoTrajectory[] shootLeaveArr = TrajLoadingUtil.getAllTrajectories("shootGetFar");
-
-        var shootLeave = new SequentialCommandGroup(
-                new PlaceOdometryCommand(shootLeaveArr[0], odometry),
-                new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                Commands.waitSeconds(8),
-                followTrajectory(shootLeaveArr[0]),
-                Commands.runOnce(modules::commandWheelsToZero)
-        );
-
-
-
-        ChoreoTrajectory[] threeNoteArr = TrajLoadingUtil.getAllTrajectories("threeNote");
-
-
-        var threeNote = new SequentialCommandGroup(
-                new PlaceOdometryCommand(threeNoteArr[0], odometry),
-                new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                new ReadyWhileMovingGroundIntakeCommand(
-                        followTrajectory(threeNoteArr[0]),
-                        noteManagementSubsystem, groundIntakeSubsystem
-                ),
-                new ReadyWhileMovingShootCommand(
-                        followTrajectory(threeNoteArr[1]),
-                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                ),
-                new ReadyWhileMovingGroundIntakeCommand(
-                        followTrajectory(threeNoteArr[2]),
-                        noteManagementSubsystem, groundIntakeSubsystem
-                ),
-                new ReadyWhileMovingShootCommand(
-                        followTrajectory(threeNoteArr[3]),
-                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                ),
-                Commands.runOnce(modules::commandWheelsToZero)
-        );
-
-
-        //var fourNoteAugment = twoNoteCompatStyle("fourNoteAugment",ramFireSpeed, deadline_seconds);
-
-
-        ChoreoTrajectory[] fourNoteArr = TrajLoadingUtil.getAllTrajectories("fourNote");
-
-        var fourNote = new SequentialCommandGroup(
-                new PlaceOdometryCommand(fourNoteArr[0], odometry),
-                new FireMakeReadyGroup(flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed),
-                new ReadyWhileMovingGroundIntakeCommand(
-                        followTrajectory(fourNoteArr[0]),
-                        noteManagementSubsystem, groundIntakeSubsystem
-                ),
-                new ReadyWhileMovingShootCommand(
-                        followTrajectory(fourNoteArr[1]),
-                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                ),
-                Commands.waitSeconds(0.2),
-                new PlaceOdometryCommand(fourNoteArr[2], odometry),
-                new ReadyWhileMovingGroundIntakeCommand(
-                        followTrajectory(fourNoteArr[2]),
-                        noteManagementSubsystem, groundIntakeSubsystem
-                ),
-                new ReadyWhileMovingShootCommand(
-                        followTrajectory(fourNoteArr[3]),
-                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                ),
-                //new PlaceOdometryCommand(fourNoteArr[4], odometry),
-                new ReadyWhileMovingGroundIntakeCommand(
-                        followTrajectory(fourNoteArr[4]),
-                        noteManagementSubsystem, groundIntakeSubsystem
-                ),
-                new ReadyWhileMovingShootCommand(
-                        followTrajectory(fourNoteArr[5]),
-                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                ),
-                //new PlaceOdometryCommand(fourNoteArr[0], odometry), //TODO
-                Commands.waitSeconds(0.25),
-                Commands.runOnce(modules::commandWheelsToZero)
-        );
-
-        ChoreoTrajectory[] fourToFiveArr = TrajLoadingUtil.getAllTrajectories("fourToFive");
-        var fourToFive = new SequentialCommandGroup(
-                new PlaceOdometryCommand(fourToFiveArr[0], odometry),
-                followTrajectory(fourToFiveArr[0]),
-                new ReadyWhileMovingGroundIntakeCommand(
-                        followTrajectory(fourToFiveArr[1]),
-                        noteManagementSubsystem, groundIntakeSubsystem
-                ),
-                followTrajectory(fourToFiveArr[2]),
-                new ReadyWhileMovingShootCommand(
-                        followTrajectory(fourToFiveArr[3]),
-                        flywheelSubsystem, noteManagementSubsystem, groundIntakeSubsystem, ramFireSpeed, deadline_seconds
-                )
-        );
-
-        var fiveNote = new SequentialCommandGroup(
-                fourNote.asProxy(),
-                fourToFive.asProxy()
-        );
-
-
-        ChoreoTrajectory[] taxiArr = TrajLoadingUtil.getAllTrajectories("waitTaxi");
-        var taxi = new SequentialCommandGroup(
-                new PlaceOdometryCommand(taxiArr[0], odometry),
-                followTrajectory(taxiArr[0]),
-                Commands.runOnce(modules::commandWheelsToZero)
-        );
-
-
         SendableChooser<Command> chooser = new SendableChooser<>();
-        //chooser.addOption("twoNote", twoNote);
-        chooser.addOption("taxi", taxi);
-        chooser.addOption("shootGetFar", shootLeave);
-        chooser.addOption("threeNote", threeNote);
-        chooser.setDefaultOption("fourNote (RUN THIS ONE)", fourNote);
-        chooser.addOption("fiveNote (SKETCHY)", fiveNote);
-        chooser.addOption("fourToFive (SKETCHY)", fourToFive);
-        chooser.addOption("doNothing", Commands.waitSeconds(1));
-        chooser.addOption("twoNoteCompatRight (blue relative)", twoNoteCompatRightBlue);
-        chooser.addOption("twoNoteCompatLeft (blue relative)", twoNoteCompatLeftBlue);
-
         SmartDashboard.putData("Path", chooser);
         return chooser;
     }
@@ -620,7 +428,6 @@ public class RobotContainer {
 
         return new Odometry(
                 modules,
-                visionSubsystem,
                 new SwerveDrivePoseEstimator( //The auto path will reset all of this data anyways
                         kinematics,
                         new Rotation2d(),
@@ -633,49 +440,7 @@ public class RobotContainer {
         ); //TODO
     }
 
-    VisionSubsystem loadVisionSubsystem() {
-        if (DISABLER.vision_disabled()) {
-            return MockingUtil.buddy(VisionSubsystem.class);
-        }
 
-        PhotonCamera camera1;
-        PhotonCamera camera2;
-        camera1 = new PhotonCamera(CAMERAS.camera1Name());
-        camera2 = new PhotonCamera(CAMERAS.camera2Name());
-//        PhotonCameraSim camera = new PhotonCameraSim(camera2);
-//        camera.close();
-
-        // replace later when lil maddie makes a mattlib deserializer TODO
-        Transform3d robotToCam1 = new Transform3d(CAMERAS.camera1TranslationOffset(), CAMERAS.camera1RotationOffset());
-        // using multi tag localization
-        PhotonPoseEstimator photonPoseEstimator1 = new PhotonPoseEstimator(
-                VisionSubsystem.LAYOUT,
-                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-                camera1,
-                robotToCam1
-        );
-
-
-        Transform3d robotToCam2 = new Transform3d(CAMERAS.camera2TranslationOffset(), CAMERAS.camera2RotationOffset());
-        PhotonPoseEstimator photonPoseEstimator2 = new PhotonPoseEstimator(
-                VisionSubsystem.LAYOUT,
-                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-                camera2,
-                robotToCam2
-        );
-
-        photonPoseEstimator1.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
-        photonPoseEstimator2.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
-
-        return new VisionSubsystem(
-                camera1,
-                camera2,
-                photonPoseEstimator1,
-                photonPoseEstimator2,
-                new AprilTagDetector()
-        );
-
-    }
 
     ClimberSubsystem loadClimberSubsystem() {
         ILinearController leftClimber;

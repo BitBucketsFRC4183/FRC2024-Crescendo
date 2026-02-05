@@ -22,14 +22,12 @@ import java.util.Optional;
 public class Odometry implements IMattlibHooked {
 
     final Modules modules;
-    final VisionSubsystem visionSubsystem;
     final SwerveDrivePoseEstimator odometry;
     final SwerveDriveKinematics kinematics;
     final IGyro gyro;
 
     final Component odometryComponent;
 
-    public boolean visionOdometry;
 
     public interface Component extends INetworkedComponent {
         @Conf("pigeon_can_id") int pigeonCanId();
@@ -54,14 +52,12 @@ public class Odometry implements IMattlibHooked {
     double lastTimestamp_seconds = 0;
 
 
-    public Odometry(Modules modules, VisionSubsystem visionSubsystem, SwerveDrivePoseEstimator odometry, IGyro gyro, SwerveDriveKinematics kinematics, Component odometryComponent) {
+    public Odometry(Modules modules, SwerveDrivePoseEstimator odometry, IGyro gyro, SwerveDriveKinematics kinematics, Component odometryComponent) {
         this.modules = modules;
-        this.visionSubsystem = visionSubsystem;
         this.kinematics = kinematics;
         this.odometry = odometry;
         this.gyro = gyro;
         this.odometryComponent = odometryComponent;
-        this.visionOdometry = true;
 
         mattRegister();
     }
@@ -77,18 +73,6 @@ public class Odometry implements IMattlibHooked {
     public void logicPeriodic() {
         odometry.update(gyro.rotation_initializationRelative(), modules.currentPositions());
 
-        if (Robot.isReal()) {
-            //VISION
-            Optional<EstimatedRobotPose> optVisionPose = visionSubsystem.estimateVisionRobotPose();
-            if (optVisionPose.isPresent()) {
-                Pose2d visionPose = optVisionPose.get().estimatedPose.toPose2d();
-                RobotContainer.VISION.log_final_pose(visionPose);
-                if (this.visionOdometry) {odometry.addVisionMeasurement(visionPose, optVisionPose.get().timestampSeconds);}
-            }
-        } else {
-            Optional<EstimatedRobotPose> optEsmPose = visionSubsystem.estimateVisionRobotPose();
-            optEsmPose.ifPresent(esmPose -> RobotContainer.VISION.log_final_pose(esmPose.estimatedPose.toPose2d()));
-        }
     }
 
 

@@ -14,7 +14,6 @@ public class Robot extends CachingTimedRobot {
     @Override
     public void robotInit() {
         container = new RobotContainer();
-
         container.robotInit();
     }
 

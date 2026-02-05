@@ -16,8 +16,6 @@ public class ToggleVisionOdometryCommand extends Command {
 
     @Override
     public void execute() {
-        odometrySubsystem.visionOdometry = !odometrySubsystem.visionOdometry;
-        RobotContainer.VISION.log_vision_odometry_disabled(odometrySubsystem.visionOdometry);
     }
 
     @Override

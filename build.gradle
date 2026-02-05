@@ -28,9 +28,7 @@ deploy {
             debug = project.frc.getDebugOrDefault(false)
             artifacts {
                 frcJava(getArtifactTypeClass('FRCJavaArtifact')) {
-                    /*gcType = edu.wpi.first.gradlerio.deploy.roborio.GarbageCollectorType.Other
-                    jvmArgs << '' +
-                            '-XX:+UseG1GC'*/
+
                 }
                 frcStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {
                     files = project.fileTree('src/main/deploy')

@@ -8,7 +8,7 @@
 
 # Disabler
 [disabler]
-vision_disabled = false
+vision_disabled = true
 drive_disabled = false
 flywheel_disabled = false
 odometry_disabled = false
